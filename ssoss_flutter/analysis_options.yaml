@@ -1,0 +1,123 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    # 암시적 타입 캐스팅 금지
+    strict-casts: true
+
+    # 타입 추론 실패 시 dynamic 허용하지 않음
+    strict-inference: true
+
+    # List, Map 등의 Raw Type 사용 금지
+    # List items = []; ❌
+    # List<String> items = []; ✅
+    strict-raw-types: true
+
+  errors:
+    # freezed, json_serializable 사용 시 발생하는 경고 무시
+    invalid_annotation_target: ignore
+
+linter:
+  rules:
+
+    # =========================
+    # 코드 스타일
+    # =========================
+
+    # 작은따옴표 사용 권장
+    # "hello" -> 'hello'
+    prefer_single_quotes: true
+
+    # Flutter Widget에서 child를 마지막에 배치
+    # 가독성 향상
+    sort_child_properties_last: true
+
+    # 여러 줄 파라미터 시 마지막 콤마 필수
+    # 자동 포맷팅 품질 향상
+    require_trailing_commas: true
+
+    # 80자 제한 사용 안 함
+    # Flutter Widget 코드 특성상 너무 불편함
+    lines_longer_than_80_chars: false
+
+    # =========================
+    # 안정성
+    # =========================
+
+    # print 사용 금지
+    # debugPrint 또는 logger 사용
+    avoid_print: true
+
+    # dynamic 객체의 메서드 호출 금지
+    avoid_dynamic_calls: true
+
+    # 빈 else 블록 금지
+    avoid_empty_else: true
+
+    # void 함수에서 null 반환 금지
+    avoid_returning_null_for_void: true
+
+    # main 함수 제외한 Future<void> 대신 void async 사용 금지
+    avoid_void_async: true
+
+    # StreamSubscription dispose 누락 방지
+    cancel_subscriptions: true
+
+    # Sink.close() 누락 방지
+    close_sinks: true
+
+    # Future 결과 무시 금지
+    discarded_futures: true
+
+    # await 누락 방지
+    # 의도적으로 무시하려면 unawaited() 사용
+    unawaited_futures: true
+
+    # =========================
+    # 가독성 / 유지보수
+    # =========================
+
+    # public 함수 반환 타입 명시
+    # dynamic 추론 방지
+    always_declare_return_types: true
+
+    # required 파라미터를 앞에 배치
+    always_put_required_named_parameters_first: true
+
+    # 변경되지 않는 필드는 final 사용
+    prefer_final_fields: true
+
+    # 변경되지 않는 지역변수는 final 사용
+    prefer_final_locals: true
+
+    # 생성자 const 사용 권장
+    prefer_const_constructors: true
+
+    # 불변 컬렉션 const 사용 권장
+    prefer_const_literals_to_create_immutables: true
+
+    # 불필요한 람다 제거
+    # () => foo() -> foo
+    unnecessary_lambdas: true
+
+    # return await 제거
+    # return await repo.get();
+    # return repo.get();
+    unnecessary_await_in_return: true
+
+    # 불필요한 괄호 제거
+    unnecessary_parenthesis: true
+
+    # =========================
+    # 아키텍처
+    # =========================
+
+    # Utility 클래스 허용
+    avoid_classes_with_only_static_members: false
+
+    # 추상 메서드 1개짜리 인터페이스 허용
+    one_member_abstracts: false
+
+    # public API 문서 강제 안 함
+    # 사내 프로젝트 기준
+    public_member_api_docs: false
