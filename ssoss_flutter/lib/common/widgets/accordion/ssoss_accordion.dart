@@ -38,8 +38,8 @@ class SsossAccordion extends StatelessWidget {
     final resolvedIconColor =
         iconColor ?? (isOpen ? AppColors.black : AppColors.neutral700);
     final titleTextStyle = showLeadingIcon || leading != null
-        ? AppTextStyles.b5
-        : AppTextStyles.b4;
+        ? AppTextStyles.h8
+        : AppTextStyles.h6;
     final titleLetterSpacing =
         showLeadingIcon || leading != null ? -0.14 : -0.16;
 
@@ -62,6 +62,7 @@ class SsossAccordion extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: titleTextStyle.copyWith(
                     color: resolvedTitleColor,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: titleLetterSpacing,
                   ),
                 ),
