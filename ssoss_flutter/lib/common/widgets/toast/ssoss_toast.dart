@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -18,7 +20,8 @@ class SsossToast extends StatelessWidget {
     super.key,
     this.type = SsossToastType.success,
     this.caption,
-    this.width = 320,
+    this.width,
+    this.maxWidth = 320,
     this.showIcon = true,
     this.icon,
     this.backgroundColor,
@@ -37,6 +40,7 @@ class SsossToast extends StatelessWidget {
   final SsossToastType type;
   final String? caption;
   final double? width;
+  final double maxWidth;
   final bool showIcon;
   final Widget? icon;
   final Color? backgroundColor;
@@ -59,61 +63,194 @@ class SsossToast extends StatelessWidget {
     final resolvedTitleColor = titleColor ?? style.titleColor;
     final resolvedCaptionColor = captionColor ?? AppColors.neutral500;
 
-    return Container(
-      width: width,
-      padding: padding ?? const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: backgroundColor ?? style.backgroundColor,
-        borderRadius: resolvedBorderRadius,
-        border: Border.all(color: borderColor ?? style.borderColor),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (showIcon) ...[
-            SizedBox.square(
-              dimension: 20,
-              child: Center(
-                child: icon ??
-                    SvgPicture.asset(
-                      style.iconAsset,
-                      width: 20,
-                      height: 20,
-                    ),
-              ),
-            ),
-            SizedBox(width: gap),
-          ],
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: (titleStyle ?? AppTextStyles.h8).copyWith(
-                    color: resolvedTitleColor,
-                    letterSpacing: -0.14,
-                  ),
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: Container(
+        width: width,
+        padding: padding ?? const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: backgroundColor ?? style.backgroundColor,
+          borderRadius: resolvedBorderRadius,
+          border: Border.all(color: borderColor ?? style.borderColor),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (showIcon) ...[
+              SizedBox.square(
+                dimension: 20,
+                child: Center(
+                  child: icon ??
+                      SvgPicture.asset(
+                        style.iconAsset,
+                        width: 20,
+                        height: 20,
+                      ),
                 ),
-                if (_hasCaption) ...[
-                  SizedBox(height: contentGap),
+              ),
+              SizedBox(width: gap),
+            ],
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   Text(
-                    caption!,
+                    title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: (captionStyle ?? AppTextStyles.b6).copyWith(
-                      color: resolvedCaptionColor,
-                      letterSpacing: -0.12,
+                    style: (titleStyle ?? AppTextStyles.h8).copyWith(
+                      color: resolvedTitleColor,
+                      letterSpacing: -0.14,
                     ),
                   ),
+                  if (_hasCaption) ...[
+                    SizedBox(height: contentGap),
+                    Text(
+                      caption!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: (captionStyle ?? AppTextStyles.b6).copyWith(
+                        color: resolvedCaptionColor,
+                        letterSpacing: -0.12,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+void showSsossToast(
+  BuildContext context, {
+  required String title,
+  SsossToastType type = SsossToastType.success,
+  String? caption,
+  Duration duration = const Duration(seconds: 2),
+  Alignment alignment = Alignment.topCenter,
+  EdgeInsetsGeometry margin = const EdgeInsets.only(top: 16),
+  double maxWidth = 320,
+}) {
+  final overlay = Overlay.of(context, rootOverlay: true);
+  late final OverlayEntry entry;
+
+  entry = OverlayEntry(
+    builder: (context) {
+      return _SsossToastOverlay(
+        duration: duration,
+        alignment: alignment,
+        margin: margin,
+        onDismissed: () => entry.remove(),
+        child: SsossToast(
+          title: title,
+          type: type,
+          caption: caption,
+          maxWidth: maxWidth,
+        ),
+      );
+    },
+  );
+
+  overlay.insert(entry);
+}
+
+class _SsossToastOverlay extends StatefulWidget {
+  const _SsossToastOverlay({
+    required this.child,
+    required this.duration,
+    required this.alignment,
+    required this.margin,
+    required this.onDismissed,
+  });
+
+  final Widget child;
+  final Duration duration;
+  final Alignment alignment;
+  final EdgeInsetsGeometry margin;
+  final VoidCallback onDismissed;
+
+  @override
+  State<_SsossToastOverlay> createState() => _SsossToastOverlayState();
+}
+
+class _SsossToastOverlayState extends State<_SsossToastOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+  late final Animation<Offset> _offset;
+  var _isDismissing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 180),
+      reverseDuration: const Duration(milliseconds: 160),
+    );
+    _opacity = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOut,
+      reverseCurve: Curves.easeIn,
+    );
+    _offset = Tween<Offset>(
+      begin: const Offset(0, -0.12),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    unawaited(_controller.forward());
+    unawaited(Future<void>.delayed(widget.duration, _dismiss));
+  }
+
+  Future<void> _dismiss() async {
+    if (!mounted || _isDismissing) {
+      return;
+    }
+
+    _isDismissing = true;
+    await _controller.reverse();
+
+    if (mounted) {
+      widget.onDismissed();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: SafeArea(
+          child: Align(
+            alignment: widget.alignment,
+            child: Padding(
+              padding: widget.margin,
+              child: FadeTransition(
+                opacity: _opacity,
+                child: SlideTransition(
+                  position: _offset,
+                  child: widget.child,
+                ),
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
