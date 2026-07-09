@@ -51,6 +51,7 @@ extension LoginEventPatterns on LoginEvent {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(NaverLoginRequested value)? naverLoginRequested,
+    TResult Function(AppleLoginRequested value)? appleLoginRequested,
     TResult Function(WithdrawRequested value)? withdrawRequested,
     TResult Function(SessionRestoreRequested value)? sessionRestoreRequested,
     TResult Function(LogoutRequested value)? logoutRequested,
@@ -60,6 +61,8 @@ extension LoginEventPatterns on LoginEvent {
     switch (_that) {
       case NaverLoginRequested() when naverLoginRequested != null:
         return naverLoginRequested(_that);
+      case AppleLoginRequested() when appleLoginRequested != null:
+        return appleLoginRequested(_that);
       case WithdrawRequested() when withdrawRequested != null:
         return withdrawRequested(_that);
       case SessionRestoreRequested() when sessionRestoreRequested != null:
@@ -87,6 +90,7 @@ extension LoginEventPatterns on LoginEvent {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(NaverLoginRequested value) naverLoginRequested,
+    required TResult Function(AppleLoginRequested value) appleLoginRequested,
     required TResult Function(WithdrawRequested value) withdrawRequested,
     required TResult Function(SessionRestoreRequested value)
         sessionRestoreRequested,
@@ -96,6 +100,8 @@ extension LoginEventPatterns on LoginEvent {
     switch (_that) {
       case NaverLoginRequested():
         return naverLoginRequested(_that);
+      case AppleLoginRequested():
+        return appleLoginRequested(_that);
       case WithdrawRequested():
         return withdrawRequested(_that);
       case SessionRestoreRequested():
@@ -120,6 +126,7 @@ extension LoginEventPatterns on LoginEvent {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(NaverLoginRequested value)? naverLoginRequested,
+    TResult? Function(AppleLoginRequested value)? appleLoginRequested,
     TResult? Function(WithdrawRequested value)? withdrawRequested,
     TResult? Function(SessionRestoreRequested value)? sessionRestoreRequested,
     TResult? Function(LogoutRequested value)? logoutRequested,
@@ -128,6 +135,8 @@ extension LoginEventPatterns on LoginEvent {
     switch (_that) {
       case NaverLoginRequested() when naverLoginRequested != null:
         return naverLoginRequested(_that);
+      case AppleLoginRequested() when appleLoginRequested != null:
+        return appleLoginRequested(_that);
       case WithdrawRequested() when withdrawRequested != null:
         return withdrawRequested(_that);
       case SessionRestoreRequested() when sessionRestoreRequested != null:
@@ -154,6 +163,7 @@ extension LoginEventPatterns on LoginEvent {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? naverLoginRequested,
+    TResult Function()? appleLoginRequested,
     TResult Function()? withdrawRequested,
     TResult Function()? sessionRestoreRequested,
     TResult Function()? logoutRequested,
@@ -163,6 +173,8 @@ extension LoginEventPatterns on LoginEvent {
     switch (_that) {
       case NaverLoginRequested() when naverLoginRequested != null:
         return naverLoginRequested();
+      case AppleLoginRequested() when appleLoginRequested != null:
+        return appleLoginRequested();
       case WithdrawRequested() when withdrawRequested != null:
         return withdrawRequested();
       case SessionRestoreRequested() when sessionRestoreRequested != null:
@@ -190,6 +202,7 @@ extension LoginEventPatterns on LoginEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() naverLoginRequested,
+    required TResult Function() appleLoginRequested,
     required TResult Function() withdrawRequested,
     required TResult Function() sessionRestoreRequested,
     required TResult Function() logoutRequested,
@@ -198,6 +211,8 @@ extension LoginEventPatterns on LoginEvent {
     switch (_that) {
       case NaverLoginRequested():
         return naverLoginRequested();
+      case AppleLoginRequested():
+        return appleLoginRequested();
       case WithdrawRequested():
         return withdrawRequested();
       case SessionRestoreRequested():
@@ -222,6 +237,7 @@ extension LoginEventPatterns on LoginEvent {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? naverLoginRequested,
+    TResult? Function()? appleLoginRequested,
     TResult? Function()? withdrawRequested,
     TResult? Function()? sessionRestoreRequested,
     TResult? Function()? logoutRequested,
@@ -230,6 +246,8 @@ extension LoginEventPatterns on LoginEvent {
     switch (_that) {
       case NaverLoginRequested() when naverLoginRequested != null:
         return naverLoginRequested();
+      case AppleLoginRequested() when appleLoginRequested != null:
+        return appleLoginRequested();
       case WithdrawRequested() when withdrawRequested != null:
         return withdrawRequested();
       case SessionRestoreRequested() when sessionRestoreRequested != null:
@@ -259,6 +277,26 @@ class NaverLoginRequested implements LoginEvent {
   @override
   String toString() {
     return 'LoginEvent.naverLoginRequested()';
+  }
+}
+
+/// @nodoc
+
+class AppleLoginRequested implements LoginEvent {
+  const AppleLoginRequested();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is AppleLoginRequested);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.appleLoginRequested()';
   }
 }
 

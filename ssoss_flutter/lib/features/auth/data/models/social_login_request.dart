@@ -8,7 +8,10 @@ part 'social_login_request.g.dart';
 abstract class SocialLoginRequest with _$SocialLoginRequest {
   const factory SocialLoginRequest({
     required String provider,
-    required String accessToken,
+    String? accessToken,
+    /// Apple credential (Phase 7).
+    String? identityToken,
+    String? authorizationCode,
   }) = _SocialLoginRequest;
 
   factory SocialLoginRequest.fromJson(Map<String, dynamic> json) =>

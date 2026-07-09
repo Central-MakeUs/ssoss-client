@@ -21,8 +21,8 @@
 ## 사전 확인 (구현 시작 전 필수)
 
 - [x] `docs/adr/` 목록 확인 — 관련 프로젝트 전역 기술 결정 파악
-- [x] `docs/specs/auth/prd.md` 읽기 완료 — 요구사항·범위 파악
-- [x] `docs/specs/auth/tdd.md` 읽기 완료 — 레이어별 설계 및 설계 결정 파악
+- [x] `docs/specs/auth/naver-login/prd.md` 읽기 완료 — 요구사항·범위 파악
+- [x] `docs/specs/auth/naver-login/tdd.md` 읽기 완료 — 레이어별 설계 및 설계 결정 파악
 - [x] `docs/architecture/overview.md` 읽기 완료 — 아키텍처 규칙 확인
 - [x] `docs/architecture/feature-structure.md` 읽기 완료 — 피처 구조 확인
 - [x] `docs/architecture/coding-conventions.md` 읽기 완료 — 코딩 컨벤션 확인
@@ -91,7 +91,7 @@
 
 - [x] **2-7** `core/service/secure_storage_service.dart` — `flutter_secure_storage` 래퍼 (`SecureStorageService`)
 - [x] **2-8** `data/datasources/naver_auth_datasource.dart` 인터페이스 + `naver_auth_datasource_impl.dart`
-  - `flutter_naver_login` 으로 `login()`(NaverAccountModel 반환), `logout()`, `logoutAndDeleteToken()`
+  - `flutter_naver_login` 으로 `login()`(NaverAccountModel 반환), `logout()` (연동 revoke는 서버 처리, `logoutAndDeleteToken` 미사용)
   - 사용자 취소 시 `AuthException.cancelled` throw
 - [x] **2-9** `data/datasources/auth_local_datasource.dart` 인터페이스 + Impl
   - `SecureStorageService` 로 토큰 저장/조회/삭제 (`jsonEncode` 로 토큰 직렬화)
@@ -105,7 +105,7 @@
 - [x] **2-12** `data/repositories/auth_repository_impl.dart`
   - `loginWithNaver()`: `NaverAuthDatasource.login()` → (데모) `DemoAuthRemoteDatasource` 로 세션 생성 → `AuthLocalDatasource.saveTokens()` → `AuthSession` 반환
   - `restoreSession()`: 저장 토큰 조회 → 세션 복원(없으면 null)
-  - `logout()`: 로컬 토큰 삭제만 수행 (네이버 연동 유지)
+  - `logout()`: 로컬 토큰 삭제 + 네이버 SDK `logout()` 세션 해제 (연동 revoke 없음)
   - `refreshTokens()`: Phase 7 에서 실제 구현 (데모 단계는 미지원/스텁)
 
 ---
@@ -159,13 +159,13 @@
 
 ## Phase 6 — 회원 탈퇴(withdraw) 우선 구현
 
-> 소셜 연동 해제는 회원 탈퇴와 동일하게 취급한다. API 연동 전에 로컬/SDK 기준 withdraw 흐름을 먼저 완성한다.
+> 소셜 연동 revoke는 서버에서 처리한다. API 연동 전에는 로컬 세션/토큰 삭제만 수행한다.
 
 - [x] **6-1** Domain 확장
   - [x] `AuthRepository.withdraw()` 추가
   - [x] `WithdrawUseCase` 추가
 - [x] **6-2** Data 확장 (데모 우선)
-  - [x] `AuthRepositoryImpl.withdraw()` 구현 (로컬 토큰 삭제 + 네이버 SDK `logoutAndDeleteToken()`)
+  - [x] `AuthRepositoryImpl.withdraw()` 구현 (로컬 토큰 삭제만. 네이버 연동 revoke는 서버 처리)
   - [x] `AuthRemoteDatasource.withdraw()` 는 시그니처만 정의하고 실제 호출은 후순위
 - [x] **6-3** Presentation 확장
   - [x] `LoginEvent.withdrawRequested` 추가
@@ -188,7 +188,7 @@
 - [ ] **7-4** `refreshTokens()` 실구현 + Dio 토큰 인터셉터(access 만료 시 refresh, 실패 시 로그아웃)
 - [ ] **7-4-1** 전역 인증 인터셉터 구성: 어떤 API 호출이든 401/만료 감지 시 refresh API 호출
 - [ ] **7-4-2** refresh 성공 시 원요청 자동 재시도, 실패 시 로컬 세션 정리 + 로그인 화면 이동
-- [ ] **7-5** `withdraw()` 에 API 호출 연결(실패 시 롤백/메시지 정책 반영)
+- [ ] **7-5** `withdraw()` 에 API 호출 연결(실패 시 롤백/메시지 정책 반영). 서버에서 네이버 연동 revoke 수행
 - [ ] **7-6** `DemoAuthRemoteDatasource` 제거 또는 개발 flavor 전용으로 격리
 - [ ] **7-7** FR-02·FR-07·FR-11 동작 검증
 
@@ -227,4 +227,4 @@
 |------|------|---------|
 | 2026-07-03 | 백엔드 연동은 서버팀 협의 후 진행(후순위). 그 전까지 데모 경로(`DemoAuthRemoteDatasource`)로 로그인 흐름 동작 | Open |
 | 2026-07-03 | 네이버 키는 iOS/Android 네이티브 secret 파일로 관리(설정 완료). Dart/env 에 네이버 키 불필요 → TDD 의 "env 네이버 Client ID/Secret" 언급은 미적용. `API_BASE_URL` 은 Phase 7 에서 사용 | Resolved |
-| 2026-07-03 | 로그인 안정화 이후 회원 탈퇴 기능 테스트를 바로 진행하기 위해 Phase 8(테스트) 체크리스트를 추가 | Open |
+| 2026-07-07 | 탈퇴 시 네이버 연동 revoke는 서버 처리. 클라이언트는 로컬 세션 삭제만 (`logoutAndDeleteToken` 제거) | Resolved |

@@ -8,9 +8,6 @@ abstract class NaverAuthDatasource {
   /// 인증 실패 시 `AuthException.socialFailed` 를 throw 한다.
   Future<NaverAccountModel> login();
 
-  /// 네이버 세션 해제.
+  /// 네이버 로그아웃
   Future<void> logout();
-
-  /// 네이버 세션과 저장 토큰을 모두 삭제한다.
-  Future<void> logoutAndDeleteToken();
 }

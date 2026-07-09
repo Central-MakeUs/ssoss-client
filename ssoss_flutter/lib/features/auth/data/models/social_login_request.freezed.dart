@@ -15,7 +15,11 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SocialLoginRequest {
   String get provider;
-  String get accessToken;
+  String? get accessToken;
+
+  /// Apple credential (Phase 7).
+  String? get identityToken;
+  String? get authorizationCode;
 
   /// Create a copy of SocialLoginRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -36,16 +40,21 @@ mixin _$SocialLoginRequest {
             (identical(other.provider, provider) ||
                 other.provider == provider) &&
             (identical(other.accessToken, accessToken) ||
-                other.accessToken == accessToken));
+                other.accessToken == accessToken) &&
+            (identical(other.identityToken, identityToken) ||
+                other.identityToken == identityToken) &&
+            (identical(other.authorizationCode, authorizationCode) ||
+                other.authorizationCode == authorizationCode));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, provider, accessToken);
+  int get hashCode => Object.hash(
+      runtimeType, provider, accessToken, identityToken, authorizationCode);
 
   @override
   String toString() {
-    return 'SocialLoginRequest(provider: $provider, accessToken: $accessToken)';
+    return 'SocialLoginRequest(provider: $provider, accessToken: $accessToken, identityToken: $identityToken, authorizationCode: $authorizationCode)';
   }
 }
 
@@ -55,7 +64,11 @@ abstract mixin class $SocialLoginRequestCopyWith<$Res> {
           SocialLoginRequest value, $Res Function(SocialLoginRequest) _then) =
       _$SocialLoginRequestCopyWithImpl;
   @useResult
-  $Res call({String provider, String accessToken});
+  $Res call(
+      {String provider,
+      String? accessToken,
+      String? identityToken,
+      String? authorizationCode});
 }
 
 /// @nodoc
@@ -72,17 +85,27 @@ class _$SocialLoginRequestCopyWithImpl<$Res>
   @override
   $Res call({
     Object? provider = null,
-    Object? accessToken = null,
+    Object? accessToken = freezed,
+    Object? identityToken = freezed,
+    Object? authorizationCode = freezed,
   }) {
     return _then(_self.copyWith(
       provider: null == provider
           ? _self.provider
           : provider // ignore: cast_nullable_to_non_nullable
               as String,
-      accessToken: null == accessToken
+      accessToken: freezed == accessToken
           ? _self.accessToken
           : accessToken // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
+      identityToken: freezed == identityToken
+          ? _self.identityToken
+          : identityToken // ignore: cast_nullable_to_non_nullable
+              as String?,
+      authorizationCode: freezed == authorizationCode
+          ? _self.authorizationCode
+          : authorizationCode // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -180,13 +203,16 @@ extension SocialLoginRequestPatterns on SocialLoginRequest {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String provider, String accessToken)? $default, {
+    TResult Function(String provider, String? accessToken,
+            String? identityToken, String? authorizationCode)?
+        $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _SocialLoginRequest() when $default != null:
-        return $default(_that.provider, _that.accessToken);
+        return $default(_that.provider, _that.accessToken, _that.identityToken,
+            _that.authorizationCode);
       case _:
         return orElse();
     }
@@ -207,12 +233,15 @@ extension SocialLoginRequestPatterns on SocialLoginRequest {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String provider, String accessToken) $default,
+    TResult Function(String provider, String? accessToken,
+            String? identityToken, String? authorizationCode)
+        $default,
   ) {
     final _that = this;
     switch (_that) {
       case _SocialLoginRequest():
-        return $default(_that.provider, _that.accessToken);
+        return $default(_that.provider, _that.accessToken, _that.identityToken,
+            _that.authorizationCode);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -232,12 +261,15 @@ extension SocialLoginRequestPatterns on SocialLoginRequest {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String provider, String accessToken)? $default,
+    TResult? Function(String provider, String? accessToken,
+            String? identityToken, String? authorizationCode)?
+        $default,
   ) {
     final _that = this;
     switch (_that) {
       case _SocialLoginRequest() when $default != null:
-        return $default(_that.provider, _that.accessToken);
+        return $default(_that.provider, _that.accessToken, _that.identityToken,
+            _that.authorizationCode);
       case _:
         return null;
     }
@@ -248,14 +280,23 @@ extension SocialLoginRequestPatterns on SocialLoginRequest {
 @JsonSerializable()
 class _SocialLoginRequest implements SocialLoginRequest {
   const _SocialLoginRequest(
-      {required this.provider, required this.accessToken});
+      {required this.provider,
+      this.accessToken,
+      this.identityToken,
+      this.authorizationCode});
   factory _SocialLoginRequest.fromJson(Map<String, dynamic> json) =>
       _$SocialLoginRequestFromJson(json);
 
   @override
   final String provider;
   @override
-  final String accessToken;
+  final String? accessToken;
+
+  /// Apple credential (Phase 7).
+  @override
+  final String? identityToken;
+  @override
+  final String? authorizationCode;
 
   /// Create a copy of SocialLoginRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -280,16 +321,21 @@ class _SocialLoginRequest implements SocialLoginRequest {
             (identical(other.provider, provider) ||
                 other.provider == provider) &&
             (identical(other.accessToken, accessToken) ||
-                other.accessToken == accessToken));
+                other.accessToken == accessToken) &&
+            (identical(other.identityToken, identityToken) ||
+                other.identityToken == identityToken) &&
+            (identical(other.authorizationCode, authorizationCode) ||
+                other.authorizationCode == authorizationCode));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, provider, accessToken);
+  int get hashCode => Object.hash(
+      runtimeType, provider, accessToken, identityToken, authorizationCode);
 
   @override
   String toString() {
-    return 'SocialLoginRequest(provider: $provider, accessToken: $accessToken)';
+    return 'SocialLoginRequest(provider: $provider, accessToken: $accessToken, identityToken: $identityToken, authorizationCode: $authorizationCode)';
   }
 }
 
@@ -301,7 +347,11 @@ abstract mixin class _$SocialLoginRequestCopyWith<$Res>
       __$SocialLoginRequestCopyWithImpl;
   @override
   @useResult
-  $Res call({String provider, String accessToken});
+  $Res call(
+      {String provider,
+      String? accessToken,
+      String? identityToken,
+      String? authorizationCode});
 }
 
 /// @nodoc
@@ -318,17 +368,27 @@ class __$SocialLoginRequestCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   $Res call({
     Object? provider = null,
-    Object? accessToken = null,
+    Object? accessToken = freezed,
+    Object? identityToken = freezed,
+    Object? authorizationCode = freezed,
   }) {
     return _then(_SocialLoginRequest(
       provider: null == provider
           ? _self.provider
           : provider // ignore: cast_nullable_to_non_nullable
               as String,
-      accessToken: null == accessToken
+      accessToken: freezed == accessToken
           ? _self.accessToken
           : accessToken // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
+      identityToken: freezed == identityToken
+          ? _self.identityToken
+          : identityToken // ignore: cast_nullable_to_non_nullable
+              as String?,
+      authorizationCode: freezed == authorizationCode
+          ? _self.authorizationCode
+          : authorizationCode // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }

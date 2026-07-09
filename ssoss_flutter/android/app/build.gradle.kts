@@ -18,7 +18,7 @@ val secretsProperties = Properties().apply {
 fun secret(key: String): String = secretsProperties.getProperty(key) ?: ""
 
 android {
-    namespace = "com.place.ssoss"
+    namespace = "com.ssoss.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -32,7 +32,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.place.ssoss"
+        applicationId = "com.ssoss.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

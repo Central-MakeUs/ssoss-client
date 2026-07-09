@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/auth_session.dart';
+import '../../domain/entities/social_provider.dart';
 import 'auth_token_model.dart';
 import 'user_model.dart';
 
@@ -19,8 +20,8 @@ abstract class AuthResponseModel with _$AuthResponseModel {
 }
 
 extension AuthResponseModelX on AuthResponseModel {
-  AuthSession toEntity() => AuthSession(
-        user: user.toEntity(),
+  AuthSession toEntity(SocialProvider provider) => AuthSession(
+        user: user.toEntity(provider),
         tokens: token.toEntity(),
       );
 }

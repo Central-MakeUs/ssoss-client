@@ -73,11 +73,6 @@ class NaverAuthDatasourceImpl implements NaverAuthDatasource {
     await FlutterNaverLogin.logOut();
   }
 
-  @override
-  Future<void> logoutAndDeleteToken() async {
-    await FlutterNaverLogin.logOutAndDeleteToken();
-  }
-
   Future<String?> _resolveAccessToken(NaverLoginResult result) async {
     final tokenFromResult = result.accessToken?.accessToken;
     dev.log('[resolveAccessToken] tokenFromResult=$tokenFromResult',

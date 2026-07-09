@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'core/config/app_config.dart';
 import 'core/network/network_providers.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
+import 'features/auth/domain/usecases/login_with_apple_usecase.dart';
 import 'features/auth/domain/usecases/login_with_naver_usecase.dart';
 import 'features/auth/domain/usecases/logout_usecase.dart';
 import 'features/auth/domain/usecases/restore_session_usecase.dart';
@@ -57,6 +58,7 @@ class SsossAppScope extends StatelessWidget {
           final repository = context.read<AuthRepository>();
           return LoginBloc(
             loginWithNaver: LoginWithNaverUseCase(repository),
+            loginWithApple: LoginWithAppleUseCase(repository),
             withdraw: WithdrawUseCase(repository),
             logout: LogoutUseCase(repository),
             restoreSession: RestoreSessionUseCase(repository),

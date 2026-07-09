@@ -20,11 +20,11 @@ abstract class UserModel with _$UserModel {
 }
 
 extension UserModelX on UserModel {
-  User toEntity() => User(
+  User toEntity(SocialProvider provider) => User(
         id: id,
         nickname: nickname,
         email: email,
         profileImageUrl: profileImageUrl,
-        provider: SocialProvider.naver,
+        provider: provider,
       );
 }

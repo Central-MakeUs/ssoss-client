@@ -12,4 +12,6 @@ abstract class AuthRemoteDatasource {
   Future<AuthTokenModel> refresh(String refreshToken);
 
   Future<void> logout();
+
+  Future<void> withdraw();
 }

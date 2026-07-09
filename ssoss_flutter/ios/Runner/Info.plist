@@ -52,7 +52,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>${NAVER_APP_URL_SCHEME}</string>
+				<string>$(NAVER_APP_URL_SCHEME)</string>
 			</array>
 		</dict>
 	</array>
@@ -64,13 +64,13 @@
 	</array>
 
 	<key>NidUrlScheme</key>
-	<string>${NAVER_APP_URL_SCHEME}</string>
+	<string>$(NAVER_APP_URL_SCHEME)</string>
 	<key>NidClientID</key>
-	<string>${NAVER_CLIENT_ID}</string>
+	<string>$(NAVER_CLIENT_ID)</string>
 	<key>NidClientSecret</key>
-	<string>${NAVER_CLIENT_SECRET}</string>
+	<string>$(NAVER_CLIENT_SECRET)</string>
 	<key>NidAppName</key>
-	<string>${NAVER_CLIENT_NAME}</string>
+	<string>$(NAVER_CLIENT_NAME)</string>
 
     <!-- http allows configurations -->
     <key>NSAppTransportSecurity</key>
@@ -87,12 +87,13 @@
              <true/>
           </dict>
           <key>naver.net</key>
-        <dict>
+          <dict>
              <key>NSExceptionRequiresForwardSecrecy</key>
              <false/>
              <key>NSIncludesSubdomains</key>
              <true/>
-        </dict>
+          </dict>
+       </dict>
     </dict>
 </dict>
 </plist>

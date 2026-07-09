@@ -1,4 +1,4 @@
-package com.place.ssoss
+package com.ssoss.app
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

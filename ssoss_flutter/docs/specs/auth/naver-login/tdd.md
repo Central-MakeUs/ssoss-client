@@ -138,7 +138,8 @@ abstract class AuthRepository {
   /// 앱 로그아웃: 로컬 토큰만 삭제한다. (네이버 연동 유지)
   Future<void> logout();
 
-  /// 회원 탈퇴(=연동 해제): 로컬 세션/토큰 정리 + 네이버 토큰 삭제.
+  /// 회원 탈퇴: 로컬 세션/토큰 정리.
+  /// 네이버 연동 revoke는 서버에서 처리한다 (Phase 7 withdraw API).
   /// 백엔드 연동 시 withdraw API 호출을 포함한다.
   Future<void> withdraw();
 
@@ -212,15 +213,14 @@ extension AuthResponseModelX on AuthResponseModel {
 
 | 파일 경로 | 클래스명 | 종류 | 설명 |
 |-----------|---------|------|------|
-| `data/datasources/naver_auth_datasource.dart` | `NaverAuthDatasource` | External(SDK) | `flutter_naver_login` 래퍼. 네이버 로그인/로그아웃/토큰삭제, 네이버 accessToken 반환 |
+| `data/datasources/naver_auth_datasource.dart` | `NaverAuthDatasource` | External(SDK) | `flutter_naver_login` 래퍼. 네이버 로그인·세션 해제(`logout`). 연동 revoke(`logoutAndDeleteToken`)는 사용하지 않음 |
 | `data/datasources/auth_remote_datasource.dart` | `AuthRemoteDatasource` | Remote(Dio) | 백엔드 소셜 로그인/토큰 갱신/로그아웃/탈퇴 API 호출 |
 | `data/datasources/auth_local_datasource.dart` | `AuthLocalDatasource` | Local(SecureStorage) | access/refresh 토큰 저장·조회·삭제 |
 
 ```dart
 abstract class NaverAuthDatasource {
-  Future<String> login();  // 네이버 accessToken, 취소 시 AuthException throw
-  Future<void> logout();
-  Future<void> logoutAndDeleteToken();
+  Future<NaverAccountModel> login();  // 취소 시 AuthException throw
+  Future<void> logout();  // SDK 세션 해제. FR-05 로그아웃 시 Repository에서 호출
 }
 
 abstract class AuthRemoteDatasource {
@@ -349,7 +349,7 @@ final GoRouter appRouter = GoRouter(
 | `POST` | `/api/v1/auth/social/login` | 네이버 accessToken 전달 → 자체 JWT 발급 | N |
 | `POST` | `/api/v1/auth/token/refresh` | refresh 토큰으로 access/refresh 재발급 (전역 인터셉터에서 사용) | N |
 | `POST` | `/api/v1/auth/logout` | 서버 세션/토큰 무효화 | Y |
-| `POST` | `/api/v1/auth/withdraw` | 회원 탈퇴 처리(계정 비활성/삭제 정책은 백엔드 기준) | Y |
+| `POST` | `/api/v1/auth/withdraw` | 회원 탈퇴 + **서버에서 네이버 연동 revoke** | Y |
 
 > 실제 엔드포인트 경로·필드명은 백엔드 스펙 확정 시 갱신한다.
 
@@ -421,7 +421,7 @@ class AuthException extends AppException {
 
 | 항목 | 전략 | 저장소 |
 |------|------|--------|
-| access/refresh 토큰 | 로그인 성공 시 저장, 앱 시작 시 읽어 자동 로그인, **로그아웃 시 로컬 토큰만 삭제** | `flutter_secure_storage` |
+| access/refresh 토큰 | 로그인 성공 시 저장, 앱 시작 시 읽어 자동 로그인, **로그아웃 시 로컬 토큰 삭제 + 네이버 SDK 세션 해제** | `flutter_secure_storage` |
 | 탈퇴 직후 세션 | 로컬 토큰/세션 데이터를 즉시 삭제하고 미인증 상태로 강제 전환 | `flutter_secure_storage` |
 | 사용자 프로필(User) | 인메모리(Bloc State) 보관, 영속 캐시는 하지 않음(필요 시 추후 추가) | 없음 |
 
@@ -471,7 +471,7 @@ class AuthProviders {
 | `LoginBloc` | Unit Test (bloc_test) | NaverLoginRequested → loading → authenticated / failure, SessionRestore, Logout 상태 전이 |
 | `LoginPage` | Widget Test | 네이버 버튼 렌더링, 탭 시 이벤트 발생, loading/failure UI 표시 |
 | `WithdrawUseCase` | Unit Test | 정상 탈퇴, 원격 실패 예외 전파 |
-| `AuthRepositoryImpl.withdraw()` | Unit Test | local clear + naver logoutAndDeleteToken, (백엔드 연동 시 remote withdraw 선호출) 검증 |
+| `AuthRepositoryImpl.withdraw()` | Unit Test | local clear만 수행, (Phase 7) remote withdraw 선호출 검증 |
 | `Dio Auth Interceptor` | Unit/Integration Test | 임의 API 401 응답 시 refresh 후 원요청 자동 재시도, refresh 실패 시 로그아웃 |
 
 ---
@@ -488,7 +488,7 @@ class AuthProviders {
 | 토큰 저장 | **`flutter_secure_storage`** | 토큰은 민감 정보, 안전 저장 필요 (신규 의존성 추가) |
 | 소셜 provider | `SocialProvider` **enum + provider 파라미터 추상화** | 카카오·애플 확장 대비 (PRD FR-08) |
 | 네이버 SDK 위치 | `data/datasources/naver_auth_datasource.dart` | 외부 데이터 소스로 취급, Repository 에서 조합 |
-| 탈퇴 처리 순서 | **remote withdraw(가능 시) → local clear → naver logoutAndDeleteToken** | 서버/클라이언트 세션 불일치 최소화 |
+| 탈퇴 처리 순서 | **remote withdraw(가능 시) → local clear** | 서버에서 네이버 연동 revoke. 클라이언트 `logoutAndDeleteToken` 미사용 |
 | 토큰 갱신 위치 | **Dio 전역 인증 인터셉터** | 어떤 API 호출이든 만료 토큰을 공통 처리하기 위함 |
 
 ---

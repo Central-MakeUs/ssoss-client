@@ -3,13 +3,13 @@ import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import '../../domain/entities/auth_session.dart';
 import '../../domain/entities/auth_tokens.dart';
 import '../../domain/entities/social_provider.dart';
-import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../datasources/apple_auth_datasource.dart';
 import '../datasources/auth_local_datasource.dart';
 import '../datasources/demo_auth_remote_datasource.dart';
 import '../datasources/naver_auth_datasource.dart';
 import '../models/auth_response_model.dart';
-import '../models/auth_token_model.dart';
+import '../models/stored_auth_cache_model.dart';
 
 /// [AuthRepository] 데모 구현체.
 ///
@@ -18,13 +18,16 @@ import '../models/auth_token_model.dart';
 class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl({
     required NaverAuthDatasource naverDatasource,
+    required AppleAuthDatasource appleDatasource,
     required DemoAuthRemoteDatasource demoRemoteDatasource,
     required AuthLocalDatasource localDatasource,
   })  : _naverDatasource = naverDatasource,
+        _appleDatasource = appleDatasource,
         _demoRemoteDatasource = demoRemoteDatasource,
         _localDatasource = localDatasource;
 
   final NaverAuthDatasource _naverDatasource;
+  final AppleAuthDatasource _appleDatasource;
   final DemoAuthRemoteDatasource _demoRemoteDatasource;
   final AuthLocalDatasource _localDatasource;
 
@@ -32,35 +35,58 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<AuthSession> loginWithNaver() async {
     final account = await _naverDatasource.login();
     final response = await _demoRemoteDatasource.createSession(account);
-    await _localDatasource.saveTokens(response.token);
-    return response.toEntity();
+    final session = response.toEntity(SocialProvider.naver);
+    await _saveSession(
+      response: response,
+      provider: 'naver',
+      session: session,
+    );
+    return session;
+  }
+
+  @override
+  Future<AuthSession> loginWithApple() async {
+    final account = await _appleDatasource.login();
+    if (account.userIdentifier.isEmpty) {
+      throw AuthException.socialFailed('Apple 계정 정보를 가져오지 못했습니다.');
+    }
+    final response =
+        await _demoRemoteDatasource.createSessionFromApple(account);
+    final session = response.toEntity(SocialProvider.apple);
+    await _saveSession(
+      response: response,
+      provider: 'apple',
+      session: session,
+    );
+    return session;
   }
 
   @override
   Future<AuthSession?> restoreSession() async {
-    final token = await _localDatasource.readTokens();
-    if (token == null) return null;
+    final cache = await _localDatasource.readSession();
+    if (cache == null) return null;
 
-    final tokens = token.toEntity();
-    if (tokens.isExpired) {
+    final session = cache.toEntity();
+    if (session.tokens.isExpired) {
       await _localDatasource.clear();
       return null;
     }
-
-    // 데모 단계에서는 프로필을 영속화하지 않으므로 저장된 토큰만으로 세션을 복원한다.
-    // 백엔드 연동 시 저장 토큰으로 사용자 정보를 조회하도록 전환한다.
-    return AuthSession(user: _restoredDemoUser, tokens: tokens);
+    return session;
   }
 
   @override
   Future<void> logout() async {
+    final cache = await _localDatasource.readSession();
     await _localDatasource.clear();
+    if (cache?.provider == 'naver') {
+      await _naverDatasource.logout();
+    }
   }
 
   @override
   Future<void> withdraw() async {
+    // TODO: 서버 withdraw API 호출
     await _localDatasource.clear();
-    await _naverDatasource.logoutAndDeleteToken();
   }
 
   @override
@@ -69,9 +95,19 @@ class AuthRepositoryImpl implements AuthRepository {
     throw AuthException.unauthenticated('토큰 갱신은 아직 지원되지 않습니다.');
   }
 
-  static const User _restoredDemoUser = User(
-    id: 'demo-user',
-    nickname: '네이버 사용자',
-    provider: SocialProvider.naver,
-  );
+  Future<void> _saveSession({
+    required AuthResponseModel response,
+    required String provider,
+    required AuthSession session,
+  }) async {
+    await _localDatasource.saveSession(
+      StoredAuthCacheModel(
+        token: response.token,
+        provider: provider,
+        userId: session.user.id,
+        nickname: session.user.nickname,
+        email: session.user.email,
+      ),
+    );
+  }
 }

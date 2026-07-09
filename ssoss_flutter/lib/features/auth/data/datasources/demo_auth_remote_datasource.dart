@@ -1,3 +1,4 @@
+import '../models/apple_account_model.dart';
 import '../models/auth_response_model.dart';
 import '../models/auth_token_model.dart';
 import '../models/naver_account_model.dart';
@@ -23,6 +24,28 @@ class DemoAuthRemoteDatasource {
         nickname: account.nickname,
         email: account.email,
         profileImageUrl: account.profileImage,
+      ),
+      token: AuthTokenModel(
+        accessToken: 'demo-access-$issuedAt',
+        refreshToken: 'demo-refresh-$issuedAt',
+        expiresIn: const Duration(hours: 1).inSeconds,
+      ),
+    );
+  }
+
+  /// Apple 계정 정보로 데모 세션을 생성한다.
+  Future<AuthResponseModel> createSessionFromApple(
+    AppleAccountModel account,
+  ) async {
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+
+    final issuedAt = DateTime.now().millisecondsSinceEpoch;
+
+    return AuthResponseModel(
+      user: UserModel(
+        id: account.userIdentifier,
+        nickname: account.nickname,
+        email: account.email,
       ),
       token: AuthTokenModel(
         accessToken: 'demo-access-$issuedAt',

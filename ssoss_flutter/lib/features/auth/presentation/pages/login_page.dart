@@ -6,9 +6,10 @@ import 'package:ssoss_flutter/core/config/app_config.dart';
 import '../bloc/login_bloc.dart';
 import '../bloc/login_event.dart';
 import '../bloc/login_state.dart';
+import '../widgets/apple_login_button.dart';
 import '../widgets/naver_login_button.dart';
 
-/// 로그인 진입 화면. 네이버 로그인 버튼을 제공하고 [LoginBloc] 상태를 구독한다.
+/// 로그인 진입 화면. 네이버·Apple 로그인 버튼을 제공하고 [LoginBloc] 상태를 구독한다.
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
@@ -49,7 +50,7 @@ class LoginPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '네이버 계정으로 간편하게 시작하세요.',
+                      '네이버 또는 Apple 계정으로 간편하게 시작하세요.',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
@@ -60,6 +61,15 @@ class LoginPage extends StatelessWidget {
                         context
                             .read<LoginBloc>()
                             .add(const LoginEvent.naverLoginRequested());
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    AppleLoginButton(
+                      enabled: !isLoading,
+                      onPressed: () {
+                        context
+                            .read<LoginBloc>()
+                            .add(const LoginEvent.appleLoginRequested());
                       },
                     ),
                     const SizedBox(height: 16),

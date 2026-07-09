@@ -3,6 +3,8 @@ import 'package:provider/single_child_widget.dart';
 
 import 'package:ssoss_flutter/core/service/secure_storage_service.dart';
 
+import '../data/datasources/apple_auth_datasource.dart';
+import '../data/datasources/apple_auth_datasource_impl.dart';
 import '../data/datasources/auth_local_datasource.dart';
 import '../data/datasources/auth_local_datasource_impl.dart';
 import '../data/datasources/demo_auth_remote_datasource.dart';
@@ -22,16 +24,20 @@ class AuthProviders {
         Provider<NaverAuthDatasource>(
           create: (_) => const NaverAuthDatasourceImpl(),
         ),
+        Provider<AppleAuthDatasource>(
+          create: (_) => const AppleAuthDatasourceImpl(),
+        ),
         Provider<DemoAuthRemoteDatasource>(
           create: (_) => const DemoAuthRemoteDatasource(),
         ),
         Provider<AuthLocalDatasource>(
           create: (_) => AuthLocalDatasourceImpl(SecureStorageService()),
         ),
-        ProxyProvider3<NaverAuthDatasource, DemoAuthRemoteDatasource,
-            AuthLocalDatasource, AuthRepository>(
-          update: (_, naver, demoRemote, local, __) => AuthRepositoryImpl(
+        ProxyProvider4<NaverAuthDatasource, AppleAuthDatasource,
+            DemoAuthRemoteDatasource, AuthLocalDatasource, AuthRepository>(
+          update: (_, naver, apple, demoRemote, local, __) => AuthRepositoryImpl(
             naverDatasource: naver,
+            appleDatasource: apple,
             demoRemoteDatasource: demoRemote,
             localDatasource: local,
           ),
