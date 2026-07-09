@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -5,8 +7,18 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// secrets.properties 에서 네이버 키를 읽어온다.
+val secretsProperties = Properties().apply {
+    val secretsFile = rootProject.file("secrets.properties")
+    if (secretsFile.exists()) {
+        secretsFile.inputStream().use { load(it) }
+    }
+}
+
+fun secret(key: String): String = secretsProperties.getProperty(key) ?: ""
+
 android {
-    namespace = "com.place.ssoss"
+    namespace = "com.ssoss.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,11 +32,15 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.place.ssoss"
+        applicationId = "com.ssoss.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        resValue("string", "naver_client_id", secret("NAVER_CLIENT_ID"))
+        resValue("string", "naver_client_secret", secret("NAVER_CLIENT_SECRET"))
+        resValue("string", "naver_client_name", secret("NAVER_CLIENT_NAME"))
     }
 
     flavorDimensions += "environment"
