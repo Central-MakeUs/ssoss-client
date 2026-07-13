@@ -98,22 +98,20 @@ class SsossToast extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                     style: (titleStyle ?? AppTextStyles.h8).copyWith(
                       color: resolvedTitleColor,
-                      letterSpacing: -0.14,
+                      decoration: TextDecoration.none,
+                      decorationColor: Colors.transparent,
                     ),
                   ),
                   if (_hasCaption) ...[
                     SizedBox(height: contentGap),
                     Text(
                       caption!,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                       style: (captionStyle ?? AppTextStyles.b6).copyWith(
                         color: resolvedCaptionColor,
-                        letterSpacing: -0.12,
+                        decoration: TextDecoration.none,
+                        decorationColor: Colors.transparent,
                       ),
                     ),
                   ],
@@ -133,8 +131,8 @@ void showSsossToast(
   SsossToastType type = SsossToastType.success,
   String? caption,
   Duration duration = const Duration(seconds: 2),
-  Alignment alignment = Alignment.topCenter,
-  EdgeInsetsGeometry margin = const EdgeInsets.only(top: 16),
+  Alignment alignment = Alignment.bottomCenter,
+  EdgeInsetsGeometry margin = const EdgeInsets.only(bottom: 88),
   double maxWidth = 320,
 }) {
   final overlay = Overlay.of(context, rootOverlay: true);
@@ -146,6 +144,7 @@ void showSsossToast(
         duration: duration,
         alignment: alignment,
         margin: margin,
+        slideFromBottom: alignment.y >= 0,
         onDismissed: () => entry.remove(),
         child: SsossToast(
           title: title,
@@ -166,6 +165,7 @@ class _SsossToastOverlay extends StatefulWidget {
     required this.duration,
     required this.alignment,
     required this.margin,
+    required this.slideFromBottom,
     required this.onDismissed,
   });
 
@@ -173,6 +173,7 @@ class _SsossToastOverlay extends StatefulWidget {
   final Duration duration;
   final Alignment alignment;
   final EdgeInsetsGeometry margin;
+  final bool slideFromBottom;
   final VoidCallback onDismissed;
 
   @override
@@ -200,7 +201,7 @@ class _SsossToastOverlayState extends State<_SsossToastOverlay>
       reverseCurve: Curves.easeIn,
     );
     _offset = Tween<Offset>(
-      begin: const Offset(0, -0.12),
+      begin: Offset(0, widget.slideFromBottom ? 0.12 : -0.12),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
@@ -241,11 +242,20 @@ class _SsossToastOverlayState extends State<_SsossToastOverlay>
             alignment: widget.alignment,
             child: Padding(
               padding: widget.margin,
-              child: FadeTransition(
-                opacity: _opacity,
-                child: SlideTransition(
-                  position: _offset,
-                  child: widget.child,
+              child: DefaultTextStyle(
+                style: DefaultTextStyle.of(context).style.copyWith(
+                      decoration: TextDecoration.none,
+                      decorationColor: Colors.transparent,
+                    ),
+                child: FadeTransition(
+                  opacity: _opacity,
+                  child: SlideTransition(
+                    position: _offset,
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: widget.child,
+                    ),
+                  ),
                 ),
               ),
             ),

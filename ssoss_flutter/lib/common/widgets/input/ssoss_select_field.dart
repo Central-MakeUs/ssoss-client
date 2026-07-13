@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -20,6 +21,7 @@ class SsossSelectField extends StatelessWidget {
     this.valueColor,
     this.placeholderColor,
     this.iconColor,
+    this.width,
   });
 
   final String? value;
@@ -34,6 +36,7 @@ class SsossSelectField extends StatelessWidget {
   final Color? valueColor;
   final Color? placeholderColor;
   final Color? iconColor;
+  final double? width;
 
   static const double height = 40;
   static const double _borderRadius = 8;
@@ -66,6 +69,7 @@ class SsossSelectField extends StatelessWidget {
         onTap: enabled ? onTap : null,
         borderRadius: BorderRadius.circular(_borderRadius),
         child: Container(
+          width: width,
           height: height,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
@@ -76,13 +80,10 @@ class SsossSelectField extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: Text(
+                child: AppText(
                   _hasValue ? value! : placeholder,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.b5.copyWith(
                     color: resolvedTextColor,
-                    letterSpacing: -0.14,
                   ),
                 ),
               ),

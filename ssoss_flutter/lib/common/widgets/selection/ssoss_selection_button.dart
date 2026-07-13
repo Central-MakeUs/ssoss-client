@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
 enum SsossSelectionButtonType {
   normal,
+  disabled,
+  hover,
   primarySelected,
-  secondarySelected,
 }
 
 class SsossSelectionButton extends StatelessWidget {
@@ -94,13 +96,10 @@ class SsossSelectionButton extends StatelessWidget {
                 ),
                 SizedBox(width: gap),
               ],
-              Text(
+              AppText(
                 label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
                 style: (textStyle ?? AppTextStyles.h8).copyWith(
                   color: resolvedForegroundColor,
-                  letterSpacing: -0.14,
                 ),
               ),
             ],
@@ -130,17 +129,23 @@ class _SelectionButtonStyle {
           borderColor: AppColors.neutral300,
           foregroundColor: AppColors.neutral500,
         );
+      case SsossSelectionButtonType.disabled:
+        return const _SelectionButtonStyle(
+          backgroundColor: AppColors.neutral50,
+          borderColor: AppColors.neutral300,
+          foregroundColor: AppColors.neutral400,
+        );
+      case SsossSelectionButtonType.hover:
+        return const _SelectionButtonStyle(
+          backgroundColor: AppColors.neutral50,
+          borderColor: AppColors.neutral400,
+          foregroundColor: AppColors.neutral800,
+        );
       case SsossSelectionButtonType.primarySelected:
         return const _SelectionButtonStyle(
           backgroundColor: AppColors.primary50,
-          borderColor: AppColors.primary700,
-          foregroundColor: AppColors.primary900,
-        );
-      case SsossSelectionButtonType.secondarySelected:
-        return const _SelectionButtonStyle(
-          backgroundColor: AppColors.secondary50,
-          borderColor: AppColors.secondary500,
-          foregroundColor: AppColors.secondary900,
+          borderColor: AppColors.primary300,
+          foregroundColor: AppColors.primary500,
         );
     }
   }

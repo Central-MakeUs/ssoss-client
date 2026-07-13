@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 /// Apple 브랜드 로그인 버튼. iOS 에서만 노출한다.
 class AppleLoginButton extends StatelessWidget {
@@ -39,7 +40,7 @@ class AppleLoginButton extends StatelessWidget {
             children: [
               Icon(Icons.apple, size: 24),
               SizedBox(width: 12),
-              Text(
+              AppText(
                 'Apple로 로그인',
                 style: TextStyle(
                   fontSize: 16,

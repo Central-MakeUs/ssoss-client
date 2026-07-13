@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
@@ -11,7 +12,6 @@ class SsossTab extends StatelessWidget {
     this.onTap,
     this.chipLabel,
     this.child,
-    this.width = 80,
     this.height = 43,
     this.padding,
     this.gap = 6,
@@ -33,7 +33,6 @@ class SsossTab extends StatelessWidget {
   final VoidCallback? onTap;
   final String? chipLabel;
   final Widget? child;
-  final double? width;
   final double height;
   final EdgeInsetsGeometry? padding;
   final double gap;
@@ -67,7 +66,6 @@ class SsossTab extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Container(
-          width: width,
           height: height,
           padding: padding ??
               const EdgeInsets.symmetric(
@@ -84,21 +82,16 @@ class SsossTab extends StatelessWidget {
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: width == null ? MainAxisSize.min : MainAxisSize.max,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Flexible(
-                child: child ??
-                    Text(
-                      label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: (textStyle ?? AppTextStyles.h6).copyWith(
-                        color: resolvedTextColor,
-                        letterSpacing: -0.16,
-                      ),
+              child ??
+                  AppText(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: (textStyle ?? AppTextStyles.h6).copyWith(
+                      color: resolvedTextColor,
                     ),
-              ),
+                  ),
               if (_hasChip) ...[
                 SizedBox(width: gap),
                 _SsossTabChip(
@@ -144,14 +137,11 @@ class _SsossTabChip extends StatelessWidget {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Text(
+      child: AppText(
         label,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.center,
         style: (textStyle ?? AppTextStyles.b5).copyWith(
           color: foregroundColor,
-          letterSpacing: -0.14,
         ),
       ),
     );

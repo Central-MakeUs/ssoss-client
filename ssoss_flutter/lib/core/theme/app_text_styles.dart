@@ -13,6 +13,7 @@ class AppTextStyles {
     fontSize: 32,
     fontWeight: FontWeight.w700,
     height: 1.2,
+    letterSpacing: -0.32,
     color: AppColors.black,
   );
 
@@ -21,6 +22,7 @@ class AppTextStyles {
     fontSize: 28,
     fontWeight: FontWeight.w600,
     height: 1.2,
+    letterSpacing: -0.28,
     color: AppColors.black,
   );
 
@@ -29,6 +31,7 @@ class AppTextStyles {
     fontSize: 24,
     fontWeight: FontWeight.w600,
     height: 1.2,
+    letterSpacing: -0.24,
     color: AppColors.black,
   );
 
@@ -37,6 +40,7 @@ class AppTextStyles {
     fontSize: 20,
     fontWeight: FontWeight.w600,
     height: 1.2,
+    letterSpacing: -0.2,
     color: AppColors.black,
   );
 
@@ -44,7 +48,8 @@ class AppTextStyles {
     fontFamily: fontFamily,
     fontSize: 18,
     fontWeight: FontWeight.w600,
-    height: 1.4,
+    height: 1.5,
+    letterSpacing: -0.18,
     color: AppColors.black,
   );
 
@@ -52,7 +57,8 @@ class AppTextStyles {
     fontFamily: fontFamily,
     fontSize: 16,
     fontWeight: FontWeight.w600,
-    height: 1.4,
+    height: 1.5,
+    letterSpacing: -0.16,
     color: AppColors.black,
   );
 
@@ -61,6 +67,7 @@ class AppTextStyles {
     fontSize: 15,
     fontWeight: FontWeight.w600,
     height: 1.4,
+    letterSpacing: -0.15,
     color: AppColors.black,
   );
 
@@ -69,6 +76,7 @@ class AppTextStyles {
     fontSize: 14,
     fontWeight: FontWeight.w600,
     height: 1.4,
+    letterSpacing: -0.14,
     color: AppColors.black,
   );
 
@@ -77,6 +85,7 @@ class AppTextStyles {
     fontSize: 12,
     fontWeight: FontWeight.w600,
     height: 1.4,
+    letterSpacing: -0.12,
     color: AppColors.black,
   );
 
@@ -85,6 +94,7 @@ class AppTextStyles {
     fontSize: 24,
     fontWeight: FontWeight.w400,
     height: 1.2,
+    letterSpacing: -0.24,
     color: AppColors.black,
   );
 
@@ -93,6 +103,7 @@ class AppTextStyles {
     fontSize: 20,
     fontWeight: FontWeight.w400,
     height: 1.2,
+    letterSpacing: -0.2,
     color: AppColors.black,
   );
 
@@ -100,7 +111,8 @@ class AppTextStyles {
     fontFamily: fontFamily,
     fontSize: 18,
     fontWeight: FontWeight.w400,
-    height: 1.4,
+    height: 1.5,
+    letterSpacing: -0.18,
     color: AppColors.black,
   );
 
@@ -108,7 +120,8 @@ class AppTextStyles {
     fontFamily: fontFamily,
     fontSize: 16,
     fontWeight: FontWeight.w400,
-    height: 1.4,
+    height: 1.5,
+    letterSpacing: -0.16,
     color: AppColors.black,
   );
 
@@ -117,6 +130,7 @@ class AppTextStyles {
     fontSize: 14,
     fontWeight: FontWeight.w400,
     height: 1.4,
+    letterSpacing: -0.14,
     color: AppColors.black,
   );
 
@@ -125,6 +139,7 @@ class AppTextStyles {
     fontSize: 12,
     fontWeight: FontWeight.w400,
     height: 1.4,
+    letterSpacing: -0.12,
     color: AppColors.black,
   );
 
@@ -133,6 +148,7 @@ class AppTextStyles {
     fontSize: 10,
     fontWeight: FontWeight.w400,
     height: 1.4,
+    letterSpacing: -0.1,
     color: AppColors.black,
   );
 }

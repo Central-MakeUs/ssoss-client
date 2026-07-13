@@ -30,6 +30,7 @@ class SsossTextField extends StatelessWidget {
     this.textColor,
     this.hintColor,
     this.searchIconColor,
+    this.width,
   });
 
   final TextEditingController? controller;
@@ -53,6 +54,7 @@ class SsossTextField extends StatelessWidget {
   final Color? textColor;
   final Color? hintColor;
   final Color? searchIconColor;
+  final double? width;
 
   static const double height = 40;
   static const double _borderRadius = 8;
@@ -66,9 +68,9 @@ class SsossTextField extends StatelessWidget {
         ? fillColor ?? AppColors.white
         : disabledFillColor ?? AppColors.neutral50;
     final textStyle = showSearchIcon ? AppTextStyles.b5 : AppTextStyles.b4;
-    final letterSpacing = showSearchIcon ? -0.14 : -0.16;
 
     return SizedBox(
+      width: width,
       height: height,
       child: TextField(
         controller: controller,
@@ -84,13 +86,11 @@ class SsossTextField extends StatelessWidget {
         cursorColor: focusedBorderColor ?? AppColors.primary400,
         style: textStyle.copyWith(
           color: resolvedTextColor,
-          letterSpacing: letterSpacing,
         ),
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: textStyle.copyWith(
             color: resolvedHintColor,
-            letterSpacing: letterSpacing,
           ),
           filled: true,
           fillColor: resolvedFillColor,

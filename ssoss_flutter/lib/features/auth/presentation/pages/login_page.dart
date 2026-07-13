@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ssoss_flutter/core/config/app_config.dart';
@@ -28,7 +29,7 @@ class LoginPage extends StatelessWidget {
             if (state is LoginFailure) {
               ScaffoldMessenger.of(context)
                 ..hideCurrentSnackBar()
-                ..showSnackBar(SnackBar(content: Text(state.message)));
+                ..showSnackBar(SnackBar(content: AppText(state.message)));
             }
           },
           builder: (context, state) {
@@ -43,13 +44,13 @@ class LoginPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
+                    AppText(
                       config.flavor.displayName,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 8),
-                    Text(
+                    AppText(
                       '네이버 또는 Apple 계정으로 간편하게 시작하세요.',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium,
@@ -84,7 +85,7 @@ class LoginPage extends StatelessWidget {
                               ),
                             )
                           : errorMessage != null
-                              ? Text(
+                              ? AppText(
                                   '오류: $errorMessage',
                                   textAlign: TextAlign.center,
                                   style: Theme.of(context)

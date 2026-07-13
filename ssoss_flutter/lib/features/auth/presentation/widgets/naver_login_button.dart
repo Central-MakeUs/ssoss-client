@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 /// 네이버 브랜드 로그인 버튼.
 class NaverLoginButton extends StatelessWidget {
@@ -42,7 +43,7 @@ class NaverLoginButton extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text(
+                child: const AppText(
                   'N',
                   style: TextStyle(
                     color: _naverGreen,
@@ -52,7 +53,7 @@ class NaverLoginButton extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
+              const AppText(
                 '네이버로 로그인',
                 style: TextStyle(
                   fontSize: 16,

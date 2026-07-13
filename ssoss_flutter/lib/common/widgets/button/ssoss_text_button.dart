@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
@@ -7,7 +8,6 @@ enum SsossTextButtonType {
   selected,
   hover,
   normal,
-  secondary,
 }
 
 class SsossTextButton extends StatelessWidget {
@@ -79,7 +79,7 @@ class SsossTextButton extends StatelessWidget {
           borderRadius: resolvedBorderRadius,
         ),
         child: Container(
-          width: width ?? 343,
+          width: width,
           padding: padding ??
               const EdgeInsets.symmetric(
                 horizontal: 16,
@@ -91,6 +91,7 @@ class SsossTextButton extends StatelessWidget {
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               if (icon != null) ...[
                 IconTheme(
@@ -99,38 +100,21 @@ class SsossTextButton extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
               ],
-              Flexible(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.h6.copyWith(
-                          color: resolvedTitleColor,
-                          letterSpacing: -0.16,
-                        ),
-                      ),
-                    ),
-                    if (_hasSubtitle) ...[
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          subtitle!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.b5.copyWith(
-                            color: resolvedSubtitleColor,
-                            letterSpacing: -0.14,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
+              AppText(
+                title,
+                style: AppTextStyles.h6.copyWith(
+                  color: resolvedTitleColor,
                 ),
               ),
+              if (_hasSubtitle) ...[
+                const SizedBox(width: 8),
+                AppText(
+                  subtitle!,
+                  style: AppTextStyles.b5.copyWith(
+                    color: resolvedSubtitleColor,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -157,13 +141,13 @@ class _TextButtonStyle {
       case SsossTextButtonType.selected:
         return const _TextButtonStyle(
           backgroundColor: AppColors.primary50,
-          borderColor: AppColors.primary700,
-          titleColor: AppColors.primary900,
+          borderColor: AppColors.primary300,
+          titleColor: AppColors.primary500,
           subtitleColor: AppColors.neutral600,
         );
       case SsossTextButtonType.hover:
         return const _TextButtonStyle(
-          backgroundColor: AppColors.neutral100,
+          backgroundColor: AppColors.neutral50,
           borderColor: AppColors.neutral400,
           titleColor: AppColors.neutral800,
           subtitleColor: AppColors.neutral500,
@@ -173,13 +157,6 @@ class _TextButtonStyle {
           backgroundColor: AppColors.white,
           borderColor: AppColors.neutral300,
           titleColor: AppColors.neutral600,
-          subtitleColor: AppColors.neutral500,
-        );
-      case SsossTextButtonType.secondary:
-        return const _TextButtonStyle(
-          backgroundColor: AppColors.secondary50,
-          borderColor: AppColors.secondary400,
-          titleColor: AppColors.secondary900,
           subtitleColor: AppColors.neutral500,
         );
     }

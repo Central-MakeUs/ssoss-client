@@ -8,8 +8,6 @@ class SsossToggle extends StatelessWidget {
     super.key,
     this.isDisabled = false,
     this.onChanged,
-    this.width = 44,
-    this.height = 22,
     this.thumbSize = 18,
     this.padding = const EdgeInsets.all(2),
     this.activeColor,
@@ -25,8 +23,6 @@ class SsossToggle extends StatelessWidget {
   final bool isChecked;
   final bool isDisabled;
   final ValueChanged<bool>? onChanged;
-  final double width;
-  final double height;
   final double thumbSize;
   final EdgeInsetsGeometry padding;
   final Color? activeColor;
@@ -39,6 +35,9 @@ class SsossToggle extends StatelessWidget {
   final Curve curve;
 
   bool get _isInteractive => !isDisabled && onChanged != null;
+
+  static const double _trackWidth = 44;
+  static const double _trackHeight = 22;
 
   @override
   Widget build(BuildContext context) {
@@ -53,8 +52,8 @@ class SsossToggle extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: _isInteractive ? () => onChanged!(!isChecked) : null,
         child: AnimatedContainer(
-          width: width,
-          height: height,
+          width: _trackWidth,
+          height: _trackHeight,
           padding: padding,
           duration: duration,
           curve: curve,

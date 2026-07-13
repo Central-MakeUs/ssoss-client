@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -7,8 +8,9 @@ import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
 enum SsossSquareSelectionButtonType {
   normal,
+  hover,
   primarySelected,
-  secondarySelected,
+  disabled,
 }
 
 class SsossSquareSelectionButton extends StatelessWidget {
@@ -21,7 +23,7 @@ class SsossSquareSelectionButton extends StatelessWidget {
     this.showIcon = true,
     this.icon,
     this.iconAsset = AppAssets.icArrowLeft,
-    this.width = 108,
+    this.width,
     this.height = 99,
     this.backgroundColor,
     this.borderColor,
@@ -42,7 +44,7 @@ class SsossSquareSelectionButton extends StatelessWidget {
   final bool showIcon;
   final Widget? icon;
   final String iconAsset;
-  final double width;
+  final double? width;
   final double height;
   final Color? backgroundColor;
   final Color? borderColor;
@@ -112,13 +114,10 @@ class SsossSquareSelectionButton extends StatelessWidget {
                 ),
                 SizedBox(height: gap),
               ],
-              Text(
+              AppText(
                 label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
                 style: (textStyle ?? AppTextStyles.h8).copyWith(
                   color: resolvedForegroundColor,
-                  letterSpacing: -0.14,
                 ),
               ),
             ],
@@ -145,20 +144,26 @@ class _SquareSelectionButtonStyle {
       case SsossSquareSelectionButtonType.normal:
         return const _SquareSelectionButtonStyle(
           backgroundColor: AppColors.white,
-          borderColor: AppColors.neutral300,
-          foregroundColor: AppColors.neutral500,
+          borderColor: AppColors.neutral200,
+          foregroundColor: AppColors.neutral400,
+        );
+      case SsossSquareSelectionButtonType.hover:
+        return const _SquareSelectionButtonStyle(
+          backgroundColor: AppColors.neutral50,
+          borderColor: AppColors.neutral400,
+          foregroundColor: AppColors.neutral800,
         );
       case SsossSquareSelectionButtonType.primarySelected:
         return const _SquareSelectionButtonStyle(
           backgroundColor: AppColors.primary50,
-          borderColor: AppColors.primary700,
-          foregroundColor: AppColors.primary900,
+          borderColor: AppColors.primary300,
+          foregroundColor: AppColors.primary500,
         );
-      case SsossSquareSelectionButtonType.secondarySelected:
+      case SsossSquareSelectionButtonType.disabled:
         return const _SquareSelectionButtonStyle(
-          backgroundColor: AppColors.secondary50,
-          borderColor: AppColors.secondary500,
-          foregroundColor: AppColors.secondary900,
+          backgroundColor: AppColors.neutral50,
+          borderColor: AppColors.neutral300,
+          foregroundColor: AppColors.neutral400,
         );
     }
   }

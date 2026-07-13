@@ -16,6 +16,7 @@ class SsossSelectDropdown extends StatelessWidget {
     this.highlightedIndex,
     this.onFieldTap,
     this.onOptionSelected,
+    this.width,
     this.fieldBorderColor,
     this.fieldFillColor,
     this.fieldValueColor,
@@ -39,6 +40,7 @@ class SsossSelectDropdown extends StatelessWidget {
   final int? highlightedIndex;
   final VoidCallback? onFieldTap;
   final ValueChanged<int>? onOptionSelected;
+  final double? width;
   final Color? fieldBorderColor;
   final Color? fieldFillColor;
   final Color? fieldValueColor;
@@ -64,6 +66,7 @@ class SsossSelectDropdown extends StatelessWidget {
           isOpen: isOpen,
           enabled: enabled,
           onTap: onFieldTap,
+          width: width,
           borderColor: fieldBorderColor,
           fillColor: fieldFillColor,
           valueColor: fieldValueColor,
@@ -98,6 +101,7 @@ class SsossSelectDropdown extends StatelessWidget {
         child: SsossSelectOption(
           value: options[index],
           state: _optionState(index),
+          width: width,
           onTap: onOptionSelected == null
               ? null
               : () => onOptionSelected?.call(index),

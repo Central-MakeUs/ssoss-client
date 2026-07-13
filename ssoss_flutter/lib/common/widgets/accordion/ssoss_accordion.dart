@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -17,6 +18,7 @@ class SsossAccordion extends StatelessWidget {
     this.iconColor,
     this.leadingIconColor,
     this.backgroundColor,
+    this.width,
   });
 
   final String title;
@@ -28,6 +30,7 @@ class SsossAccordion extends StatelessWidget {
   final Color? iconColor;
   final Color? leadingIconColor;
   final Color? backgroundColor;
+  final double? width;
 
   static const double height = 47;
   static const double _trailingIconSize = 20;
@@ -40,14 +43,13 @@ class SsossAccordion extends StatelessWidget {
     final titleTextStyle = showLeadingIcon || leading != null
         ? AppTextStyles.h8
         : AppTextStyles.h6;
-    final titleLetterSpacing =
-        showLeadingIcon || leading != null ? -0.14 : -0.16;
 
     return Material(
       color: backgroundColor ?? Colors.transparent,
       child: InkWell(
         onTap: onTap,
         child: SizedBox(
+          width: width,
           height: height,
           child: Row(
             children: [
@@ -56,14 +58,11 @@ class SsossAccordion extends StatelessWidget {
                 const SizedBox(width: 10),
               ],
               Expanded(
-                child: Text(
+                child: AppText(
                   title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                   style: titleTextStyle.copyWith(
                     color: resolvedTitleColor,
                     fontWeight: FontWeight.w700,
-                    letterSpacing: titleLetterSpacing,
                   ),
                 ),
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
@@ -9,7 +10,7 @@ class SsossSegmentControl extends StatelessWidget {
     required this.selectedIndex,
     super.key,
     this.onChanged,
-    this.width = 343,
+    this.width,
     this.height = 40,
     this.padding = const EdgeInsets.all(4),
     this.gap = 4,
@@ -39,6 +40,8 @@ class SsossSegmentControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final expands = width != null;
+
     return Container(
       width: width,
       height: height,
@@ -48,10 +51,25 @@ class SsossSegmentControl extends StatelessWidget {
         borderRadius: borderRadius ?? BorderRadius.circular(8),
       ),
       child: Row(
+        mainAxisSize: expands ? MainAxisSize.max : MainAxisSize.min,
         children: [
           for (var index = 0; index < labels.length; index++) ...[
-            Expanded(
-              child: _SsossSegmentItem(
+            if (expands)
+              Expanded(
+                child: _SsossSegmentItem(
+                  label: labels[index],
+                  isSelected: index == selectedIndex,
+                  onTap: onChanged == null ? null : () => onChanged!(index),
+                  selectedBackgroundColor:
+                      selectedBackgroundColor ?? AppColors.white,
+                  selectedColor: selectedColor ?? AppColors.neutral800,
+                  unselectedColor: unselectedColor ?? AppColors.neutral500,
+                  borderRadius: itemBorderRadius ?? BorderRadius.circular(6),
+                  textStyle: textStyle,
+                ),
+              )
+            else
+              _SsossSegmentItem(
                 label: labels[index],
                 isSelected: index == selectedIndex,
                 onTap: onChanged == null ? null : () => onChanged!(index),
@@ -62,7 +80,6 @@ class SsossSegmentControl extends StatelessWidget {
                 borderRadius: itemBorderRadius ?? BorderRadius.circular(6),
                 textStyle: textStyle,
               ),
-            ),
             if (index != labels.length - 1) SizedBox(width: gap),
           ],
         ],
@@ -110,14 +127,11 @@ class _SsossSegmentItem extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: borderRadius,
           ),
-          child: Text(
+          child: AppText(
             label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: (textStyle ?? AppTextStyles.h8).copyWith(
               color: foregroundColor,
-              letterSpacing: -0.14,
             ),
           ),
         ),

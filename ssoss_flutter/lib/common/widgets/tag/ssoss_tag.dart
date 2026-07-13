@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -7,7 +8,6 @@ import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
 enum SsossTagType {
   primary,
-  secondary,
   success,
   info,
   warning,
@@ -73,14 +73,11 @@ class SsossTag extends StatelessWidget {
           if (isIconOnly || showLeftIcon) _buildIcon(resolvedForegroundColor),
           if (!isIconOnly) ...[
             if (showLeftIcon) SizedBox(width: gap),
-            Text(
+            AppText(
               label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: (textStyle ?? AppTextStyles.b5).copyWith(
                 color: resolvedForegroundColor,
-                letterSpacing: -0.14,
               ),
             ),
             if (showRightIcon) ...[
@@ -127,11 +124,6 @@ class _TagStyle {
         return const _TagStyle(
           backgroundColor: AppColors.primary50,
           foregroundColor: AppColors.primary600,
-        );
-      case SsossTagType.secondary:
-        return const _TagStyle(
-          backgroundColor: AppColors.secondary50,
-          foregroundColor: AppColors.secondary600,
         );
       case SsossTagType.success:
         return const _TagStyle(
