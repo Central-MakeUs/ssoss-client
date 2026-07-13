@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
@@ -58,13 +59,10 @@ class SsossTooltip extends StatelessWidget {
                   ),
                 ],
           ),
-          child: Text(
+          child: AppText(
             message,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
             style: (textStyle ?? AppTextStyles.b5).copyWith(
               color: textColor,
-              letterSpacing: -0.14,
             ),
           ),
         ),

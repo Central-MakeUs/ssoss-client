@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -75,41 +76,45 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.white,
-      child: SizedBox(
-        height: height,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Row(
-            children: [
-              SizedBox(
-                width: _sideSlotWidth,
-                height: _sideSlotWidth,
-                child: showBackButton
-                    ? _AppBarIconButton(
-                        assetPath: AppAssets.icChevronLeft,
-                        semanticLabel: '뒤로가기',
-                        onTap: onBack,
-                      )
-                    : null,
-              ),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.h4.copyWith(
-                    color: AppColors.neutral800,
-                    letterSpacing: -0.2,
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: AppColors.neutral200),
+          ),
+        ),
+        child: SizedBox(
+          height: height,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: _sideSlotWidth,
+                  height: _sideSlotWidth,
+                  child: showBackButton
+                      ? _AppBarIconButton(
+                          assetPath: AppAssets.icChevronLeft,
+                          semanticLabel: '뒤로가기',
+                          onTap: onBack,
+                        )
+                      : null,
+                ),
+                Expanded(
+                  child: AppText(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.h4.copyWith(
+                      color: AppColors.neutral800,
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                width: _sideSlotWidth,
-                height: _sideSlotWidth,
-                child: _buildAction(),
-              ),
-            ],
+                SizedBox(
+                  width: _sideSlotWidth,
+                  height: _sideSlotWidth,
+                  child: _buildAction(),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -183,14 +188,13 @@ class _DoneActionButton extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Center(
-          child: Text(
+          child: AppText(
             '완료',
             maxLines: 1,
             overflow: TextOverflow.visible,
             textAlign: TextAlign.center,
-            style: AppTextStyles.h8.copyWith(
+            style: AppTextStyles.h6.copyWith(
               color: AppColors.primary600,
-              letterSpacing: -0.14,
             ),
           ),
         ),

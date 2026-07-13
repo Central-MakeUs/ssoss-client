@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -22,34 +23,42 @@ class SsossNavigationBar extends StatelessWidget {
   final SsossNavigationItem currentItem;
   final ValueChanged<SsossNavigationItem> onItemSelected;
 
-  static const double height = 111;
+  static const double _topPadding = 10;
+  static const double _contentHeight = 67;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: height,
+    return DecoratedBox(
       decoration: const BoxDecoration(
         color: AppColors.white,
         border: Border(
           top: BorderSide(color: AppColors.neutral200),
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 10, bottom: 34),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: SsossNavigationItem.values
-              .map(
-                (item) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: _SsossNavigationButton(
-                    item: item,
-                    isSelected: item == currentItem,
-                    onTap: () => onItemSelected(item),
-                  ),
-                ),
-              )
-              .toList(growable: false),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.only(top: _topPadding),
+          child: SizedBox(
+            height: _contentHeight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: SsossNavigationItem.values
+                  .map(
+                    (item) => Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: _SsossNavigationButton(
+                          item: item,
+                          isSelected: item == currentItem,
+                          onTap: () => onItemSelected(item),
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(growable: false),
+            ),
+          ),
         ),
       ),
     );
@@ -67,7 +76,6 @@ class _SsossNavigationButton extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  static const double _width = 70;
   static const double _iconSize = 30;
 
   @override
@@ -82,31 +90,27 @@ class _SsossNavigationButton extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: SizedBox(
-          width: _width,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SvgPicture.asset(
-                  item.assetPath,
-                  width: _iconSize,
-                  height: _iconSize,
-                  colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+          width: double.infinity,
+          height: double.infinity,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              SvgPicture.asset(
+                item.assetPath,
+                width: _iconSize,
+                height: _iconSize,
+                colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+              ),
+              const SizedBox(height: 8),
+              AppText(
+                item.label,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.h9.copyWith(
+                  color: color,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  item.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.h9.copyWith(
-                    color: color,
-                    letterSpacing: -0.12,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
@@ -18,46 +19,63 @@ class SsossProgressBar extends StatelessWidget {
     required this.steps,
     required this.currentIndex,
     super.key,
-    this.width,
-    this.itemWidth = 109,
     this.gap = 8,
     this.itemGap = 12,
     this.lineHeight = 4,
     this.activeColor,
     this.inactiveColor,
     this.textStyle,
+    this.width,
   });
 
   final List<SsossProgressStep> steps;
   final int currentIndex;
-  final double? width;
-  final double itemWidth;
   final double gap;
   final double itemGap;
   final double lineHeight;
   final Color? activeColor;
   final Color? inactiveColor;
   final TextStyle? textStyle;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
+    final expands = width != null;
+
     return SizedBox(
       width: width,
       child: Row(
-        mainAxisSize: width == null ? MainAxisSize.min : MainAxisSize.max,
+        mainAxisSize: expands ? MainAxisSize.max : MainAxisSize.min,
         children: [
           for (var index = 0; index < steps.length; index++) ...[
-            SsossProgressBarItem(
-              label: steps[index].label,
-              value: steps[index].value ?? _formatValue(index),
-              isActive: index == currentIndex,
-              width: itemWidth,
-              gap: itemGap,
-              lineHeight: lineHeight,
-              activeColor: activeColor,
-              inactiveColor: inactiveColor,
-              textStyle: textStyle,
-            ),
+            if (expands)
+              Expanded(
+                child: SsossProgressBarItem(
+                  label: steps[index].label,
+                  value: steps[index].value ?? _formatValue(index),
+                  isActive: index == currentIndex,
+                  gap: itemGap,
+                  lineHeight: lineHeight,
+                  activeColor: activeColor,
+                  inactiveColor: inactiveColor,
+                  textStyle: textStyle,
+                  expandLine: true,
+                ),
+              )
+            else
+              IntrinsicWidth(
+                child: SsossProgressBarItem(
+                  label: steps[index].label,
+                  value: steps[index].value ?? _formatValue(index),
+                  isActive: index == currentIndex,
+                  gap: itemGap,
+                  lineHeight: lineHeight,
+                  activeColor: activeColor,
+                  inactiveColor: inactiveColor,
+                  textStyle: textStyle,
+                  expandLine: true,
+                ),
+              ),
             if (index != steps.length - 1) SizedBox(width: gap),
           ],
         ],
@@ -76,23 +94,23 @@ class SsossProgressBarItem extends StatelessWidget {
     required this.value,
     super.key,
     this.isActive = false,
-    this.width = 109,
     this.gap = 12,
     this.lineHeight = 4,
     this.activeColor,
     this.inactiveColor,
     this.textStyle,
+    this.expandLine = false,
   });
 
   final String label;
   final String value;
   final bool isActive;
-  final double width;
   final double gap;
   final double lineHeight;
   final Color? activeColor;
   final Color? inactiveColor;
   final TextStyle? textStyle;
+  final bool expandLine;
 
   @override
   Widget build(BuildContext context) {
@@ -100,46 +118,48 @@ class SsossProgressBarItem extends StatelessWidget {
         ? activeColor ?? AppColors.primary400
         : inactiveColor ?? AppColors.neutral300;
 
-    return SizedBox(
-      width: width,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                value,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: (textStyle ?? AppTextStyles.h8).copyWith(
-                  color: foregroundColor,
-                  letterSpacing: -0.14,
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: expandLine ? MainAxisSize.max : MainAxisSize.min,
+          children: [
+            AppText(
+              value,
+              overflow: TextOverflow.ellipsis,
+              style: (textStyle ?? AppTextStyles.h8).copyWith(
+                color: foregroundColor,
               ),
-              const SizedBox(width: 4),
-              Flexible(
-                child: Text(
+            ),
+            const SizedBox(width: 4),
+            if (expandLine)
+              Expanded(
+                child: AppText(
                   label,
-                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: (textStyle ?? AppTextStyles.h8).copyWith(
                     color: foregroundColor,
-                    letterSpacing: -0.14,
                   ),
                 ),
+              )
+            else
+              AppText(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: (textStyle ?? AppTextStyles.h8).copyWith(
+                  color: foregroundColor,
+                ),
               ),
-            ],
-          ),
-          SizedBox(height: gap),
-          Container(
-            width: double.infinity,
-            height: lineHeight,
-            color: foregroundColor,
-          ),
-        ],
-      ),
+          ],
+        ),
+        SizedBox(height: gap),
+        Container(
+          width: expandLine ? double.infinity : null,
+          height: lineHeight,
+          color: foregroundColor,
+        ),
+      ],
     );
   }
 }

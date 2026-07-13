@@ -20,7 +20,7 @@ class SsossTabBar extends StatelessWidget {
     required this.selectedIndex,
     super.key,
     this.onTap,
-    this.tabWidth = 80,
+    this.width,
     this.height = 43,
     this.padding,
     this.selectedColor,
@@ -35,7 +35,7 @@ class SsossTabBar extends StatelessWidget {
   final List<SsossTabItem> items;
   final int selectedIndex;
   final ValueChanged<int>? onTap;
-  final double tabWidth;
+  final double? width;
   final double height;
   final EdgeInsetsGeometry? padding;
   final Color? selectedColor;
@@ -48,28 +48,30 @@ class SsossTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (var index = 0; index < items.length; index++)
-          SsossTab(
-            label: items[index].label,
-            isSelected: index == selectedIndex,
-            chipLabel: items[index].chipLabel,
-            width: tabWidth,
-            height: height,
-            padding: padding,
-            selectedColor: selectedColor,
-            unselectedColor: unselectedColor,
-            selectedIndicatorColor: selectedIndicatorColor,
-            unselectedIndicatorColor: unselectedIndicatorColor,
-            selectedIndicatorHeight: selectedIndicatorHeight,
-            unselectedIndicatorHeight: unselectedIndicatorHeight,
-            textStyle: textStyle,
-            onTap: onTap == null ? null : () => onTap!(index),
-            child: items[index].child,
-          ),
-      ],
+    return SizedBox(
+      width: width,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var index = 0; index < items.length; index++)
+            SsossTab(
+              label: items[index].label,
+              isSelected: index == selectedIndex,
+              chipLabel: items[index].chipLabel,
+              height: height,
+              padding: padding,
+              selectedColor: selectedColor,
+              unselectedColor: unselectedColor,
+              selectedIndicatorColor: selectedIndicatorColor,
+              unselectedIndicatorColor: unselectedIndicatorColor,
+              selectedIndicatorHeight: selectedIndicatorHeight,
+              unselectedIndicatorHeight: unselectedIndicatorHeight,
+              textStyle: textStyle,
+              onTap: onTap == null ? null : () => onTap!(index),
+              child: items[index].child,
+            ),
+        ],
+      ),
     );
   }
 }

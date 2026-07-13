@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
+
+enum SsossModalResult {
+  primary,
+  secondary,
+}
 
 class SsossModal extends StatelessWidget {
   const SsossModal({
@@ -16,7 +22,7 @@ class SsossModal extends StatelessWidget {
     this.onSecondaryPressed,
     this.showButtonIcons = true,
     this.actions,
-    this.width = 348,
+    this.width,
     this.padding,
     this.borderRadius,
     this.backgroundColor,
@@ -101,30 +107,126 @@ class SsossModal extends StatelessWidget {
 
   Widget _buildDefaultActions() {
     return Row(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        SsossButton(
-          label: secondaryButtonLabel,
-          size: SsossButtonSize.medium,
-          type: SsossButtonType.neutral,
-          width: 154,
-          onPressed: onSecondaryPressed,
-          showLeftIcon: showButtonIcons,
-          showRightIcon: showButtonIcons,
+        Expanded(
+          child: SsossButton(
+            label: secondaryButtonLabel,
+            size: SsossButtonSize.medium,
+            type: SsossButtonType.neutral,
+            width: double.infinity,
+            onPressed: onSecondaryPressed,
+            showLeftIcon: showButtonIcons,
+            showRightIcon: showButtonIcons,
+          ),
         ),
         SizedBox(width: actionGap),
-        SsossButton(
-          label: primaryButtonLabel,
-          size: SsossButtonSize.medium,
-          type: SsossButtonType.primary,
-          width: 154,
-          onPressed: onPrimaryPressed,
-          showLeftIcon: showButtonIcons,
-          showRightIcon: showButtonIcons,
+        Expanded(
+          child: SsossButton(
+            label: primaryButtonLabel,
+            size: SsossButtonSize.medium,
+            type: SsossButtonType.primary,
+            width: double.infinity,
+            onPressed: onPrimaryPressed,
+            showLeftIcon: showButtonIcons,
+            showRightIcon: showButtonIcons,
+          ),
         ),
       ],
     );
   }
+}
+
+Future<SsossModalResult?> showSsossModal(
+  BuildContext context, {
+  required String title,
+  String? message,
+  String primaryButtonLabel = 'Button',
+  String secondaryButtonLabel = 'Button',
+  VoidCallback? onPrimaryPressed,
+  VoidCallback? onSecondaryPressed,
+  VoidCallback? onClose,
+  bool showButtonIcons = true,
+  Widget? actions,
+  double? width = double.infinity,
+  double? maxWidth,
+  EdgeInsetsGeometry? padding,
+  BorderRadiusGeometry? borderRadius,
+  Color? backgroundColor,
+  Color? borderColor,
+  Color? titleColor,
+  Color? messageColor,
+  Color? closeIconColor,
+  double gap = 24,
+  double headerGap = 2,
+  double messageGap = 7,
+  double actionGap = 8,
+  TextStyle? titleStyle,
+  TextStyle? messageStyle,
+  bool barrierDismissible = false,
+  Color barrierColor = const Color(0x80000000),
+  EdgeInsets insetPadding = const EdgeInsets.symmetric(horizontal: 16),
+  bool useRootNavigator = true,
+}) {
+  return showDialog<SsossModalResult>(
+    context: context,
+    barrierDismissible: barrierDismissible,
+    barrierColor: barrierColor,
+    useRootNavigator: useRootNavigator,
+    builder: (dialogContext) {
+      void dismiss([SsossModalResult? result]) {
+        Navigator.of(dialogContext).pop(result);
+      }
+
+      Widget modal = SsossModal(
+        title: title,
+        message: message,
+        primaryButtonLabel: primaryButtonLabel,
+        secondaryButtonLabel: secondaryButtonLabel,
+        showButtonIcons: showButtonIcons,
+        actions: actions,
+        width: width,
+        padding: padding,
+        borderRadius: borderRadius,
+        backgroundColor: backgroundColor,
+        borderColor: borderColor,
+        titleColor: titleColor,
+        messageColor: messageColor,
+        closeIconColor: closeIconColor,
+        gap: gap,
+        headerGap: headerGap,
+        messageGap: messageGap,
+        actionGap: actionGap,
+        titleStyle: titleStyle,
+        messageStyle: messageStyle,
+        onClose: () {
+          dismiss();
+          onClose?.call();
+        },
+        onPrimaryPressed: () {
+          dismiss(SsossModalResult.primary);
+          onPrimaryPressed?.call();
+        },
+        onSecondaryPressed: () {
+          dismiss(SsossModalResult.secondary);
+          onSecondaryPressed?.call();
+        },
+      );
+
+      if (maxWidth != null) {
+        modal = ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          child: modal,
+        );
+      }
+
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        insetPadding: insetPadding,
+        child: modal,
+      );
+    },
+  );
 }
 
 class _ModalHeader extends StatelessWidget {
@@ -158,55 +260,40 @@ class _ModalHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SizedBox(
-          width: double.infinity,
-          height: 24,
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: InkWell(
-              onTap: onClose,
-              borderRadius: BorderRadius.circular(12),
-              child: Icon(
-                Icons.close,
-                size: 24,
-                color: closeIconColor,
-              ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: InkWell(
+            onTap: onClose,
+            borderRadius: BorderRadius.circular(12),
+            child: Icon(
+              Icons.close,
+              size: 24,
+              color: closeIconColor,
             ),
           ),
         ),
         SizedBox(height: headerGap),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: (titleStyle ?? AppTextStyles.h4).copyWith(
-                color: titleColor,
-                height: 1.4,
-                letterSpacing: -0.2,
-              ),
-            ),
-            if (hasMessage) ...[
-              SizedBox(height: messageGap),
-              Text(
-                message!,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: (messageStyle ?? AppTextStyles.b4).copyWith(
-                  color: messageColor,
-                  height: 1.4,
-                  letterSpacing: -0.16,
-                ),
-              ),
-            ],
-          ],
+        AppText(
+          title,
+          textAlign: TextAlign.center,
+          style: (titleStyle ?? AppTextStyles.h4).copyWith(
+            color: titleColor,
+            height: 1.4,
+          ),
         ),
+        if (hasMessage) ...[
+          SizedBox(height: messageGap),
+          AppText(
+            message!,
+            textAlign: TextAlign.center,
+            style: (messageStyle ?? AppTextStyles.b4).copyWith(
+              color: messageColor,
+              height: 1.4,
+            ),
+          ),
+        ],
       ],
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -55,13 +56,10 @@ class SsossRadio extends StatelessWidget {
             ),
             if (_hasLabel) ...[
               SizedBox(width: gap),
-              Text(
+              AppText(
                 label!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
                 style: (textStyle ?? AppTextStyles.b5).copyWith(
                   color: resolvedLabelColor,
-                  letterSpacing: -0.14,
                 ),
               ),
             ],
