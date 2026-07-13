@@ -12,7 +12,7 @@ class AppTextStyles {
     fontFamily: fontFamily,
     fontSize: 32,
     fontWeight: FontWeight.w700,
-    height: 1.2,
+    height: 1.4,
     letterSpacing: -0.32,
     color: AppColors.black,
   );
@@ -21,7 +21,7 @@ class AppTextStyles {
     fontFamily: fontFamily,
     fontSize: 28,
     fontWeight: FontWeight.w600,
-    height: 1.2,
+    height: 1.4,
     letterSpacing: -0.28,
     color: AppColors.black,
   );
@@ -30,7 +30,7 @@ class AppTextStyles {
     fontFamily: fontFamily,
     fontSize: 24,
     fontWeight: FontWeight.w600,
-    height: 1.2,
+    height: 1.4,
     letterSpacing: -0.24,
     color: AppColors.black,
   );
@@ -39,7 +39,7 @@ class AppTextStyles {
     fontFamily: fontFamily,
     fontSize: 20,
     fontWeight: FontWeight.w600,
-    height: 1.2,
+    height: 1.4,
     letterSpacing: -0.2,
     color: AppColors.black,
   );

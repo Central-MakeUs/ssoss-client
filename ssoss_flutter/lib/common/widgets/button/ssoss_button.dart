@@ -21,6 +21,11 @@ enum SsossButtonType {
   ghost,
 }
 
+const _buttonTextHeightBehavior = TextHeightBehavior(
+  applyHeightToFirstAscent: false,
+  applyHeightToLastDescent: false,
+);
+
 class SsossButton extends StatefulWidget {
   const SsossButton({
     required this.label,
@@ -80,11 +85,15 @@ class SsossButton extends StatefulWidget {
 class _SsossButtonState extends State<SsossButton> {
   bool _isPressed = false;
 
-  bool get _isEnabled => widget.enabled && widget.onPressed != null;
+  /// `enabled`만으로 시각적 활성 상태를 결정한다. `onPressed`가 없어도 기본 스타일을 유지한다.
+  bool get _isVisuallyEnabled => widget.enabled;
+
+  /// 탭·프레스 피드백은 콜백이 있을 때만 동작한다.
+  bool get _isInteractive => widget.enabled && widget.onPressed != null;
 
   bool get _usePressedStyle =>
       _isPressed &&
-      _isEnabled &&
+      _isInteractive &&
       widget.backgroundColor == null &&
       widget.foregroundColor == null &&
       widget.borderColor == null;
@@ -102,79 +111,97 @@ class _SsossButtonState extends State<SsossButton> {
       widget.type,
       widget.isIconOnly,
     );
-    final resolvedForegroundColor = !_isEnabled
+    final resolvedForegroundColor = !_isVisuallyEnabled
         ? widget.disabledForegroundColor ??
             style.disabledForegroundColor ??
             AppColors.neutral400
         : _usePressedStyle
             ? style.pressedForegroundColor ?? style.foregroundColor
             : widget.foregroundColor ?? style.foregroundColor;
-    final resolvedBackgroundColor = !_isEnabled
+    final resolvedBackgroundColor = !_isVisuallyEnabled
         ? widget.disabledBackgroundColor ??
             style.disabledBackgroundColor ??
             AppColors.neutral100
         : _usePressedStyle
             ? style.pressedBackgroundColor ?? style.backgroundColor
             : widget.backgroundColor ?? style.backgroundColor;
-    final resolvedBorderColor = !_isEnabled
+    final resolvedBorderColor = !_isVisuallyEnabled
         ? widget.disabledBorderColor ?? style.disabledBorderColor
         : _usePressedStyle
             ? style.pressedBorderColor ?? style.borderColor
             : widget.borderColor ?? style.borderColor;
     final resolvedBorderRadius =
         widget.borderRadius ?? BorderRadius.circular(8);
+    final resolvedHeight = widget.height ?? style.height;
+    final resolvedPadding = widget.padding ?? style.padding;
+    final resolvedWidth = widget.width;
 
-    return Listener(
-      onPointerDown: _isEnabled ? (_) => _setPressed(true) : null,
+    final button = Listener(
+      onPointerDown: _isInteractive ? (_) => _setPressed(true) : null,
       onPointerUp: (_) => _setPressed(false),
       onPointerCancel: (_) => _setPressed(false),
       child: Material(
-        color: resolvedBackgroundColor,
-        borderRadius: resolvedBorderRadius,
+        color: Colors.transparent,
         child: InkWell(
-          onTap: _isEnabled ? widget.onPressed : null,
+          onTap: _isInteractive ? widget.onPressed : null,
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           customBorder: RoundedRectangleBorder(
             borderRadius: resolvedBorderRadius,
           ),
-          child: Container(
-            width: widget.width ??
-                (widget.isIconOnly ? widget.height ?? style.height : null),
-            height: widget.height ?? style.height,
-            padding: widget.padding ?? style.padding,
+          child: Ink(
+            width: resolvedWidth == double.infinity
+                ? double.infinity
+                : (widget.isIconOnly ? resolvedHeight : resolvedWidth),
+            height: widget.isIconOnly ? resolvedHeight : null,
             decoration: BoxDecoration(
+              color: resolvedBackgroundColor,
               borderRadius: resolvedBorderRadius,
               border: resolvedBorderColor == null
                   ? null
                   : Border.all(color: resolvedBorderColor),
             ),
-            alignment: Alignment.center,
-            child: widget.isIconOnly
-                ? _ButtonIcon(
-                    icon: widget.icon,
-                    assetPath: widget.iconAssetPath,
-                    size: style.iconSize,
-                    color: widget.iconColor ?? resolvedForegroundColor,
-                  )
-                : _ButtonContent(
-                    label: widget.label,
-                    icon: widget.icon,
-                    iconAssetPath: widget.iconAssetPath,
-                    showLeftIcon: widget.showLeftIcon,
-                    showRightIcon: widget.showRightIcon,
-                    iconSize: style.iconSize,
-                    gap: style.gap,
-                    iconColor: widget.iconColor ?? resolvedForegroundColor,
-                    textStyle: (widget.textStyle ?? style.textStyle).copyWith(
-                      color: resolvedForegroundColor,
-                    ),
-                    child: widget.child,
-                  ),
+            child: SizedBox(
+              height: widget.isIconOnly ? null : resolvedHeight,
+              child: Padding(
+                padding: widget.isIconOnly ? EdgeInsets.zero : resolvedPadding,
+                child: Center(
+                  child: widget.isIconOnly
+                      ? _ButtonIcon(
+                          icon: widget.icon,
+                          assetPath: widget.iconAssetPath,
+                          size: style.iconSize,
+                          color: widget.iconColor ?? resolvedForegroundColor,
+                        )
+                      : _ButtonContent(
+                          label: widget.label,
+                          icon: widget.icon,
+                          iconAssetPath: widget.iconAssetPath,
+                          showLeftIcon: widget.showLeftIcon,
+                          showRightIcon: widget.showRightIcon,
+                          iconSize: style.iconSize,
+                          gap: style.gap,
+                          iconColor:
+                              widget.iconColor ?? resolvedForegroundColor,
+                          textStyle:
+                              (widget.textStyle ?? style.textStyle).copyWith(
+                            color: resolvedForegroundColor,
+                          ),
+                          child: widget.child,
+                        ),
+                ),
+              ),
+            ),
           ),
         ),
       ),
     );
+
+    if (resolvedWidth != null || widget.isIconOnly) {
+      return button;
+    }
+
+    return IntrinsicWidth(child: button);
   }
 }
 
@@ -205,6 +232,21 @@ class _ButtonContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final labelWidget = DefaultTextStyle(
+      style: textStyle,
+      textAlign: TextAlign.center,
+      textHeightBehavior: _buttonTextHeightBehavior,
+      child: child ??
+          AppText(
+            label,
+            textHeightBehavior: _buttonTextHeightBehavior,
+          ),
+    );
+
+    if (!showLeftIcon && !showRightIcon) {
+      return labelWidget;
+    }
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -218,13 +260,7 @@ class _ButtonContent extends StatelessWidget {
           ),
           SizedBox(width: gap),
         ],
-        Flexible(
-          child: DefaultTextStyle(
-            style: textStyle,
-            textAlign: TextAlign.center,
-            child: child ?? AppText(label),
-          ),
-        ),
+        labelWidget,
         if (showRightIcon) ...[
           SizedBox(width: gap),
           _ButtonIcon(
@@ -310,7 +346,7 @@ class _ButtonStyle {
   ) {
     return _ButtonStyle(
       height: _height(size),
-      padding: isIconOnly ? EdgeInsets.zero : _padding(size),
+      padding: isIconOnly ? EdgeInsets.zero : _padding(size, type),
       gap: _gap(size),
       iconSize: _iconSize(size),
       backgroundColor: _backgroundColor(type),
@@ -337,7 +373,21 @@ class _ButtonStyle {
     }
   }
 
-  static EdgeInsetsGeometry _padding(SsossButtonSize size) {
+  static EdgeInsetsGeometry _padding(
+    SsossButtonSize size,
+    SsossButtonType type,
+  ) {
+    if (type == SsossButtonType.link || type == SsossButtonType.ghost) {
+      switch (size) {
+        case SsossButtonSize.large:
+          return const EdgeInsets.symmetric(horizontal: 16, vertical: 15);
+        case SsossButtonSize.medium:
+          return const EdgeInsets.symmetric(horizontal: 12, vertical: 10);
+        case SsossButtonSize.small:
+          return const EdgeInsets.symmetric(horizontal: 8, vertical: 10);
+      }
+    }
+
     switch (size) {
       case SsossButtonSize.large:
         return const EdgeInsets.symmetric(horizontal: 20, vertical: 15);
