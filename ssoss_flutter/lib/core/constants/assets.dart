@@ -4,7 +4,7 @@ class AppAssets {
 
   static const String brandNaverBlog =
       'assets/icons/brand/brand_naver_blog.svg';
-  static const String brandDaangn = 'assets/icons/brand/brand_daangn.svg';
+  static const String brandDaangn = 'assets/icons/brand/brand_daangn.png';
   static const String brandX = 'assets/icons/brand/brand_x.svg';
   static const String brandThread = 'assets/icons/brand/brand_thread.svg';
   static const String brandInstagram = 'assets/icons/brand/brand_instagram.svg';
@@ -49,4 +49,9 @@ class AppAssets {
   static const String navPlaceDiagnosis =
       'assets/icons/navigation/ic_nav_place_diagnosis.svg';
   static const String navMyPage = 'assets/icons/navigation/ic_nav_my_page.svg';
+
+  static const String imgContent = 'assets/img/content.png';
+  static const String imgDrink = 'assets/img/drink.png';
+  static const String imgCoupon = 'assets/img/coupon.png';
+  static const String imgNotice = 'assets/img/notice.png';
 }

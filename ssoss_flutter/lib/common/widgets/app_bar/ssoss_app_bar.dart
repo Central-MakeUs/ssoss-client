@@ -76,45 +76,38 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.white,
-      child: DecoratedBox(
-        decoration: const BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: AppColors.neutral200),
-          ),
-        ),
-        child: SizedBox(
-          height: height,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: _sideSlotWidth,
-                  height: _sideSlotWidth,
-                  child: showBackButton
-                      ? _AppBarIconButton(
-                          assetPath: AppAssets.icChevronLeft,
-                          semanticLabel: '뒤로가기',
-                          onTap: onBack,
-                        )
-                      : null,
-                ),
-                Expanded(
-                  child: AppText(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.h4.copyWith(
-                      color: AppColors.neutral800,
-                    ),
+      child: SizedBox(
+        height: height,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            children: [
+              SizedBox(
+                width: _sideSlotWidth,
+                height: _sideSlotWidth,
+                child: showBackButton
+                    ? _AppBarIconButton(
+                        assetPath: AppAssets.icChevronLeft,
+                        semanticLabel: '뒤로가기',
+                        onTap: onBack,
+                      )
+                    : null,
+              ),
+              Expanded(
+                child: AppText(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.h4.copyWith(
+                    color: AppColors.neutral800,
                   ),
                 ),
-                SizedBox(
-                  width: _sideSlotWidth,
-                  height: _sideSlotWidth,
-                  child: _buildAction(),
-                ),
-              ],
-            ),
+              ),
+              SizedBox(
+                width: _sideSlotWidth,
+                height: _sideSlotWidth,
+                child: _buildAction(),
+              ),
+            ],
           ),
         ),
       ),
