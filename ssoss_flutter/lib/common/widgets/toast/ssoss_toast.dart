@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
@@ -96,7 +97,7 @@ class SsossToast extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  AppText(
                     title,
                     style: (titleStyle ?? AppTextStyles.h8).copyWith(
                       color: resolvedTitleColor,
@@ -106,7 +107,7 @@ class SsossToast extends StatelessWidget {
                   ),
                   if (_hasCaption) ...[
                     SizedBox(height: contentGap),
-                    Text(
+                    AppText(
                       caption!,
                       style: (captionStyle ?? AppTextStyles.b6).copyWith(
                         color: resolvedCaptionColor,
