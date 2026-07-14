@@ -73,55 +73,50 @@ class SsossSquareSelectionButton extends StatelessWidget {
         ? foregroundColor ?? style.foregroundColor
         : disabledForegroundColor ?? AppColors.neutral400;
 
-    return Material(
-      color: resolvedBackgroundColor,
-      borderRadius: resolvedBorderRadius,
-      child: InkWell(
-        onTap: _isInteractive ? onTap : null,
-        customBorder: RoundedRectangleBorder(
+    return GestureDetector(
+      onTap: _isInteractive ? onTap : null,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: width,
+        height: height,
+        padding: padding ??
+            const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 7,
+            ),
+        decoration: BoxDecoration(
+          color: resolvedBackgroundColor,
           borderRadius: resolvedBorderRadius,
+          border: Border.all(color: resolvedBorderColor),
         ),
-        child: Container(
-          width: width,
-          height: height,
-          padding: padding ??
-              const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 7,
-              ),
-          decoration: BoxDecoration(
-            borderRadius: resolvedBorderRadius,
-            border: Border.all(color: resolvedBorderColor),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (showIcon) ...[
-                SizedBox.square(
-                  dimension: 40,
-                  child: Center(
-                    child: icon ??
-                        SvgPicture.asset(
-                          iconAsset,
-                          width: 27,
-                          height: 16,
-                          colorFilter: ColorFilter.mode(
-                            resolvedForegroundColor,
-                            BlendMode.srcIn,
-                          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (showIcon) ...[
+              SizedBox.square(
+                dimension: 40,
+                child: Center(
+                  child: icon ??
+                      SvgPicture.asset(
+                        iconAsset,
+                        width: 27,
+                        height: 16,
+                        colorFilter: ColorFilter.mode(
+                          resolvedForegroundColor,
+                          BlendMode.srcIn,
                         ),
-                  ),
-                ),
-                SizedBox(height: gap),
-              ],
-              AppText(
-                label,
-                style: (textStyle ?? AppTextStyles.h8).copyWith(
-                  color: resolvedForegroundColor,
+                      ),
                 ),
               ),
+              SizedBox(height: gap),
             ],
-          ),
+            AppText(
+              label,
+              style: (textStyle ?? AppTextStyles.h8).copyWith(
+                color: resolvedForegroundColor,
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -44,11 +44,10 @@ class SsossAccordion extends StatelessWidget {
         ? AppTextStyles.h8
         : AppTextStyles.h6;
 
-    return Material(
-      color: backgroundColor ?? Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        child: SizedBox(
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
           width: width,
           height: height,
           child: Row(
@@ -85,7 +84,6 @@ class SsossAccordion extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

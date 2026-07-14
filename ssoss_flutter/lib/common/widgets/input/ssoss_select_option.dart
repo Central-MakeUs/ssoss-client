@@ -47,9 +47,9 @@ class SsossSelectOption extends StatelessWidget {
         ? selectedTextColor ?? AppColors.neutral800
         : textColor ?? AppColors.neutral500;
 
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(_borderRadius),
+      behavior: HitTestBehavior.opaque,
       child: Container(
         width: width,
         height: height,

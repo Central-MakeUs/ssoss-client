@@ -20,6 +20,7 @@ class SsossTextButton extends StatelessWidget {
     this.enabled = true,
     this.icon,
     this.width,
+    this.height,
     this.padding,
     this.borderRadius,
     this.backgroundColor,
@@ -39,6 +40,7 @@ class SsossTextButton extends StatelessWidget {
   final bool enabled;
   final Widget? icon;
   final double? width;
+  final double? height;
   final EdgeInsetsGeometry? padding;
   final BorderRadiusGeometry? borderRadius;
   final Color? backgroundColor;
@@ -69,54 +71,50 @@ class SsossTextButton extends StatelessWidget {
     final resolvedSubtitleColor = _isEnabled
         ? subtitleColor ?? style.subtitleColor
         : disabledSubtitleColor ?? AppColors.neutral400;
+    final resolvedPadding = padding ??
+        EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: height == null ? 13 : 0,
+        );
 
-    return Material(
-      color: resolvedBackgroundColor,
-      borderRadius: resolvedBorderRadius,
-      child: InkWell(
-        onTap: _isEnabled ? onTap : null,
-        customBorder: RoundedRectangleBorder(
+    return GestureDetector(
+      onTap: _isEnabled ? onTap : null,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: width,
+        height: height,
+        padding: resolvedPadding,
+        alignment: Alignment.centerLeft,
+        decoration: BoxDecoration(
+          color: resolvedBackgroundColor,
           borderRadius: resolvedBorderRadius,
+          border: Border.all(color: resolvedBorderColor),
         ),
-        child: Container(
-          width: width,
-          padding: padding ??
-              const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 13,
+        child: Row(
+          children: [
+            if (icon != null) ...[
+              IconTheme(
+                data: IconThemeData(color: resolvedTitleColor, size: 24),
+                child: icon!,
               ),
-          decoration: BoxDecoration(
-            borderRadius: resolvedBorderRadius,
-            border: Border.all(color: resolvedBorderColor),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[
-                IconTheme(
-                  data: IconThemeData(color: resolvedTitleColor, size: 24),
-                  child: icon!,
-                ),
-                const SizedBox(width: 8),
-              ],
-              AppText(
-                title,
-                style: AppTextStyles.h6.copyWith(
-                  color: resolvedTitleColor,
-                ),
-              ),
-              if (_hasSubtitle) ...[
-                const SizedBox(width: 8),
-                AppText(
-                  subtitle!,
-                  style: AppTextStyles.b5.copyWith(
-                    color: resolvedSubtitleColor,
-                  ),
-                ),
-              ],
+              const SizedBox(width: 8),
             ],
-          ),
+            AppText(
+              title,
+              style: AppTextStyles.h6.copyWith(
+                color: resolvedTitleColor,
+              ),
+            ),
+            if (_hasSubtitle) ...[
+              const SizedBox(width: 8),
+              AppText(
+                subtitle!,
+                style: AppTextStyles.b5.copyWith(
+                  color: resolvedSubtitleColor,
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );
@@ -155,9 +153,9 @@ class _TextButtonStyle {
       case SsossTextButtonType.normal:
         return const _TextButtonStyle(
           backgroundColor: AppColors.white,
-          borderColor: AppColors.neutral300,
-          titleColor: AppColors.neutral600,
-          subtitleColor: AppColors.neutral500,
+          borderColor: AppColors.neutral200,
+          titleColor: AppColors.neutral400,
+          subtitleColor: AppColors.neutral400,
         );
     }
   }

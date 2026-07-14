@@ -49,3 +49,13 @@ class AuthException extends AppException {
   factory AuthException.unauthenticated([String message = '세션이 만료되었습니다.']) =>
       AuthException(message, AuthErrorType.unauthenticated);
 }
+
+/// 입력값 검증 실패.
+class ValidationException extends AppException {
+  const ValidationException([super.message = '입력값을 확인해 주세요.']);
+}
+
+/// 사용자에 의해 요청이 취소됨.
+class CancelledException extends AppException {
+  const CancelledException([super.message = '요청이 취소되었습니다.']);
+}

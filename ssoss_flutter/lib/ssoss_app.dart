@@ -15,6 +15,7 @@ import 'features/auth/domain/usecases/withdraw_usecase.dart';
 import 'features/auth/presentation/auth_providers.dart';
 import 'features/auth/presentation/bloc/login_bloc.dart';
 import 'features/auth/presentation/bloc/login_event.dart';
+import 'features/content/presentation/content_providers.dart';
 import 'router/app_router.dart';
 
 class SsossApp extends StatefulWidget {
@@ -57,6 +58,7 @@ class SsossAppScope extends StatelessWidget {
       providers: [
         ...NetworkProviders.build(),
         ...AuthProviders.build(),
+        ...ContentProviders.build(),
       ],
       child: BlocProvider<LoginBloc>(
         create: (context) {

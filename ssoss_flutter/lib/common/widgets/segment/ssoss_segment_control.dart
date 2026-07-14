@@ -113,18 +113,14 @@ class _SsossSegmentItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final foregroundColor = isSelected ? selectedColor : unselectedColor;
 
-    return Material(
-      color: isSelected ? selectedBackgroundColor : Colors.transparent,
-      borderRadius: borderRadius,
-      child: InkWell(
-        onTap: onTap,
-        customBorder: RoundedRectangleBorder(
-          borderRadius: borderRadius,
-        ),
-        child: Container(
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
           height: double.infinity,
           alignment: Alignment.center,
           decoration: BoxDecoration(
+            color: isSelected ? selectedBackgroundColor : Colors.transparent,
             borderRadius: borderRadius,
           ),
           child: AppText(
@@ -135,7 +131,6 @@ class _SsossSegmentItem extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
   }
 }

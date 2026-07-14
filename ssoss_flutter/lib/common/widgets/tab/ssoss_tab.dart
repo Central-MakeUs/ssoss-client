@@ -61,11 +61,10 @@ class SsossTab extends StatelessWidget {
     final indicatorHeight =
         isSelected ? selectedIndicatorHeight : unselectedIndicatorHeight;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
           height: height,
           padding: padding ??
               const EdgeInsets.symmetric(
@@ -105,7 +104,6 @@ class SsossTab extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

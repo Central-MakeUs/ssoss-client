@@ -162,9 +162,9 @@ class _SsossRecommendationCardState extends State<SsossRecommendationCard> {
                     ),
                   ),
                   if (hasDismissButton)
-                    InkWell(
+                    GestureDetector(
                       onTap: _handleDismissTap,
-                      borderRadius: BorderRadius.circular(12),
+                      behavior: HitTestBehavior.opaque,
                       child: const Icon(
                         Icons.close,
                         size: 24,

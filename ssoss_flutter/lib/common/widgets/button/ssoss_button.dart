@@ -144,8 +144,10 @@ class _SsossButtonState extends State<SsossButton> {
         color: Colors.transparent,
         child: InkWell(
           onTap: _isInteractive ? widget.onPressed : null,
+          splashFactory: NoSplash.splashFactory,
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
+          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
           customBorder: RoundedRectangleBorder(
             borderRadius: resolvedBorderRadius,
           ),

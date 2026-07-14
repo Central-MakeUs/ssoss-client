@@ -6,6 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:ssoss_flutter/features/auth/presentation/bloc/login_bloc.dart';
 import 'package:ssoss_flutter/features/auth/presentation/bloc/login_state.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/login_page.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/content_create_page.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/content_generating_page.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 
 /// [LoginBloc] 의 인증 상태에 따라 로그인/홈으로 분기하는 라우터를 생성한다.
@@ -37,6 +41,27 @@ GoRouter createAppRouter(LoginBloc loginBloc) {
         name: HomePage.routeName,
         path: HomePage.routePath,
         builder: (context, state) => const HomePage(),
+      ),
+      GoRoute(
+        name: ContentCreatePage.routeName,
+        path: ContentCreatePage.routePath,
+        builder: (context, state) {
+          final channel = state.extra is UploadChannel
+              ? state.extra! as UploadChannel
+              : null;
+          return ContentCreatePage(initialChannel: channel);
+        },
+      ),
+      GoRoute(
+        name: ContentGeneratingPage.routeName,
+        path: ContentGeneratingPage.routePath,
+        builder: (context, state) {
+          final input = state.extra;
+          if (input is! ContentCreateInput) {
+            return const ContentCreatePage();
+          }
+          return ContentGeneratingPage(input: input);
+        },
       ),
     ],
   );

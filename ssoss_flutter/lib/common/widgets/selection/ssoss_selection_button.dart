@@ -63,15 +63,10 @@ class SsossSelectionButton extends StatelessWidget {
         ? foregroundColor ?? style.foregroundColor
         : disabledForegroundColor ?? AppColors.neutral400;
 
-    return Material(
-      color: resolvedBackgroundColor,
-      borderRadius: resolvedBorderRadius,
-      child: InkWell(
-        onTap: _isEnabled ? onTap : null,
-        customBorder: RoundedRectangleBorder(
-          borderRadius: resolvedBorderRadius,
-        ),
-        child: Container(
+    return GestureDetector(
+      onTap: _isEnabled ? onTap : null,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
           height: 36,
           padding: padding ??
               const EdgeInsets.symmetric(
@@ -79,6 +74,7 @@ class SsossSelectionButton extends StatelessWidget {
                 vertical: 7,
               ),
           decoration: BoxDecoration(
+            color: resolvedBackgroundColor,
             borderRadius: resolvedBorderRadius,
             border: Border.all(color: resolvedBorderColor),
           ),
@@ -105,7 +101,6 @@ class SsossSelectionButton extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

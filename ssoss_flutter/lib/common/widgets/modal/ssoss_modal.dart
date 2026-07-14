@@ -264,9 +264,9 @@ class _ModalHeader extends StatelessWidget {
       children: [
         Align(
           alignment: Alignment.centerRight,
-          child: InkWell(
+          child: GestureDetector(
             onTap: onClose,
-            borderRadius: BorderRadius.circular(12),
+            behavior: HitTestBehavior.opaque,
             child: Icon(
               Icons.close,
               size: 24,

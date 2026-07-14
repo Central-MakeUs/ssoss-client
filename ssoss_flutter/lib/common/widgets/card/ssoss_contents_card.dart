@@ -144,9 +144,9 @@ class _ContentsCardAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      behavior: HitTestBehavior.opaque,
       child: Container(
         height: 32,
         padding: const EdgeInsets.symmetric(
