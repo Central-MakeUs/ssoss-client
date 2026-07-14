@@ -65,9 +65,9 @@ class SsossSelectField extends StatelessWidget {
       button: true,
       enabled: enabled,
       value: _hasValue ? value : null,
-      child: InkWell(
+      child: GestureDetector(
         onTap: enabled ? onTap : null,
-        borderRadius: BorderRadius.circular(_borderRadius),
+        behavior: HitTestBehavior.opaque,
         child: Container(
           width: width,
           height: height,

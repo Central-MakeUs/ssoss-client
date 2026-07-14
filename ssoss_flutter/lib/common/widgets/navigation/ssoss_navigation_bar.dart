@@ -86,9 +86,9 @@ class _SsossNavigationButton extends StatelessWidget {
       button: true,
       selected: isSelected,
       label: item.label,
-      child: InkWell(
+      child: GestureDetector(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
+        behavior: HitTestBehavior.opaque,
         child: SizedBox(
           width: double.infinity,
           height: double.infinity,

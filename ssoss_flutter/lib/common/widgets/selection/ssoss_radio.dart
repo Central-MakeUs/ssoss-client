@@ -43,9 +43,9 @@ class SsossRadio extends StatelessWidget {
       checked: isChecked,
       enabled: !isDisabled,
       label: label,
-      child: InkWell(
+      child: GestureDetector(
         onTap: isDisabled ? null : onTap,
-        borderRadius: BorderRadius.circular(iconSize / 2),
+        behavior: HitTestBehavior.opaque,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

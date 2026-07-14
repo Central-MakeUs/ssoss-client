@@ -57,21 +57,20 @@ class SsossFilterChip extends StatelessWidget {
         ? foregroundColor ?? style.foregroundColor
         : disabledForegroundColor ?? AppColors.neutral400;
 
-    return Material(
-      color: resolvedBackgroundColor,
-      borderRadius: resolvedBorderRadius,
-      child: InkWell(
-        onTap: _isInteractive ? onTap : null,
-        customBorder: RoundedRectangleBorder(
-          borderRadius: resolvedBorderRadius,
-        ),
-        child: Container(
+    return GestureDetector(
+      onTap: _isInteractive ? onTap : null,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
           height: height,
           padding: padding ??
               const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 10,
               ),
+          decoration: BoxDecoration(
+            color: resolvedBackgroundColor,
+            borderRadius: resolvedBorderRadius,
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -96,7 +95,6 @@ class SsossFilterChip extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

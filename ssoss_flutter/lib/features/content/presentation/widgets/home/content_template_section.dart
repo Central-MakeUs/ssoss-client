@@ -65,9 +65,9 @@ class ContentTemplateSection extends StatelessWidget {
                 style: AppTextStyles.h5.copyWith(color: AppColors.neutral700),
               ),
             ),
-            InkWell(
+            GestureDetector(
               onTap: onViewAllTap,
-              borderRadius: BorderRadius.circular(8),
+              behavior: HitTestBehavior.opaque,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: Row(
@@ -132,20 +132,18 @@ class _ContentTemplateCard extends StatelessWidget {
       bottomRight: Radius.circular(8),
     );
 
-    return Material(
-      color: AppColors.white,
-      borderRadius: borderRadius,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: borderRadius,
-        child: Ink(
-          width: 230,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            borderRadius: borderRadius,
-            border: Border.all(color: AppColors.neutral200),
-          ),
-          child: Row(
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 230,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: borderRadius,
+          border: Border.all(color: AppColors.neutral200),
+        ),
+        child: Row(
             children: [
               Container(
                 width: 40,
@@ -187,7 +185,6 @@ class _ContentTemplateCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

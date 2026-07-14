@@ -9,6 +9,7 @@ import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 enum SsossAppBarAction {
   none,
   done,
+  exit,
   bell,
 }
 
@@ -19,6 +20,7 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.action = SsossAppBarAction.none,
     this.onBack,
     this.onDone,
+    this.onExit,
     this.onBellTap,
     super.key,
   });
@@ -30,6 +32,7 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
         action = SsossAppBarAction.none,
         onBack = null,
         onDone = null,
+        onExit = null,
         onBellTap = null;
 
   const SsossAppBar.back({
@@ -39,6 +42,7 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
   })  : showBackButton = true,
         action = SsossAppBarAction.none,
         onDone = null,
+        onExit = null,
         onBellTap = null;
 
   const SsossAppBar.backWithDone({
@@ -48,6 +52,18 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
     super.key,
   })  : showBackButton = true,
         action = SsossAppBarAction.done,
+        onExit = null,
+        onBellTap = null;
+
+  /// 뒤로가기·타이틀 없이 우측 `나가기`만 표시한다.
+  const SsossAppBar.exitOnly({
+    required this.onExit,
+    super.key,
+  })  : title = '',
+        showBackButton = false,
+        action = SsossAppBarAction.exit,
+        onBack = null,
+        onDone = null,
         onBellTap = null;
 
   const SsossAppBar.withBell({
@@ -57,13 +73,15 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
   })  : showBackButton = false,
         action = SsossAppBarAction.bell,
         onBack = null,
-        onDone = null;
+        onDone = null,
+        onExit = null;
 
   final String title;
   final bool showBackButton;
   final SsossAppBarAction action;
   final VoidCallback? onBack;
   final VoidCallback? onDone;
+  final VoidCallback? onExit;
   final VoidCallback? onBellTap;
 
   static const double height = 58;
@@ -71,6 +89,9 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(height);
+
+  bool get _hasTextAction =>
+      action == SsossAppBarAction.done || action == SsossAppBarAction.exit;
 
   @override
   Widget build(BuildContext context) {
@@ -94,23 +115,42 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
                     : null,
               ),
               Expanded(
-                child: AppText(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.h4.copyWith(
-                    color: AppColors.neutral800,
-                  ),
-                ),
+                child: title.isEmpty
+                    ? const SizedBox.shrink()
+                    : AppText(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.h4.copyWith(
+                          color: AppColors.neutral800,
+                        ),
+                      ),
               ),
-              SizedBox(
-                width: _sideSlotWidth,
-                height: _sideSlotWidth,
-                child: _buildAction(),
-              ),
+              _buildTrailing(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTrailing() {
+    final child = _buildAction();
+    if (child == null) {
+      return const SizedBox(
+        width: _sideSlotWidth,
+        height: _sideSlotWidth,
+      );
+    }
+    if (_hasTextAction) {
+      return SizedBox(
+        height: _sideSlotWidth,
+        child: child,
+      );
+    }
+    return SizedBox(
+      width: _sideSlotWidth,
+      height: _sideSlotWidth,
+      child: child,
     );
   }
 
@@ -119,7 +159,15 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
       case SsossAppBarAction.none:
         return null;
       case SsossAppBarAction.done:
-        return _DoneActionButton(onTap: onDone);
+        return _TextActionButton(
+          label: '완료',
+          onTap: onDone,
+        );
+      case SsossAppBarAction.exit:
+        return _TextActionButton(
+          label: '나가기',
+          onTap: onExit,
+        );
       case SsossAppBarAction.bell:
         return _AppBarIconButton(
           assetPath: AppAssets.icBell,
@@ -146,9 +194,9 @@ class _AppBarIconButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: semanticLabel,
-      child: InkWell(
+      child: GestureDetector(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
+        behavior: HitTestBehavior.opaque,
         child: Center(
           child: SvgPicture.asset(
             assetPath,
@@ -165,29 +213,34 @@ class _AppBarIconButton extends StatelessWidget {
   }
 }
 
-class _DoneActionButton extends StatelessWidget {
-  const _DoneActionButton({
+class _TextActionButton extends StatelessWidget {
+  const _TextActionButton({
+    required this.label,
     required this.onTap,
   });
 
+  final String label;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: '완료',
-      child: InkWell(
+      label: label,
+      child: GestureDetector(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Center(
-          child: AppText(
-            '완료',
-            maxLines: 1,
-            overflow: TextOverflow.visible,
-            textAlign: TextAlign.center,
-            style: AppTextStyles.h6.copyWith(
-              color: AppColors.primary600,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Center(
+            child: AppText(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.visible,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.h6.copyWith(
+                color: AppColors.primary600,
+              ),
             ),
           ),
         ),

@@ -5,13 +5,7 @@ import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
-
-enum ContentChannel {
-  blog,
-  instagram,
-  carrot,
-  thread,
-}
+import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 
 class ContentChannelShortcuts extends StatelessWidget {
   const ContentChannelShortcuts({
@@ -19,30 +13,30 @@ class ContentChannelShortcuts extends StatelessWidget {
     this.onChannelTap,
   });
 
-  final ValueChanged<ContentChannel>? onChannelTap;
+  final ValueChanged<UploadChannel>? onChannelTap;
 
   static const _channels =
-      <({ContentChannel channel, String title, String subtitle, String icon})>[
+      <({UploadChannel channel, String title, String subtitle, String icon})>[
     (
-      channel: ContentChannel.blog,
+      channel: UploadChannel.blog,
       title: '블로그',
       subtitle: '글',
       icon: AppAssets.brandNaverBlog,
     ),
     (
-      channel: ContentChannel.instagram,
+      channel: UploadChannel.instagram,
       title: '인스타그램',
       subtitle: '캡션',
       icon: AppAssets.brandInstagram,
     ),
     (
-      channel: ContentChannel.carrot,
+      channel: UploadChannel.carrot,
       title: '당근',
       subtitle: '비즈 문구',
       icon: AppAssets.brandDaangn,
     ),
     (
-      channel: ContentChannel.thread,
+      channel: UploadChannel.thread,
       title: '스레드',
       subtitle: '포스팅',
       icon: AppAssets.brandThread,
@@ -130,12 +124,14 @@ class _ChannelShortcutCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.neutral100,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.neutral100,
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(

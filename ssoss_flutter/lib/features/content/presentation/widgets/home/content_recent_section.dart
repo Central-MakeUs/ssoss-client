@@ -5,7 +5,7 @@ import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_recent_item.dart';
-import 'package:ssoss_flutter/features/content/presentation/widgets/content_recent_list_item.dart';
+import 'package:ssoss_flutter/features/content/presentation/widgets/home/content_recent_list_item.dart';
 
 class ContentRecentSection extends StatelessWidget {
   const ContentRecentSection({
@@ -45,9 +45,9 @@ class ContentRecentSection extends StatelessWidget {
               ),
             ),
             if (visibleContents.isNotEmpty)
-              InkWell(
+              GestureDetector(
                 onTap: onViewAllTap,
-                borderRadius: BorderRadius.circular(8),
+                behavior: HitTestBehavior.opaque,
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
