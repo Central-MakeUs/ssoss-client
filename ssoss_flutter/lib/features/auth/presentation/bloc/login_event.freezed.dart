@@ -55,6 +55,9 @@ extension LoginEventPatterns on LoginEvent {
     TResult Function(WithdrawRequested value)? withdrawRequested,
     TResult Function(SessionRestoreRequested value)? sessionRestoreRequested,
     TResult Function(LogoutRequested value)? logoutRequested,
+    TResult Function(SessionExpired value)? sessionExpired,
+    TResult Function(SessionExpiredAcknowledged value)?
+        sessionExpiredAcknowledged,
     required TResult orElse(),
   }) {
     final _that = this;
@@ -69,6 +72,10 @@ extension LoginEventPatterns on LoginEvent {
         return sessionRestoreRequested(_that);
       case LogoutRequested() when logoutRequested != null:
         return logoutRequested(_that);
+      case SessionExpired() when sessionExpired != null:
+        return sessionExpired(_that);
+      case SessionExpiredAcknowledged() when sessionExpiredAcknowledged != null:
+        return sessionExpiredAcknowledged(_that);
       case _:
         return orElse();
     }
@@ -95,6 +102,9 @@ extension LoginEventPatterns on LoginEvent {
     required TResult Function(SessionRestoreRequested value)
         sessionRestoreRequested,
     required TResult Function(LogoutRequested value) logoutRequested,
+    required TResult Function(SessionExpired value) sessionExpired,
+    required TResult Function(SessionExpiredAcknowledged value)
+        sessionExpiredAcknowledged,
   }) {
     final _that = this;
     switch (_that) {
@@ -108,6 +118,10 @@ extension LoginEventPatterns on LoginEvent {
         return sessionRestoreRequested(_that);
       case LogoutRequested():
         return logoutRequested(_that);
+      case SessionExpired():
+        return sessionExpired(_that);
+      case SessionExpiredAcknowledged():
+        return sessionExpiredAcknowledged(_that);
     }
   }
 
@@ -130,6 +144,9 @@ extension LoginEventPatterns on LoginEvent {
     TResult? Function(WithdrawRequested value)? withdrawRequested,
     TResult? Function(SessionRestoreRequested value)? sessionRestoreRequested,
     TResult? Function(LogoutRequested value)? logoutRequested,
+    TResult? Function(SessionExpired value)? sessionExpired,
+    TResult? Function(SessionExpiredAcknowledged value)?
+        sessionExpiredAcknowledged,
   }) {
     final _that = this;
     switch (_that) {
@@ -143,6 +160,10 @@ extension LoginEventPatterns on LoginEvent {
         return sessionRestoreRequested(_that);
       case LogoutRequested() when logoutRequested != null:
         return logoutRequested(_that);
+      case SessionExpired() when sessionExpired != null:
+        return sessionExpired(_that);
+      case SessionExpiredAcknowledged() when sessionExpiredAcknowledged != null:
+        return sessionExpiredAcknowledged(_that);
       case _:
         return null;
     }
@@ -167,6 +188,8 @@ extension LoginEventPatterns on LoginEvent {
     TResult Function()? withdrawRequested,
     TResult Function()? sessionRestoreRequested,
     TResult Function()? logoutRequested,
+    TResult Function()? sessionExpired,
+    TResult Function()? sessionExpiredAcknowledged,
     required TResult orElse(),
   }) {
     final _that = this;
@@ -181,6 +204,10 @@ extension LoginEventPatterns on LoginEvent {
         return sessionRestoreRequested();
       case LogoutRequested() when logoutRequested != null:
         return logoutRequested();
+      case SessionExpired() when sessionExpired != null:
+        return sessionExpired();
+      case SessionExpiredAcknowledged() when sessionExpiredAcknowledged != null:
+        return sessionExpiredAcknowledged();
       case _:
         return orElse();
     }
@@ -206,6 +233,8 @@ extension LoginEventPatterns on LoginEvent {
     required TResult Function() withdrawRequested,
     required TResult Function() sessionRestoreRequested,
     required TResult Function() logoutRequested,
+    required TResult Function() sessionExpired,
+    required TResult Function() sessionExpiredAcknowledged,
   }) {
     final _that = this;
     switch (_that) {
@@ -219,6 +248,10 @@ extension LoginEventPatterns on LoginEvent {
         return sessionRestoreRequested();
       case LogoutRequested():
         return logoutRequested();
+      case SessionExpired():
+        return sessionExpired();
+      case SessionExpiredAcknowledged():
+        return sessionExpiredAcknowledged();
     }
   }
 
@@ -241,6 +274,8 @@ extension LoginEventPatterns on LoginEvent {
     TResult? Function()? withdrawRequested,
     TResult? Function()? sessionRestoreRequested,
     TResult? Function()? logoutRequested,
+    TResult? Function()? sessionExpired,
+    TResult? Function()? sessionExpiredAcknowledged,
   }) {
     final _that = this;
     switch (_that) {
@@ -254,6 +289,10 @@ extension LoginEventPatterns on LoginEvent {
         return sessionRestoreRequested();
       case LogoutRequested() when logoutRequested != null:
         return logoutRequested();
+      case SessionExpired() when sessionExpired != null:
+        return sessionExpired();
+      case SessionExpiredAcknowledged() when sessionExpiredAcknowledged != null:
+        return sessionExpiredAcknowledged();
       case _:
         return null;
     }
@@ -357,6 +396,47 @@ class LogoutRequested implements LoginEvent {
   @override
   String toString() {
     return 'LoginEvent.logoutRequested()';
+  }
+}
+
+/// @nodoc
+
+class SessionExpired implements LoginEvent {
+  const SessionExpired();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is SessionExpired);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.sessionExpired()';
+  }
+}
+
+/// @nodoc
+
+class SessionExpiredAcknowledged implements LoginEvent {
+  const SessionExpiredAcknowledged();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is SessionExpiredAcknowledged);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.sessionExpiredAcknowledged()';
   }
 }
 

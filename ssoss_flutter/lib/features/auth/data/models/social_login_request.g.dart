@@ -8,16 +8,10 @@ part of 'social_login_request.dart';
 
 _SocialLoginRequest _$SocialLoginRequestFromJson(Map<String, dynamic> json) =>
     _SocialLoginRequest(
-      provider: json['provider'] as String,
-      accessToken: json['accessToken'] as String?,
-      identityToken: json['identityToken'] as String?,
-      authorizationCode: json['authorizationCode'] as String?,
+      accessToken: json['accessToken'] as String,
     );
 
 Map<String, dynamic> _$SocialLoginRequestToJson(_SocialLoginRequest instance) =>
     <String, dynamic>{
-      'provider': instance.provider,
       'accessToken': instance.accessToken,
-      'identityToken': instance.identityToken,
-      'authorizationCode': instance.authorizationCode,
     };

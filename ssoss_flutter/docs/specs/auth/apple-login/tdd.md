@@ -407,61 +407,42 @@ sealed class LoginEvent with _$LoginEvent {
 
 ## 6. API 명세
 
-> 데모 단계에서는 API 호출 없음. 백엔드 연동(Phase 7) 시 [`naver-login/tdd.md`](../naver-login/tdd.md) 6장과 동일 엔드포인트를 사용한다.
+> OpenAPI SSOSS API v1 기준. 상세는 [`naver-login/tdd.md`](../naver-login/tdd.md) 6장과 동일.
 
 | 메서드 | 엔드포인트 | 설명 | 인증 필요 |
 |--------|-----------|------|---------|
-| `POST` | `/api/v1/auth/social/login` | Apple credential 전달 → 자체 JWT 발급 | N |
-| `POST` | `/api/v1/auth/token/refresh` | refresh 토큰으로 access/refresh 재발급 | N |
-| `POST` | `/api/v1/auth/logout` | 서버 세션/토큰 무효화 | Y |
-| `POST` | `/api/v1/auth/withdraw` | 회원 탈퇴 + **서버에서 Apple credential revoke** | Y |
+| `POST` | `/v1/social-logins/apple` | Apple identityToken → 자체 JWT | N |
+| `POST` | `/v1/tokens` | refresh 재발급 (RTR) | N |
+| `POST` | `/v1/logout` | refresh 세션 폐기 (멱등 204) | N |
 
-**Request Body 예시** (`POST /api/v1/auth/social/login`)
+> 회원 탈퇴 + 서버 Apple revoke 는 **Phase 8**.
 
-```json
-{
-  "provider": "apple",
-  "identityToken": "eyJhbGciOiJSUzI1NiIs...",
-  "authorizationCode": "c1a2b3d4e5f6..."
-}
-```
-
-**Response Body 예시** — 네이버와 동일
+**Request** (`POST /v1/social-logins/apple`)
 
 ```json
 {
-  "user": {
-    "id": "001234.abcdef...",
-    "nickname": "홍길동",
-    "email": "user@privaterelay.appleid.com",
-    "profileImageUrl": null
-  },
-  "token": {
-    "accessToken": "app-jwt-access-token",
-    "refreshToken": "app-jwt-refresh-token",
-    "expiresIn": 3600
-  }
+  "accessToken": "eyJhbGciOiJSUzI1NiIs..."
 }
 ```
 
-> Apple credential revoke 는 클라이언트가 아닌 **서버**에서 Apple Revoke API 를 호출한다 (PRD FR-11, Out of Scope).
+**Response** — accessToken + refreshToken 만 (user 없음; 프로필은 SDK 로컬 유지)
 
 ---
 
 ## 7. 에러 처리 전략
 
-> 이 프로젝트는 `Either<Failure, T>` 를 사용하지 않는다. DataSource/Repository 에서 예외를 throw 하고, `LoginBloc` 에서 `try/catch` 로 잡아 `failure` State 로 전환한다. 공통 예외 타입은 `core/exception/app_exception.dart` 를 재사용한다.
+> 공통 예외·에러 코드는 [`naver-login/tdd.md`](../naver-login/tdd.md) 7장과 공유한다.
 
 | 에러 종류 | 발생 위치 | 처리 방법 |
 |----------|----------|---------|
-| Apple 인증 취소 | `AppleAuthDatasource` | `AuthException.cancelled` throw → Bloc `failure` (네이버와 동일 정책) |
-| Apple credential 실패/무효 | `AppleAuthDatasource` | `AuthException.socialFailed` throw |
-| Hide My Email (email null) | `DemoAuthRemoteDatasource` | nickname 기본값("Apple 사용자")으로 User 생성 |
+| Apple 인증 취소 | `AppleAuthDatasource` | `AuthException.cancelled` throw → Bloc `failure` |
+| Apple credential 실패/무효 | `AppleAuthDatasource` / API `A0001` | `AuthException.socialFailed` throw |
+| Hide My Email (email null) | Repository | nickname 기본값("Apple 사용자")으로 User 생성 |
 | 재로그인 시 이름 미제공 | `AppleAuthDatasource` | `givenName`/`familyName` null → nickname 기본값 사용 |
-| 네트워크 오류 (Phase 7) | `AuthRemoteDatasource` | `NetworkException` throw |
-| 서버 에러 4xx/5xx (Phase 7) | `AuthRemoteDatasource` | `ServerException(statusCode)` throw |
-| 토큰 갱신 실패 (Phase 7) | Dio 인증 인터셉터 | `AuthException.unauthenticated` → 로그아웃 후 로그인 화면 |
-| 탈퇴 API 실패 (Phase 7) | `AuthRepositoryImpl` | 오류 안내 + 현재 화면 유지 |
+| 네트워크 오류 | `AuthRemoteDatasource` | `NetworkException` throw |
+| 서버 에러 4xx/5xx | `AuthRemoteDatasource` | `ServerException(statusCode, message, code)` throw |
+| 토큰 갱신 실패 (`A0004`/`A0005`) | Dio 인증 인터셉터 | 세션 만료 모달(로그인 후 화면) → `/login` |
+| 탈퇴 API 실패 | Phase 8 | 오류 안내 + 현재 화면 유지 |
 
 ---
 
@@ -553,7 +534,8 @@ LoginBloc(
 | 데모 세션 | `DemoAuthRemoteDatasource.createSessionFromApple()` | 네이버 데모와 일관, Phase 7 전환 용이 |
 | 세션 복원 | `StoredAuthCacheModel` 영속화 | provider별 demo user 하드코딩 제거, Apple FR-04 충족 |
 | 탈퇴(데모) | **로컬 clear만** (naver/apple 공통) | PRD: revoke는 서버, 클라이언트 `logoutAndDeleteToken` 미사용 |
-| 탈퇴(Phase 7) | **remote withdraw → local clear** | 서버에서 소셜 연동 revoke |
+| 탈퇴(Phase 8) | **remote withdraw → local clear** | 서버에서 소셜 연동 revoke. 현재는 로컬 clear만 |
+| 세션 만료 UX | 로그인 후 화면만 `SsossModal` | 네이버 Phase 7 과 공유 |
 | UI 노출 | **iOS만** Apple 버튼 | PRD 플랫폼 요구, Android Out of Scope |
 | 상태 관리 | 기존 **Bloc** 유지 | 네이버와 동일 이벤트 모델 확장 |
 | 에러 처리 | **예외 throw + try/catch** | 프로젝트 관례 ([`naver-login/tdd.md`](../naver-login/tdd.md) 와 동일) |

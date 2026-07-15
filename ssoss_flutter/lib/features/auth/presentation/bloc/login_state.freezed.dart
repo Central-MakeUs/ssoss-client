@@ -51,8 +51,10 @@ extension LoginStatePatterns on LoginState {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(LoginInitial value)? initial,
+    TResult Function(LoginRestoring value)? restoring,
     TResult Function(LoginLoading value)? loading,
     TResult Function(LoginAuthenticated value)? authenticated,
+    TResult Function(LoginSessionExpired value)? sessionExpired,
     TResult Function(LoginUnauthenticated value)? unauthenticated,
     TResult Function(LoginFailure value)? failure,
     required TResult orElse(),
@@ -61,10 +63,14 @@ extension LoginStatePatterns on LoginState {
     switch (_that) {
       case LoginInitial() when initial != null:
         return initial(_that);
+      case LoginRestoring() when restoring != null:
+        return restoring(_that);
       case LoginLoading() when loading != null:
         return loading(_that);
       case LoginAuthenticated() when authenticated != null:
         return authenticated(_that);
+      case LoginSessionExpired() when sessionExpired != null:
+        return sessionExpired(_that);
       case LoginUnauthenticated() when unauthenticated != null:
         return unauthenticated(_that);
       case LoginFailure() when failure != null:
@@ -90,8 +96,10 @@ extension LoginStatePatterns on LoginState {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(LoginInitial value) initial,
+    required TResult Function(LoginRestoring value) restoring,
     required TResult Function(LoginLoading value) loading,
     required TResult Function(LoginAuthenticated value) authenticated,
+    required TResult Function(LoginSessionExpired value) sessionExpired,
     required TResult Function(LoginUnauthenticated value) unauthenticated,
     required TResult Function(LoginFailure value) failure,
   }) {
@@ -99,10 +107,14 @@ extension LoginStatePatterns on LoginState {
     switch (_that) {
       case LoginInitial():
         return initial(_that);
+      case LoginRestoring():
+        return restoring(_that);
       case LoginLoading():
         return loading(_that);
       case LoginAuthenticated():
         return authenticated(_that);
+      case LoginSessionExpired():
+        return sessionExpired(_that);
       case LoginUnauthenticated():
         return unauthenticated(_that);
       case LoginFailure():
@@ -125,8 +137,10 @@ extension LoginStatePatterns on LoginState {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(LoginInitial value)? initial,
+    TResult? Function(LoginRestoring value)? restoring,
     TResult? Function(LoginLoading value)? loading,
     TResult? Function(LoginAuthenticated value)? authenticated,
+    TResult? Function(LoginSessionExpired value)? sessionExpired,
     TResult? Function(LoginUnauthenticated value)? unauthenticated,
     TResult? Function(LoginFailure value)? failure,
   }) {
@@ -134,10 +148,14 @@ extension LoginStatePatterns on LoginState {
     switch (_that) {
       case LoginInitial() when initial != null:
         return initial(_that);
+      case LoginRestoring() when restoring != null:
+        return restoring(_that);
       case LoginLoading() when loading != null:
         return loading(_that);
       case LoginAuthenticated() when authenticated != null:
         return authenticated(_that);
+      case LoginSessionExpired() when sessionExpired != null:
+        return sessionExpired(_that);
       case LoginUnauthenticated() when unauthenticated != null:
         return unauthenticated(_that);
       case LoginFailure() when failure != null:
@@ -162,8 +180,10 @@ extension LoginStatePatterns on LoginState {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
+    TResult Function()? restoring,
     TResult Function()? loading,
     TResult Function(User user)? authenticated,
+    TResult Function()? sessionExpired,
     TResult Function()? unauthenticated,
     TResult Function(String message)? failure,
     required TResult orElse(),
@@ -172,10 +192,14 @@ extension LoginStatePatterns on LoginState {
     switch (_that) {
       case LoginInitial() when initial != null:
         return initial();
+      case LoginRestoring() when restoring != null:
+        return restoring();
       case LoginLoading() when loading != null:
         return loading();
       case LoginAuthenticated() when authenticated != null:
         return authenticated(_that.user);
+      case LoginSessionExpired() when sessionExpired != null:
+        return sessionExpired();
       case LoginUnauthenticated() when unauthenticated != null:
         return unauthenticated();
       case LoginFailure() when failure != null:
@@ -201,8 +225,10 @@ extension LoginStatePatterns on LoginState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
+    required TResult Function() restoring,
     required TResult Function() loading,
     required TResult Function(User user) authenticated,
+    required TResult Function() sessionExpired,
     required TResult Function() unauthenticated,
     required TResult Function(String message) failure,
   }) {
@@ -210,10 +236,14 @@ extension LoginStatePatterns on LoginState {
     switch (_that) {
       case LoginInitial():
         return initial();
+      case LoginRestoring():
+        return restoring();
       case LoginLoading():
         return loading();
       case LoginAuthenticated():
         return authenticated(_that.user);
+      case LoginSessionExpired():
+        return sessionExpired();
       case LoginUnauthenticated():
         return unauthenticated();
       case LoginFailure():
@@ -236,8 +266,10 @@ extension LoginStatePatterns on LoginState {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
+    TResult? Function()? restoring,
     TResult? Function()? loading,
     TResult? Function(User user)? authenticated,
+    TResult? Function()? sessionExpired,
     TResult? Function()? unauthenticated,
     TResult? Function(String message)? failure,
   }) {
@@ -245,10 +277,14 @@ extension LoginStatePatterns on LoginState {
     switch (_that) {
       case LoginInitial() when initial != null:
         return initial();
+      case LoginRestoring() when restoring != null:
+        return restoring();
       case LoginLoading() when loading != null:
         return loading();
       case LoginAuthenticated() when authenticated != null:
         return authenticated(_that.user);
+      case LoginSessionExpired() when sessionExpired != null:
+        return sessionExpired();
       case LoginUnauthenticated() when unauthenticated != null:
         return unauthenticated();
       case LoginFailure() when failure != null:
@@ -276,6 +312,26 @@ class LoginInitial implements LoginState {
   @override
   String toString() {
     return 'LoginState.initial()';
+  }
+}
+
+/// @nodoc
+
+class LoginRestoring implements LoginState {
+  const LoginRestoring();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is LoginRestoring);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginState.restoring()';
   }
 }
 
@@ -360,6 +416,26 @@ class _$LoginAuthenticatedCopyWithImpl<$Res>
           : user // ignore: cast_nullable_to_non_nullable
               as User,
     ));
+  }
+}
+
+/// @nodoc
+
+class LoginSessionExpired implements LoginState {
+  const LoginSessionExpired();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is LoginSessionExpired);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginState.sessionExpired()';
   }
 }
 

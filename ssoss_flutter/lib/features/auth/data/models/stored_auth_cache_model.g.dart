@@ -19,7 +19,7 @@ _StoredAuthCacheModel _$StoredAuthCacheModelFromJson(
 Map<String, dynamic> _$StoredAuthCacheModelToJson(
         _StoredAuthCacheModel instance) =>
     <String, dynamic>{
-      'token': instance.token.toJson(),
+      'token': instance.token,
       'provider': instance.provider,
       'userId': instance.userId,
       'nickname': instance.nickname,

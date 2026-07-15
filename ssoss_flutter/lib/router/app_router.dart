@@ -6,32 +6,56 @@ import 'package:go_router/go_router.dart';
 import 'package:ssoss_flutter/features/auth/presentation/bloc/login_bloc.dart';
 import 'package:ssoss_flutter/features/auth/presentation/bloc/login_state.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/login_page.dart';
+import 'package:ssoss_flutter/features/auth/presentation/pages/splash_page.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_create_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_generating_page.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 
-/// [LoginBloc] 의 인증 상태에 따라 로그인/홈으로 분기하는 라우터를 생성한다.
+/// [LoginBloc] 의 인증 상태에 따라 스플래시/로그인/홈으로 분기하는 라우터를 생성한다.
 ///
 /// 새 화면 추가 시 이 파일의 `routes` 에 라우트를 등록한다.
 GoRouter createAppRouter(LoginBloc loginBloc) {
   return GoRouter(
-    initialLocation: LoginPage.routePath,
+    initialLocation: SplashPage.routePath,
     refreshListenable: _GoRouterRefreshStream(loginBloc.stream),
     redirect: (context, state) {
-      final isAuthenticated = loginBloc.state is LoginAuthenticated;
-      final isOnLogin = state.matchedLocation == LoginPage.routePath;
+      final authState = loginBloc.state;
+      final location = state.matchedLocation;
+      final isOnSplash = location == SplashPage.routePath;
+      final isOnLogin = location == LoginPage.routePath;
+
+      // 세션 복원 중에는 스플래시에 머문다 (로그인 화면 플래시 방지).
+      final isResolvingAuth =
+          authState is LoginInitial || authState is LoginRestoring;
+      if (isResolvingAuth) {
+        return isOnSplash ? null : SplashPage.routePath;
+      }
+
+      // 세션 만료 모달 표시 중에는 현재 라우트 유지.
+      if (authState is LoginSessionExpired) {
+        return null;
+      }
+
+      final isAuthenticated = authState is LoginAuthenticated;
 
       if (!isAuthenticated) {
-        return isOnLogin ? null : LoginPage.routePath;
+        if (isOnLogin) return null;
+        return LoginPage.routePath;
       }
-      if (isOnLogin) {
+
+      if (isOnLogin || isOnSplash) {
         return HomePage.routePath;
       }
       return null;
     },
     routes: [
+      GoRoute(
+        name: SplashPage.routeName,
+        path: SplashPage.routePath,
+        builder: (context, state) => const SplashPage(),
+      ),
       GoRoute(
         name: LoginPage.routeName,
         path: LoginPage.routePath,

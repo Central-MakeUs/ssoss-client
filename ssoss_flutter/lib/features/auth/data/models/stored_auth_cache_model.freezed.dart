@@ -293,8 +293,7 @@ extension StoredAuthCacheModelPatterns on StoredAuthCacheModel {
 }
 
 /// @nodoc
-
-@JsonSerializable(explicitToJson: true)
+@JsonSerializable()
 class _StoredAuthCacheModel implements StoredAuthCacheModel {
   const _StoredAuthCacheModel(
       {required this.token,

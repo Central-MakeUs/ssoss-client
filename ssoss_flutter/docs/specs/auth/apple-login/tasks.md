@@ -13,7 +13,8 @@
 | 관련 PRD | `prd.md` |
 
 > **구현 우선순위 요약**
-> - 백엔드 연동은 **후순위**(서버팀 협의 후 진행, Phase 7). 그 전까지는 **데모 경로**로 로그인 흐름 전체가 동작해야 한다.
+> - **Phase 7** — 백엔드 인증 API 연동 (소셜 로그인 / 토큰 재발급 / 로그아웃). 탈퇴 API는 제외. [naver-login Phase 7](../naver-login/tasks.md) 과 공유.
+> - **Phase 8** — 회원 탈퇴 API 연동 (후순위, 서버 스펙 대기).
 > - `sign_in_with_apple` 패키지는 이미 `pubspec.yaml` 에 추가됨 (`^8.1.0`). 추가 설치 불필요.
 > - Apple 로그인 버튼은 **iOS에서만** 노출한다 (`Platform.isIOS`). Android는 Out of Scope.
 > - 코드는 별도 피처 폴더 없이 `lib/features/auth/` 내 provider 추상화로 확장한다 (네이버 로그인과 동일).
@@ -167,43 +168,52 @@
 
 ---
 
-## Phase 7 — 백엔드 연동 (후순위)
+## Phase 7 — 백엔드 인증 API 연동 (login / refresh / logout)
 
-> 서버팀 협의 후 진행한다. [`naver-login/tasks.md`](../naver-login/tasks.md) Phase 7 과 공유 항목이 많다.
+> OpenAPI 기준. **탈퇴 API는 Phase 8** 로 분리. 상세 체크리스트는 [`naver-login/tasks.md`](../naver-login/tasks.md) Phase 7 과 공유.
 
-- [ ] **7-1** `env/.env.*` 의 `API_BASE_URL` 확정 (`EnvLoader`/`ApiEnvironment` 는 기존 구성 사용)
-- [ ] **7-2** `data/datasources/auth_remote_datasource_impl.dart` — Dio 로 `POST /api/v1/auth/social/login`, `/api/v1/auth/token/refresh`, `/api/v1/auth/logout`, `/api/v1/auth/withdraw` 구현
-- [ ] **7-3** `AuthRepositoryImpl` 의 데모 경로 → 실제 `AuthRemoteDatasource` 호출로 전환 (네이버·Apple 공통)
-- [ ] **7-4** `refreshTokens()` 실구현 + Dio 토큰 인터셉터(access 만료 시 refresh, 실패 시 로그아웃)
-- [ ] **7-4-1** 전역 인증 인터셉터 구성: 어떤 API 호출이든 401/만료 감지 시 refresh API 호출
-- [ ] **7-4-2** refresh 성공 시 원요청 자동 재시도, 실패 시 로컬 세션 정리 + 로그인 화면 이동
-- [ ] **7-5** `loginWithApple()` — `AuthRemoteDatasource.socialLogin(provider: apple, identityToken, authorizationCode)` 전환
-- [ ] **7-6** `withdraw()` 에 API 호출 연결. **서버에서 Apple credential revoke** 수행 (클라이언트 미처리)
-- [ ] **7-7** `DemoAuthRemoteDatasource` 제거 또는 개발 flavor 전용으로 격리
-- [ ] **7-8** FR-02 · FR-07 · FR-11 동작 검증
+- [x] **7-1** `env/.env.*` 의 `API_BASE_URL` 확정 (네이버 Phase 7-1 과 공유)
+- [x] **7-2** 에러 코드·DTO·`AuthRemoteDatasourceImpl` (네이버 Phase 7-2~7-4 와 공유)
+- [x] **7-3** `loginWithApple()` — `POST /v1/social-logins/apple` body `{ accessToken: identityToken }`
+- [x] **7-4** Dio 인터셉터·세션 만료 UX (네이버 Phase 7-6~7-7 과 공유)
+- [x] **7-5** DI: Demo → 실구현 전환 (네이버 Phase 7-5·7-8 과 공유)
+- [ ] **7-6** FR-02·FR-07 동작 검증 (실기기/스테이징 수동 검증)
 
 ---
 
-## Phase 8 — 테스트 작성 (선택)
+## Phase 8 — 회원 탈퇴 API 연동 (후순위)
+
+> 서버 탈퇴 API 스펙 확정 후 진행. 현재는 로컬 clear 유지.
+
+- [ ] **8-1** 탈퇴 API 엔드포인트를 `tdd.md` 에 반영
+- [ ] **8-2** `AuthRemoteDatasource.withdraw()` Dio 구현
+- [ ] **8-3** `AuthRepositoryImpl.withdraw()` — remote → local clear
+- [ ] **8-4** **서버에서 Apple credential revoke** (클라이언트 미처리)
+- [ ] **8-5** FR-11 동작 검증
+
+---
+
+## Phase 9 — 테스트 작성 (선택)
 
 > 팀 정책에 따라 수행한다. TDD 10장 기준.
 
-- [ ] **8-1** `LoginWithAppleUseCase` Unit Test — 정상 로그인, 취소 예외 전파, credential 실패 예외 전파
-- [ ] **8-2** `AuthRepositoryImpl` Unit Test (Mock DataSource)
-  - `loginWithApple()` — Apple DS → Demo DS → Local saveSession 호출 순서 검증
+- [ ] **9-1** `LoginWithAppleUseCase` Unit Test — 정상 로그인, 취소 예외 전파, credential 실패 예외 전파
+- [ ] **9-2** `AuthRepositoryImpl` Unit Test (Mock DataSource)
+  - `loginWithApple()` — Apple DS → Remote → Local saveSession 호출 순서 검증
   - `restoreSession()` — apple/naver 캐시 각각 올바른 `SocialProvider` 로 복원
-- [ ] **8-3** `LoginBloc` Unit Test (`bloc_test`) — `AppleLoginRequested` → loading → authenticated / failure
-- [ ] **8-4** `AppleLoginButton` Widget Test — iOS에서 렌더링, 탭 시 이벤트 발생
-- [ ] **8-5** `LoginPage` Widget Test — iOS에서 Apple 버튼 노출, Android에서 미노출
+- [ ] **9-3** `LoginBloc` Unit Test (`bloc_test`) — `AppleLoginRequested` → loading → authenticated / failure
+- [ ] **9-4** `AppleLoginButton` Widget Test — iOS에서 렌더링, 탭 시 이벤트 발생
+- [ ] **9-5** `LoginPage` Widget Test — iOS에서 Apple 버튼 노출, Android에서 미노출
 
 ---
 
 ## 완료 기준 (Definition of Done)
 
-> 백엔드 미연동 단계의 완료 기준이다. 백엔드 의존 항목은 Phase 7 에서 충족한다.
+> Phase 0–6(데모) + Phase 7(인증 API) 완료 기준. 탈퇴 서버 연동은 Phase 8.
 
 - [ ] PRD Must FR 중 데모 가능 항목 구현: **FR-01, FR-03, FR-04, FR-05, FR-06, FR-08, FR-10**
-- [ ] FR-02(백엔드 JWT 발급), FR-07(토큰 갱신), FR-11(서버 탈퇴·Apple revoke)은 Phase 7 로 이관 명시
+- [ ] FR-02(백엔드 JWT 발급), FR-07(토큰 갱신) — **Phase 7**
+- [ ] FR-11(서버 탈퇴·Apple revoke) — **Phase 8**
 - [ ] `flutter analyze` 경고·에러 없음
 - [ ] `build_runner` 생성 파일 최신 상태
 - [ ] 라우팅(`/login`, `/home` redirect) 등록 완료 (기존 유지)
@@ -217,7 +227,7 @@
 
 | 날짜 | 내용 | 처리 상태 |
 |------|------|---------|
-| 2026-07-07 | 백엔드 연동은 서버팀 협의 후 Phase 7. 그 전까지 데모 경로(`DemoAuthRemoteDatasource`)로 로그인 흐름 동작 | Open |
-| 2026-07-07 | `StoredAuthCacheModel` 도입으로 네이버 `restoreSession` 하드코딩(`_restoredDemoUser`) 제거 — 네이버·Apple 공통 마이그레이션 | Resolved |
+| 2026-07-07 | `StoredAuthCacheModel` 도입으로 네이버·Apple 공통 세션 복원 | Resolved |
 | 2026-07-07 | Apple credential revoke는 서버 처리. 클라이언트 `logoutAndDeleteToken` 미사용 (Out of Scope) | Open |
 | 2026-07-07 | Apple 로그인 버튼은 iOS 전용. Android Apple Sign In은 후속 스펙 | Open |
+| 2026-07-15 | OpenAPI 확정. Apple identityToken 을 `accessToken` 필드로 전달. 탈퇴는 Phase 8 | Open |
