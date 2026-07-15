@@ -3,41 +3,51 @@ import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import '../../domain/entities/auth_session.dart';
 import '../../domain/entities/auth_tokens.dart';
 import '../../domain/entities/social_provider.dart';
+import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/apple_auth_datasource.dart';
 import '../datasources/auth_local_datasource.dart';
-import '../datasources/demo_auth_remote_datasource.dart';
+import '../datasources/auth_remote_datasource.dart';
 import '../datasources/naver_auth_datasource.dart';
-import '../models/auth_response_model.dart';
+import '../models/auth_token_model.dart';
+import '../models/social_login_request.dart';
 import '../models/stored_auth_cache_model.dart';
 
-/// [AuthRepository] 데모 구현체.
-///
-/// 백엔드 미연동 상태이므로 [DemoAuthRemoteDatasource] 로 세션을 생성한다.
-/// 백엔드 연동(Phase 7) 시 데모 경로를 실제 remote datasource 호출로 전환한다.
+/// [AuthRepository] 실서버 연동 구현체.
 class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl({
     required NaverAuthDatasource naverDatasource,
     required AppleAuthDatasource appleDatasource,
-    required DemoAuthRemoteDatasource demoRemoteDatasource,
+    required AuthRemoteDatasource remoteDatasource,
     required AuthLocalDatasource localDatasource,
   })  : _naverDatasource = naverDatasource,
         _appleDatasource = appleDatasource,
-        _demoRemoteDatasource = demoRemoteDatasource,
+        _remoteDatasource = remoteDatasource,
         _localDatasource = localDatasource;
 
   final NaverAuthDatasource _naverDatasource;
   final AppleAuthDatasource _appleDatasource;
-  final DemoAuthRemoteDatasource _demoRemoteDatasource;
+  final AuthRemoteDatasource _remoteDatasource;
   final AuthLocalDatasource _localDatasource;
 
   @override
   Future<AuthSession> loginWithNaver() async {
     final account = await _naverDatasource.login();
-    final response = await _demoRemoteDatasource.createSession(account);
-    final session = response.toEntity(SocialProvider.naver);
+    final token = await _remoteDatasource.socialLogin(
+      provider: 'naver',
+      request: SocialLoginRequest(accessToken: account.accessToken),
+    );
+    final session = AuthSession(
+      user: User(
+        id: account.id,
+        nickname: account.nickname,
+        email: account.email,
+        provider: SocialProvider.naver,
+      ),
+      tokens: token.toEntity(),
+    );
     await _saveSession(
-      response: response,
+      token: token,
       provider: 'naver',
       session: session,
     );
@@ -50,11 +60,26 @@ class AuthRepositoryImpl implements AuthRepository {
     if (account.userIdentifier.isEmpty) {
       throw AuthException.socialFailed('Apple 계정 정보를 가져오지 못했습니다.');
     }
-    final response =
-        await _demoRemoteDatasource.createSessionFromApple(account);
-    final session = response.toEntity(SocialProvider.apple);
+    final identityToken = account.identityToken;
+    if (identityToken == null || identityToken.isEmpty) {
+      throw AuthException.socialFailed('Apple identity token 을 가져오지 못했습니다.');
+    }
+
+    final token = await _remoteDatasource.socialLogin(
+      provider: 'apple',
+      request: SocialLoginRequest(accessToken: identityToken),
+    );
+    final session = AuthSession(
+      user: User(
+        id: account.userIdentifier,
+        nickname: account.nickname,
+        email: account.email,
+        provider: SocialProvider.apple,
+      ),
+      tokens: token.toEntity(),
+    );
     await _saveSession(
-      response: response,
+      token: token,
       provider: 'apple',
       session: session,
     );
@@ -65,18 +90,20 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<AuthSession?> restoreSession() async {
     final cache = await _localDatasource.readSession();
     if (cache == null) return null;
-
-    final session = cache.toEntity();
-    if (session.tokens.isExpired) {
-      await _localDatasource.clear();
-      return null;
-    }
-    return session;
+    return cache.toEntity();
   }
 
   @override
   Future<void> logout() async {
     final cache = await _localDatasource.readSession();
+    final refreshToken = cache?.token.refreshToken;
+    if (refreshToken != null && refreshToken.isNotEmpty) {
+      try {
+        await _remoteDatasource.logout(refreshToken);
+      } catch (_) {
+        // 멱등·네트워크 실패여도 로컬은 정리한다.
+      }
+    }
     await _localDatasource.clear();
     if (cache?.provider == 'naver') {
       await _naverDatasource.logout();
@@ -85,24 +112,31 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> withdraw() async {
-    // TODO: 서버 withdraw API 호출
+    // Phase 8: remote withdraw → local clear
     await _localDatasource.clear();
   }
 
   @override
   Future<AuthTokens> refreshTokens() async {
-    // Phase 7 백엔드 연동 시 실제 토큰 갱신을 구현한다.
-    throw AuthException.unauthenticated('토큰 갱신은 아직 지원되지 않습니다.');
+    final cache = await _localDatasource.readSession();
+    final refreshToken = cache?.token.refreshToken;
+    if (refreshToken == null || refreshToken.isEmpty) {
+      throw AuthException.unauthenticated();
+    }
+
+    final token = await _remoteDatasource.refresh(refreshToken);
+    await _localDatasource.updateTokens(token);
+    return token.toEntity();
   }
 
   Future<void> _saveSession({
-    required AuthResponseModel response,
+    required AuthTokenModel token,
     required String provider,
     required AuthSession session,
   }) async {
     await _localDatasource.saveSession(
       StoredAuthCacheModel(
-        token: response.token,
+        token: token,
         provider: provider,
         userId: session.user.id,
         nickname: session.user.nickname,

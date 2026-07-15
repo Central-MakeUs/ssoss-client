@@ -13,7 +13,8 @@
 | 관련 PRD | `prd.md` |
 
 > **구현 우선순위 요약**
-> - 백엔드 연동은 **후순위**(서버팀 협의 후 진행, Phase 7). 그 전까지는 **데모 경로**로 로그인 흐름 전체가 동작해야 한다.
+> - **Phase 7** — 백엔드 인증 API 연동 (소셜 로그인 / 토큰 재발급 / 로그아웃). 탈퇴 API는 제외.
+> - **Phase 8** — 회원 탈퇴 API 연동 (후순위, 서버 스펙 대기).
 > - 네이버 키(Client ID/Secret 등)는 **네이티브 secret 파일**로 관리되어 이미 설정 완료. `flutter_naver_login` SDK 가 네이티브 값을 직접 읽으므로 Dart/env 에 네이버 키를 두지 않는다.
 
 ---
@@ -178,45 +179,69 @@
 
 ---
 
-## Phase 7 — 백엔드 연동 (후순위)
+## Phase 7 — 백엔드 인증 API 연동 (login / refresh / logout)
 
-> 서버팀 협의 후 진행한다. API 명세 확정 시 `tdd.md` 6장을 갱신한다.
+> OpenAPI 기준. **탈퇴 API는 Phase 8** 로 분리한다. apple-login Phase 7 과 공유.
 
-- [ ] **7-1** `env/.env.*` 의 `API_BASE_URL` 확정 (`EnvLoader`/`ApiEnvironment` 는 기존 구성 사용)
-- [ ] **7-2** `data/datasources/auth_remote_datasource_impl.dart` — Dio 로 `POST /auth/social/login`, `/auth/token/refresh`, `/auth/logout`, `/auth/withdraw` 구현
-- [ ] **7-3** `AuthRepositoryImpl` 의 데모 경로 → 실제 `AuthRemoteDatasource` 호출로 전환 (네이버 토큰 → 자체 JWT)
-- [ ] **7-4** `refreshTokens()` 실구현 + Dio 토큰 인터셉터(access 만료 시 refresh, 실패 시 로그아웃)
-- [ ] **7-4-1** 전역 인증 인터셉터 구성: 어떤 API 호출이든 401/만료 감지 시 refresh API 호출
-- [ ] **7-4-2** refresh 성공 시 원요청 자동 재시도, 실패 시 로컬 세션 정리 + 로그인 화면 이동
-- [ ] **7-5** `withdraw()` 에 API 호출 연결(실패 시 롤백/메시지 정책 반영). 서버에서 네이버 연동 revoke 수행
-- [ ] **7-6** `DemoAuthRemoteDatasource` 제거 또는 개발 flavor 전용으로 격리
-- [ ] **7-7** FR-02·FR-07·FR-11 동작 검증
+- [x] **7-1** `env/.env.*` 의 `API_BASE_URL` 확정 (`https://api.ssoss.site` 등)
+- [x] **7-2** 확장 가능한 에러 코드 계층 (`ErrorResponse`, `ApiErrorCode`, Dio → `AppException` 매퍼)
+- [x] **7-3** DTO·엔드포인트 OpenAPI 반영
+  - `POST /v1/social-logins/{provider}` — body `{ accessToken }`
+  - `POST /v1/tokens` — body `{ refreshToken }` (RTR)
+  - `POST /v1/logout` — body `{ refreshToken }` (멱등 204)
+- [x] **7-4** `auth_remote_datasource_impl.dart` — Dio 로 login / refresh / logout 구현
+- [x] **7-5** `AuthRepositoryImpl` · DI: Demo → 실 `AuthRemoteDatasource` 전환
+  - 로그인 성공 시 access/refresh 를 secure storage 에 저장
+  - 유저 프로필은 SDK 응답으로 로컬 유지 (로그인 API 응답에 user 없음)
+  - 로그아웃 시 서버 logout 후 로컬 토큰 삭제
+- [x] **7-6** Dio 전역 인증 인터셉터
+  - **7-6-1** `Authorization: Bearer` 주입 (auth 경로 제외)
+  - **7-6-2** 401 시 refresh 단일 flight → 성공 시 원요청 재시도 / 실패 시 세션 만료
+  - **7-6-3** RTR: refresh 응답의 access+refresh 모두 교체 저장
+- [x] **7-7** 세션 만료 UX
+  - 로그인 후 화면에서 refresh 실패 시 `SsossModal` ("세션이 만료되었습니다. 다시 로그인해 주세요.") → 확인 시 `/login`
+  - 콜드 스타트·로그인 화면에서는 모달 없이 redirect
+- [x] **7-8** `DemoAuthRemoteDatasource` 를 DI 에서 실구현으로 교체 (코드는 격리 유지 가능)
+- [ ] **7-9** FR-02·FR-07 동작 검증 (실기기/스테이징 수동 검증)
 
 ---
 
-## Phase 8 — 테스트 작성 (선택)
+## Phase 8 — 회원 탈퇴 API 연동 (후순위)
 
-- [ ] **8-1** `LoginWithNaverUseCase` Unit Test
-- [ ] **8-2** `AuthRepositoryImpl` Unit Test (Mock DataSource)
-- [ ] **8-3** `LoginBloc` Unit Test (`bloc_test`) — 상태 전이 검증
-- [ ] **8-4** `LoginPage` Widget Test
-- [ ] **8-5** `WithdrawUseCase` Unit Test
-- [ ] **8-6** `withdrawRequested` 이벤트 상태 전이 테스트
+> 서버 탈퇴 API 스펙 확정 후 진행한다. 현재는 Phase 6 데모(로컬 clear) 유지.
+
+- [ ] **8-1** 탈퇴 API 엔드포인트·요청/응답을 `tdd.md` 에 반영
+- [ ] **8-2** `AuthRemoteDatasource.withdraw()` Dio 구현
+- [ ] **8-3** `AuthRepositoryImpl.withdraw()` — remote withdraw → local clear
+- [ ] **8-4** 서버에서 네이버 연동 revoke 수행 (클라이언트 `logoutAndDeleteToken` 미사용)
+- [ ] **8-5** FR-11 동작 검증
+
+---
+
+## Phase 9 — 테스트 작성 (선택)
+
+- [ ] **9-1** `LoginWithNaverUseCase` Unit Test
+- [ ] **9-2** `AuthRepositoryImpl` Unit Test (Mock DataSource)
+- [ ] **9-3** `LoginBloc` Unit Test (`bloc_test`) — 상태 전이 검증
+- [ ] **9-4** `LoginPage` Widget Test
+- [ ] **9-5** `WithdrawUseCase` Unit Test
+- [ ] **9-6** `withdrawRequested` 이벤트 상태 전이 테스트
+- [ ] **9-7** Dio Auth Interceptor — 401 → refresh → retry / refresh 실패 → 세션 만료
 
 ---
 
 ## 완료 기준 (Definition of Done)
 
-> 백엔드 미연동 단계의 완료 기준이다. 백엔드 의존 항목은 Phase 7 에서 충족한다.
+> Phase 0–6(데모) + Phase 7(인증 API) 완료 기준. 탈퇴 서버 연동은 Phase 8.
 
-- [ ] PRD Must FR 중 데모 가능 항목 구현: **FR-01, FR-03, FR-04, FR-05, FR-06**
-- [ ] 탈퇴 최소 요건(데모): **FR-10**
-- [ ] FR-02(백엔드 JWT 발급), FR-07(토큰 갱신)은 Phase 7 로 이관 명시
-- [ ] FR-11(서버 탈퇴 처리)은 Phase 7 에서 구현
-- [ ] `flutter analyze` 경고·에러 없음
-- [ ] `build_runner` 생성 파일 최신 상태
-- [ ] 라우팅(`/login`, `/home` redirect) 등록 완료
-- [ ] DI(`AuthProviders`) 등록 완료
+- [x] PRD Must FR 중 데모 가능 항목 구현: **FR-01, FR-03, FR-04, FR-05, FR-06**
+- [x] 탈퇴 최소 요건(데모): **FR-10**
+- [x] FR-02(백엔드 JWT 발급), FR-07(토큰 갱신) — **Phase 7**
+- [ ] FR-11(서버 탈퇴 처리) — **Phase 8**
+- [x] `flutter analyze` 경고·에러 없음
+- [x] `build_runner` 생성 파일 최신 상태
+- [x] 라우팅(`/login`, `/home` redirect) 등록 완료
+- [x] DI(`AuthProviders`) 등록 완료
 - [ ] 코드 리뷰 완료 (팀 정책에 따라)
 
 ---
@@ -225,6 +250,6 @@
 
 | 날짜 | 내용 | 처리 상태 |
 |------|------|---------|
-| 2026-07-03 | 백엔드 연동은 서버팀 협의 후 진행(후순위). 그 전까지 데모 경로(`DemoAuthRemoteDatasource`)로 로그인 흐름 동작 | Open |
-| 2026-07-03 | 네이버 키는 iOS/Android 네이티브 secret 파일로 관리(설정 완료). Dart/env 에 네이버 키 불필요 → TDD 의 "env 네이버 Client ID/Secret" 언급은 미적용. `API_BASE_URL` 은 Phase 7 에서 사용 | Resolved |
+| 2026-07-03 | 네이버 키는 iOS/Android 네이티브 secret 파일로 관리(설정 완료). Dart/env 에 네이버 키 불필요 | Resolved |
 | 2026-07-07 | 탈퇴 시 네이버 연동 revoke는 서버 처리. 클라이언트는 로컬 세션 삭제만 (`logoutAndDeleteToken` 제거) | Resolved |
+| 2026-07-15 | OpenAPI 확정: `/v1/social-logins/{provider}`, `/v1/tokens`, `/v1/logout`. 탈퇴는 Phase 8 분리 | Open |

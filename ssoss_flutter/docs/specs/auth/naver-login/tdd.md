@@ -344,39 +344,48 @@ final GoRouter appRouter = GoRouter(
 
 ## 6. API 명세
 
+> OpenAPI SSOSS API v1 기준. Base URL: `https://api.ssoss.site` (`env/.env.*` 의 `API_BASE_URL`).
+
 | 메서드 | 엔드포인트 | 설명 | 인증 필요 |
 |--------|-----------|------|---------|
-| `POST` | `/api/v1/auth/social/login` | 네이버 accessToken 전달 → 자체 JWT 발급 | N |
-| `POST` | `/api/v1/auth/token/refresh` | refresh 토큰으로 access/refresh 재발급 (전역 인터셉터에서 사용) | N |
-| `POST` | `/api/v1/auth/logout` | 서버 세션/토큰 무효화 | Y |
-| `POST` | `/api/v1/auth/withdraw` | 회원 탈퇴 + **서버에서 네이버 연동 revoke** | Y |
+| `POST` | `/v1/social-logins/{provider}` | 소셜 accessToken 전달 → 자체 JWT 발급 (`provider`: `naver` \| `apple`) | N |
+| `POST` | `/v1/tokens` | refresh 토큰으로 access/refresh 재발급 (RTR, 전역 인터셉터에서 사용) | N |
+| `POST` | `/v1/logout` | 제출한 refresh 토큰 세션 폐기 (멱등 204) | N (body 에 refreshToken) |
 
-> 실제 엔드포인트 경로·필드명은 백엔드 스펙 확정 시 갱신한다.
+> 회원 탈퇴 API는 **Phase 8** (서버 스펙 대기). 현재는 로컬 clear만 수행.
 
-**Request Body 예시** (`POST /api/v1/auth/social/login`)
+**Request** (`POST /v1/social-logins/naver`)
 
 ```json
 {
-  "provider": "naver",
   "accessToken": "naver-sdk-access-token"
 }
 ```
 
-**Response Body 예시**
+**Request** (`POST /v1/social-logins/apple`) — Apple identityToken 을 `accessToken` 필드에 전달
 
 ```json
 {
-  "user": {
-    "id": "12345",
-    "nickname": "홍길동",
-    "email": "user@example.com",
-    "profileImageUrl": "https://.../profile.png"
-  },
-  "token": {
-    "accessToken": "app-jwt-access-token",
-    "refreshToken": "app-jwt-refresh-token",
-    "expiresIn": 3600
-  }
+  "accessToken": "eyJhbGciOiJSUzI1NiIs..."
+}
+```
+
+**Response** (login / refresh 공통)
+
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzM4NCJ9...",
+  "refreshToken": "3q2nq0uW9kZ0m1r5c8vX2yB7dF4hJ6lN8pR0tV2xZ4A"
+}
+```
+
+> 응답에 `user` / `expiresIn` 없음. 유저 프로필은 SDK 응답으로 로컬 유지. access 만료는 서버 401 로 감지하고 인터셉터가 refresh 한다.
+
+**Logout Request** (`POST /v1/logout`)
+
+```json
+{
+  "refreshToken": "3q2nq0uW9kZ0m1r5c8vX2yB7dF4hJ6lN8pR0tV2xZ4A"
 }
 ```
 
@@ -384,37 +393,35 @@ final GoRouter appRouter = GoRouter(
 
 ## 7. 에러 처리 전략
 
-> 이 프로젝트는 `Either<Failure, T>` 를 사용하지 않는다. DataSource/Repository 에서 예외를 throw 하고, `LoginBloc` 에서 `try/catch` 로 잡아 `failure` State 로 전환한다. 공통 예외 타입은 `core/exception/` 에 신설한다.
+> 이 프로젝트는 `Either<Failure, T>` 를 사용하지 않는다. DataSource/Repository 에서 예외를 throw 하고, `LoginBloc` 에서 `try/catch` 로 잡아 `failure` State 로 전환한다.
+
+### 서버 에러 코드 (확장 가능)
+
+| code | 의미 | 클라이언트 처리 |
+|------|------|----------------|
+| `C0001` | 필수 필드 누락/공백 | `ValidationException` / 메시지 노출 |
+| `A0001` | 소셜 인증 실패 | `AuthException.socialFailed` |
+| `A0002` | 미지원 프로바이더 | `ServerException` |
+| `A0003` | 소셜 프로바이더 장애 (503) | `ServerException` + 재시도 안내 |
+| `A0004` | 유효하지 않은 refresh (미존재·재사용) | `AuthException.unauthenticated` → 세션 만료 |
+| `A0005` | 만료된 refresh | `AuthException.unauthenticated` → 세션 만료 |
+
+> `ApiErrorCode` 는 등록 코드 + `unknown(code)` fallback 으로 새 코드에 대비한다. `ErrorResponse { code, message }` 를 파싱하고, 미등록 코드도 `code` 필드를 보존한다.
 
 | 에러 종류 | 발생 위치 | 처리 방법 |
 |----------|----------|---------|
 | 네트워크 오류 | `AuthRemoteDatasource` | `NetworkException` throw → Bloc에서 "네트워크 오류" failure |
-| 서버 에러 (4xx/5xx) | `AuthRemoteDatasource` | `ServerException(statusCode)` throw |
+| 서버 에러 (4xx/5xx) | `AuthRemoteDatasource` | `ServerException(statusCode, message, code)` throw |
 | 네이버 인증 취소 | `NaverAuthDatasource` | `AuthException.cancelled` throw → 로그인 화면 유지 |
-| 네이버 토큰 실패/무효 | `NaverAuthDatasource` | `AuthException.socialFailed` throw |
-| 토큰 갱신 실패 | `Dio 인증 인터셉터` | `AuthException.unauthenticated` 전파 → 로그아웃 처리 후 로그인 화면 |
-| 탈퇴 처리 실패 | `AuthRepositoryImpl` | `ServerException/AuthException` throw → 탈퇴 화면 유지 + 재시도 |
+| 네이버 토큰 실패/무효 | `NaverAuthDatasource` / API `A0001` | `AuthException.socialFailed` throw |
+| 토큰 갱신 실패 | Dio 인증 인터셉터 (`A0004`/`A0005`) | 로컬 clear → 로그인 후 화면이면 세션 만료 모달 → `/login` |
+| 탈퇴 처리 실패 | Phase 8 | `ServerException/AuthException` → 화면 유지 + 재시도 |
 
-**신설 예외 계층 (`core/exception/`)**
+**세션 만료 모달**
 
-```dart
-// core/exception/app_exception.dart
-sealed class AppException implements Exception {
-  const AppException(this.message);
-  final String message;
-}
-
-class NetworkException extends AppException { const NetworkException([super.m = '네트워크 오류']); }
-class ServerException extends AppException {
-  const ServerException(this.statusCode, [super.m = '서버 오류']);
-  final int statusCode;
-}
-class AuthException extends AppException {
-  const AuthException(super.message, this.type);
-  final AuthErrorType type; // cancelled, socialFailed, unauthenticated
-}
-```
-
+- 조건: 로그인 **후** 화면에서 invalid token + refresh 실패
+- 문구: `세션이 만료되었습니다. 다시 로그인해 주세요.`
+- 확인 → 로그인 화면. 콜드 스타트·로그인 화면에서는 모달 없이 redirect.
 ---
 
 ## 8. 로컬 상태 & 캐싱 전략
@@ -488,8 +495,10 @@ class AuthProviders {
 | 토큰 저장 | **`flutter_secure_storage`** | 토큰은 민감 정보, 안전 저장 필요 (신규 의존성 추가) |
 | 소셜 provider | `SocialProvider` **enum + provider 파라미터 추상화** | 카카오·애플 확장 대비 (PRD FR-08) |
 | 네이버 SDK 위치 | `data/datasources/naver_auth_datasource.dart` | 외부 데이터 소스로 취급, Repository 에서 조합 |
-| 탈퇴 처리 순서 | **remote withdraw(가능 시) → local clear** | 서버에서 네이버 연동 revoke. 클라이언트 `logoutAndDeleteToken` 미사용 |
+| 탈퇴 처리 순서 | **Phase 8:** remote withdraw → local clear. 현재는 로컬 clear만 | 서버에서 네이버 연동 revoke. 클라이언트 `logoutAndDeleteToken` 미사용 |
 | 토큰 갱신 위치 | **Dio 전역 인증 인터셉터** | 어떤 API 호출이든 만료 토큰을 공통 처리하기 위함 |
+| 세션 만료 UX | 로그인 후 화면만 `SsossModal` | 콜드 스타트는 redirect만. RTR 실패 시 재로그인 유도 |
+| 에러 코드 | `ApiErrorCode` + `unknown` fallback | 서버 코드 확장에 대비 |
 
 ---
 

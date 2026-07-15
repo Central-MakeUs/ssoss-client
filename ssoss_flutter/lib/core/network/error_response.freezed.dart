@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'social_login_request.dart';
+part of 'error_response.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,74 +13,80 @@ part of 'social_login_request.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$SocialLoginRequest {
-  String get accessToken;
+mixin _$ErrorResponse {
+  String get code;
+  String get message;
 
-  /// Create a copy of SocialLoginRequest
+  /// Create a copy of ErrorResponse
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $SocialLoginRequestCopyWith<SocialLoginRequest> get copyWith =>
-      _$SocialLoginRequestCopyWithImpl<SocialLoginRequest>(
-          this as SocialLoginRequest, _$identity);
+  $ErrorResponseCopyWith<ErrorResponse> get copyWith =>
+      _$ErrorResponseCopyWithImpl<ErrorResponse>(
+          this as ErrorResponse, _$identity);
 
-  /// Serializes this SocialLoginRequest to a JSON map.
+  /// Serializes this ErrorResponse to a JSON map.
   Map<String, dynamic> toJson();
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is SocialLoginRequest &&
-            (identical(other.accessToken, accessToken) ||
-                other.accessToken == accessToken));
+            other is ErrorResponse &&
+            (identical(other.code, code) || other.code == code) &&
+            (identical(other.message, message) || other.message == message));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, accessToken);
+  int get hashCode => Object.hash(runtimeType, code, message);
 
   @override
   String toString() {
-    return 'SocialLoginRequest(accessToken: $accessToken)';
+    return 'ErrorResponse(code: $code, message: $message)';
   }
 }
 
 /// @nodoc
-abstract mixin class $SocialLoginRequestCopyWith<$Res> {
-  factory $SocialLoginRequestCopyWith(
-          SocialLoginRequest value, $Res Function(SocialLoginRequest) _then) =
-      _$SocialLoginRequestCopyWithImpl;
+abstract mixin class $ErrorResponseCopyWith<$Res> {
+  factory $ErrorResponseCopyWith(
+          ErrorResponse value, $Res Function(ErrorResponse) _then) =
+      _$ErrorResponseCopyWithImpl;
   @useResult
-  $Res call({String accessToken});
+  $Res call({String code, String message});
 }
 
 /// @nodoc
-class _$SocialLoginRequestCopyWithImpl<$Res>
-    implements $SocialLoginRequestCopyWith<$Res> {
-  _$SocialLoginRequestCopyWithImpl(this._self, this._then);
+class _$ErrorResponseCopyWithImpl<$Res>
+    implements $ErrorResponseCopyWith<$Res> {
+  _$ErrorResponseCopyWithImpl(this._self, this._then);
 
-  final SocialLoginRequest _self;
-  final $Res Function(SocialLoginRequest) _then;
+  final ErrorResponse _self;
+  final $Res Function(ErrorResponse) _then;
 
-  /// Create a copy of SocialLoginRequest
+  /// Create a copy of ErrorResponse
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? accessToken = null,
+    Object? code = null,
+    Object? message = null,
   }) {
     return _then(_self.copyWith(
-      accessToken: null == accessToken
-          ? _self.accessToken
-          : accessToken // ignore: cast_nullable_to_non_nullable
+      code: null == code
+          ? _self.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String,
+      message: null == message
+          ? _self.message
+          : message // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
 }
 
-/// Adds pattern-matching-related methods to [SocialLoginRequest].
-extension SocialLoginRequestPatterns on SocialLoginRequest {
+/// Adds pattern-matching-related methods to [ErrorResponse].
+extension ErrorResponsePatterns on ErrorResponse {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
@@ -95,12 +101,12 @@ extension SocialLoginRequestPatterns on SocialLoginRequest {
 
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>(
-    TResult Function(_SocialLoginRequest value)? $default, {
+    TResult Function(_ErrorResponse value)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _SocialLoginRequest() when $default != null:
+      case _ErrorResponse() when $default != null:
         return $default(_that);
       case _:
         return orElse();
@@ -122,11 +128,11 @@ extension SocialLoginRequestPatterns on SocialLoginRequest {
 
   @optionalTypeArgs
   TResult map<TResult extends Object?>(
-    TResult Function(_SocialLoginRequest value) $default,
+    TResult Function(_ErrorResponse value) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _SocialLoginRequest():
+      case _ErrorResponse():
         return $default(_that);
       case _:
         throw StateError('Unexpected subclass');
@@ -147,11 +153,11 @@ extension SocialLoginRequestPatterns on SocialLoginRequest {
 
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_SocialLoginRequest value)? $default,
+    TResult? Function(_ErrorResponse value)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _SocialLoginRequest() when $default != null:
+      case _ErrorResponse() when $default != null:
         return $default(_that);
       case _:
         return null;
@@ -172,13 +178,13 @@ extension SocialLoginRequestPatterns on SocialLoginRequest {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String accessToken)? $default, {
+    TResult Function(String code, String message)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _SocialLoginRequest() when $default != null:
-        return $default(_that.accessToken);
+      case _ErrorResponse() when $default != null:
+        return $default(_that.code, _that.message);
       case _:
         return orElse();
     }
@@ -199,12 +205,12 @@ extension SocialLoginRequestPatterns on SocialLoginRequest {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String accessToken) $default,
+    TResult Function(String code, String message) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _SocialLoginRequest():
-        return $default(_that.accessToken);
+      case _ErrorResponse():
+        return $default(_that.code, _that.message);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -224,12 +230,12 @@ extension SocialLoginRequestPatterns on SocialLoginRequest {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String accessToken)? $default,
+    TResult? Function(String code, String message)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _SocialLoginRequest() when $default != null:
-        return $default(_that.accessToken);
+      case _ErrorResponse() when $default != null:
+        return $default(_that.code, _that.message);
       case _:
         return null;
     }
@@ -238,25 +244,27 @@ extension SocialLoginRequestPatterns on SocialLoginRequest {
 
 /// @nodoc
 @JsonSerializable()
-class _SocialLoginRequest implements SocialLoginRequest {
-  const _SocialLoginRequest({required this.accessToken});
-  factory _SocialLoginRequest.fromJson(Map<String, dynamic> json) =>
-      _$SocialLoginRequestFromJson(json);
+class _ErrorResponse implements ErrorResponse {
+  const _ErrorResponse({required this.code, required this.message});
+  factory _ErrorResponse.fromJson(Map<String, dynamic> json) =>
+      _$ErrorResponseFromJson(json);
 
   @override
-  final String accessToken;
+  final String code;
+  @override
+  final String message;
 
-  /// Create a copy of SocialLoginRequest
+  /// Create a copy of ErrorResponse
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$SocialLoginRequestCopyWith<_SocialLoginRequest> get copyWith =>
-      __$SocialLoginRequestCopyWithImpl<_SocialLoginRequest>(this, _$identity);
+  _$ErrorResponseCopyWith<_ErrorResponse> get copyWith =>
+      __$ErrorResponseCopyWithImpl<_ErrorResponse>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$SocialLoginRequestToJson(
+    return _$ErrorResponseToJson(
       this,
     );
   }
@@ -265,51 +273,56 @@ class _SocialLoginRequest implements SocialLoginRequest {
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _SocialLoginRequest &&
-            (identical(other.accessToken, accessToken) ||
-                other.accessToken == accessToken));
+            other is _ErrorResponse &&
+            (identical(other.code, code) || other.code == code) &&
+            (identical(other.message, message) || other.message == message));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, accessToken);
+  int get hashCode => Object.hash(runtimeType, code, message);
 
   @override
   String toString() {
-    return 'SocialLoginRequest(accessToken: $accessToken)';
+    return 'ErrorResponse(code: $code, message: $message)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$SocialLoginRequestCopyWith<$Res>
-    implements $SocialLoginRequestCopyWith<$Res> {
-  factory _$SocialLoginRequestCopyWith(
-          _SocialLoginRequest value, $Res Function(_SocialLoginRequest) _then) =
-      __$SocialLoginRequestCopyWithImpl;
+abstract mixin class _$ErrorResponseCopyWith<$Res>
+    implements $ErrorResponseCopyWith<$Res> {
+  factory _$ErrorResponseCopyWith(
+          _ErrorResponse value, $Res Function(_ErrorResponse) _then) =
+      __$ErrorResponseCopyWithImpl;
   @override
   @useResult
-  $Res call({String accessToken});
+  $Res call({String code, String message});
 }
 
 /// @nodoc
-class __$SocialLoginRequestCopyWithImpl<$Res>
-    implements _$SocialLoginRequestCopyWith<$Res> {
-  __$SocialLoginRequestCopyWithImpl(this._self, this._then);
+class __$ErrorResponseCopyWithImpl<$Res>
+    implements _$ErrorResponseCopyWith<$Res> {
+  __$ErrorResponseCopyWithImpl(this._self, this._then);
 
-  final _SocialLoginRequest _self;
-  final $Res Function(_SocialLoginRequest) _then;
+  final _ErrorResponse _self;
+  final $Res Function(_ErrorResponse) _then;
 
-  /// Create a copy of SocialLoginRequest
+  /// Create a copy of ErrorResponse
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? accessToken = null,
+    Object? code = null,
+    Object? message = null,
   }) {
-    return _then(_SocialLoginRequest(
-      accessToken: null == accessToken
-          ? _self.accessToken
-          : accessToken // ignore: cast_nullable_to_non_nullable
+    return _then(_ErrorResponse(
+      code: null == code
+          ? _self.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String,
+      message: null == message
+          ? _self.message
+          : message // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }

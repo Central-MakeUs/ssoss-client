@@ -17,9 +17,16 @@ class NetworkException extends AppException {
 
 /// 서버 응답 오류 (4xx/5xx).
 class ServerException extends AppException {
-  const ServerException(this.statusCode, [super.message = '서버 오류가 발생했습니다.']);
+  const ServerException(
+    this.statusCode, [
+    super.message = '서버 오류가 발생했습니다.',
+    this.code,
+  ]);
 
   final int statusCode;
+
+  /// 서버 에러 코드 (`A0001` 등). 없으면 null.
+  final String? code;
 }
 
 /// 인증 관련 오류 유형.

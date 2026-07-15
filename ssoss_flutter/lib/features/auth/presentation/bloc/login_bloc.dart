@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ssoss_flutter/core/exception/app_exception.dart';
+import 'package:ssoss_flutter/core/network/session_expired_notifier.dart';
 
 import '../../domain/usecases/login_with_apple_usecase.dart';
 import '../../domain/usecases/login_with_naver_usecase.dart';
@@ -17,6 +20,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     required WithdrawUseCase withdraw,
     required LogoutUseCase logout,
     required RestoreSessionUseCase restoreSession,
+    SessionExpiredNotifier? sessionExpiredNotifier,
   })  : _loginWithNaver = loginWithNaver,
         _loginWithApple = loginWithApple,
         _withdraw = withdraw,
@@ -28,6 +32,17 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<WithdrawRequested>(_onWithdrawRequested);
     on<SessionRestoreRequested>(_onSessionRestoreRequested);
     on<LogoutRequested>(_onLogoutRequested);
+    on<SessionExpired>(_onSessionExpired);
+    on<SessionExpiredAcknowledged>(_onSessionExpiredAcknowledged);
+
+    if (sessionExpiredNotifier != null) {
+      _sessionExpiredSubscription =
+          sessionExpiredNotifier.stream.listen((_) {
+        if (!isClosed) {
+          add(const LoginEvent.sessionExpired());
+        }
+      });
+    }
   }
 
   final LoginWithNaverUseCase _loginWithNaver;
@@ -35,13 +50,19 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final WithdrawUseCase _withdraw;
   final LogoutUseCase _logout;
   final RestoreSessionUseCase _restoreSession;
+  StreamSubscription<void>? _sessionExpiredSubscription;
   bool _isLoginInProgress = false;
+
+  @override
+  Future<void> close() async {
+    await _sessionExpiredSubscription?.cancel();
+    return super.close();
+  }
 
   Future<void> _onNaverLoginRequested(
     NaverLoginRequested event,
     Emitter<LoginState> emit,
   ) async {
-    // Custom tab 이 열려있는 동안 중복 이벤트가 들어오면 웹뷰가 연속으로 쌓일 수 있다.
     if (_isLoginInProgress) {
       return;
     }
@@ -51,7 +72,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       final session = await _loginWithNaver();
       emit(LoginState.authenticated(session.user));
     } on AuthException catch (e) {
-      // 취소 포함 모든 인증 오류는 안내 메시지를 보여준다.
       emit(LoginState.failure(e.message));
     } on AppException catch (e) {
       emit(LoginState.failure(e.message));
@@ -89,7 +109,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     SessionRestoreRequested event,
     Emitter<LoginState> emit,
   ) async {
-    emit(const LoginState.loading());
+    emit(const LoginState.restoring());
     try {
       final session = await _restoreSession();
       if (session == null) {
@@ -126,6 +146,25 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     } catch (_) {
       // 로그아웃 실패해도 로컬 세션은 해제된 것으로 간주한다.
     }
+    emit(const LoginState.unauthenticated());
+  }
+
+  Future<void> _onSessionExpired(
+    SessionExpired event,
+    Emitter<LoginState> emit,
+  ) async {
+    // 로그인 화면·미인증에서는 모달 없이 바로 unauthenticated.
+    if (state is! LoginAuthenticated) {
+      emit(const LoginState.unauthenticated());
+      return;
+    }
+    emit(const LoginState.sessionExpired());
+  }
+
+  Future<void> _onSessionExpiredAcknowledged(
+    SessionExpiredAcknowledged event,
+    Emitter<LoginState> emit,
+  ) async {
     emit(const LoginState.unauthenticated());
   }
 }

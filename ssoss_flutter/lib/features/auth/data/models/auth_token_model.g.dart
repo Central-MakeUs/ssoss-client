@@ -10,12 +10,10 @@ _AuthTokenModel _$AuthTokenModelFromJson(Map<String, dynamic> json) =>
     _AuthTokenModel(
       accessToken: json['accessToken'] as String,
       refreshToken: json['refreshToken'] as String,
-      expiresIn: (json['expiresIn'] as num).toInt(),
     );
 
 Map<String, dynamic> _$AuthTokenModelToJson(_AuthTokenModel instance) =>
     <String, dynamic>{
       'accessToken': instance.accessToken,
       'refreshToken': instance.refreshToken,
-      'expiresIn': instance.expiresIn,
     };
