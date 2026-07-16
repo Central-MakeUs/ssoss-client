@@ -3,24 +3,27 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:ssoss_flutter/common/widgets/card/ssoss_recommendation_card.dart';
+import 'package:ssoss_flutter/common/widgets/card/template/ssoss_template_document.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
-class SsossContentsCard extends StatefulWidget {
-  const SsossContentsCard({
-    required this.content,
+/// 템플릿 전용 콘텐츠 표시 카드.
+///
+/// 본문은 검정, 템플릿 원본 `[...]`만 주황으로 표시한다.
+class SsossTemplateContentsCard extends StatelessWidget {
+  const SsossTemplateContentsCard({
+    required this.document,
     super.key,
-    this.recommendation,
     this.onCopy,
     this.copyLabel = '복사하기',
     this.width,
     this.backgroundColor,
     this.borderColor,
     this.contentColor,
+    this.emptySlotColor,
     this.actionColor,
     this.topPadding,
     this.actionPadding,
@@ -29,14 +32,14 @@ class SsossContentsCard extends StatefulWidget {
     this.actionTextStyle,
   });
 
-  final String content;
-  final SsossRecommendationCardItem? recommendation;
+  final SsossTemplateDocument document;
   final VoidCallback? onCopy;
   final String copyLabel;
   final double? width;
   final Color? backgroundColor;
   final Color? borderColor;
   final Color? contentColor;
+  final Color? emptySlotColor;
   final Color? actionColor;
   final EdgeInsetsGeometry? topPadding;
   final EdgeInsetsGeometry? actionPadding;
@@ -44,37 +47,34 @@ class SsossContentsCard extends StatefulWidget {
   final TextStyle? contentStyle;
   final TextStyle? actionTextStyle;
 
-  @override
-  State<SsossContentsCard> createState() => _SsossContentsCardState();
-}
-
-class _SsossContentsCardState extends State<SsossContentsCard> {
-  bool get _hasRecommendation => widget.recommendation != null;
-
-  Future<void> _handleCopy() async {
-    await Clipboard.setData(ClipboardData(text: widget.content));
-    if (!mounted) {
+  Future<void> _handleCopy(BuildContext context) async {
+    await Clipboard.setData(ClipboardData(text: document.plainText));
+    if (!context.mounted) {
       return;
     }
     showSsossToast(
       context,
       title: '클립보드에 복사되었습니다',
     );
-    widget.onCopy?.call();
+    onCopy?.call();
   }
 
   @override
   Widget build(BuildContext context) {
-    final resolvedBorderColor = widget.borderColor ?? AppColors.neutral200;
-    final resolvedRadius = widget.borderRadius ?? BorderRadius.circular(12);
+    final resolvedBorderColor = borderColor ?? AppColors.neutral200;
+    final resolvedRadius = borderRadius ?? BorderRadius.circular(12);
+    final baseStyle = (contentStyle ?? AppTextStyles.b4).copyWith(
+      color: contentColor ?? AppColors.black,
+    );
+    final slotEmptyColor = emptySlotColor ?? AppColors.primary300;
 
     // ClipRRect로 테두리를 자르면 하단 둥근 보더가 잘려 보이므로,
     // 외곽 Container에 border + borderRadius를 두고 구분선만 내부에 둔다.
     return Container(
-      width: widget.width,
+      width: width,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: widget.backgroundColor ?? AppColors.white,
+        color: backgroundColor ?? AppColors.white,
         borderRadius: resolvedRadius,
         border: Border.all(color: resolvedBorderColor),
       ),
@@ -82,28 +82,19 @@ class _SsossContentsCardState extends State<SsossContentsCard> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: widget.topPadding ??
+            padding: topPadding ??
                 const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 20,
                 ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (_hasRecommendation) ...[
-                  SsossRecommendationCard(
-                    item: widget.recommendation!,
-                  ),
-                  const SizedBox(height: 24),
-                ],
-                AppText(
-                  widget.content,
-                  style: (widget.contentStyle ?? AppTextStyles.b4).copyWith(
-                    color: widget.contentColor ?? AppColors.neutral700,
-                  ),
+            child: SizedBox(
+              width: double.infinity,
+              child: Text.rich(
+                document.buildTextSpan(
+                  baseStyle: baseStyle,
+                  placeholderColor: slotEmptyColor,
                 ),
-              ],
+              ),
             ),
           ),
           ColoredBox(
@@ -111,7 +102,7 @@ class _SsossContentsCardState extends State<SsossContentsCard> {
             child: const SizedBox(height: 1, width: double.infinity),
           ),
           Padding(
-            padding: widget.actionPadding ??
+            padding: actionPadding ??
                 const EdgeInsets.symmetric(
                   horizontal: 10,
                   vertical: 4,
@@ -119,12 +110,12 @@ class _SsossContentsCardState extends State<SsossContentsCard> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                _ContentsCardAction(
-                  label: widget.copyLabel,
+                _TemplateContentsCardAction(
+                  label: copyLabel,
                   iconAsset: AppAssets.icCopy,
-                  onTap: () => unawaited(_handleCopy()),
-                  color: widget.actionColor ?? AppColors.neutral500,
-                  textStyle: widget.actionTextStyle,
+                  onTap: () => unawaited(_handleCopy(context)),
+                  color: actionColor ?? AppColors.neutral500,
+                  textStyle: actionTextStyle,
                 ),
               ],
             ),
@@ -135,8 +126,8 @@ class _SsossContentsCardState extends State<SsossContentsCard> {
   }
 }
 
-class _ContentsCardAction extends StatelessWidget {
-  const _ContentsCardAction({
+class _TemplateContentsCardAction extends StatelessWidget {
+  const _TemplateContentsCardAction({
     required this.label,
     required this.iconAsset,
     required this.color,
