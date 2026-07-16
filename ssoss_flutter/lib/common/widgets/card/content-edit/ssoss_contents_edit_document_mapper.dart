@@ -1,6 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:ssoss_flutter/common/widgets/card/editor/ssoss_contents_edit_document.dart';
-import 'package:ssoss_flutter/common/widgets/card/editor/ssoss_recommendation_node.dart';
+import 'package:ssoss_flutter/common/widgets/card/content-edit/ssoss_contents_edit_document.dart';
+import 'package:ssoss_flutter/common/widgets/card/content-edit/ssoss_recommendation_node.dart';
 
 /// [SsossContentsEditDocument] ↔ AppFlowy [Document] 변환기.
 ///

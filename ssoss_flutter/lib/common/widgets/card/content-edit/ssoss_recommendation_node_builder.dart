@@ -4,7 +4,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_recommendation_card.dart';
-import 'package:ssoss_flutter/common/widgets/card/editor/ssoss_recommendation_node.dart';
+import 'package:ssoss_flutter/common/widgets/card/content-edit/ssoss_recommendation_node.dart';
 
 /// AppFlowy 에디터에 삽입되는 추천 카드(커스텀 블록) 빌더.
 ///

@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:ssoss_flutter/common/widgets/card/editor/ssoss_contents_edit_document.dart';
-import 'package:ssoss_flutter/common/widgets/card/editor/ssoss_contents_edit_document_mapper.dart';
+import 'package:ssoss_flutter/common/widgets/card/content-edit/ssoss_contents_edit_document.dart';
+import 'package:ssoss_flutter/common/widgets/card/content-edit/ssoss_contents_edit_document_mapper.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_recommendation_card.dart';
-import 'package:ssoss_flutter/common/widgets/card/editor/ssoss_recommendation_node.dart';
-import 'package:ssoss_flutter/common/widgets/card/editor/ssoss_recommendation_node_builder.dart';
+import 'package:ssoss_flutter/common/widgets/card/content-edit/ssoss_recommendation_node.dart';
+import 'package:ssoss_flutter/common/widgets/card/content-edit/ssoss_recommendation_node_builder.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -93,17 +93,23 @@ class SsossContentsEditCard extends StatefulWidget {
 class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
   /// 삭제 확인 모달 표시에 사용하는 에디터 컨테이너 키.
   final GlobalKey _editorKey = GlobalKey();
+
   /// AppFlowyEditor 포커스. 카드 테두리 상태(pressed) 갱신에도 사용한다.
   final FocusNode _editorFocusNode = FocusNode();
+
   /// AppFlowy 편집 상태. 문서 트리·선택·트랜잭션을 관리한다.
   late EditorState _editorState;
+
   /// shrinkWrap 레이아웃에서 스크롤/높이 계산을 담당한다.
   late EditorScrollController _editorScrollController;
   late EditorStyle _editorStyle;
+
   /// 편집 트랜잭션마다 도메인 문서를 상위로 전달하기 위한 구독.
   StreamSubscription<EditorTransactionValue>? _transactionSubscription;
+
   /// 마지막으로 emit한 문서. 외부 prop과 편집 결과를 구분할 때 사용한다.
   SsossContentsEditDocument? _lastEmittedDocument;
+
   /// 추천 카드 삭제 확인 중 중복 모달·중복 삭제를 막는다.
   bool _isDeletingRecommendation = false;
 
