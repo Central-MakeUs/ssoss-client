@@ -18,7 +18,7 @@ abstract class ContentCreateState with _$ContentCreateState {
 
   const factory ContentCreateState({
     @Default(ContentCreateStep.channel) ContentCreateStep step,
-    UploadChannel? channel,
+    @Default(<UploadChannel>[]) List<UploadChannel> channels,
     UploadPurpose? purpose,
     ContentTone? tone,
     @Default('') String highlight,
@@ -28,7 +28,7 @@ abstract class ContentCreateState with _$ContentCreateState {
     String? errorMessage,
   }) = _ContentCreateState;
 
-  bool get canGoNextFromChannel => channel != null;
+  bool get canGoNextFromChannel => channels.isNotEmpty;
 
   bool get canGoNextFromContent => purpose != null && tone != null;
 

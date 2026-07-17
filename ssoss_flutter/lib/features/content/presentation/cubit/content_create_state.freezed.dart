@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ContentCreateState {
   ContentCreateStep get step;
-  UploadChannel? get channel;
+  List<UploadChannel> get channels;
   UploadPurpose? get purpose;
   ContentTone? get tone;
   String get highlight;
@@ -38,7 +38,7 @@ mixin _$ContentCreateState {
         (other.runtimeType == runtimeType &&
             other is ContentCreateState &&
             (identical(other.step, step) || other.step == step) &&
-            (identical(other.channel, channel) || other.channel == channel) &&
+            const DeepCollectionEquality().equals(other.channels, channels) &&
             (identical(other.purpose, purpose) || other.purpose == purpose) &&
             (identical(other.tone, tone) || other.tone == tone) &&
             (identical(other.highlight, highlight) ||
@@ -56,7 +56,7 @@ mixin _$ContentCreateState {
   int get hashCode => Object.hash(
       runtimeType,
       step,
-      channel,
+      const DeepCollectionEquality().hash(channels),
       purpose,
       tone,
       highlight,
@@ -67,7 +67,7 @@ mixin _$ContentCreateState {
 
   @override
   String toString() {
-    return 'ContentCreateState(step: $step, channel: $channel, purpose: $purpose, tone: $tone, highlight: $highlight, forbidden: $forbidden, keywords: $keywords, photoGuideEnabled: $photoGuideEnabled, errorMessage: $errorMessage)';
+    return 'ContentCreateState(step: $step, channels: $channels, purpose: $purpose, tone: $tone, highlight: $highlight, forbidden: $forbidden, keywords: $keywords, photoGuideEnabled: $photoGuideEnabled, errorMessage: $errorMessage)';
   }
 }
 
@@ -79,7 +79,7 @@ abstract mixin class $ContentCreateStateCopyWith<$Res> {
   @useResult
   $Res call(
       {ContentCreateStep step,
-      UploadChannel? channel,
+      List<UploadChannel> channels,
       UploadPurpose? purpose,
       ContentTone? tone,
       String highlight,
@@ -103,7 +103,7 @@ class _$ContentCreateStateCopyWithImpl<$Res>
   @override
   $Res call({
     Object? step = null,
-    Object? channel = freezed,
+    Object? channels = null,
     Object? purpose = freezed,
     Object? tone = freezed,
     Object? highlight = null,
@@ -117,10 +117,10 @@ class _$ContentCreateStateCopyWithImpl<$Res>
           ? _self.step
           : step // ignore: cast_nullable_to_non_nullable
               as ContentCreateStep,
-      channel: freezed == channel
-          ? _self.channel
-          : channel // ignore: cast_nullable_to_non_nullable
-              as UploadChannel?,
+      channels: null == channels
+          ? _self.channels
+          : channels // ignore: cast_nullable_to_non_nullable
+              as List<UploadChannel>,
       purpose: freezed == purpose
           ? _self.purpose
           : purpose // ignore: cast_nullable_to_non_nullable
@@ -248,7 +248,7 @@ extension ContentCreateStatePatterns on ContentCreateState {
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(
             ContentCreateStep step,
-            UploadChannel? channel,
+            List<UploadChannel> channels,
             UploadPurpose? purpose,
             ContentTone? tone,
             String highlight,
@@ -264,7 +264,7 @@ extension ContentCreateStatePatterns on ContentCreateState {
       case _ContentCreateState() when $default != null:
         return $default(
             _that.step,
-            _that.channel,
+            _that.channels,
             _that.purpose,
             _that.tone,
             _that.highlight,
@@ -294,7 +294,7 @@ extension ContentCreateStatePatterns on ContentCreateState {
   TResult when<TResult extends Object?>(
     TResult Function(
             ContentCreateStep step,
-            UploadChannel? channel,
+            List<UploadChannel> channels,
             UploadPurpose? purpose,
             ContentTone? tone,
             String highlight,
@@ -309,7 +309,7 @@ extension ContentCreateStatePatterns on ContentCreateState {
       case _ContentCreateState():
         return $default(
             _that.step,
-            _that.channel,
+            _that.channels,
             _that.purpose,
             _that.tone,
             _that.highlight,
@@ -338,7 +338,7 @@ extension ContentCreateStatePatterns on ContentCreateState {
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(
             ContentCreateStep step,
-            UploadChannel? channel,
+            List<UploadChannel> channels,
             UploadPurpose? purpose,
             ContentTone? tone,
             String highlight,
@@ -353,7 +353,7 @@ extension ContentCreateStatePatterns on ContentCreateState {
       case _ContentCreateState() when $default != null:
         return $default(
             _that.step,
-            _that.channel,
+            _that.channels,
             _that.purpose,
             _that.tone,
             _that.highlight,
@@ -372,7 +372,7 @@ extension ContentCreateStatePatterns on ContentCreateState {
 class _ContentCreateState extends ContentCreateState {
   const _ContentCreateState(
       {this.step = ContentCreateStep.channel,
-      this.channel,
+      final List<UploadChannel> channels = const <UploadChannel>[],
       this.purpose,
       this.tone,
       this.highlight = '',
@@ -380,14 +380,22 @@ class _ContentCreateState extends ContentCreateState {
       final List<String> keywords = const <String>[],
       this.photoGuideEnabled = false,
       this.errorMessage})
-      : _keywords = keywords,
+      : _channels = channels,
+        _keywords = keywords,
         super._();
 
   @override
   @JsonKey()
   final ContentCreateStep step;
+  final List<UploadChannel> _channels;
   @override
-  final UploadChannel? channel;
+  @JsonKey()
+  List<UploadChannel> get channels {
+    if (_channels is EqualUnmodifiableListView) return _channels;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_channels);
+  }
+
   @override
   final UploadPurpose? purpose;
   @override
@@ -427,7 +435,7 @@ class _ContentCreateState extends ContentCreateState {
         (other.runtimeType == runtimeType &&
             other is _ContentCreateState &&
             (identical(other.step, step) || other.step == step) &&
-            (identical(other.channel, channel) || other.channel == channel) &&
+            const DeepCollectionEquality().equals(other._channels, _channels) &&
             (identical(other.purpose, purpose) || other.purpose == purpose) &&
             (identical(other.tone, tone) || other.tone == tone) &&
             (identical(other.highlight, highlight) ||
@@ -445,7 +453,7 @@ class _ContentCreateState extends ContentCreateState {
   int get hashCode => Object.hash(
       runtimeType,
       step,
-      channel,
+      const DeepCollectionEquality().hash(_channels),
       purpose,
       tone,
       highlight,
@@ -456,7 +464,7 @@ class _ContentCreateState extends ContentCreateState {
 
   @override
   String toString() {
-    return 'ContentCreateState(step: $step, channel: $channel, purpose: $purpose, tone: $tone, highlight: $highlight, forbidden: $forbidden, keywords: $keywords, photoGuideEnabled: $photoGuideEnabled, errorMessage: $errorMessage)';
+    return 'ContentCreateState(step: $step, channels: $channels, purpose: $purpose, tone: $tone, highlight: $highlight, forbidden: $forbidden, keywords: $keywords, photoGuideEnabled: $photoGuideEnabled, errorMessage: $errorMessage)';
   }
 }
 
@@ -470,7 +478,7 @@ abstract mixin class _$ContentCreateStateCopyWith<$Res>
   @useResult
   $Res call(
       {ContentCreateStep step,
-      UploadChannel? channel,
+      List<UploadChannel> channels,
       UploadPurpose? purpose,
       ContentTone? tone,
       String highlight,
@@ -494,7 +502,7 @@ class __$ContentCreateStateCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   $Res call({
     Object? step = null,
-    Object? channel = freezed,
+    Object? channels = null,
     Object? purpose = freezed,
     Object? tone = freezed,
     Object? highlight = null,
@@ -508,10 +516,10 @@ class __$ContentCreateStateCopyWithImpl<$Res>
           ? _self.step
           : step // ignore: cast_nullable_to_non_nullable
               as ContentCreateStep,
-      channel: freezed == channel
-          ? _self.channel
-          : channel // ignore: cast_nullable_to_non_nullable
-              as UploadChannel?,
+      channels: null == channels
+          ? _self._channels
+          : channels // ignore: cast_nullable_to_non_nullable
+              as List<UploadChannel>,
       purpose: freezed == purpose
           ? _self.purpose
           : purpose // ignore: cast_nullable_to_non_nullable

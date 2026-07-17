@@ -55,7 +55,7 @@ class SsossTooltip extends StatelessWidget {
                 const [
                   BoxShadow(
                     color: Color(0x1F171717),
-                    blurRadius: 5,
+                    blurRadius: 10,
                   ),
                 ],
           ),

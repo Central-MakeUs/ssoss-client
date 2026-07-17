@@ -11,7 +11,9 @@ class ContentCreateCubit extends Cubit<ContentCreateState> {
     UploadChannel? initialChannel,
   }) : super(
           ContentCreateState(
-            channel: initialChannel,
+            channels: initialChannel != null
+                ? <UploadChannel>[initialChannel]
+                : const <UploadChannel>[],
             // 채널 바로가기 진입 시 콘텐츠 설정(2단계)부터 시작
             step: initialChannel != null
                 ? ContentCreateStep.content
@@ -19,8 +21,14 @@ class ContentCreateCubit extends Cubit<ContentCreateState> {
           ),
         );
 
-  void selectChannel(UploadChannel channel) {
-    emit(state.copyWith(channel: channel, errorMessage: null));
+  void toggleChannel(UploadChannel channel) {
+    final current = List<UploadChannel>.of(state.channels);
+    if (current.contains(channel)) {
+      current.remove(channel);
+    } else {
+      current.add(channel);
+    }
+    emit(state.copyWith(channels: current, errorMessage: null));
   }
 
   void selectPurpose(UploadPurpose purpose) {
@@ -105,13 +113,13 @@ class ContentCreateCubit extends Cubit<ContentCreateState> {
   ContentCreateInput? buildCreateInput() {
     final current = state;
     if (!current.canSubmit ||
-        current.channel == null ||
+        current.channels.isEmpty ||
         current.purpose == null ||
         current.tone == null) {
       return null;
     }
     return ContentCreateInput(
-      channel: current.channel!,
+      channels: List<UploadChannel>.unmodifiable(current.channels),
       purpose: current.purpose!,
       tone: current.tone!,
       highlight: current.highlight,

@@ -17,7 +17,7 @@ class CreateContentUseCase {
     final trimmedForbidden = input.forbidden?.trim();
     return _repository.createContent(
       ContentCreateInput(
-        channel: input.channel,
+        channels: input.channels,
         purpose: input.purpose,
         tone: input.tone,
         highlight: trimmedHighlight,

@@ -9,7 +9,7 @@ part 'create_content_request.g.dart';
 @freezed
 abstract class CreateContentRequest with _$CreateContentRequest {
   const factory CreateContentRequest({
-    required String channel,
+    required List<String> channels,
     required String purpose,
     required String tone,
     required String highlight,
@@ -20,7 +20,7 @@ abstract class CreateContentRequest with _$CreateContentRequest {
 
   factory CreateContentRequest.fromEntity(ContentCreateInput input) =>
       CreateContentRequest(
-        channel: ContentCreateApiMapper.channel(input.channel),
+        channels: ContentCreateApiMapper.channels(input.channels),
         purpose: ContentCreateApiMapper.purpose(input.purpose),
         tone: ContentCreateApiMapper.tone(input.tone),
         highlight: input.highlight,
