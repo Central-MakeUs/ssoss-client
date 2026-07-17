@@ -48,28 +48,32 @@ class SsossTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tabs = [
+      for (var index = 0; index < items.length; index++)
+        SsossTab(
+          label: items[index].label,
+          isSelected: index == selectedIndex,
+          chipLabel: items[index].chipLabel,
+          height: height,
+          padding: padding,
+          selectedColor: selectedColor,
+          unselectedColor: unselectedColor,
+          selectedIndicatorColor: selectedIndicatorColor,
+          unselectedIndicatorColor: unselectedIndicatorColor,
+          selectedIndicatorHeight: selectedIndicatorHeight,
+          unselectedIndicatorHeight: unselectedIndicatorHeight,
+          textStyle: textStyle,
+          onTap: onTap == null ? null : () => onTap!(index),
+          child: items[index].child,
+        ),
+    ];
+
     return SizedBox(
       width: width,
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          for (var index = 0; index < items.length; index++)
-            SsossTab(
-              label: items[index].label,
-              isSelected: index == selectedIndex,
-              chipLabel: items[index].chipLabel,
-              height: height,
-              padding: padding,
-              selectedColor: selectedColor,
-              unselectedColor: unselectedColor,
-              selectedIndicatorColor: selectedIndicatorColor,
-              unselectedIndicatorColor: unselectedIndicatorColor,
-              selectedIndicatorHeight: selectedIndicatorHeight,
-              unselectedIndicatorHeight: unselectedIndicatorHeight,
-              textStyle: textStyle,
-              onTap: onTap == null ? null : () => onTap!(index),
-              child: items[index].child,
-            ),
+          for (final tab in tabs)
+            if (width != null) Expanded(child: tab) else tab,
         ],
       ),
     );

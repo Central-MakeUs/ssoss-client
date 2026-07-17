@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_recommendation_card.dart';
+import 'package:ssoss_flutter/common/widgets/tag/ssoss_tag.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -11,8 +12,9 @@ import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
 class SsossContentsCard extends StatefulWidget {
+  /// 본문 문자열 카드.
   const SsossContentsCard({
-    required this.content,
+    required String this.content,
     super.key,
     this.recommendation,
     this.onCopy,
@@ -27,9 +29,29 @@ class SsossContentsCard extends StatefulWidget {
     this.borderRadius,
     this.contentStyle,
     this.actionTextStyle,
-  });
+  }) : hashtags = null;
 
-  final String content;
+  /// 해시태그 칩 카드.
+  const SsossContentsCard.hashtags({
+    required List<String> this.hashtags,
+    super.key,
+    this.recommendation,
+    this.onCopy,
+    this.copyLabel = '복사하기',
+    this.width,
+    this.backgroundColor,
+    this.borderColor,
+    this.contentColor,
+    this.actionColor,
+    this.topPadding,
+    this.actionPadding,
+    this.borderRadius,
+    this.contentStyle,
+    this.actionTextStyle,
+  }) : content = null;
+
+  final String? content;
+  final List<String>? hashtags;
   final SsossRecommendationCardItem? recommendation;
   final VoidCallback? onCopy;
   final String copyLabel;
@@ -44,6 +66,15 @@ class SsossContentsCard extends StatefulWidget {
   final TextStyle? contentStyle;
   final TextStyle? actionTextStyle;
 
+  bool get _isHashtags => hashtags != null;
+
+  String get _copyText {
+    if (content != null) {
+      return content!;
+    }
+    return hashtags!.join(' ');
+  }
+
   @override
   State<SsossContentsCard> createState() => _SsossContentsCardState();
 }
@@ -52,7 +83,7 @@ class _SsossContentsCardState extends State<SsossContentsCard> {
   bool get _hasRecommendation => widget.recommendation != null;
 
   Future<void> _handleCopy() async {
-    await Clipboard.setData(ClipboardData(text: widget.content));
+    await Clipboard.setData(ClipboardData(text: widget._copyText));
     if (!mounted) {
       return;
     }
@@ -67,6 +98,13 @@ class _SsossContentsCardState extends State<SsossContentsCard> {
   Widget build(BuildContext context) {
     final resolvedBorderColor = widget.borderColor ?? AppColors.neutral200;
     final resolvedRadius = widget.borderRadius ?? BorderRadius.circular(12);
+    final resolvedTopPadding = widget.topPadding ??
+        (widget._isHashtags
+            ? const EdgeInsets.fromLTRB(12, 12, 12, 16)
+            : const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 20,
+              ));
 
     // ClipRRect로 테두리를 자르면 하단 둥근 보더가 잘려 보이므로,
     // 외곽 Container에 border + borderRadius를 두고 구분선만 내부에 둔다.
@@ -80,13 +118,10 @@ class _SsossContentsCardState extends State<SsossContentsCard> {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: widget.topPadding ??
-                const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 20,
-                ),
+            padding: resolvedTopPadding,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -97,12 +132,31 @@ class _SsossContentsCardState extends State<SsossContentsCard> {
                   ),
                   const SizedBox(height: 24),
                 ],
-                AppText(
-                  widget.content,
-                  style: (widget.contentStyle ?? AppTextStyles.b4).copyWith(
-                    color: widget.contentColor ?? AppColors.neutral700,
+                if (widget._isHashtags)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Wrap(
+                      alignment: WrapAlignment.start,
+                      spacing: 6,
+                      runSpacing: 8,
+                      children: [
+                        for (final tag in widget.hashtags!)
+                          SsossTag(
+                            label: tag,
+                            type: SsossTagType.gray,
+                            showLeftIcon: false,
+                            showRightIcon: false,
+                          ),
+                      ],
+                    ),
+                  )
+                else
+                  AppText(
+                    widget.content!,
+                    style: (widget.contentStyle ?? AppTextStyles.b4).copyWith(
+                      color: widget.contentColor ?? AppColors.neutral700,
+                    ),
                   ),
-                ),
               ],
             ),
           ),

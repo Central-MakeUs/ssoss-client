@@ -15,6 +15,9 @@ class ContentCreateApiMapper {
         UploadChannel.thread => 'THREAD',
       };
 
+  static List<String> channels(List<UploadChannel> values) =>
+      values.map(channel).toList(growable: false);
+
   static String purpose(UploadPurpose value) => switch (value) {
         UploadPurpose.informative => 'INFORMATIVE',
         UploadPurpose.eventDiscount => 'EVENT_DISCOUNT',

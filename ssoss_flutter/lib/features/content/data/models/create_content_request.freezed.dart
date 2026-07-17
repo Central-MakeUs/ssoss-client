@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$CreateContentRequest {
-  String get channel;
+  List<String> get channels;
   String get purpose;
   String get tone;
   String get highlight;
@@ -38,7 +38,7 @@ mixin _$CreateContentRequest {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is CreateContentRequest &&
-            (identical(other.channel, channel) || other.channel == channel) &&
+            const DeepCollectionEquality().equals(other.channels, channels) &&
             (identical(other.purpose, purpose) || other.purpose == purpose) &&
             (identical(other.tone, tone) || other.tone == tone) &&
             (identical(other.highlight, highlight) ||
@@ -54,7 +54,7 @@ mixin _$CreateContentRequest {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      channel,
+      const DeepCollectionEquality().hash(channels),
       purpose,
       tone,
       highlight,
@@ -64,7 +64,7 @@ mixin _$CreateContentRequest {
 
   @override
   String toString() {
-    return 'CreateContentRequest(channel: $channel, purpose: $purpose, tone: $tone, highlight: $highlight, keywords: $keywords, photoGuideEnabled: $photoGuideEnabled, forbidden: $forbidden)';
+    return 'CreateContentRequest(channels: $channels, purpose: $purpose, tone: $tone, highlight: $highlight, keywords: $keywords, photoGuideEnabled: $photoGuideEnabled, forbidden: $forbidden)';
   }
 }
 
@@ -75,7 +75,7 @@ abstract mixin class $CreateContentRequestCopyWith<$Res> {
       _$CreateContentRequestCopyWithImpl;
   @useResult
   $Res call(
-      {String channel,
+      {List<String> channels,
       String purpose,
       String tone,
       String highlight,
@@ -97,7 +97,7 @@ class _$CreateContentRequestCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? channel = null,
+    Object? channels = null,
     Object? purpose = null,
     Object? tone = null,
     Object? highlight = null,
@@ -106,10 +106,10 @@ class _$CreateContentRequestCopyWithImpl<$Res>
     Object? forbidden = freezed,
   }) {
     return _then(_self.copyWith(
-      channel: null == channel
-          ? _self.channel
-          : channel // ignore: cast_nullable_to_non_nullable
-              as String,
+      channels: null == channels
+          ? _self.channels
+          : channels // ignore: cast_nullable_to_non_nullable
+              as List<String>,
       purpose: null == purpose
           ? _self.purpose
           : purpose // ignore: cast_nullable_to_non_nullable
@@ -232,7 +232,7 @@ extension CreateContentRequestPatterns on CreateContentRequest {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(
-            String channel,
+            List<String> channels,
             String purpose,
             String tone,
             String highlight,
@@ -246,7 +246,7 @@ extension CreateContentRequestPatterns on CreateContentRequest {
     switch (_that) {
       case _CreateContentRequest() when $default != null:
         return $default(
-            _that.channel,
+            _that.channels,
             _that.purpose,
             _that.tone,
             _that.highlight,
@@ -274,7 +274,7 @@ extension CreateContentRequestPatterns on CreateContentRequest {
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
     TResult Function(
-            String channel,
+            List<String> channels,
             String purpose,
             String tone,
             String highlight,
@@ -287,7 +287,7 @@ extension CreateContentRequestPatterns on CreateContentRequest {
     switch (_that) {
       case _CreateContentRequest():
         return $default(
-            _that.channel,
+            _that.channels,
             _that.purpose,
             _that.tone,
             _that.highlight,
@@ -314,7 +314,7 @@ extension CreateContentRequestPatterns on CreateContentRequest {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(
-            String channel,
+            List<String> channels,
             String purpose,
             String tone,
             String highlight,
@@ -327,7 +327,7 @@ extension CreateContentRequestPatterns on CreateContentRequest {
     switch (_that) {
       case _CreateContentRequest() when $default != null:
         return $default(
-            _that.channel,
+            _that.channels,
             _that.purpose,
             _that.tone,
             _that.highlight,
@@ -344,19 +344,26 @@ extension CreateContentRequestPatterns on CreateContentRequest {
 @JsonSerializable()
 class _CreateContentRequest implements CreateContentRequest {
   const _CreateContentRequest(
-      {required this.channel,
+      {required final List<String> channels,
       required this.purpose,
       required this.tone,
       required this.highlight,
       required final List<String> keywords,
       required this.photoGuideEnabled,
       this.forbidden})
-      : _keywords = keywords;
+      : _channels = channels,
+        _keywords = keywords;
   factory _CreateContentRequest.fromJson(Map<String, dynamic> json) =>
       _$CreateContentRequestFromJson(json);
 
+  final List<String> _channels;
   @override
-  final String channel;
+  List<String> get channels {
+    if (_channels is EqualUnmodifiableListView) return _channels;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_channels);
+  }
+
   @override
   final String purpose;
   @override
@@ -397,7 +404,7 @@ class _CreateContentRequest implements CreateContentRequest {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _CreateContentRequest &&
-            (identical(other.channel, channel) || other.channel == channel) &&
+            const DeepCollectionEquality().equals(other._channels, _channels) &&
             (identical(other.purpose, purpose) || other.purpose == purpose) &&
             (identical(other.tone, tone) || other.tone == tone) &&
             (identical(other.highlight, highlight) ||
@@ -413,7 +420,7 @@ class _CreateContentRequest implements CreateContentRequest {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      channel,
+      const DeepCollectionEquality().hash(_channels),
       purpose,
       tone,
       highlight,
@@ -423,7 +430,7 @@ class _CreateContentRequest implements CreateContentRequest {
 
   @override
   String toString() {
-    return 'CreateContentRequest(channel: $channel, purpose: $purpose, tone: $tone, highlight: $highlight, keywords: $keywords, photoGuideEnabled: $photoGuideEnabled, forbidden: $forbidden)';
+    return 'CreateContentRequest(channels: $channels, purpose: $purpose, tone: $tone, highlight: $highlight, keywords: $keywords, photoGuideEnabled: $photoGuideEnabled, forbidden: $forbidden)';
   }
 }
 
@@ -436,7 +443,7 @@ abstract mixin class _$CreateContentRequestCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String channel,
+      {List<String> channels,
       String purpose,
       String tone,
       String highlight,
@@ -458,7 +465,7 @@ class __$CreateContentRequestCopyWithImpl<$Res>
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? channel = null,
+    Object? channels = null,
     Object? purpose = null,
     Object? tone = null,
     Object? highlight = null,
@@ -467,10 +474,10 @@ class __$CreateContentRequestCopyWithImpl<$Res>
     Object? forbidden = freezed,
   }) {
     return _then(_CreateContentRequest(
-      channel: null == channel
-          ? _self.channel
-          : channel // ignore: cast_nullable_to_non_nullable
-              as String,
+      channels: null == channels
+          ? _self._channels
+          : channels // ignore: cast_nullable_to_non_nullable
+              as List<String>,
       purpose: null == purpose
           ? _self.purpose
           : purpose // ignore: cast_nullable_to_non_nullable

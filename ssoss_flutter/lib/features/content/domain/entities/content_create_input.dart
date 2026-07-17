@@ -5,7 +5,7 @@ import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.da
 /// 콘텐츠 생성 API 요청에 필요한 입력 값.
 class ContentCreateInput {
   const ContentCreateInput({
-    required this.channel,
+    required this.channels,
     required this.purpose,
     required this.tone,
     required this.highlight,
@@ -14,7 +14,7 @@ class ContentCreateInput {
     this.photoGuideEnabled = false,
   });
 
-  final UploadChannel channel;
+  final List<UploadChannel> channels;
   final UploadPurpose purpose;
   final ContentTone tone;
   final String highlight;

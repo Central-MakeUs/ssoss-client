@@ -11,12 +11,12 @@ import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.da
 class ContentCreateStepChannel extends StatelessWidget {
   const ContentCreateStepChannel({
     required this.selected,
-    required this.onSelect,
+    required this.onToggle,
     super.key,
   });
 
-  final UploadChannel? selected;
-  final ValueChanged<UploadChannel> onSelect;
+  final List<UploadChannel> selected;
+  final ValueChanged<UploadChannel> onToggle;
 
   static const _options =
       <({UploadChannel channel, String label, String icon})>[
@@ -63,7 +63,7 @@ class ContentCreateStepChannel extends StatelessWidget {
             title: _options[i].label,
             width: double.infinity,
             height: 56,
-            type: selected == _options[i].channel
+            type: selected.contains(_options[i].channel)
                 ? SsossTextButtonType.selected
                 : SsossTextButtonType.normal,
             icon: SizedBox(
@@ -73,7 +73,7 @@ class ContentCreateStepChannel extends StatelessWidget {
                   ? SvgPicture.asset(_options[i].icon, width: 24, height: 24)
                   : Image.asset(_options[i].icon, width: 24, height: 24),
             ),
-            onTap: () => onSelect(_options[i].channel),
+            onTap: () => onToggle(_options[i].channel),
           ),
         ],
       ],

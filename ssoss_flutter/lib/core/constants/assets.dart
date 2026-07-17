@@ -54,4 +54,5 @@ class AppAssets {
   static const String imgDrink = 'assets/img/drink.png';
   static const String imgCoupon = 'assets/img/coupon.png';
   static const String imgNotice = 'assets/img/notice.png';
+  static const String imgComplete = 'assets/img/complete.png';
 }

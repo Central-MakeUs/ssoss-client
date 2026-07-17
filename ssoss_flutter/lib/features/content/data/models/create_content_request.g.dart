@@ -7,9 +7,10 @@ part of 'create_content_request.dart';
 // **************************************************************************
 
 _CreateContentRequest _$CreateContentRequestFromJson(
-        Map<String, dynamic> json,) =>
+        Map<String, dynamic> json) =>
     _CreateContentRequest(
-      channel: json['channel'] as String,
+      channels:
+          (json['channels'] as List<dynamic>).map((e) => e as String).toList(),
       purpose: json['purpose'] as String,
       tone: json['tone'] as String,
       highlight: json['highlight'] as String,
@@ -20,9 +21,9 @@ _CreateContentRequest _$CreateContentRequestFromJson(
     );
 
 Map<String, dynamic> _$CreateContentRequestToJson(
-        _CreateContentRequest instance,) =>
+        _CreateContentRequest instance) =>
     <String, dynamic>{
-      'channel': instance.channel,
+      'channels': instance.channels,
       'purpose': instance.purpose,
       'tone': instance.tone,
       'highlight': instance.highlight,

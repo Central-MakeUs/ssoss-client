@@ -82,10 +82,10 @@ class _ContentCreateView extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
                       child: switch (state.step) {
                         ContentCreateStep.channel => ContentCreateStepChannel(
-                            selected: state.channel,
-                            onSelect: context
+                            selected: state.channels,
+                            onToggle: context
                                 .read<ContentCreateCubit>()
-                                .selectChannel,
+                                .toggleChannel,
                           ),
                         ContentCreateStep.content => ContentCreateStepContent(
                             selectedPurpose: state.purpose,
