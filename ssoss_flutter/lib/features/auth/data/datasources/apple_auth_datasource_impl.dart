@@ -14,7 +14,6 @@ class AppleAuthDatasourceImpl implements AppleAuthDatasource {
       final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
         ],
       );
 
