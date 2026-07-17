@@ -45,9 +45,9 @@ class ContentTemplateSection extends StatelessWidget {
       imageAsset: AppAssets.imgCoupon,
     ),
     ContentTemplateItem(
-      id: 'notice',
-      title: '공지/안내',
-      description: '가게 소식 빠르게 전달하기',
+      id: 'introduction',
+      title: '매장 소개',
+      description: '신규 고객을 위한 소개하기',
       imageAsset: AppAssets.imgNotice,
     ),
   ];
@@ -58,11 +58,24 @@ class ContentTemplateSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: AppText(
-                '추천 콘텐츠 템플릿',
-                style: AppTextStyles.h5.copyWith(color: AppColors.neutral700),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppText(
+                    '추천 콘텐츠 소스',
+                    style:
+                        AppTextStyles.h5.copyWith(color: AppColors.neutral700),
+                  ),
+                  const SizedBox(height: 2),
+                  AppText(
+                    '상황별 템플릿과 해시태그를 골라 활용해보세요',
+                    style:
+                        AppTextStyles.b5.copyWith(color: AppColors.neutral500),
+                  ),
+                ],
               ),
             ),
             GestureDetector(
@@ -144,47 +157,47 @@ class _ContentTemplateCard extends StatelessWidget {
           border: Border.all(color: AppColors.neutral200),
         ),
         child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppColors.primary50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Image.asset(
-                  item.imageAsset,
-                  width: 32,
-                  height: 32,
-                  fit: BoxFit.contain,
-                ),
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppColors.primary50,
+                borderRadius: BorderRadius.circular(8),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AppText(
-                      item.title,
-                      style: AppTextStyles.h6.copyWith(
-                        color: AppColors.neutral600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    AppText(
-                      item.description,
-                      style: AppTextStyles.b5.copyWith(
-                        color: AppColors.neutral500,
-                      ),
-                    ),
-                  ],
-                ),
+              child: Image.asset(
+                item.imageAsset,
+                width: 32,
+                height: 32,
+                fit: BoxFit.contain,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AppText(
+                    item.title,
+                    style: AppTextStyles.h6.copyWith(
+                      color: AppColors.neutral600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  AppText(
+                    item.description,
+                    style: AppTextStyles.b5.copyWith(
+                      color: AppColors.neutral500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
+      ),
     );
   }
 }
