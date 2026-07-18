@@ -13,9 +13,11 @@ class ContentSaveCompleteView extends StatelessWidget {
   const ContentSaveCompleteView({
     required this.mode,
     super.key,
+    this.onCreateForOtherChannel,
   });
 
   final ContentSaveCompleteMode mode;
+  final VoidCallback? onCreateForOtherChannel;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +61,9 @@ class ContentSaveCompleteView extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: switch (mode) {
             ContentSaveCompleteMode.continueAvailable =>
-              const _ContinueAvailableActions(),
+              _ContinueAvailableActions(
+                onCreateForOtherChannel: onCreateForOtherChannel,
+              ),
             ContentSaveCompleteMode.finalSave => const _FinalSaveActions(),
           },
         ),
@@ -69,23 +73,28 @@ class ContentSaveCompleteView extends StatelessWidget {
 }
 
 class _ContinueAvailableActions extends StatelessWidget {
-  const _ContinueAvailableActions();
+  const _ContinueAvailableActions({
+    this.onCreateForOtherChannel,
+  });
+
+  final VoidCallback? onCreateForOtherChannel;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
-        SsossTooltip(
+        const SsossTooltip(
           message: '이 콘텐츠를 다른 채널용으로 이어서 만들 수 있어요',
           direction: SsossTooltipDirection.up,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         SsossButton(
           label: '다른 채널용으로 만들기',
           width: double.infinity,
+          onPressed: onCreateForOtherChannel,
         ),
-        SizedBox(height: 12),
-        SsossButton(
+        const SizedBox(height: 12),
+        const SsossButton(
           label: '저장 내역 보기',
           type: SsossButtonType.secondary,
           width: double.infinity,

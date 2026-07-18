@@ -7,10 +7,12 @@ import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/modal/ssoss_modal.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
-import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_create_flow.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_generation_args.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_mode.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/content_create_page.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/content_generating_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_save_complete_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/result/content_result_body.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
@@ -18,30 +20,49 @@ import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 /// 콘텐츠 생성 결과 화면 (더미).
 class ContentResultPage extends StatelessWidget {
   const ContentResultPage({
-    required this.input,
+    required this.args,
     super.key,
   });
 
   static const String routeName = 'content-result';
   static const String routePath = '/content/create/result';
 
-  final ContentCreateInput input;
+  final ContentGenerationArgs args;
 
-  bool get _isMulti => input.channels.length >= 2;
+  bool get _isMulti => args.input.channels.length >= 2;
+
+  bool get _isOtherChannel => args.flow == ContentCreateFlow.otherChannel;
 
   /// 생성에 포함되지 않은 채널이 남아 있는지 여부.
-  bool get _hasRemainingChannels =>
-      UploadChannel.values.any((channel) => !input.channels.contains(channel));
+  bool get _hasRemainingChannels => UploadChannel.values
+      .any((channel) => !args.input.channels.contains(channel));
 
   void _goHome(BuildContext context) {
     context.go(HomePage.routePath);
   }
 
   void _save(BuildContext context) {
+    if (_isOtherChannel) {
+      context.go(
+        ContentSaveCompletePage.routePath,
+        extra: const ContentSaveCompleteArgs(
+          mode: ContentSaveCompleteMode.finalSave,
+        ),
+      );
+      return;
+    }
+
     final mode = _hasRemainingChannels
         ? ContentSaveCompleteMode.continueAvailable
         : ContentSaveCompleteMode.finalSave;
-    context.go(ContentSaveCompletePage.routePath, extra: mode);
+    context.go(
+      ContentSaveCompletePage.routePath,
+      extra: ContentSaveCompleteArgs(
+        mode: mode,
+        previousInput:
+            mode == ContentSaveCompleteMode.continueAvailable ? args.input : null,
+      ),
+    );
   }
 
   Future<void> _remake(BuildContext context) async {
@@ -58,8 +79,8 @@ class ContentResultPage extends StatelessWidget {
       return;
     }
 
-    // 채널 선택 단계부터 생성 플로우를 다시 시작한다.
-    context.go(ContentCreatePage.routePath);
+    // 동일 채널·입력으로 생성 중 화면을 다시 시작한다.
+    context.go(ContentGeneratingPage.routePath, extra: args);
   }
 
   @override
@@ -78,13 +99,13 @@ class ContentResultPage extends StatelessWidget {
           child: Column(
             children: [
               SsossAppBar.back(
-                title: '콘텐츠 생성 결과',
+                title: _isOtherChannel ? '다른 채널용 생성 결과' : '콘텐츠 생성 결과',
                 onBack: () => _goHome(context),
               ),
               Expanded(
                 child: _isMulti
-                    ? ContentResultMultiBody(input: input)
-                    : ContentResultSingleBody(input: input),
+                    ? ContentResultMultiBody(input: args.input)
+                    : ContentResultSingleBody(input: args.input),
               ),
               Container(
                 width: double.infinity,

@@ -87,6 +87,11 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
   static const double height = 58;
   static const double _sideSlotWidth = 32;
 
+  static const TextHeightBehavior _textHeightBehavior = TextHeightBehavior(
+    applyHeightToFirstAscent: false,
+    applyHeightToLastDescent: false,
+  );
+
   @override
   Size get preferredSize => const Size.fromHeight(height);
 
@@ -102,10 +107,11 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
                 width: _sideSlotWidth,
-                height: _sideSlotWidth,
+                height: height,
                 child: showBackButton
                     ? _AppBarIconButton(
                         assetPath: AppAssets.icChevronLeft,
@@ -117,11 +123,16 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
               Expanded(
                 child: title.isEmpty
                     ? const SizedBox.shrink()
-                    : AppText(
-                        title,
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.h4.copyWith(
-                          color: AppColors.neutral800,
+                    : Center(
+                        child: AppText(
+                          title,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textHeightBehavior: _textHeightBehavior,
+                          style: AppTextStyles.h4.copyWith(
+                            color: AppColors.neutral800,
+                          ),
                         ),
                       ),
               ),
@@ -138,18 +149,22 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
     if (child == null) {
       return const SizedBox(
         width: _sideSlotWidth,
-        height: _sideSlotWidth,
+        height: height,
       );
     }
     if (_hasTextAction) {
+      // 타이틀과 동일하게 앱바 전체 높이 기준 수직 중앙 정렬.
       return SizedBox(
-        height: _sideSlotWidth,
-        child: child,
+        height: height,
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: child,
+        ),
       );
     }
     return SizedBox(
       width: _sideSlotWidth,
-      height: _sideSlotWidth,
+      height: height,
       child: child,
     );
   }
@@ -197,14 +212,18 @@ class _AppBarIconButton extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
-        child: Center(
-          child: SvgPicture.asset(
-            assetPath,
-            width: 24,
-            height: 24,
-            colorFilter: const ColorFilter.mode(
-              AppColors.neutral500,
-              BlendMode.srcIn,
+        // 부모 슬롯(앱바 전체 높이)을 채운 뒤 아이콘을 수직·수평 중앙에 둔다.
+        child: SizedBox.expand(
+          child: Center(
+            child: SvgPicture.asset(
+              assetPath,
+              width: 24,
+              height: 24,
+              alignment: Alignment.center,
+              colorFilter: const ColorFilter.mode(
+                AppColors.neutral500,
+                BlendMode.srcIn,
+              ),
             ),
           ),
         ),
@@ -232,15 +251,14 @@ class _TextActionButton extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Center(
-            child: AppText(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.visible,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.h6.copyWith(
-                color: AppColors.primary600,
-              ),
+          child: AppText(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.visible,
+            textAlign: TextAlign.center,
+            textHeightBehavior: SsossAppBar._textHeightBehavior,
+            style: AppTextStyles.h6.copyWith(
+              color: AppColors.primary600,
             ),
           ),
         ),

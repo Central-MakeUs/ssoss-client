@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_contents_card.dart';
+import 'package:ssoss_flutter/common/widgets/card/ssoss_contents_card_block.dart';
+import 'package:ssoss_flutter/common/widgets/card/ssoss_recommendation_card.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -10,12 +12,29 @@ import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 class ContentResultSection extends StatelessWidget {
   const ContentResultSection({
     required this.title,
-    required this.content,
+    required this.blocks,
     super.key,
   });
 
   final String title;
-  final String content;
+  final List<SsossContentsCardBlock> blocks;
+
+  factory ContentResultSection.text({
+    required String title,
+    required String content,
+    SsossRecommendationCardItem? recommendation,
+    Key? key,
+  }) {
+    return ContentResultSection(
+      key: key,
+      title: title,
+      blocks: [
+        if (recommendation != null)
+          SsossContentsCardRecommendationBlock(recommendation),
+        SsossContentsCardTextBlock(content),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +70,7 @@ class ContentResultSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         SsossContentsCard(
-          content: content,
+          blocks: blocks,
           width: double.infinity,
         ),
       ],

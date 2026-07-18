@@ -9,9 +9,12 @@ import 'package:ssoss_flutter/features/auth/presentation/pages/login_page.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/splash_page.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_generation_args.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_mode.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_create_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_generating_page.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/content_other_channel_create_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_result_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_save_complete_page.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
@@ -80,38 +83,59 @@ GoRouter createAppRouter(LoginBloc loginBloc) {
         },
       ),
       GoRoute(
+        name: ContentOtherChannelCreatePage.routeName,
+        path: ContentOtherChannelCreatePage.routePath,
+        builder: (context, state) {
+          final previous = state.extra;
+          if (previous is! ContentCreateInput) {
+            return const ContentCreatePage();
+          }
+          return ContentOtherChannelCreatePage(
+            baseInput: previous,
+            completedChannels: previous.channels,
+          );
+        },
+      ),
+      GoRoute(
         name: ContentGeneratingPage.routeName,
         path: ContentGeneratingPage.routePath,
         builder: (context, state) {
-          final input = state.extra;
-          if (input is! ContentCreateInput) {
+          final extra = state.extra;
+          if (extra is! ContentGenerationArgs) {
             return const ContentCreatePage();
           }
-          return ContentGeneratingPage(input: input);
+          return ContentGeneratingPage(args: extra);
         },
       ),
       GoRoute(
         name: ContentResultPage.routeName,
         path: ContentResultPage.routePath,
         builder: (context, state) {
-          final input = state.extra;
-          if (input is! ContentCreateInput) {
+          final extra = state.extra;
+          if (extra is! ContentGenerationArgs) {
             return const ContentCreatePage();
           }
-          return ContentResultPage(input: input);
+          return ContentResultPage(args: extra);
         },
       ),
       GoRoute(
         name: ContentSaveCompletePage.routeName,
         path: ContentSaveCompletePage.routePath,
         builder: (context, state) {
-          final mode = state.extra;
-          if (mode is! ContentSaveCompleteMode) {
-            return const ContentSaveCompletePage(
-              mode: ContentSaveCompleteMode.finalSave,
+          final extra = state.extra;
+          if (extra is ContentSaveCompleteArgs) {
+            return ContentSaveCompletePage(args: extra);
+          }
+          if (extra is ContentSaveCompleteMode) {
+            return ContentSaveCompletePage(
+              args: ContentSaveCompleteArgs(mode: extra),
             );
           }
-          return ContentSaveCompletePage(mode: mode);
+          return const ContentSaveCompletePage(
+            args: ContentSaveCompleteArgs(
+              mode: ContentSaveCompleteMode.finalSave,
+            ),
+          );
         },
       ),
     ],

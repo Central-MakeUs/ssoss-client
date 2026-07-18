@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
-import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_generation_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_result_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/content_generating_view.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
@@ -15,14 +15,14 @@ import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 /// 백엔드 완료 대기 대신 당분간 2초 후 결과 화면으로 이동한다.
 class ContentGeneratingPage extends StatefulWidget {
   const ContentGeneratingPage({
-    required this.input,
+    required this.args,
     super.key,
   });
 
   static const String routeName = 'content-generating';
   static const String routePath = '/content/create/generating';
 
-  final ContentCreateInput input;
+  final ContentGenerationArgs args;
 
   @override
   State<ContentGeneratingPage> createState() => _ContentGeneratingPageState();
@@ -38,7 +38,7 @@ class _ContentGeneratingPageState extends State<ContentGeneratingPage> {
       if (!mounted) {
         return;
       }
-      context.go(ContentResultPage.routePath, extra: widget.input);
+      context.go(ContentResultPage.routePath, extra: widget.args);
     });
   }
 
