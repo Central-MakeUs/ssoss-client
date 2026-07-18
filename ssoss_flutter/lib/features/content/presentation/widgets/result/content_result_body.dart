@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:ssoss_flutter/common/widgets/card/ssoss_recommendation_card.dart';
 import 'package:ssoss_flutter/common/widgets/tab/ssoss_tab_bar.dart';
 
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
@@ -33,6 +34,7 @@ class ContentResultSingleBody extends StatelessWidget {
           _ChannelResultSections(
             channel: channel,
             compact: false,
+            photoGuideEnabled: input.photoGuideEnabled,
           ),
         ],
       ),
@@ -122,6 +124,7 @@ class _ContentResultMultiBodyState extends State<ContentResultMultiBody> {
                 child: _ChannelResultSections(
                   channel: _orderedChannels[index],
                   compact: true,
+                  photoGuideEnabled: widget.input.photoGuideEnabled,
                 ),
               );
             },
@@ -136,10 +139,22 @@ class _ChannelResultSections extends StatelessWidget {
   const _ChannelResultSections({
     required this.channel,
     required this.compact,
+    required this.photoGuideEnabled,
   });
 
   final UploadChannel channel;
   final bool compact;
+  final bool photoGuideEnabled;
+
+  static const _photoGuide = SsossRecommendationCardItem(
+    id: 'photo-guide',
+    label: '추천 사진',
+    title: '매장의 분위기가 담긴 사진을 추천해요.',
+    description: '방문하고 싶은 느낌을 전달하는 데 효과적이에요',
+  );
+
+  SsossRecommendationCardItem? get _recommendation =>
+      photoGuideEnabled ? _photoGuide : null;
 
   @override
   Widget build(BuildContext context) {
@@ -147,14 +162,15 @@ class _ChannelResultSections extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const ContentResultSection(
+          ContentResultSection.text(
             title: '제목',
             content: ContentResultDummy.blogTitle,
           ),
           const SizedBox(height: 32),
-          ContentResultSection(
+          ContentResultSection.text(
             title: '본문',
             content: ContentResultDummy.bodyFor(channel, compact: compact),
+            recommendation: _recommendation,
           ),
           const SizedBox(height: 32),
           const ContentResultHashtagSection(
@@ -164,9 +180,10 @@ class _ChannelResultSections extends StatelessWidget {
       );
     }
 
-    return ContentResultSection(
+    return ContentResultSection.text(
       title: '본문',
       content: ContentResultDummy.bodyFor(channel, compact: compact),
+      recommendation: _recommendation,
     );
   }
 }

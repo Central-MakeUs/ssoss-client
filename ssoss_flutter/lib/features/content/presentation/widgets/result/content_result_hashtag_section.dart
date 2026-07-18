@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_contents_card.dart';
+import 'package:ssoss_flutter/common/widgets/card/ssoss_contents_card_block.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -48,8 +49,8 @@ class ContentResultHashtagSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        SsossContentsCard.hashtags(
-          hashtags: hashtags,
+        SsossContentsCard(
+          blocks: [SsossContentsCardHashtagsBlock(hashtags)],
           width: double.infinity,
         ),
       ],

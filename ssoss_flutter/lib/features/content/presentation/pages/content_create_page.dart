@@ -8,6 +8,8 @@ import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_create_cubit.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_create_state.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_create_flow.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_generation_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_generating_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/create/content_create_progress_bar.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/create/content_create_step_channel.dart';
@@ -49,7 +51,13 @@ class _ContentCreateView extends StatelessWidget {
     if (input == null) {
       return;
     }
-    context.go(ContentGeneratingPage.routePath, extra: input);
+    context.go(
+      ContentGeneratingPage.routePath,
+      extra: ContentGenerationArgs(
+        input: input,
+        flow: ContentCreateFlow.initial,
+      ),
+    );
   }
 
   @override
