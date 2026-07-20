@@ -28,6 +28,9 @@ typedef SsossRecommendationDeletedCallback = void Function(
 ///
 /// AppFlowy Editor 위에 텍스트 문단과 추천 카드(커스텀 블록)를
 /// 교차 배치해 편집한다. 도메인 모델은 [SsossContentsEditDocument]를 사용한다.
+///
+/// 초기화는 부모가 [SsossContentsEditDocument.reset] 결과를 [document]로
+/// 다시 넘기면 된다. 카드는 외부 문서 교체를 감지해 에디터를 재생성한다.
 class SsossContentsEditCard extends StatefulWidget {
   const SsossContentsEditCard({
     required this.document,
@@ -130,15 +133,10 @@ class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
 
     // 외부에서 문서를 교체한 경우에만 에디터를 재생성한다.
     // 편집 중 emit한 문서와 동일한 참조면 재생성하지 않는다.
+    // reset()으로 원본을 다시 넘긴 경우도 여기로 들어와 복구된다.
     if (oldWidget.document != widget.document &&
         widget.document != _lastEmittedDocument) {
-      _transactionSubscription?.cancel();
-      _editorState.selectionNotifier.removeListener(_onEditorSelectionChanged);
-      _editorScrollController.dispose();
-      _bindEditorState(_createEditorState(widget.document));
-      _editorState.selectionNotifier.addListener(_onEditorSelectionChanged);
-      _transactionSubscription =
-          _editorState.transactionStream.listen((_) => _handleTransaction());
+      _replaceEditorState(widget.document);
     }
 
     if (oldWidget.contentColor != widget.contentColor ||
@@ -147,6 +145,18 @@ class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
         oldWidget.hintText != widget.hintText) {
       _editorStyle = _buildEditorStyle();
     }
+  }
+
+  /// 에디터 상태를 [document] 기준으로 교체한다. (외부 sync / 초기화 복구)
+  void _replaceEditorState(SsossContentsEditDocument document) {
+    _transactionSubscription?.cancel();
+    _editorState.selectionNotifier.removeListener(_onEditorSelectionChanged);
+    _editorScrollController.dispose();
+    _bindEditorState(_createEditorState(document));
+    _editorState.selectionNotifier.addListener(_onEditorSelectionChanged);
+    _transactionSubscription =
+        _editorState.transactionStream.listen((_) => _handleTransaction());
+    _lastEmittedDocument = document;
   }
 
   @override
@@ -221,10 +231,13 @@ class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
   }
 
   /// AppFlowy 문서 변경을 도메인 모델로 역변환해 콜백·UI를 갱신한다.
+  ///
+  /// 편집 결과에는 최초 전달 원본([SsossContentsEditDocument.originalBlocks])을
+  /// 유지해, 이후 [SsossContentsEditDocument.reset]이 가능하도록 한다.
   void _emitDocumentChange() {
     final document = SsossContentsEditDocumentMapper.fromAppFlowyDocument(
       _editorState.document,
-    );
+    ).copyWith(originalBlocks: widget.document.originalBlocks);
     _lastEmittedDocument = document;
     widget.onDocumentChanged?.call(document);
     widget.onChanged?.call(document.plainText);
