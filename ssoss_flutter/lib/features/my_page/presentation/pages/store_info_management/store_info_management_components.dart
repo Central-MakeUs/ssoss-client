@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
 
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_address_search_field.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_selection_button.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_toggle.dart';
@@ -53,7 +54,6 @@ class StoreInfoFormField extends StatelessWidget {
     this.controller,
     this.hintText = '입력해주세요.',
     this.initialValue,
-    this.showSearchIcon = false,
     this.readOnly = false,
     this.multiline = false,
     this.onTap,
@@ -63,7 +63,6 @@ class StoreInfoFormField extends StatelessWidget {
   final TextEditingController? controller;
   final String hintText;
   final String? initialValue;
-  final bool showSearchIcon;
   final bool readOnly;
   final bool multiline;
   final VoidCallback? onTap;
@@ -85,11 +84,50 @@ class StoreInfoFormField extends StatelessWidget {
             child: SsossTextField(
               controller: controller,
               hintText: hintText,
-              showSearchIcon: showSearchIcon,
               readOnly: readOnly,
               multiline: multiline,
               textColor: AppColors.neutral800,
               hintColor: AppColors.neutral400,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class StoreInfoAddressFormField extends StatelessWidget {
+  const StoreInfoAddressFormField({
+    required this.label,
+    required this.controller,
+    this.hintText = '입력해주세요.',
+    this.initialValue,
+    this.onTap,
+    super.key,
+  });
+
+  final String label;
+  final TextEditingController controller;
+  final String hintText;
+  final String? initialValue;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppText(label,
+            style: AppTextStyles.h5.copyWith(color: AppColors.black)),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: onTap,
+          child: AbsorbPointer(
+            absorbing: onTap != null,
+            child: SsossAddressSearchField(
+              controller: controller,
+              hintText: hintText,
+              initialValue: initialValue,
             ),
           ),
         ),

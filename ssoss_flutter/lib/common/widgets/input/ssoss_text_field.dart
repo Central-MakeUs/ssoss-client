@@ -13,6 +13,8 @@ class SsossTextField extends StatelessWidget {
     this.focusNode,
     this.hintText = '입력해주세요',
     this.showSearchIcon = false,
+    this.showLoadingIndicator = false,
+    this.hasError = false,
     this.enabled = true,
     this.readOnly = false,
     this.obscureText = false,
@@ -42,6 +44,8 @@ class SsossTextField extends StatelessWidget {
   final FocusNode? focusNode;
   final String hintText;
   final bool showSearchIcon;
+  final bool showLoadingIndicator;
+  final bool hasError;
   final bool enabled;
   final bool readOnly;
   final bool obscureText;
@@ -77,8 +81,14 @@ class SsossTextField extends StatelessWidget {
     final resolvedFillColor = enabled
         ? fillColor ?? AppColors.white
         : disabledFillColor ?? AppColors.neutral50;
-    final textStyle = showSearchIcon ? AppTextStyles.b5 : AppTextStyles.b4;
+    final textStyle = AppTextStyles.b4;
     final resolvedHeight = height ?? defaultHeight;
+    final resolvedErrorColor = errorBorderColor ?? AppColors.error500;
+    final resolvedBorderColor =
+        hasError ? resolvedErrorColor : borderColor ?? AppColors.neutral200;
+    final resolvedFocusedBorderColor = hasError
+        ? resolvedErrorColor
+        : focusedBorderColor ?? AppColors.neutral600;
 
     final textField = TextField(
       controller: controller,
@@ -100,7 +110,9 @@ class SsossTextField extends StatelessWidget {
       maxLines: multiline ? maxLines : 1,
       textAlignVertical:
           multiline ? TextAlignVertical.top : TextAlignVertical.center,
-      cursorColor: focusedBorderColor ?? AppColors.primary400,
+      cursorColor: hasError
+          ? resolvedErrorColor
+          : focusedBorderColor ?? AppColors.primary400,
       style: textStyle.copyWith(
         color: resolvedTextColor,
       ),
@@ -114,7 +126,7 @@ class SsossTextField extends StatelessWidget {
         fillColor: resolvedFillColor,
         isDense: true,
         contentPadding: EdgeInsets.symmetric(
-          horizontal: showSearchIcon ? 0 : 14,
+          horizontal: showSearchIcon || showLoadingIndicator ? 0 : 14,
           vertical: 10,
         ),
         prefixIcon: showSearchIcon
@@ -137,11 +149,30 @@ class SsossTextField extends StatelessWidget {
                 minHeight: 24,
               )
             : null,
-        border: _border(borderColor ?? AppColors.neutral200),
-        enabledBorder: _border(borderColor ?? AppColors.neutral200),
-        focusedBorder: _border(focusedBorderColor ?? AppColors.neutral600),
-        errorBorder: _border(errorBorderColor ?? AppColors.error500),
-        focusedErrorBorder: _border(errorBorderColor ?? AppColors.error500),
+        suffixIcon: showLoadingIndicator
+            ? const Padding(
+                padding: EdgeInsets.only(right: 14),
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.primary400,
+                  ),
+                ),
+              )
+            : null,
+        suffixIconConstraints: showLoadingIndicator
+            ? const BoxConstraints(
+                minWidth: 34,
+                minHeight: 20,
+              )
+            : null,
+        border: _border(resolvedBorderColor),
+        enabledBorder: _border(resolvedBorderColor),
+        focusedBorder: _border(resolvedFocusedBorderColor),
+        errorBorder: _border(resolvedErrorColor),
+        focusedErrorBorder: _border(resolvedErrorColor),
         disabledBorder: _border(disabledBorderColor ?? AppColors.neutral200),
       ),
     );

@@ -400,13 +400,10 @@ class _BasicInfoFormState extends State<_BasicInfoForm> {
           },
         ),
         const SizedBox(height: 32),
-        StoreInfoFormField(
+        StoreInfoAddressFormField(
           label: '주소',
           controller: widget.addressController,
           hintText: '주소를 검색해주세요',
-          showSearchIcon: true,
-          readOnly: true,
-          onTap: () {},
         ),
         const SizedBox(height: 32),
         StoreInfoFormField(
