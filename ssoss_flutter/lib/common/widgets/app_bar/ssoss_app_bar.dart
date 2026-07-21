@@ -22,6 +22,7 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onDone,
     this.onExit,
     this.onBellTap,
+    this.actionLabel,
     super.key,
   });
 
@@ -33,7 +34,8 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
         onBack = null,
         onDone = null,
         onExit = null,
-        onBellTap = null;
+        onBellTap = null,
+        actionLabel = null;
 
   const SsossAppBar.back({
     required this.title,
@@ -43,7 +45,8 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
         action = SsossAppBarAction.none,
         onDone = null,
         onExit = null,
-        onBellTap = null;
+        onBellTap = null,
+        actionLabel = null;
 
   const SsossAppBar.backWithDone({
     required this.title,
@@ -53,7 +56,20 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
   })  : showBackButton = true,
         action = SsossAppBarAction.done,
         onExit = null,
-        onBellTap = null;
+        onBellTap = null,
+        actionLabel = '완료';
+
+  const SsossAppBar.backWithLabel({
+    required this.title,
+    required String label,
+    required this.onBack,
+    required this.onDone,
+    super.key,
+  })  : showBackButton = true,
+        action = SsossAppBarAction.done,
+        onExit = null,
+        onBellTap = null,
+        actionLabel = label;
 
   /// 뒤로가기 없이 우측 `나가기`만 표시한다. [title]이 있으면 중앙에 표시한다.
   const SsossAppBar.exitOnly({
@@ -64,7 +80,8 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
         action = SsossAppBarAction.exit,
         onBack = null,
         onDone = null,
-        onBellTap = null;
+        onBellTap = null,
+        actionLabel = '나가기';
 
   const SsossAppBar.withBell({
     required this.title,
@@ -74,7 +91,8 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
         action = SsossAppBarAction.bell,
         onBack = null,
         onDone = null,
-        onExit = null;
+        onExit = null,
+        actionLabel = null;
 
   final String title;
   final bool showBackButton;
@@ -83,6 +101,7 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onDone;
   final VoidCallback? onExit;
   final VoidCallback? onBellTap;
+  final String? actionLabel;
 
   static const double height = 58;
   static const double _sideSlotWidth = 32;
@@ -175,12 +194,12 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
         return null;
       case SsossAppBarAction.done:
         return _TextActionButton(
-          label: '완료',
+          label: actionLabel ?? '완료',
           onTap: onDone,
         );
       case SsossAppBarAction.exit:
         return _TextActionButton(
-          label: '나가기',
+          label: actionLabel ?? '나가기',
           onTap: onExit,
         );
       case SsossAppBarAction.bell:
