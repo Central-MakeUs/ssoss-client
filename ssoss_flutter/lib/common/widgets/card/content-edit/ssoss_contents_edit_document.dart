@@ -1,21 +1,30 @@
 import 'package:ssoss_flutter/common/widgets/card/ssoss_recommendation_card.dart';
 
 /// 편집 카드 본문. 서버가 내려준 블록 순서대로 텍스트·추천 카드를 배치한다.
+///
+/// [originalBlocks]는 최초 전달 시점의 스냅샷이다. 편집 중에는 바뀌지 않으며,
+/// [reset]으로만 본문을 그 상태로 되돌린다.
 class SsossContentsEditDocument {
   const SsossContentsEditDocument({
     required this.blocks,
-  });
+    List<SsossContentsEditBlock>? originalBlocks,
+  }) : originalBlocks = originalBlocks ?? blocks;
 
   final List<SsossContentsEditBlock> blocks;
+
+  /// 초기화용 원본 블록. 생성 시점의 [blocks]를 기본값으로 고정한다.
+  final List<SsossContentsEditBlock> originalBlocks;
 
   factory SsossContentsEditDocument.single({
     String id = 'text-0',
     String text = '',
   }) {
+    final blocks = [
+      SsossContentsEditTextBlock(id: id, text: text),
+    ];
     return SsossContentsEditDocument(
-      blocks: [
-        SsossContentsEditTextBlock(id: id, text: text),
-      ],
+      blocks: blocks,
+      originalBlocks: blocks,
     );
   }
 
@@ -23,16 +32,28 @@ class SsossContentsEditDocument {
     required String plainText,
     List<SsossContentsEditRecommendationAnchor> anchors = const [],
   }) {
+    final blocks = toBlocks(plainText: plainText, anchors: anchors);
     return SsossContentsEditDocument(
-      blocks: toBlocks(plainText: plainText, anchors: anchors),
+      blocks: blocks,
+      originalBlocks: blocks,
     );
   }
 
   SsossContentsEditDocument copyWith({
     List<SsossContentsEditBlock>? blocks,
+    List<SsossContentsEditBlock>? originalBlocks,
   }) {
     return SsossContentsEditDocument(
       blocks: blocks ?? this.blocks,
+      originalBlocks: originalBlocks ?? this.originalBlocks,
+    );
+  }
+
+  /// 최초 전달받은 원본 블록으로 본문을 복구한다.
+  SsossContentsEditDocument reset() {
+    return SsossContentsEditDocument(
+      blocks: List<SsossContentsEditBlock>.of(originalBlocks),
+      originalBlocks: originalBlocks,
     );
   }
 
