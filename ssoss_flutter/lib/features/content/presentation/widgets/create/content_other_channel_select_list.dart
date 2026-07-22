@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_text_button.dart';
+import 'package:ssoss_flutter/common/widgets/selection/ssoss_checkbox.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -13,13 +14,17 @@ class ContentOtherChannelSelectList extends StatelessWidget {
   const ContentOtherChannelSelectList({
     required this.available,
     required this.selected,
+    required this.isAllSelected,
     required this.onToggle,
+    required this.onToggleSelectAll,
     super.key,
   });
 
   final List<UploadChannel> available;
   final List<UploadChannel> selected;
+  final bool isAllSelected;
   final ValueChanged<UploadChannel> onToggle;
+  final VoidCallback onToggleSelectAll;
 
   static const _options =
       <({UploadChannel channel, String label, String icon})>[
@@ -84,6 +89,14 @@ class ContentOtherChannelSelectList extends StatelessWidget {
                   : Image.asset(options[i].icon, width: 24, height: 24),
             ),
             onTap: () => onToggle(options[i].channel),
+          ),
+        ],
+        if (options.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          SsossCheckbox(
+            isChecked: isAllSelected,
+            label: '전체 선택',
+            onTap: onToggleSelectAll,
           ),
         ],
       ],

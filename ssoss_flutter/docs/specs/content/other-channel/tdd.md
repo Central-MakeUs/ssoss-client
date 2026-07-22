@@ -28,7 +28,7 @@
 |------|------|------|
 | 채널 선택 UI | 전용 페이지 (3단계 위저드 미사용) | Figma가 채널만 고르는 단일 화면 |
 | 결과/생성중 | 기존 페이지 + flow 모드 | UI 동일, 타이틀·네비만 분기 |
-| 다시 만들기 | 동일 `ContentGenerationArgs`로 generating 재진입 | 채널 재선택 없음 |
+| 다시 생성하기 | 동일 `ContentGenerationArgs`로 generating 재진입 | 채널 재선택 없음 |
 | 저장 완료 extra | `ContentSaveCompleteArgs` | mode + previousInput |
 | ContentsCard | blocks 전용 | 추천 카드 위치 가변 |
 

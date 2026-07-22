@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_contents_card_block.dart';
+import 'package:ssoss_flutter/common/widgets/card/ssoss_expandable_card_body.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_recommendation_card.dart';
 import 'package:ssoss_flutter/common/widgets/tag/ssoss_tag.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
@@ -127,15 +128,17 @@ class _SsossContentsCardState extends State<SsossContentsCard> {
         children: [
           Padding(
             padding: resolvedTopPadding,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (var i = 0; i < widget.blocks.length; i++) ...[
-                  if (i > 0) const SizedBox(height: 24),
-                  _buildBlock(widget.blocks[i]),
+            child: SsossExpandableCardBody(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var i = 0; i < widget.blocks.length; i++) ...[
+                    if (i > 0) const SizedBox(height: 24),
+                    _buildBlock(widget.blocks[i]),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
           ColoredBox(

@@ -14,6 +14,10 @@ class ContentOtherChannelCreateState {
 
   bool get canSubmit => selected.isNotEmpty;
 
+  bool get isAllSelected =>
+      availableChannels.isNotEmpty &&
+      availableChannels.every(selected.contains);
+
   ContentOtherChannelCreateState copyWith({
     List<UploadChannel>? availableChannels,
     List<UploadChannel>? selected,
@@ -54,6 +58,18 @@ class ContentOtherChannelCreateCubit
       current.add(channel);
     }
     emit(state.copyWith(selected: current));
+  }
+
+  void toggleSelectAll() {
+    if (state.isAllSelected) {
+      emit(state.copyWith(selected: const []));
+      return;
+    }
+    emit(
+      state.copyWith(
+        selected: List<UploadChannel>.of(state.availableChannels),
+      ),
+    );
   }
 
   ContentCreateInput? buildCreateInput() {

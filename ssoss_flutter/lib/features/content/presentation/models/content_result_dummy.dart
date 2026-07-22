@@ -27,7 +27,7 @@ class ContentResultDummy {
 을지로 산책 후 들르기 딱 좋은 을지로 베이커리로 자리 잡은 보니스커피, 한 번 오시면 단골 되실 거예요 😊
 ''';
 
-  static const List<String> blogHashtags = [
+  static const List<String> instagramHashtags = [
     '#을지로카페',
     '#을지로크루아상',
     '#을지로베이커리',

@@ -102,7 +102,9 @@ class _ContentOtherChannelCreateView extends StatelessWidget {
                           ContentOtherChannelSelectList(
                             available: state.availableChannels,
                             selected: state.selected,
+                            isAllSelected: state.isAllSelected,
                             onToggle: cubit.toggleChannel,
+                            onToggleSelectAll: cubit.toggleSelectAll,
                           ),
                         ],
                       ),
