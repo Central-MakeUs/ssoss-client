@@ -31,6 +31,7 @@ class SsossTextField extends StatelessWidget {
     this.hintColor,
     this.searchIconColor,
     this.width,
+    this.height,
   });
 
   final TextEditingController? controller;
@@ -55,8 +56,9 @@ class SsossTextField extends StatelessWidget {
   final Color? hintColor;
   final Color? searchIconColor;
   final double? width;
+  final double? height;
 
-  static const double height = 40;
+  static const double defaultHeight = 40;
   static const double _borderRadius = 8;
 
   @override
@@ -71,7 +73,7 @@ class SsossTextField extends StatelessWidget {
 
     return SizedBox(
       width: width,
-      height: height,
+      height: height ?? defaultHeight,
       child: TextField(
         controller: controller,
         focusNode: focusNode,

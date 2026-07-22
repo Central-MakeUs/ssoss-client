@@ -18,41 +18,25 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   SsossNavigationItem _currentItem = SsossNavigationItem.contentCreation;
 
-  static const List<Widget> _tabs = [
-    ContentCreationTab(),
-    DashboardTab(),
-    PlaceDiagnosisTab(),
-    MyPageTab(),
-  ];
-
-  static final List<HomeTabAppBarBuilder> _appBarBuilders = [
-    ContentCreationTab.buildAppBar,
-    DashboardTab.buildAppBar,
-    PlaceDiagnosisTab.buildAppBar,
-    MyPageTab.buildAppBar,
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Column(
         children: [
-          SafeArea(
-            bottom: false,
-            child: IndexedStack(
-              index: _currentItem.index,
-              sizing: StackFit.passthrough,
-              children: List.generate(
-                _appBarBuilders.length,
-                (index) => _appBarBuilders[index](context),
+          if (_currentItem != SsossNavigationItem.myPage)
+            SafeArea(
+              bottom: false,
+              child: IndexedStack(
+                index: _currentItem.index,
+                sizing: StackFit.passthrough,
+                children: _buildAppBars(context),
               ),
             ),
-          ),
           Expanded(
             child: IndexedStack(
               index: _currentItem.index,
-              children: _tabs,
+              children: _buildTabs(),
             ),
           ),
         ],
@@ -64,5 +48,23 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
+  }
+
+  List<Widget> _buildAppBars(BuildContext context) {
+    return [
+      ContentCreationTab.buildAppBar(context),
+      DashboardTab.buildAppBar(context),
+      PlaceDiagnosisTab.buildAppBar(context),
+      MyPageTab.buildAppBar(context),
+    ];
+  }
+
+  List<Widget> _buildTabs() {
+    return const [
+      ContentCreationTab(),
+      DashboardTab(),
+      PlaceDiagnosisTab(),
+      MyPageTab(),
+    ];
   }
 }
