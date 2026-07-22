@@ -49,58 +49,9 @@ class ContentPage extends StatelessWidget {
             const ContentTemplateSection(),
             const SizedBox(height: 36),
             ContentRecentSection(recentContents: items),
-            const SizedBox(height: 36),
-            const _ContentsEditPreview(),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _ContentsEditPreview extends StatefulWidget {
-  const _ContentsEditPreview();
-
-  @override
-  State<_ContentsEditPreview> createState() => _ContentsEditPreviewState();
-}
-
-class _ContentsEditPreviewState extends State<_ContentsEditPreview> {
-  var document = SsossContentsEditDocument(
-    blocks: [
-      SsossContentsEditTextBlock(
-        id: 'text-0',
-        text: '고정 문구\n가격: [가격]원\n뒤',
-      ),
-      SsossContentsEditRecommendationBlock(
-        item: SsossRecommendationCardItem(
-          id: 'recommendation-0',
-          label: '추천 사진',
-          title: '매장 사진',
-          description: '분위기 있는 사진',
-        ),
-      ),
-      SsossContentsEditTextBlock(
-        id: 'text-1',
-        text: '뒤',
-      ),
-    ],
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SsossContentsEditCard(
-          document: document,
-          onDocumentChanged: (value) => setState(() => document = value),
-        ),
-        const SizedBox(height: 36),
-        ElevatedButton(
-          onPressed: () => setState(() => document = document.reset()),
-          child: const Text('초기화'),
-        ),
-      ],
     );
   }
 }

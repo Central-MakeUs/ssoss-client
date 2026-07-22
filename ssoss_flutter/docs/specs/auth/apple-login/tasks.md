@@ -181,15 +181,38 @@
 
 ---
 
-## Phase 8 — 회원 탈퇴 API 연동 (후순위)
+## Phase 8 — 회원 탈퇴·복구·status API 연동
 
-> 서버 탈퇴 API 스펙 확정 후 진행. 현재는 로컬 clear 유지.
+> naver-login Phase 8 과 공유. 서버에서 Apple credential revoke.
 
-- [ ] **8-1** 탈퇴 API 엔드포인트를 `tdd.md` 에 반영
-- [ ] **8-2** `AuthRemoteDatasource.withdraw()` Dio 구현
-- [ ] **8-3** `AuthRepositoryImpl.withdraw()` — remote → local clear
-- [ ] **8-4** **서버에서 Apple credential revoke** (클라이언트 미처리)
-- [ ] **8-5** FR-11 동작 검증
+- [x] **8-1** 탈퇴·복구·status 를 `tdd.md` 에 반영
+- [x] **8-2** `AuthRemoteDatasource.withdraw()` / `recover()` Dio 구현 (공유)
+- [x] **8-3** `AuthRepositoryImpl.withdraw()` — remote → local clear (공유)
+- [x] **8-4** `loginWithApple` 시 `WITHDRAWN` → recover → ACTIVE 세션 (공유)
+- [x] **8-5** 설정 로그아웃/탈퇴 연동 (공유)
+- [x] **8-6** **서버에서 Apple credential revoke** (클라이언트 미처리)
+- [ ] **8-7** FR-11 동작 검증 (실기기/스테이징 수동 검증)
+
+---
+
+## Follow-up — 탈퇴 확인 페이지
+
+> 현재는 설정 `SsossModal`(`탈퇴하시겠어요?`). 추후 전용 페이지로 교체. 상세는 [`naver-login/tasks.md`](../naver-login/tasks.md) Follow-up 과 공유.
+
+- [ ] **F-1** 탈퇴 확인 전용 페이지 추가
+- [ ] **F-2** 설정 → 확인 페이지 → `withdrawRequested`
+- [ ] **F-3** 모달 확인 UX 제거
+
+---
+
+## Phase 10 — PENDING 회원가입 플로우
+
+> naver-login Phase 10 과 공유.
+
+- [x] **10-1** `loginWithApple` PENDING → 약관 화면 라우팅
+- [x] **10-2** Apple 이메일 `SharedPreferences` 저장·복원
+- [x] **10-3** `SignupTermsPage` / `SignupCompletePage` (공유)
+- [ ] **10-4** 실기기/스테이징 수동 검증
 
 ---
 
@@ -209,11 +232,11 @@
 
 ## 완료 기준 (Definition of Done)
 
-> Phase 0–6(데모) + Phase 7(인증 API) 완료 기준. 탈퇴 서버 연동은 Phase 8.
+> Phase 0–6(데모) + Phase 7(인증 API) + Phase 8(탈퇴·복구·status) 완료 기준.
 
 - [ ] PRD Must FR 중 데모 가능 항목 구현: **FR-01, FR-03, FR-04, FR-05, FR-06, FR-08, FR-10**
 - [ ] FR-02(백엔드 JWT 발급), FR-07(토큰 갱신) — **Phase 7**
-- [ ] FR-11(서버 탈퇴·Apple revoke) — **Phase 8**
+- [x] FR-11(서버 탈퇴·Apple revoke) — **Phase 8** (수동 검증은 8-7)
 - [ ] `flutter analyze` 경고·에러 없음
 - [ ] `build_runner` 생성 파일 최신 상태
 - [ ] 라우팅(`/login`, `/home` redirect) 등록 완료 (기존 유지)
@@ -230,4 +253,6 @@
 | 2026-07-07 | `StoredAuthCacheModel` 도입으로 네이버·Apple 공통 세션 복원 | Resolved |
 | 2026-07-07 | Apple credential revoke는 서버 처리. 클라이언트 `logoutAndDeleteToken` 미사용 (Out of Scope) | Open |
 | 2026-07-07 | Apple 로그인 버튼은 iOS 전용. Android Apple Sign In은 후속 스펙 | Open |
-| 2026-07-15 | OpenAPI 확정. Apple identityToken 을 `accessToken` 필드로 전달. 탈퇴는 Phase 8 | Open |
+| 2026-07-15 | OpenAPI 확정. Apple identityToken 을 `accessToken` 필드로 전달. 탈퇴는 Phase 8 | Resolved |
+| 2026-07-22 | Phase 8 공유 구현: status·탈퇴·복구·설정 연동. 탈퇴 확인 페이지 Follow-up | Open |
+| 2026-07-22 | Phase 10 공유: PENDING signup, Apple 이메일 SharedPreferences | Open |

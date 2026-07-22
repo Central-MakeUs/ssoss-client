@@ -1,7 +1,7 @@
 name: ssoss_flutter
 description: "쏘쓰 서비스 플러터 모바일 어플리케이션"
 publish_to: 'none'
-version: 0.1.0
+version: 0.0.1
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -21,6 +21,7 @@ dependencies:
   flutter_dotenv: ^6.0.1
   flutter_naver_login: ^2.1.1
   flutter_secure_storage: ^10.3.1
+  shared_preferences: ^2.5.3
   sign_in_with_apple: ^8.1.0
   appflowy_editor: ^6.2.0
 
@@ -38,6 +39,7 @@ flutter:
     - env/.env.dev
     - env/.env.staging
     - env/.env.prod
+    - assets/icons/
     - assets/icons/brand/
     - assets/icons/common/
     - assets/icons/navigation/

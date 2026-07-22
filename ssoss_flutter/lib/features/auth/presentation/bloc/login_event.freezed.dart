@@ -58,6 +58,10 @@ extension LoginEventPatterns on LoginEvent {
     TResult Function(SessionExpired value)? sessionExpired,
     TResult Function(SessionExpiredAcknowledged value)?
         sessionExpiredAcknowledged,
+    TResult Function(FailureAcknowledged value)? failureAcknowledged,
+    TResult Function(SignupSucceeded value)? signupSucceeded,
+    TResult Function(SignupCompleteAcknowledged value)?
+        signupCompleteAcknowledged,
     required TResult orElse(),
   }) {
     final _that = this;
@@ -76,6 +80,12 @@ extension LoginEventPatterns on LoginEvent {
         return sessionExpired(_that);
       case SessionExpiredAcknowledged() when sessionExpiredAcknowledged != null:
         return sessionExpiredAcknowledged(_that);
+      case FailureAcknowledged() when failureAcknowledged != null:
+        return failureAcknowledged(_that);
+      case SignupSucceeded() when signupSucceeded != null:
+        return signupSucceeded(_that);
+      case SignupCompleteAcknowledged() when signupCompleteAcknowledged != null:
+        return signupCompleteAcknowledged(_that);
       case _:
         return orElse();
     }
@@ -105,6 +115,10 @@ extension LoginEventPatterns on LoginEvent {
     required TResult Function(SessionExpired value) sessionExpired,
     required TResult Function(SessionExpiredAcknowledged value)
         sessionExpiredAcknowledged,
+    required TResult Function(FailureAcknowledged value) failureAcknowledged,
+    required TResult Function(SignupSucceeded value) signupSucceeded,
+    required TResult Function(SignupCompleteAcknowledged value)
+        signupCompleteAcknowledged,
   }) {
     final _that = this;
     switch (_that) {
@@ -122,6 +136,12 @@ extension LoginEventPatterns on LoginEvent {
         return sessionExpired(_that);
       case SessionExpiredAcknowledged():
         return sessionExpiredAcknowledged(_that);
+      case FailureAcknowledged():
+        return failureAcknowledged(_that);
+      case SignupSucceeded():
+        return signupSucceeded(_that);
+      case SignupCompleteAcknowledged():
+        return signupCompleteAcknowledged(_that);
     }
   }
 
@@ -147,6 +167,10 @@ extension LoginEventPatterns on LoginEvent {
     TResult? Function(SessionExpired value)? sessionExpired,
     TResult? Function(SessionExpiredAcknowledged value)?
         sessionExpiredAcknowledged,
+    TResult? Function(FailureAcknowledged value)? failureAcknowledged,
+    TResult? Function(SignupSucceeded value)? signupSucceeded,
+    TResult? Function(SignupCompleteAcknowledged value)?
+        signupCompleteAcknowledged,
   }) {
     final _that = this;
     switch (_that) {
@@ -164,6 +188,12 @@ extension LoginEventPatterns on LoginEvent {
         return sessionExpired(_that);
       case SessionExpiredAcknowledged() when sessionExpiredAcknowledged != null:
         return sessionExpiredAcknowledged(_that);
+      case FailureAcknowledged() when failureAcknowledged != null:
+        return failureAcknowledged(_that);
+      case SignupSucceeded() when signupSucceeded != null:
+        return signupSucceeded(_that);
+      case SignupCompleteAcknowledged() when signupCompleteAcknowledged != null:
+        return signupCompleteAcknowledged(_that);
       case _:
         return null;
     }
@@ -190,6 +220,9 @@ extension LoginEventPatterns on LoginEvent {
     TResult Function()? logoutRequested,
     TResult Function()? sessionExpired,
     TResult Function()? sessionExpiredAcknowledged,
+    TResult Function()? failureAcknowledged,
+    TResult Function()? signupSucceeded,
+    TResult Function()? signupCompleteAcknowledged,
     required TResult orElse(),
   }) {
     final _that = this;
@@ -208,6 +241,12 @@ extension LoginEventPatterns on LoginEvent {
         return sessionExpired();
       case SessionExpiredAcknowledged() when sessionExpiredAcknowledged != null:
         return sessionExpiredAcknowledged();
+      case FailureAcknowledged() when failureAcknowledged != null:
+        return failureAcknowledged();
+      case SignupSucceeded() when signupSucceeded != null:
+        return signupSucceeded();
+      case SignupCompleteAcknowledged() when signupCompleteAcknowledged != null:
+        return signupCompleteAcknowledged();
       case _:
         return orElse();
     }
@@ -235,6 +274,9 @@ extension LoginEventPatterns on LoginEvent {
     required TResult Function() logoutRequested,
     required TResult Function() sessionExpired,
     required TResult Function() sessionExpiredAcknowledged,
+    required TResult Function() failureAcknowledged,
+    required TResult Function() signupSucceeded,
+    required TResult Function() signupCompleteAcknowledged,
   }) {
     final _that = this;
     switch (_that) {
@@ -252,6 +294,12 @@ extension LoginEventPatterns on LoginEvent {
         return sessionExpired();
       case SessionExpiredAcknowledged():
         return sessionExpiredAcknowledged();
+      case FailureAcknowledged():
+        return failureAcknowledged();
+      case SignupSucceeded():
+        return signupSucceeded();
+      case SignupCompleteAcknowledged():
+        return signupCompleteAcknowledged();
     }
   }
 
@@ -276,6 +324,9 @@ extension LoginEventPatterns on LoginEvent {
     TResult? Function()? logoutRequested,
     TResult? Function()? sessionExpired,
     TResult? Function()? sessionExpiredAcknowledged,
+    TResult? Function()? failureAcknowledged,
+    TResult? Function()? signupSucceeded,
+    TResult? Function()? signupCompleteAcknowledged,
   }) {
     final _that = this;
     switch (_that) {
@@ -293,6 +344,12 @@ extension LoginEventPatterns on LoginEvent {
         return sessionExpired();
       case SessionExpiredAcknowledged() when sessionExpiredAcknowledged != null:
         return sessionExpiredAcknowledged();
+      case FailureAcknowledged() when failureAcknowledged != null:
+        return failureAcknowledged();
+      case SignupSucceeded() when signupSucceeded != null:
+        return signupSucceeded();
+      case SignupCompleteAcknowledged() when signupCompleteAcknowledged != null:
+        return signupCompleteAcknowledged();
       case _:
         return null;
     }
@@ -437,6 +494,67 @@ class SessionExpiredAcknowledged implements LoginEvent {
   @override
   String toString() {
     return 'LoginEvent.sessionExpiredAcknowledged()';
+  }
+}
+
+/// @nodoc
+
+class FailureAcknowledged implements LoginEvent {
+  const FailureAcknowledged();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is FailureAcknowledged);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.failureAcknowledged()';
+  }
+}
+
+/// @nodoc
+
+class SignupSucceeded implements LoginEvent {
+  const SignupSucceeded();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is SignupSucceeded);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.signupSucceeded()';
+  }
+}
+
+/// @nodoc
+
+class SignupCompleteAcknowledged implements LoginEvent {
+  const SignupCompleteAcknowledged();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is SignupCompleteAcknowledged);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.signupCompleteAcknowledged()';
   }
 }
 

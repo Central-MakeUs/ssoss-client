@@ -1,5 +1,6 @@
 import '../entities/auth_session.dart';
 import '../entities/auth_tokens.dart';
+import '../entities/signup_agreement.dart';
 
 abstract class AuthRepository {
   /// 네이버 인증 → (백엔드) JWT 발급 → 토큰 저장 후 세션 반환.
@@ -11,11 +12,13 @@ abstract class AuthRepository {
   /// 저장 토큰 삭제 및 네이버 세션 해제.
   Future<void> logout();
 
-  /// 회원 탈퇴 처리 후 로컬 인증 상태를 정리한다.
+  /// 회원 탈퇴: `DELETE /v1/members/me` 후 로컬 세션 정리.
   ///
-  /// 현재(데모 단계)는 로컬 토큰 삭제만 수행한다.
-  /// 소셜 연동 revoke는 서버 withdraw API에서 처리한다.
+  /// 소셜 연동 revoke는 서버에서 처리한다.
   Future<void> withdraw();
+
+  /// 가입 대기(PENDING) 회원의 약관 동의 후 회원가입.
+  Future<AuthSession> signup(SignupAgreement agreement);
 
   /// 저장된 토큰으로 세션 복원. 유효 세션이 없으면 null.
   Future<AuthSession?> restoreSession();

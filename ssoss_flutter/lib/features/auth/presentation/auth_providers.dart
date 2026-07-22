@@ -6,9 +6,11 @@ import 'package:provider/single_child_widget.dart';
 import 'package:ssoss_flutter/core/network/interceptors/auth_interceptor.dart';
 import 'package:ssoss_flutter/core/network/session_expired_notifier.dart';
 import 'package:ssoss_flutter/core/service/secure_storage_service.dart';
+import 'package:ssoss_flutter/core/service/shared_preferences_service.dart';
 
 import '../data/datasources/apple_auth_datasource.dart';
 import '../data/datasources/apple_auth_datasource_impl.dart';
+import '../data/datasources/apple_email_local_datasource.dart';
 import '../data/datasources/auth_local_datasource.dart';
 import '../data/datasources/auth_local_datasource_impl.dart';
 import '../data/datasources/auth_remote_datasource.dart';
@@ -27,11 +29,19 @@ class AuthProviders {
           create: (_) => SessionExpiredNotifier(),
           dispose: (_, notifier) => notifier.dispose(),
         ),
+        Provider<SharedPreferencesService>(
+          create: (_) => SharedPreferencesService(),
+        ),
         Provider<NaverAuthDatasource>(
           create: (_) => const NaverAuthDatasourceImpl(),
         ),
         Provider<AppleAuthDatasource>(
           create: (_) => const AppleAuthDatasourceImpl(),
+        ),
+        Provider<AppleEmailLocalDatasource>(
+          create: (context) => AppleEmailLocalDatasourceImpl(
+            context.read<SharedPreferencesService>(),
+          ),
         ),
         Provider<AuthLocalDatasource>(
           create: (_) => AuthLocalDatasourceImpl(SecureStorageService()),
@@ -39,13 +49,19 @@ class AuthProviders {
         ProxyProvider<Dio, AuthRemoteDatasource>(
           update: (_, dio, __) => AuthRemoteDatasourceImpl(dio),
         ),
-        ProxyProvider4<NaverAuthDatasource, AppleAuthDatasource,
-            AuthRemoteDatasource, AuthLocalDatasource, AuthRepository>(
-          update: (context, naver, apple, remote, local, previous) {
+        ProxyProvider5<
+            NaverAuthDatasource,
+            AppleAuthDatasource,
+            AppleEmailLocalDatasource,
+            AuthRemoteDatasource,
+            AuthLocalDatasource,
+            AuthRepository>(
+          update: (context, naver, apple, appleEmail, remote, local, previous) {
             _ensureAuthInterceptor(context);
             return AuthRepositoryImpl(
               naverDatasource: naver,
               appleDatasource: apple,
+              appleEmailLocalDatasource: appleEmail,
               remoteDatasource: remote,
               localDatasource: local,
             );
@@ -58,7 +74,6 @@ class AuthProviders {
     if (dio.interceptors.any((i) => i is AuthInterceptor)) {
       return;
     }
-    // Logging 보다 앞에 두어 Request 로그에 Authorization 이 포함되게 한다.
     dio.interceptors.insert(
       0,
       AuthInterceptor(

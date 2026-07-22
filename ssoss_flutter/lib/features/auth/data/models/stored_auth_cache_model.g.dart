@@ -14,6 +14,9 @@ _StoredAuthCacheModel _$StoredAuthCacheModelFromJson(
       userId: json['userId'] as String,
       nickname: json['nickname'] as String,
       email: json['email'] as String?,
+      memberStatus: json['memberStatus'] == null
+          ? MemberStatus.active
+          : _memberStatusFromJson(json['memberStatus']),
     );
 
 Map<String, dynamic> _$StoredAuthCacheModelToJson(
@@ -24,4 +27,5 @@ Map<String, dynamic> _$StoredAuthCacheModelToJson(
       'userId': instance.userId,
       'nickname': instance.nickname,
       'email': instance.email,
+      'memberStatus': _memberStatusToJson(instance.memberStatus),
     };

@@ -7,13 +7,13 @@ part of 'create_content_result_model.dart';
 // **************************************************************************
 
 _CreateContentResultModel _$CreateContentResultModelFromJson(
-        Map<String, dynamic> json,) =>
+        Map<String, dynamic> json) =>
     _CreateContentResultModel(
       contentId: json['contentId'] as String,
     );
 
 Map<String, dynamic> _$CreateContentResultModelToJson(
-        _CreateContentResultModel instance,) =>
+        _CreateContentResultModel instance) =>
     <String, dynamic>{
       'contentId': instance.contentId,
     };
