@@ -134,4 +134,59 @@ void main() {
     await tester.pump();
     expect(editableState.widget.focusNode.hasFocus, isFalse);
   });
+
+  testWidgets('reset restores active highlight after same text is retyped',
+      (tester) async {
+    late StateSetter setState;
+    var document = SsossTemplateDocument.fromTemplate('[최초]');
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, stateSetter) {
+              setState = stateSetter;
+              return SsossTemplateContentsEditCard(
+                document: document,
+                onDocumentChanged: (value) {
+                  setState(() => document = value);
+                },
+              );
+            },
+          ),
+        ),
+      ),
+    );
+
+    final editableState =
+        tester.state<EditableTextState>(find.byType(EditableText));
+
+    editableState.userUpdateTextEditingValue(
+      const TextEditingValue(
+        text: '[최초',
+        selection: TextSelection.collapsed(offset: 3),
+      ),
+      SelectionChangedCause.keyboard,
+    );
+    await tester.pump();
+
+    editableState.userUpdateTextEditingValue(
+      const TextEditingValue(
+        text: '[최초]',
+        selection: TextSelection.collapsed(offset: 4),
+      ),
+      SelectionChangedCause.keyboard,
+    );
+    await tester.pump();
+
+    expect(document.activePlaceholderCounts, isEmpty);
+
+    setState(() {
+      document = document.reset();
+    });
+    await tester.pump();
+
+    expect(document.plainText, '[최초]');
+    expect(document.activePlaceholderCounts, {'[최초]': 1});
+  });
 }

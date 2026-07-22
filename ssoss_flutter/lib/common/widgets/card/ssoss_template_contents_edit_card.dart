@@ -18,7 +18,9 @@ enum SsossTemplateContentsEditCardState {
 /// 템플릿 전용 콘텐츠 편집 카드.
 ///
 /// 본문 전체는 자유롭게 편집한다.
-/// 템플릿 원본 `[...]`만 주황으로 표시하고, 내용을 바꾸면 기본 색을 유지한다.
+/// 템플릿 원본 `[...]`만 주황으로 표시하고, 원본 토큰이 한 번 깨지면
+/// 이후 동일 문자열을 다시 만들어도 기본 색을 유지한다.
+/// 초기화는 [SsossTemplateDocument.reset] 결과를 document로 넘긴다.
 class SsossTemplateContentsEditCard extends StatefulWidget {
   const SsossTemplateContentsEditCard({
     required this.document,
@@ -101,9 +103,10 @@ class _SsossTemplateContentsEditCardState
   void didUpdateWidget(covariant SsossTemplateContentsEditCard oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    // 텍스트뿐 아니라 reset()으로 active 강조가 복구된 경우도 동기화한다.
     if (oldWidget.document != widget.document &&
         widget.document != _lastEmittedDocument &&
-        oldWidget.document.plainText != widget.document.plainText) {
+        widget.document != _document) {
       _syncFromDocument(widget.document);
     }
 
@@ -140,7 +143,7 @@ class _SsossTemplateContentsEditCardState
     }
 
     final next = _document.copyWith(text: _controller.text);
-    if (next.plainText == _document.plainText) {
+    if (next == _document) {
       _lengthNotifier.value = next.textLength;
       return;
     }
@@ -158,10 +161,16 @@ class _SsossTemplateContentsEditCardState
     _document = document;
     _controller.document = document;
     _lengthNotifier.value = document.textLength;
-    _controller.value = TextEditingValue(
+    final nextValue = TextEditingValue(
       text: document.plainText,
       selection: _controller.selection,
     );
+    if (_controller.value == nextValue) {
+      // 텍스트가 같아도 active 강조 복구 시 스팬을 다시 그린다.
+      _controller.notifyStyleChanged();
+    } else {
+      _controller.value = nextValue;
+    }
     _isApplyingDocument = false;
   }
 
@@ -275,6 +284,9 @@ class _TemplateTextEditingController extends TextEditingController {
   Color contentColor;
   Color emptySlotColor;
 
+  /// document의 active 강조만 바뀐 경우 스팬을 다시 그린다.
+  void notifyStyleChanged() => notifyListeners();
+
   @override
   TextSpan buildTextSpan({
     required BuildContext context,
@@ -290,7 +302,7 @@ class _TemplateTextEditingController extends TextEditingController {
         text: value.text,
         baseStyle: baseStyle,
         placeholderColor: emptySlotColor,
-        originalPlaceholders: document.originalPlaceholders,
+        activePlaceholderCounts: document.activePlaceholderCounts,
       ),
     );
   }
