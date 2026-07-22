@@ -34,6 +34,8 @@ class SsossButton extends StatefulWidget {
     this.type = SsossButtonType.primary,
     this.onPressed,
     this.enabled = true,
+    this.isLoading = false,
+    this.loadingIndicatorColor,
     this.isIconOnly = false,
     this.showLeftIcon = false,
     this.showRightIcon = false,
@@ -59,6 +61,8 @@ class SsossButton extends StatefulWidget {
   final SsossButtonType type;
   final VoidCallback? onPressed;
   final bool enabled;
+  final bool isLoading;
+  final Color? loadingIndicatorColor;
   final bool isIconOnly;
   final bool showLeftIcon;
   final bool showRightIcon;
@@ -89,7 +93,8 @@ class _SsossButtonState extends State<SsossButton> {
   bool get _isVisuallyEnabled => widget.enabled;
 
   /// 탭·프레스 피드백은 콜백이 있을 때만 동작한다.
-  bool get _isInteractive => widget.enabled && widget.onPressed != null;
+  bool get _isInteractive =>
+      widget.enabled && !widget.isLoading && widget.onPressed != null;
 
   bool get _usePressedStyle =>
       _isPressed &&
@@ -179,12 +184,16 @@ class _SsossButtonState extends State<SsossButton> {
                           label: widget.label,
                           icon: widget.icon,
                           iconAssetPath: widget.iconAssetPath,
-                          showLeftIcon: widget.showLeftIcon,
+                          isLoading: widget.isLoading,
+                          showLeftIcon:
+                              widget.isLoading ? false : widget.showLeftIcon,
                           showRightIcon: widget.showRightIcon,
                           iconSize: style.iconSize,
                           gap: style.gap,
                           iconColor:
                               widget.iconColor ?? resolvedForegroundColor,
+                          loadingIndicatorColor: widget.loadingIndicatorColor ??
+                              resolvedForegroundColor,
                           textStyle:
                               (widget.textStyle ?? style.textStyle).copyWith(
                             color: resolvedForegroundColor,
@@ -210,11 +219,13 @@ class _SsossButtonState extends State<SsossButton> {
 class _ButtonContent extends StatelessWidget {
   const _ButtonContent({
     required this.label,
+    required this.isLoading,
     required this.showLeftIcon,
     required this.showRightIcon,
     required this.iconSize,
     required this.gap,
     required this.iconColor,
+    required this.loadingIndicatorColor,
     required this.textStyle,
     this.icon,
     this.iconAssetPath,
@@ -222,6 +233,7 @@ class _ButtonContent extends StatelessWidget {
   });
 
   final String label;
+  final bool isLoading;
   final Widget? icon;
   final String? iconAssetPath;
   final bool showLeftIcon;
@@ -229,6 +241,7 @@ class _ButtonContent extends StatelessWidget {
   final double iconSize;
   final double gap;
   final Color iconColor;
+  final Color loadingIndicatorColor;
   final TextStyle textStyle;
   final Widget? child;
 
@@ -245,7 +258,7 @@ class _ButtonContent extends StatelessWidget {
           ),
     );
 
-    if (!showLeftIcon && !showRightIcon) {
+    if (!isLoading && !showLeftIcon && !showRightIcon) {
       return labelWidget;
     }
 
@@ -253,7 +266,17 @@ class _ButtonContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (showLeftIcon) ...[
+        if (isLoading) ...[
+          SizedBox(
+            width: iconSize,
+            height: iconSize,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: loadingIndicatorColor,
+            ),
+          ),
+          SizedBox(width: gap),
+        ] else if (showLeftIcon) ...[
           _ButtonIcon(
             icon: icon,
             assetPath: iconAssetPath,

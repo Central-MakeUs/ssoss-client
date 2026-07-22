@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:ssoss_flutter/features/auth/presentation/bloc/login_bloc.dart';
 import 'package:ssoss_flutter/features/auth/presentation/bloc/login_state.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/login_page.dart';
+import 'package:ssoss_flutter/features/auth/presentation/pages/signup/signup_complete_page.dart';
+import 'package:ssoss_flutter/features/auth/presentation/pages/signup/signup_terms_page.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/splash_page.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
@@ -31,6 +33,9 @@ GoRouter createAppRouter(LoginBloc loginBloc) {
       final location = state.matchedLocation;
       final isOnSplash = location == SplashPage.routePath;
       final isOnLogin = location == LoginPage.routePath;
+      final isOnSignupTerms = location == SignupTermsPage.routePath;
+      final isOnSignupComplete = location == SignupCompletePage.routePath;
+      final isOnSignupFlow = isOnSignupTerms || isOnSignupComplete;
 
       // 세션 복원 중에는 스플래시에 머문다 (로그인 화면 플래시 방지).
       final isResolvingAuth =
@@ -44,14 +49,28 @@ GoRouter createAppRouter(LoginBloc loginBloc) {
         return null;
       }
 
+      // 로그인 진행·실패(설정 탈퇴 실패 포함) 중에는 현재 화면 유지.
+      if (authState is LoginLoading || authState is LoginFailure) {
+        return null;
+      }
+
+      if (authState is LoginPendingSignup) {
+        return isOnSignupTerms ? null : SignupTermsPage.routePath;
+      }
+
+      if (authState is LoginSignupComplete) {
+        return isOnSignupComplete ? null : SignupCompletePage.routePath;
+      }
+
       final isAuthenticated = authState is LoginAuthenticated;
 
       if (!isAuthenticated) {
         if (isOnLogin) return null;
+        if (isOnSignupFlow) return LoginPage.routePath;
         return LoginPage.routePath;
       }
 
-      if (isOnLogin || isOnSplash) {
+      if (isOnLogin || isOnSplash || isOnSignupFlow) {
         return HomePage.routePath;
       }
       return null;
@@ -66,6 +85,16 @@ GoRouter createAppRouter(LoginBloc loginBloc) {
         name: LoginPage.routeName,
         path: LoginPage.routePath,
         builder: (context, state) => const LoginPage(),
+      ),
+      GoRoute(
+        name: SignupTermsPage.routeName,
+        path: SignupTermsPage.routePath,
+        builder: (context, state) => const SignupTermsPage(),
+      ),
+      GoRoute(
+        name: SignupCompletePage.routeName,
+        path: SignupCompletePage.routePath,
+        builder: (context, state) => const SignupCompletePage(),
       ),
       GoRoute(
         name: HomePage.routeName,

@@ -21,6 +21,8 @@ class SsossModal extends StatelessWidget {
     this.onPrimaryPressed,
     this.onSecondaryPressed,
     this.showButtonIcons = true,
+    this.isPrimaryLoading = false,
+    this.isActionsDisabled = false,
     this.actions,
     this.width,
     this.padding,
@@ -46,6 +48,8 @@ class SsossModal extends StatelessWidget {
   final VoidCallback? onPrimaryPressed;
   final VoidCallback? onSecondaryPressed;
   final bool showButtonIcons;
+  final bool isPrimaryLoading;
+  final bool isActionsDisabled;
   final Widget? actions;
   final double? width;
   final EdgeInsetsGeometry? padding;
@@ -89,7 +93,7 @@ class SsossModal extends StatelessWidget {
             title: title,
             message: message,
             hasMessage: _hasMessage,
-            onClose: onClose,
+            onClose: isActionsDisabled ? null : onClose,
             titleColor: titleColor ?? AppColors.neutral800,
             messageColor: messageColor ?? AppColors.neutral400,
             closeIconColor: closeIconColor ?? AppColors.neutral400,
@@ -106,6 +110,8 @@ class SsossModal extends StatelessWidget {
   }
 
   Widget _buildDefaultActions() {
+    final actionsEnabled = !isActionsDisabled;
+
     return Row(
       children: [
         Expanded(
@@ -114,7 +120,8 @@ class SsossModal extends StatelessWidget {
             size: SsossButtonSize.medium,
             type: SsossButtonType.neutral,
             width: double.infinity,
-            onPressed: onSecondaryPressed,
+            enabled: actionsEnabled,
+            onPressed: actionsEnabled ? onSecondaryPressed : null,
             showLeftIcon: showButtonIcons,
             showRightIcon: showButtonIcons,
           ),
@@ -126,7 +133,9 @@ class SsossModal extends StatelessWidget {
             size: SsossButtonSize.medium,
             type: SsossButtonType.primary,
             width: double.infinity,
-            onPressed: onPrimaryPressed,
+            enabled: actionsEnabled,
+            isLoading: isPrimaryLoading,
+            onPressed: actionsEnabled ? onPrimaryPressed : null,
             showLeftIcon: showButtonIcons,
             showRightIcon: showButtonIcons,
           ),
@@ -144,6 +153,7 @@ Future<SsossModalResult?> showSsossModal(
   String secondaryButtonLabel = 'Button',
   VoidCallback? onPrimaryPressed,
   VoidCallback? onSecondaryPressed,
+  Future<void> Function()? onPrimaryPressedAsync,
   VoidCallback? onClose,
   bool showButtonIcons = true,
   Widget? actions,
@@ -177,40 +187,112 @@ Future<SsossModalResult?> showSsossModal(
         Navigator.of(dialogContext).pop(result);
       }
 
-      Widget modal = SsossModal(
-        title: title,
-        message: message,
-        primaryButtonLabel: primaryButtonLabel,
-        secondaryButtonLabel: secondaryButtonLabel,
-        showButtonIcons: showButtonIcons,
-        actions: actions,
-        width: width,
-        padding: padding,
-        borderRadius: borderRadius,
-        backgroundColor: backgroundColor,
-        borderColor: borderColor,
-        titleColor: titleColor,
-        messageColor: messageColor,
-        closeIconColor: closeIconColor,
-        gap: gap,
-        headerGap: headerGap,
-        messageGap: messageGap,
-        actionGap: actionGap,
-        titleStyle: titleStyle,
-        messageStyle: messageStyle,
-        onClose: () {
-          dismiss();
-          onClose?.call();
-        },
-        onPrimaryPressed: () {
-          dismiss(SsossModalResult.primary);
-          onPrimaryPressed?.call();
-        },
-        onSecondaryPressed: () {
-          dismiss(SsossModalResult.secondary);
-          onSecondaryPressed?.call();
-        },
-      );
+      Widget buildModal({
+        required bool isPrimaryLoading,
+        required bool isActionsDisabled,
+        required VoidCallback? onPrimaryTap,
+        required VoidCallback? onSecondaryTap,
+        required VoidCallback? onCloseTap,
+      }) {
+        return SsossModal(
+          title: title,
+          message: message,
+          primaryButtonLabel: primaryButtonLabel,
+          secondaryButtonLabel: secondaryButtonLabel,
+          showButtonIcons: showButtonIcons,
+          isPrimaryLoading: isPrimaryLoading,
+          isActionsDisabled: isActionsDisabled,
+          actions: actions,
+          width: width,
+          padding: padding,
+          borderRadius: borderRadius,
+          backgroundColor: backgroundColor,
+          borderColor: borderColor,
+          titleColor: titleColor,
+          messageColor: messageColor,
+          closeIconColor: closeIconColor,
+          gap: gap,
+          headerGap: headerGap,
+          messageGap: messageGap,
+          actionGap: actionGap,
+          titleStyle: titleStyle,
+          messageStyle: messageStyle,
+          onClose: onCloseTap,
+          onPrimaryPressed: onPrimaryTap,
+          onSecondaryPressed: onSecondaryTap,
+        );
+      }
+
+      Widget modal;
+
+      if (onPrimaryPressedAsync != null) {
+        var isPrimaryLoading = false;
+        var isActionsDisabled = false;
+
+        modal = StatefulBuilder(
+          builder: (context, setState) {
+            Future<void> handlePrimaryPressed() async {
+              setState(() {
+                isPrimaryLoading = true;
+                isActionsDisabled = true;
+              });
+
+              try {
+                await onPrimaryPressedAsync();
+                if (!dialogContext.mounted) {
+                  return;
+                }
+                dismiss(SsossModalResult.primary);
+                onPrimaryPressed?.call();
+              } catch (_) {
+                if (!dialogContext.mounted) {
+                  return;
+                }
+                setState(() {
+                  isPrimaryLoading = false;
+                  isActionsDisabled = false;
+                });
+                rethrow;
+              }
+            }
+
+            return buildModal(
+              isPrimaryLoading: isPrimaryLoading,
+              isActionsDisabled: isActionsDisabled,
+              onPrimaryTap: isActionsDisabled ? null : handlePrimaryPressed,
+              onSecondaryTap: isActionsDisabled
+                  ? null
+                  : () {
+                      dismiss(SsossModalResult.secondary);
+                      onSecondaryPressed?.call();
+                    },
+              onCloseTap: isActionsDisabled
+                  ? null
+                  : () {
+                      dismiss();
+                      onClose?.call();
+                    },
+            );
+          },
+        );
+      } else {
+        modal = buildModal(
+          isPrimaryLoading: false,
+          isActionsDisabled: false,
+          onPrimaryTap: () {
+            dismiss(SsossModalResult.primary);
+            onPrimaryPressed?.call();
+          },
+          onSecondaryTap: () {
+            dismiss(SsossModalResult.secondary);
+            onSecondaryPressed?.call();
+          },
+          onCloseTap: () {
+            dismiss();
+            onClose?.call();
+          },
+        );
+      }
 
       if (maxWidth != null) {
         modal = ConstrainedBox(
@@ -270,7 +352,9 @@ class _ModalHeader extends StatelessWidget {
             child: Icon(
               Icons.close,
               size: 24,
-              color: closeIconColor,
+              color: onClose == null
+                  ? closeIconColor.withValues(alpha: 0.4)
+                  : closeIconColor,
             ),
           ),
         ),

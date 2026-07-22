@@ -19,6 +19,8 @@ mixin _$StoredAuthCacheModel {
   String get userId;
   String get nickname;
   String? get email;
+  @JsonKey(fromJson: _memberStatusFromJson, toJson: _memberStatusToJson)
+  MemberStatus get memberStatus;
 
   /// Create a copy of StoredAuthCacheModel
   /// with the given fields replaced by the non-null parameter values.
@@ -42,17 +44,19 @@ mixin _$StoredAuthCacheModel {
             (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
-            (identical(other.email, email) || other.email == email));
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.memberStatus, memberStatus) ||
+                other.memberStatus == memberStatus));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, token, provider, userId, nickname, email);
+  int get hashCode => Object.hash(
+      runtimeType, token, provider, userId, nickname, email, memberStatus);
 
   @override
   String toString() {
-    return 'StoredAuthCacheModel(token: $token, provider: $provider, userId: $userId, nickname: $nickname, email: $email)';
+    return 'StoredAuthCacheModel(token: $token, provider: $provider, userId: $userId, nickname: $nickname, email: $email, memberStatus: $memberStatus)';
   }
 }
 
@@ -67,7 +71,9 @@ abstract mixin class $StoredAuthCacheModelCopyWith<$Res> {
       String provider,
       String userId,
       String nickname,
-      String? email});
+      String? email,
+      @JsonKey(fromJson: _memberStatusFromJson, toJson: _memberStatusToJson)
+      MemberStatus memberStatus});
 
   $AuthTokenModelCopyWith<$Res> get token;
 }
@@ -90,6 +96,7 @@ class _$StoredAuthCacheModelCopyWithImpl<$Res>
     Object? userId = null,
     Object? nickname = null,
     Object? email = freezed,
+    Object? memberStatus = null,
   }) {
     return _then(_self.copyWith(
       token: null == token
@@ -112,6 +119,10 @@ class _$StoredAuthCacheModelCopyWithImpl<$Res>
           ? _self.email
           : email // ignore: cast_nullable_to_non_nullable
               as String?,
+      memberStatus: null == memberStatus
+          ? _self.memberStatus
+          : memberStatus // ignore: cast_nullable_to_non_nullable
+              as MemberStatus,
     ));
   }
 
@@ -219,8 +230,15 @@ extension StoredAuthCacheModelPatterns on StoredAuthCacheModel {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(AuthTokenModel token, String provider, String userId,
-            String nickname, String? email)?
+    TResult Function(
+            AuthTokenModel token,
+            String provider,
+            String userId,
+            String nickname,
+            String? email,
+            @JsonKey(
+                fromJson: _memberStatusFromJson, toJson: _memberStatusToJson)
+            MemberStatus memberStatus)?
         $default, {
     required TResult orElse(),
   }) {
@@ -228,7 +246,7 @@ extension StoredAuthCacheModelPatterns on StoredAuthCacheModel {
     switch (_that) {
       case _StoredAuthCacheModel() when $default != null:
         return $default(_that.token, _that.provider, _that.userId,
-            _that.nickname, _that.email);
+            _that.nickname, _that.email, _that.memberStatus);
       case _:
         return orElse();
     }
@@ -249,15 +267,22 @@ extension StoredAuthCacheModelPatterns on StoredAuthCacheModel {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(AuthTokenModel token, String provider, String userId,
-            String nickname, String? email)
+    TResult Function(
+            AuthTokenModel token,
+            String provider,
+            String userId,
+            String nickname,
+            String? email,
+            @JsonKey(
+                fromJson: _memberStatusFromJson, toJson: _memberStatusToJson)
+            MemberStatus memberStatus)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _StoredAuthCacheModel():
         return $default(_that.token, _that.provider, _that.userId,
-            _that.nickname, _that.email);
+            _that.nickname, _that.email, _that.memberStatus);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -277,15 +302,22 @@ extension StoredAuthCacheModelPatterns on StoredAuthCacheModel {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(AuthTokenModel token, String provider, String userId,
-            String nickname, String? email)?
+    TResult? Function(
+            AuthTokenModel token,
+            String provider,
+            String userId,
+            String nickname,
+            String? email,
+            @JsonKey(
+                fromJson: _memberStatusFromJson, toJson: _memberStatusToJson)
+            MemberStatus memberStatus)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _StoredAuthCacheModel() when $default != null:
         return $default(_that.token, _that.provider, _that.userId,
-            _that.nickname, _that.email);
+            _that.nickname, _that.email, _that.memberStatus);
       case _:
         return null;
     }
@@ -300,7 +332,9 @@ class _StoredAuthCacheModel implements StoredAuthCacheModel {
       required this.provider,
       required this.userId,
       required this.nickname,
-      this.email});
+      this.email,
+      @JsonKey(fromJson: _memberStatusFromJson, toJson: _memberStatusToJson)
+      this.memberStatus = MemberStatus.active});
   factory _StoredAuthCacheModel.fromJson(Map<String, dynamic> json) =>
       _$StoredAuthCacheModelFromJson(json);
 
@@ -314,6 +348,9 @@ class _StoredAuthCacheModel implements StoredAuthCacheModel {
   final String nickname;
   @override
   final String? email;
+  @override
+  @JsonKey(fromJson: _memberStatusFromJson, toJson: _memberStatusToJson)
+  final MemberStatus memberStatus;
 
   /// Create a copy of StoredAuthCacheModel
   /// with the given fields replaced by the non-null parameter values.
@@ -342,17 +379,19 @@ class _StoredAuthCacheModel implements StoredAuthCacheModel {
             (identical(other.userId, userId) || other.userId == userId) &&
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
-            (identical(other.email, email) || other.email == email));
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.memberStatus, memberStatus) ||
+                other.memberStatus == memberStatus));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, token, provider, userId, nickname, email);
+  int get hashCode => Object.hash(
+      runtimeType, token, provider, userId, nickname, email, memberStatus);
 
   @override
   String toString() {
-    return 'StoredAuthCacheModel(token: $token, provider: $provider, userId: $userId, nickname: $nickname, email: $email)';
+    return 'StoredAuthCacheModel(token: $token, provider: $provider, userId: $userId, nickname: $nickname, email: $email, memberStatus: $memberStatus)';
   }
 }
 
@@ -369,7 +408,9 @@ abstract mixin class _$StoredAuthCacheModelCopyWith<$Res>
       String provider,
       String userId,
       String nickname,
-      String? email});
+      String? email,
+      @JsonKey(fromJson: _memberStatusFromJson, toJson: _memberStatusToJson)
+      MemberStatus memberStatus});
 
   @override
   $AuthTokenModelCopyWith<$Res> get token;
@@ -393,6 +434,7 @@ class __$StoredAuthCacheModelCopyWithImpl<$Res>
     Object? userId = null,
     Object? nickname = null,
     Object? email = freezed,
+    Object? memberStatus = null,
   }) {
     return _then(_StoredAuthCacheModel(
       token: null == token
@@ -415,6 +457,10 @@ class __$StoredAuthCacheModelCopyWithImpl<$Res>
           ? _self.email
           : email // ignore: cast_nullable_to_non_nullable
               as String?,
+      memberStatus: null == memberStatus
+          ? _self.memberStatus
+          : memberStatus // ignore: cast_nullable_to_non_nullable
+              as MemberStatus,
     ));
   }
 

@@ -206,15 +206,40 @@
 
 ---
 
-## Phase 8 — 회원 탈퇴 API 연동 (후순위)
+## Phase 8 — 회원 탈퇴·복구·status API 연동
 
-> 서버 탈퇴 API 스펙 확정 후 진행한다. 현재는 Phase 6 데모(로컬 clear) 유지.
+> OpenAPI: `DELETE /v1/members/me`, `POST /v1/members/me/recovery`, 소셜 로그인 응답 `status`.
 
-- [ ] **8-1** 탈퇴 API 엔드포인트·요청/응답을 `tdd.md` 에 반영
-- [ ] **8-2** `AuthRemoteDatasource.withdraw()` Dio 구현
-- [ ] **8-3** `AuthRepositoryImpl.withdraw()` — remote withdraw → local clear
-- [ ] **8-4** 서버에서 네이버 연동 revoke 수행 (클라이언트 `logoutAndDeleteToken` 미사용)
-- [ ] **8-5** FR-11 동작 검증
+- [x] **8-1** 탈퇴·복구·status DTO 를 `tdd.md` 에 반영
+- [x] **8-2** `SocialLoginResponseModel` (`status` + tokens) · `MemberStatus` 추가
+- [x] **8-3** `AuthRemoteDatasource.withdraw()` — `DELETE /v1/members/me`
+- [x] **8-4** `AuthRemoteDatasource.recover()` — `POST /v1/members/me/recovery`
+- [x] **8-5** `AuthRepositoryImpl.withdraw()` — remote → local clear (+ naver SDK logout)
+- [x] **8-6** 로그인 시 `status == WITHDRAWN` → recover → ACTIVE 토큰으로 세션 저장
+- [x] **8-7** 설정 화면 로그아웃/탈퇴 연동 (탈퇴: 모달 `"탈퇴하시겠어요?"` → API, 실패 시 `SsossToast`)
+- [x] **8-8** 서버에서 네이버 연동 revoke 수행 (클라이언트 `logoutAndDeleteToken` 미사용)
+- [ ] **8-9** FR-11 동작 검증 (실기기/스테이징 수동 검증)
+
+---
+
+## Follow-up — 탈퇴 확인 페이지
+
+> 현재는 설정에서 `SsossModal`(`탈퇴하시겠어요?`)로 확인한다. 추후 전용 페이지로 교체한다.
+
+- [ ] **F-1** 탈퇴 확인 전용 페이지 추가 (`my_page` 또는 `auth`)
+- [ ] **F-2** 설정 「탈퇴 하기」→ 확인 페이지 이동 → 최종 확인 후 `withdrawRequested`
+- [ ] **F-3** 모달 확인 UX 제거
+
+---
+
+## Phase 10 — PENDING 회원가입 플로우
+
+- [x] **10-1** `SignupRequestModel` · `POST /v1/signup` API
+- [x] **10-2** `StoredAuthCacheModel.memberStatus` · `AuthSession.memberStatus`
+- [x] **10-3** `LoginState.pendingSignup` / `signupComplete` · 라우터 `/signup/terms`, `/signup/complete`
+- [x] **10-4** `SignupTermsPage` + `SignupTermsCubit` (Figma 약관 UI)
+- [x] **10-5** `SignupCompletePage` (Figma 완료 UI, 2초 후 홈)
+- [ ] **10-6** 실기기/스테이징 수동 검증
 
 ---
 
@@ -232,12 +257,12 @@
 
 ## 완료 기준 (Definition of Done)
 
-> Phase 0–6(데모) + Phase 7(인증 API) 완료 기준. 탈퇴 서버 연동은 Phase 8.
+> Phase 0–6(데모) + Phase 7(인증 API) + Phase 8(탈퇴·복구·status) 완료 기준.
 
 - [x] PRD Must FR 중 데모 가능 항목 구현: **FR-01, FR-03, FR-04, FR-05, FR-06**
 - [x] 탈퇴 최소 요건(데모): **FR-10**
 - [x] FR-02(백엔드 JWT 발급), FR-07(토큰 갱신) — **Phase 7**
-- [ ] FR-11(서버 탈퇴 처리) — **Phase 8**
+- [x] FR-11(서버 탈퇴 처리) — **Phase 8** (수동 검증은 8-9)
 - [x] `flutter analyze` 경고·에러 없음
 - [x] `build_runner` 생성 파일 최신 상태
 - [x] 라우팅(`/login`, `/home` redirect) 등록 완료
@@ -252,4 +277,5 @@
 |------|------|---------|
 | 2026-07-03 | 네이버 키는 iOS/Android 네이티브 secret 파일로 관리(설정 완료). Dart/env 에 네이버 키 불필요 | Resolved |
 | 2026-07-07 | 탈퇴 시 네이버 연동 revoke는 서버 처리. 클라이언트는 로컬 세션 삭제만 (`logoutAndDeleteToken` 제거) | Resolved |
-| 2026-07-15 | OpenAPI 확정: `/v1/social-logins/{provider}`, `/v1/tokens`, `/v1/logout`. 탈퇴는 Phase 8 분리 | Open |
+| 2026-07-15 | OpenAPI 확정: `/v1/social-logins/{provider}`, `/v1/tokens`, `/v1/logout`. 탈퇴는 Phase 8 분리 | Resolved |
+| 2026-07-22 | Phase 10: PENDING signup 플로우, Apple 이메일 SharedPreferences | Open |

@@ -407,15 +407,16 @@ sealed class LoginEvent with _$LoginEvent {
 
 ## 6. API 명세
 
-> OpenAPI SSOSS API v1 기준. 상세는 [`naver-login/tdd.md`](../naver-login/tdd.md) 6장과 동일.
+> OpenAPI SSOSS API v1 기준. 상세는 [`naver-login/tdd.md`](../naver-login/tdd.md) 6장과 동일 (공유 구현).
 
 | 메서드 | 엔드포인트 | 설명 | 인증 필요 |
 |--------|-----------|------|---------|
-| `POST` | `/v1/social-logins/apple` | Apple identityToken → 자체 JWT | N |
+| `POST` | `/v1/social-logins/apple` | Apple identityToken → `status` + JWT 쌍 | N |
 | `POST` | `/v1/tokens` | refresh 재발급 (RTR) | N |
 | `POST` | `/v1/logout` | refresh 세션 폐기 (멱등 204) | N |
-
-> 회원 탈퇴 + 서버 Apple revoke 는 **Phase 8**.
+| `POST` | `/v1/members/me/recovery` | WITHDRAWN → ACTIVE 복구 | Y |
+| `POST` | `/v1/signup` | PENDING 약관 동의 → ACTIVE | Y |
+| `DELETE` | `/v1/members/me` | ACTIVE 탈퇴 (204). 서버에서 Apple revoke | Y |
 
 **Request** (`POST /v1/social-logins/apple`)
 
@@ -425,7 +426,12 @@ sealed class LoginEvent with _$LoginEvent {
 }
 ```
 
-**Response** — accessToken + refreshToken 만 (user 없음; 프로필은 SDK 로컬 유지)
+**Response** — `status` + `accessToken` + `refreshToken` (`SocialLoginResponseModel`).  
+`WITHDRAWN` 이면 Repository 가 recover 후 ACTIVE 세션으로 로그인 완료.  
+`PENDING` 이면 `/signup/terms` → signup → `/signup/complete` → 홈.  
+Apple 이메일은 최초 로그인 시 `SharedPreferences`(`apple_email_{userId}`)에 저장·재사용.
+
+**탈퇴 UX** — 설정 모달 `"탈퇴하시겠어요?"` (임시). 추후 탈퇴 확인 페이지 (Follow-up).
 
 ---
 
@@ -442,7 +448,7 @@ sealed class LoginEvent with _$LoginEvent {
 | 네트워크 오류 | `AuthRemoteDatasource` | `NetworkException` throw |
 | 서버 에러 4xx/5xx | `AuthRemoteDatasource` | `ServerException(statusCode, message, code)` throw |
 | 토큰 갱신 실패 (`A0004`/`A0005`) | Dio 인증 인터셉터 | 세션 만료 모달(로그인 후 화면) → `/login` |
-| 탈퇴 API 실패 | Phase 8 | 오류 안내 + 현재 화면 유지 |
+| 탈퇴 API 실패 | 설정 | `SsossToast(error)` + authenticated 복원 (화면 유지) |
 
 ---
 
@@ -533,8 +539,12 @@ LoginBloc(
 | Apple SDK 위치 | `data/datasources/apple_auth_datasource.dart` | 네이버와 동일 External DataSource 패턴 |
 | 데모 세션 | `DemoAuthRemoteDatasource.createSessionFromApple()` | 네이버 데모와 일관, Phase 7 전환 용이 |
 | 세션 복원 | `StoredAuthCacheModel` 영속화 | provider별 demo user 하드코딩 제거, Apple FR-04 충족 |
-| 탈퇴(데모) | **로컬 clear만** (naver/apple 공통) | PRD: revoke는 서버, 클라이언트 `logoutAndDeleteToken` 미사용 |
-| 탈퇴(Phase 8) | **remote withdraw → local clear** | 서버에서 소셜 연동 revoke. 현재는 로컬 clear만 |
+| 탈퇴 | **remote withdraw → local clear** (naver/apple 공통) | 서버에서 소셜 연동 revoke |
+| WITHDRAWN 로그인 | **자동 recover** | naver와 공유 |
+| PENDING 로그인 | **약관 → signup → complete** | naver와 공유 |
+| Apple 이메일 | **SharedPreferences** (`apple_email_{userId}`) | 최초 로그인 시만 SDK 수신 |
+| 탈퇴 확인 UX | **임시 모달** → 추후 확인 페이지 | Follow-up |
+| 탈퇴 실패 UX | **`SsossToast(error)`** | 설정 화면 유지 |
 | 세션 만료 UX | 로그인 후 화면만 `SsossModal` | 네이버 Phase 7 과 공유 |
 | UI 노출 | **iOS만** Apple 버튼 | PRD 플랫폼 요구, Android Out of Scope |
 | 상태 관리 | 기존 **Bloc** 유지 | 네이버와 동일 이벤트 모델 확장 |

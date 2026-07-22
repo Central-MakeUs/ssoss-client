@@ -5,6 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/core/network/session_expired_notifier.dart';
 
+import '../../domain/entities/auth_session.dart';
+import '../../domain/entities/member_status.dart';
+import '../../domain/entities/user.dart';
 import '../../domain/usecases/login_with_apple_usecase.dart';
 import '../../domain/usecases/login_with_naver_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
@@ -34,6 +37,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<LogoutRequested>(_onLogoutRequested);
     on<SessionExpired>(_onSessionExpired);
     on<SessionExpiredAcknowledged>(_onSessionExpiredAcknowledged);
+    on<FailureAcknowledged>(_onFailureAcknowledged);
+    on<SignupSucceeded>(_onSignupSucceeded);
+    on<SignupCompleteAcknowledged>(_onSignupCompleteAcknowledged);
 
     if (sessionExpiredNotifier != null) {
       _sessionExpiredSubscription =
@@ -52,11 +58,32 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final RestoreSessionUseCase _restoreSession;
   StreamSubscription<void>? _sessionExpiredSubscription;
   bool _isLoginInProgress = false;
+  User? _lastAuthenticatedUser;
+  Completer<void>? _pendingLogout;
+  Completer<void>? _pendingWithdraw;
 
   @override
   Future<void> close() async {
     await _sessionExpiredSubscription?.cancel();
     return super.close();
+  }
+
+  void _emitSessionResult(
+    Emitter<LoginState> emit,
+    AuthSession session,
+  ) {
+    if (session.memberStatus == MemberStatus.pending) {
+      emit(
+        LoginState.pendingSignup(
+          user: session.user,
+          email: session.user.email ?? '',
+        ),
+      );
+      return;
+    }
+
+    _lastAuthenticatedUser = session.user;
+    emit(LoginState.authenticated(session.user));
   }
 
   Future<void> _onNaverLoginRequested(
@@ -70,7 +97,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(const LoginState.loading());
     try {
       final session = await _loginWithNaver();
-      emit(LoginState.authenticated(session.user));
+      _emitSessionResult(emit, session);
     } on AuthException catch (e) {
       emit(LoginState.failure(e.message));
     } on AppException catch (e) {
@@ -93,7 +120,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(const LoginState.loading());
     try {
       final session = await _loginWithApple();
-      emit(LoginState.authenticated(session.user));
+      _emitSessionResult(emit, session);
     } on AuthException catch (e) {
       emit(LoginState.failure(e.message));
     } on AppException catch (e) {
@@ -113,27 +140,74 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     try {
       final session = await _restoreSession();
       if (session == null) {
+        _lastAuthenticatedUser = null;
         emit(const LoginState.unauthenticated());
+      } else if (session.memberStatus == MemberStatus.pending) {
+        emit(
+          LoginState.pendingSignup(
+            user: session.user,
+            email: session.user.email ?? '',
+          ),
+        );
       } else {
+        _lastAuthenticatedUser = session.user;
         emit(LoginState.authenticated(session.user));
       }
     } catch (_) {
+      _lastAuthenticatedUser = null;
       emit(const LoginState.unauthenticated());
     }
+  }
+
+  Future<void> performLogout() {
+    final pending = _pendingLogout;
+    if (pending != null && !pending.isCompleted) {
+      return pending.future;
+    }
+
+    final completer = Completer<void>();
+    _pendingLogout = completer;
+    add(const LoginEvent.logoutRequested());
+    return completer.future;
+  }
+
+  Future<void> performWithdraw() {
+    final pending = _pendingWithdraw;
+    if (pending != null && !pending.isCompleted) {
+      return pending.future;
+    }
+
+    final completer = Completer<void>();
+    _pendingWithdraw = completer;
+    add(const LoginEvent.withdrawRequested());
+    return completer.future;
   }
 
   Future<void> _onWithdrawRequested(
     WithdrawRequested event,
     Emitter<LoginState> emit,
   ) async {
-    emit(const LoginState.loading());
+    final completer = _pendingWithdraw;
+    final previousUser = state is LoginAuthenticated
+        ? (state as LoginAuthenticated).user
+        : _lastAuthenticatedUser;
+    if (previousUser != null) {
+      _lastAuthenticatedUser = previousUser;
+    }
+
     try {
       await _withdraw();
+      _lastAuthenticatedUser = null;
       emit(const LoginState.unauthenticated());
+      completer?.complete();
     } on AppException catch (e) {
       emit(LoginState.failure(e.message));
-    } catch (_) {
+      completer?.completeError(e);
+    } catch (e) {
       emit(const LoginState.failure('탈퇴 처리 중 오류가 발생했습니다.'));
+      completer?.completeError(e);
+    } finally {
+      _pendingWithdraw = null;
     }
   }
 
@@ -141,19 +215,29 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     LogoutRequested event,
     Emitter<LoginState> emit,
   ) async {
+    final completer = _pendingLogout;
+
     try {
-      await _logout();
-    } catch (_) {
-      // 로그아웃 실패해도 로컬 세션은 해제된 것으로 간주한다.
+      try {
+        await _logout();
+      } catch (_) {
+        // 로그아웃 실패해도 로컬 세션은 해제된 것으로 간주한다.
+      }
+      _lastAuthenticatedUser = null;
+      emit(const LoginState.unauthenticated());
+      completer?.complete();
+    } catch (e, stackTrace) {
+      completer?.completeError(e, stackTrace);
+      rethrow;
+    } finally {
+      _pendingLogout = null;
     }
-    emit(const LoginState.unauthenticated());
   }
 
   Future<void> _onSessionExpired(
     SessionExpired event,
     Emitter<LoginState> emit,
   ) async {
-    // 로그인 화면·미인증에서는 모달 없이 바로 unauthenticated.
     if (state is! LoginAuthenticated) {
       emit(const LoginState.unauthenticated());
       return;
@@ -165,6 +249,41 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     SessionExpiredAcknowledged event,
     Emitter<LoginState> emit,
   ) async {
+    _lastAuthenticatedUser = null;
     emit(const LoginState.unauthenticated());
+  }
+
+  Future<void> _onFailureAcknowledged(
+    FailureAcknowledged event,
+    Emitter<LoginState> emit,
+  ) async {
+    final user = _lastAuthenticatedUser;
+    if (user != null) {
+      emit(LoginState.authenticated(user));
+    }
+  }
+
+  Future<void> _onSignupSucceeded(
+    SignupSucceeded event,
+    Emitter<LoginState> emit,
+  ) async {
+    emit(const LoginState.signupComplete());
+  }
+
+  Future<void> _onSignupCompleteAcknowledged(
+    SignupCompleteAcknowledged event,
+    Emitter<LoginState> emit,
+  ) async {
+    final user = _lastAuthenticatedUser;
+    if (user != null) {
+      emit(LoginState.authenticated(user));
+      return;
+    }
+    emit(const LoginState.unauthenticated());
+  }
+
+  void notifySignupSucceeded(User user) {
+    _lastAuthenticatedUser = user;
+    add(const LoginEvent.signupSucceeded());
   }
 }

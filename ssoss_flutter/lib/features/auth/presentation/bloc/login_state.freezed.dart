@@ -53,7 +53,9 @@ extension LoginStatePatterns on LoginState {
     TResult Function(LoginInitial value)? initial,
     TResult Function(LoginRestoring value)? restoring,
     TResult Function(LoginLoading value)? loading,
+    TResult Function(LoginPendingSignup value)? pendingSignup,
     TResult Function(LoginAuthenticated value)? authenticated,
+    TResult Function(LoginSignupComplete value)? signupComplete,
     TResult Function(LoginSessionExpired value)? sessionExpired,
     TResult Function(LoginUnauthenticated value)? unauthenticated,
     TResult Function(LoginFailure value)? failure,
@@ -67,8 +69,12 @@ extension LoginStatePatterns on LoginState {
         return restoring(_that);
       case LoginLoading() when loading != null:
         return loading(_that);
+      case LoginPendingSignup() when pendingSignup != null:
+        return pendingSignup(_that);
       case LoginAuthenticated() when authenticated != null:
         return authenticated(_that);
+      case LoginSignupComplete() when signupComplete != null:
+        return signupComplete(_that);
       case LoginSessionExpired() when sessionExpired != null:
         return sessionExpired(_that);
       case LoginUnauthenticated() when unauthenticated != null:
@@ -98,7 +104,9 @@ extension LoginStatePatterns on LoginState {
     required TResult Function(LoginInitial value) initial,
     required TResult Function(LoginRestoring value) restoring,
     required TResult Function(LoginLoading value) loading,
+    required TResult Function(LoginPendingSignup value) pendingSignup,
     required TResult Function(LoginAuthenticated value) authenticated,
+    required TResult Function(LoginSignupComplete value) signupComplete,
     required TResult Function(LoginSessionExpired value) sessionExpired,
     required TResult Function(LoginUnauthenticated value) unauthenticated,
     required TResult Function(LoginFailure value) failure,
@@ -111,8 +119,12 @@ extension LoginStatePatterns on LoginState {
         return restoring(_that);
       case LoginLoading():
         return loading(_that);
+      case LoginPendingSignup():
+        return pendingSignup(_that);
       case LoginAuthenticated():
         return authenticated(_that);
+      case LoginSignupComplete():
+        return signupComplete(_that);
       case LoginSessionExpired():
         return sessionExpired(_that);
       case LoginUnauthenticated():
@@ -139,7 +151,9 @@ extension LoginStatePatterns on LoginState {
     TResult? Function(LoginInitial value)? initial,
     TResult? Function(LoginRestoring value)? restoring,
     TResult? Function(LoginLoading value)? loading,
+    TResult? Function(LoginPendingSignup value)? pendingSignup,
     TResult? Function(LoginAuthenticated value)? authenticated,
+    TResult? Function(LoginSignupComplete value)? signupComplete,
     TResult? Function(LoginSessionExpired value)? sessionExpired,
     TResult? Function(LoginUnauthenticated value)? unauthenticated,
     TResult? Function(LoginFailure value)? failure,
@@ -152,8 +166,12 @@ extension LoginStatePatterns on LoginState {
         return restoring(_that);
       case LoginLoading() when loading != null:
         return loading(_that);
+      case LoginPendingSignup() when pendingSignup != null:
+        return pendingSignup(_that);
       case LoginAuthenticated() when authenticated != null:
         return authenticated(_that);
+      case LoginSignupComplete() when signupComplete != null:
+        return signupComplete(_that);
       case LoginSessionExpired() when sessionExpired != null:
         return sessionExpired(_that);
       case LoginUnauthenticated() when unauthenticated != null:
@@ -182,7 +200,9 @@ extension LoginStatePatterns on LoginState {
     TResult Function()? initial,
     TResult Function()? restoring,
     TResult Function()? loading,
+    TResult Function(User user, String email)? pendingSignup,
     TResult Function(User user)? authenticated,
+    TResult Function()? signupComplete,
     TResult Function()? sessionExpired,
     TResult Function()? unauthenticated,
     TResult Function(String message)? failure,
@@ -196,8 +216,12 @@ extension LoginStatePatterns on LoginState {
         return restoring();
       case LoginLoading() when loading != null:
         return loading();
+      case LoginPendingSignup() when pendingSignup != null:
+        return pendingSignup(_that.user, _that.email);
       case LoginAuthenticated() when authenticated != null:
         return authenticated(_that.user);
+      case LoginSignupComplete() when signupComplete != null:
+        return signupComplete();
       case LoginSessionExpired() when sessionExpired != null:
         return sessionExpired();
       case LoginUnauthenticated() when unauthenticated != null:
@@ -227,7 +251,9 @@ extension LoginStatePatterns on LoginState {
     required TResult Function() initial,
     required TResult Function() restoring,
     required TResult Function() loading,
+    required TResult Function(User user, String email) pendingSignup,
     required TResult Function(User user) authenticated,
+    required TResult Function() signupComplete,
     required TResult Function() sessionExpired,
     required TResult Function() unauthenticated,
     required TResult Function(String message) failure,
@@ -240,8 +266,12 @@ extension LoginStatePatterns on LoginState {
         return restoring();
       case LoginLoading():
         return loading();
+      case LoginPendingSignup():
+        return pendingSignup(_that.user, _that.email);
       case LoginAuthenticated():
         return authenticated(_that.user);
+      case LoginSignupComplete():
+        return signupComplete();
       case LoginSessionExpired():
         return sessionExpired();
       case LoginUnauthenticated():
@@ -268,7 +298,9 @@ extension LoginStatePatterns on LoginState {
     TResult? Function()? initial,
     TResult? Function()? restoring,
     TResult? Function()? loading,
+    TResult? Function(User user, String email)? pendingSignup,
     TResult? Function(User user)? authenticated,
+    TResult? Function()? signupComplete,
     TResult? Function()? sessionExpired,
     TResult? Function()? unauthenticated,
     TResult? Function(String message)? failure,
@@ -281,8 +313,12 @@ extension LoginStatePatterns on LoginState {
         return restoring();
       case LoginLoading() when loading != null:
         return loading();
+      case LoginPendingSignup() when pendingSignup != null:
+        return pendingSignup(_that.user, _that.email);
       case LoginAuthenticated() when authenticated != null:
         return authenticated(_that.user);
+      case LoginSignupComplete() when signupComplete != null:
+        return signupComplete();
       case LoginSessionExpired() when sessionExpired != null:
         return sessionExpired();
       case LoginUnauthenticated() when unauthenticated != null:
@@ -357,6 +393,77 @@ class LoginLoading implements LoginState {
 
 /// @nodoc
 
+class LoginPendingSignup implements LoginState {
+  const LoginPendingSignup({required this.user, required this.email});
+
+  final User user;
+  final String email;
+
+  /// Create a copy of LoginState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $LoginPendingSignupCopyWith<LoginPendingSignup> get copyWith =>
+      _$LoginPendingSignupCopyWithImpl<LoginPendingSignup>(this, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is LoginPendingSignup &&
+            (identical(other.user, user) || other.user == user) &&
+            (identical(other.email, email) || other.email == email));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, user, email);
+
+  @override
+  String toString() {
+    return 'LoginState.pendingSignup(user: $user, email: $email)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $LoginPendingSignupCopyWith<$Res>
+    implements $LoginStateCopyWith<$Res> {
+  factory $LoginPendingSignupCopyWith(
+          LoginPendingSignup value, $Res Function(LoginPendingSignup) _then) =
+      _$LoginPendingSignupCopyWithImpl;
+  @useResult
+  $Res call({User user, String email});
+}
+
+/// @nodoc
+class _$LoginPendingSignupCopyWithImpl<$Res>
+    implements $LoginPendingSignupCopyWith<$Res> {
+  _$LoginPendingSignupCopyWithImpl(this._self, this._then);
+
+  final LoginPendingSignup _self;
+  final $Res Function(LoginPendingSignup) _then;
+
+  /// Create a copy of LoginState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? user = null,
+    Object? email = null,
+  }) {
+    return _then(LoginPendingSignup(
+      user: null == user
+          ? _self.user
+          : user // ignore: cast_nullable_to_non_nullable
+              as User,
+      email: null == email
+          ? _self.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+
 class LoginAuthenticated implements LoginState {
   const LoginAuthenticated(this.user);
 
@@ -416,6 +523,26 @@ class _$LoginAuthenticatedCopyWithImpl<$Res>
           : user // ignore: cast_nullable_to_non_nullable
               as User,
     ));
+  }
+}
+
+/// @nodoc
+
+class LoginSignupComplete implements LoginState {
+  const LoginSignupComplete();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is LoginSignupComplete);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginState.signupComplete()';
   }
 }
 

@@ -74,6 +74,7 @@ flowchart TD
 | `domain/entities/auth_tokens.dart` | `AuthTokens` | 자체 JWT access/refresh 토큰 |
 | `domain/entities/auth_session.dart` | `AuthSession` | 로그인 결과 (User + AuthTokens) |
 | `domain/entities/social_provider.dart` | `SocialProvider` | 소셜 로그인 제공자 enum (확장 지점) |
+| `domain/entities/member_status.dart` | `MemberStatus` | PENDING / ACTIVE / WITHDRAWN |
 
 **Entity 필드 목록**
 
@@ -173,7 +174,8 @@ abstract class AuthRepository {
 | 파일 경로 | 클래스명 | 대응 Entity | 직렬화 방식 |
 |-----------|---------|------------|-----------|
 | `data/models/user_model.dart` | `UserModel` | `User` | `@freezed` + `@JsonSerializable` |
-| `data/models/auth_token_model.dart` | `AuthTokenModel` | `AuthTokens` | `@freezed` + `@JsonSerializable` |
+| `data/models/auth_token_model.dart` | `AuthTokenModel` | `AuthTokens` | `@freezed` + `@JsonSerializable` (refresh 응답) |
+| `data/models/social_login_response_model.dart` | `SocialLoginResponseModel` | status + tokens | 로그인·복구 응답. `toTokenModel()` |
 | `data/models/social_login_request.dart` | `SocialLoginRequest` | (요청 전용) | `@freezed` + `@JsonSerializable` |
 | `data/models/auth_response_model.dart` | `AuthResponseModel` | `AuthSession` | `@freezed` + `@JsonSerializable` |
 
@@ -224,9 +226,13 @@ abstract class NaverAuthDatasource {
 }
 
 abstract class AuthRemoteDatasource {
-  Future<AuthResponseModel> socialLogin(SocialLoginRequest request);
+  Future<SocialLoginResponseModel> socialLogin({
+    required String provider,
+    required SocialLoginRequest request,
+  });
   Future<AuthTokenModel> refresh(String refreshToken);
-  Future<void> logout();
+  Future<void> logout(String refreshToken);
+  Future<SocialLoginResponseModel> recover();
   Future<void> withdraw();
 }
 
@@ -348,11 +354,12 @@ final GoRouter appRouter = GoRouter(
 
 | 메서드 | 엔드포인트 | 설명 | 인증 필요 |
 |--------|-----------|------|---------|
-| `POST` | `/v1/social-logins/{provider}` | 소셜 accessToken 전달 → 자체 JWT 발급 (`provider`: `naver` \| `apple`) | N |
-| `POST` | `/v1/tokens` | refresh 토큰으로 access/refresh 재발급 (RTR, 전역 인터셉터에서 사용) | N |
+| `POST` | `/v1/social-logins/{provider}` | 소셜 accessToken → `status` + JWT 쌍 (`provider`: `naver` \| `apple`) | N |
+| `POST` | `/v1/tokens` | refresh 토큰으로 access/refresh 재발급 (RTR) | N |
 | `POST` | `/v1/logout` | 제출한 refresh 토큰 세션 폐기 (멱등 204) | N (body 에 refreshToken) |
-
-> 회원 탈퇴 API는 **Phase 8** (서버 스펙 대기). 현재는 로컬 clear만 수행.
+| `POST` | `/v1/members/me/recovery` | 탈퇴 대기(WITHDRAWN) → ACTIVE 복구 + 새 토큰 쌍 | Y (WITHDRAWN Bearer) |
+| `POST` | `/v1/signup` | PENDING 약관 동의 후 ACTIVE 전환 + 새 토큰 쌍 | Y (PENDING Bearer) |
+| `DELETE` | `/v1/members/me` | 가입 회원(ACTIVE) 탈퇴 → WITHDRAWN (204) | Y (ACTIVE Bearer) |
 
 **Request** (`POST /v1/social-logins/naver`)
 
@@ -370,14 +377,21 @@ final GoRouter appRouter = GoRouter(
 }
 ```
 
-**Response** (login / refresh 공통)
+**Response** (소셜 로그인 / 복구) — `SocialLoginResponseModel`
 
 ```json
 {
+  "status": "ACTIVE",
   "accessToken": "eyJhbGciOiJIUzM4NCJ9...",
   "refreshToken": "3q2nq0uW9kZ0m1r5c8vX2yB7dF4hJ6lN8pR0tV2xZ4A"
 }
 ```
+
+`status`: `PENDING` | `ACTIVE` | `WITHDRAWN` (`MemberStatus`).
+
+- `WITHDRAWN`: Repository 가 `POST /v1/members/me/recovery` 를 호출해 ACTIVE 토큰으로 교체 후 로그인 완료.
+- `PENDING`: `LoginState.pendingSignup` → `/signup/terms` 약관 동의 → `POST /v1/signup` → `/signup/complete` → 홈.
+- refresh (`POST /v1/tokens`) 응답은 `accessToken` + `refreshToken` 만 (`AuthTokenModel`, status 없음).
 
 > 응답에 `user` / `expiresIn` 없음. 유저 프로필은 SDK 응답으로 로컬 유지. access 만료는 서버 401 로 감지하고 인터셉터가 refresh 한다.
 
@@ -388,6 +402,29 @@ final GoRouter appRouter = GoRouter(
   "refreshToken": "3q2nq0uW9kZ0m1r5c8vX2yB7dF4hJ6lN8pR0tV2xZ4A"
 }
 ```
+
+**탈퇴** (`DELETE /v1/members/me`) — body 없음, 204. 성공 후 로컬 clear.
+
+**회원가입** (`POST /v1/signup`) — PENDING Bearer. body:
+
+```json
+{
+  "serviceTermsAgreed": true,
+  "privacyPolicyAgreed": true,
+  "marketingAgreed": false
+}
+```
+
+응답은 소셜 로그인과 동일 (`status` + tokens). 만 14세 동의는 클라이언트 UI 검증만.
+
+**회원가입 UX**
+- `/signup/terms`: 프로바이더 헤더 + 이메일(읽기 전용) + 약관 체크박스 + `다음`
+- `/signup/complete`: 로고 + 환영 문구 → 2초 후 홈
+- 약관 `보기` URL은 추후 연동
+
+**탈퇴 UX**
+- 현재: 설정 → `SsossModal` 타이틀 `"탈퇴하시겠어요?"` → `withdrawRequested`. 실패 시 `SsossToast(error)`.
+- 추후: 탈퇴 확인 전용 페이지로 교체 (tasks Follow-up).
 
 ---
 
@@ -415,7 +452,7 @@ final GoRouter appRouter = GoRouter(
 | 네이버 인증 취소 | `NaverAuthDatasource` | `AuthException.cancelled` throw → 로그인 화면 유지 |
 | 네이버 토큰 실패/무효 | `NaverAuthDatasource` / API `A0001` | `AuthException.socialFailed` throw |
 | 토큰 갱신 실패 | Dio 인증 인터셉터 (`A0004`/`A0005`) | 로컬 clear → 로그인 후 화면이면 세션 만료 모달 → `/login` |
-| 탈퇴 처리 실패 | Phase 8 | `ServerException/AuthException` → 화면 유지 + 재시도 |
+| 탈퇴 처리 실패 | 설정 | `SsossToast(error)` + `failureAcknowledged` 로 authenticated 복원 |
 
 **세션 만료 모달**
 
@@ -495,7 +532,12 @@ class AuthProviders {
 | 토큰 저장 | **`flutter_secure_storage`** | 토큰은 민감 정보, 안전 저장 필요 (신규 의존성 추가) |
 | 소셜 provider | `SocialProvider` **enum + provider 파라미터 추상화** | 카카오·애플 확장 대비 (PRD FR-08) |
 | 네이버 SDK 위치 | `data/datasources/naver_auth_datasource.dart` | 외부 데이터 소스로 취급, Repository 에서 조합 |
-| 탈퇴 처리 순서 | **Phase 8:** remote withdraw → local clear. 현재는 로컬 clear만 | 서버에서 네이버 연동 revoke. 클라이언트 `logoutAndDeleteToken` 미사용 |
+| 탈퇴 처리 순서 | **remote withdraw → local clear** | 서버에서 네이버 연동 revoke. 클라이언트 `logoutAndDeleteToken` 미사용 |
+| WITHDRAWN 로그인 | **자동 recover 후 ACTIVE 세션** | 복구 UX/라우팅 없이 로그인 완료 |
+| PENDING 로그인 | **`pendingSignup` → 약관 → signup → complete** | `StoredAuthCacheModel.memberStatus` 영속화 |
+| Apple 이메일 | **SharedPreferences** (`apple_email_{userId}`) | 최초 로그인 시만 SDK 에서 수신 |
+| 탈퇴 확인 UX | **임시 모달** `"탈퇴하시겠어요?"` | 추후 탈퇴 확인 페이지로 교체 |
+| 탈퇴 실패 UX | **`SsossToast(error)`** + `failureAcknowledged` 로 authenticated 복원 | 설정 화면 유지 |
 | 토큰 갱신 위치 | **Dio 전역 인증 인터셉터** | 어떤 API 호출이든 만료 토큰을 공통 처리하기 위함 |
 | 세션 만료 UX | 로그인 후 화면만 `SsossModal` | 콜드 스타트는 redirect만. RTR 실패 시 재로그인 유도 |
 | 에러 코드 | `ApiErrorCode` + `unknown` fallback | 서버 코드 확장에 대비 |
