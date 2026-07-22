@@ -182,7 +182,7 @@ part '${name}_event.freezed.dart';
 
 @freezed
 abstract class ${pascal_name}Event with _\$${pascal_name}Event {
-  const factory ${pascal_name}Event.started() = ${pascal_name}Started;
+  const factory ${pascal_name}Event.started() = _Started;
 }
 EOF
 
@@ -205,11 +205,11 @@ import 'package:${PACKAGE_NAME}/features/${feature_name}/presentation/bloc/${nam
 
 class ${pascal_name}Bloc extends Bloc<${pascal_name}Event, ${pascal_name}State> {
   ${pascal_name}Bloc() : super(const ${pascal_name}State.initial()) {
-    on<${pascal_name}Started>(_onStarted);
+    on<_Started>(_onStarted);
   }
 
   Future<void> _onStarted(
-    ${pascal_name}Started event,
+    _Started event,
     Emitter<${pascal_name}State> emit,
   ) async {
     // TODO: 이벤트 처리

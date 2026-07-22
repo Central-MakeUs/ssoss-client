@@ -179,7 +179,3 @@ app.*.symbols
 # Environment variables
 .env.*
 !.env.example
-
-# Native secrets
-**/android/secrets.properties
-**/ios/Flutter/Secrets.xcconfig

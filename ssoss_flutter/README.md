@@ -133,9 +133,9 @@ fvm flutter pub get
 
 | Flavor | 앱 이름 | 패키지 / 번들 ID |
 |--------|---------|------------------|
-| `dev` | 쏘쓰(dev) | `com.ssoss.app.dev` |
-| `staging` | 쏘쓰(staging) | `com.ssoss.app.staging` |
-| `prod` | 쏘쓰 | `com.ssoss.app` |
+| `dev` | 쏘쓰(dev) | `com.place.ssoss.dev` |
+| `staging` | 쏘쓰(staging) | `com.place.ssoss.staging` |
+| `prod` | 쏘쓰 | `com.place.ssoss` |
 
 #### 실행
 

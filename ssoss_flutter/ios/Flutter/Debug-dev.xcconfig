@@ -1,5 +1,4 @@
 #include "Debug.xcconfig"
-#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug-dev.xcconfig"
-PRODUCT_BUNDLE_IDENTIFIER = com.ssoss.app.dev
+PRODUCT_BUNDLE_IDENTIFIER = com.place.ssoss.dev
 FLUTTER_TARGET = lib/main.dart
-APP_DISPLAY_NAME = 쏘쓰(dev)
+APP_DISPLAY_NAME = "쏘쓰(dev)"
