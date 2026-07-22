@@ -68,9 +68,9 @@ flutter:
 
 flutter_launcher_icons:
   # android: true # 안드로이드 플랫폼에 런처 아이콘 적용 여부
-  # image_path: "assets/icons/app_icon.png" # 런처 아이콘으로 사용할 이미지 경로
-  # adaptive_icon_background: "#ffffff" # 안드로이드 적응형 아이콘의 배경색 (검정색)
-  # adaptive_icon_foreground: "assets/icons/app-icon.png" # 안드로이드 적응형 아이콘의 전경 이미지 경로
+  # image_path: "assets/icons/app_icon_white.png" # 런처 아이콘으로 사용할 이미지 경로
+  # adaptive_icon_background: "#FF7638" # 안드로이드 적응형 아이콘의 배경색 (검정색)
+  # adaptive_icon_foreground: "assets/icons/app_icon_white.png" # 안드로이드 적응형 아이콘의 전경 이미지 경로
   # adaptive_icon_foreground_inset: 24
   ios: true # iOS 플랫폼에 런처 아이콘 적용 여부
   image_path: "assets/icons/ios_icon.png" # 런처 아이콘으로 사용할 이미지 경로
