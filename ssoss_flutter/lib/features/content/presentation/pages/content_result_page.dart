@@ -120,7 +120,7 @@ class ContentResultPage extends StatelessWidget {
                   children: [
                     Expanded(
                       child: SsossButton(
-                        label: '다시 만들기',
+                        label: '다시 생성하기',
                         type: SsossButtonType.outline,
                         width: double.infinity,
                         onPressed: () => unawaited(_remake(context)),

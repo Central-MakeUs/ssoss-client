@@ -172,9 +172,22 @@ class _ChannelResultSections extends StatelessWidget {
             content: ContentResultDummy.bodyFor(channel, compact: compact),
             recommendation: _recommendation,
           ),
+        ],
+      );
+    }
+
+    if (channel == UploadChannel.instagram) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ContentResultSection.text(
+            title: '본문',
+            content: ContentResultDummy.bodyFor(channel, compact: compact),
+            recommendation: _recommendation,
+          ),
           const SizedBox(height: 32),
           const ContentResultHashtagSection(
-            hashtags: ContentResultDummy.blogHashtags,
+            hashtags: ContentResultDummy.instagramHashtags,
           ),
         ],
       );

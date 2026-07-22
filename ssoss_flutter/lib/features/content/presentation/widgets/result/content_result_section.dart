@@ -57,8 +57,8 @@ class ContentResultSection extends StatelessWidget {
                 onPressed: () {},
                 icon: SvgPicture.asset(
                   AppAssets.icEdit2,
-                  width: 18,
-                  height: 18,
+                  width: 24,
+                  height: 24,
                   colorFilter: const ColorFilter.mode(
                     AppColors.neutral500,
                     BlendMode.srcIn,

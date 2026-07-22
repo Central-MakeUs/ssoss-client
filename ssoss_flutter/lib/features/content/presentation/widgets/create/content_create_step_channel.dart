@@ -47,9 +47,18 @@ class ContentCreateStepChannel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppText(
-          '업로드 채널',
-          style: AppTextStyles.h5.copyWith(color: AppColors.neutral700),
+        Row(
+          children: [
+            AppText(
+              '업로드 채널',
+              style: AppTextStyles.h5.copyWith(color: AppColors.neutral700),
+            ),
+            const SizedBox(width: 2),
+            AppText(
+              '*',
+              style: AppTextStyles.h5.copyWith(color: AppColors.primary600),
+            ),
+          ],
         ),
         const SizedBox(height: 2),
         AppText(

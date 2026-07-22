@@ -68,9 +68,18 @@ class ContentCreateStepContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppText(
-          '업로드 목적',
-          style: AppTextStyles.h5.copyWith(color: AppColors.neutral700),
+        Row(
+          children: [
+            AppText(
+              '업로드 목적',
+              style: AppTextStyles.h5.copyWith(color: AppColors.neutral700),
+            ),
+            const SizedBox(width: 2),
+            AppText(
+              '*',
+              style: AppTextStyles.h5.copyWith(color: AppColors.primary600),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         Row(
@@ -97,9 +106,18 @@ class ContentCreateStepContent extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 36),
-        AppText(
-          '콘텐츠 작성 톤',
-          style: AppTextStyles.h5.copyWith(color: AppColors.neutral700),
+        Row(
+          children: [
+            AppText(
+              '콘텐츠 작성 톤',
+              style: AppTextStyles.h5.copyWith(color: AppColors.neutral700),
+            ),
+            const SizedBox(width: 2),
+            AppText(
+              '*',
+              style: AppTextStyles.h5.copyWith(color: AppColors.primary600),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         for (var i = 0; i < _tones.length; i++) ...[

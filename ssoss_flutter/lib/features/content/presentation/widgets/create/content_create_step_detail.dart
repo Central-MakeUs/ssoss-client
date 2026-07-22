@@ -93,9 +93,18 @@ class _ContentCreateStepDetailState extends State<ContentCreateStepDetail> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppText(
-          '강조 내용',
-          style: AppTextStyles.h5.copyWith(color: AppColors.neutral700),
+        Row(
+          children: [
+            AppText(
+              '강조 내용',
+              style: AppTextStyles.h5.copyWith(color: AppColors.neutral700),
+            ),
+            const SizedBox(width: 2),
+            AppText(
+              '*',
+              style: AppTextStyles.h5.copyWith(color: AppColors.primary600),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         _MultilineInput(

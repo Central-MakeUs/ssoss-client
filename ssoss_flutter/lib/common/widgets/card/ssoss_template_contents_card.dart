@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:ssoss_flutter/common/widgets/card/ssoss_expandable_card_body.dart';
 import 'package:ssoss_flutter/common/widgets/card/template/ssoss_template_document.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
@@ -87,12 +88,14 @@ class SsossTemplateContentsCard extends StatelessWidget {
                   horizontal: 16,
                   vertical: 20,
                 ),
-            child: SizedBox(
-              width: double.infinity,
-              child: Text.rich(
-                document.buildTextSpan(
-                  baseStyle: baseStyle,
-                  placeholderColor: slotEmptyColor,
+            child: SsossExpandableCardBody(
+              child: SizedBox(
+                width: double.infinity,
+                child: Text.rich(
+                  document.buildTextSpan(
+                    baseStyle: baseStyle,
+                    placeholderColor: slotEmptyColor,
+                  ),
                 ),
               ),
             ),
