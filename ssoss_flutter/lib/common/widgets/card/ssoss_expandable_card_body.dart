@@ -12,7 +12,7 @@ class SsossExpandableCardBody extends StatefulWidget {
   const SsossExpandableCardBody({
     required this.child,
     super.key,
-    this.maxCollapsedHeight = 480,
+    this.maxCollapsedHeight = 408,
   });
 
   final Widget child;
@@ -28,7 +28,9 @@ class _SsossExpandableCardBodyState extends State<SsossExpandableCardBody> {
   bool _canToggle = false;
 
   void _onContentSize(Size size) {
-    final canToggle = size.height >= widget.maxCollapsedHeight;
+    final contentHeight = size.height;
+    // maxHeight와 같으면 ConstrainedBox가 클립하지 않으므로 토글을 숨긴다.
+    final canToggle = contentHeight > widget.maxCollapsedHeight;
     if (canToggle == _canToggle) {
       return;
     }
