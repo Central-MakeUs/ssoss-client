@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -73,11 +72,14 @@ class SsossTag extends StatelessWidget {
           if (isIconOnly || showLeftIcon) _buildIcon(resolvedForegroundColor),
           if (!isIconOnly) ...[
             if (showLeftIcon) SizedBox(width: gap),
-            AppText(
-              label,
-              textAlign: TextAlign.center,
-              style: (textStyle ?? AppTextStyles.b5).copyWith(
-                color: resolvedForegroundColor,
+            Flexible(
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                softWrap: true,
+                style: (textStyle ?? AppTextStyles.b5).copyWith(
+                  color: resolvedForegroundColor,
+                ),
               ),
             ),
             if (showRightIcon) ...[

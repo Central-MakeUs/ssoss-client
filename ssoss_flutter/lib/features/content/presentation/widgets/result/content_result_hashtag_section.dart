@@ -11,10 +11,12 @@ import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 class ContentResultHashtagSection extends StatelessWidget {
   const ContentResultHashtagSection({
     required this.hashtags,
+    this.onEdit,
     super.key,
   });
 
   final List<String> hashtags;
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +36,7 @@ class ContentResultHashtagSection extends StatelessWidget {
               height: 32,
               child: IconButton(
                 padding: EdgeInsets.zero,
-                onPressed: () {},
+                onPressed: onEdit,
                 icon: SvgPicture.asset(
                   AppAssets.icEdit2,
                   width: 24,

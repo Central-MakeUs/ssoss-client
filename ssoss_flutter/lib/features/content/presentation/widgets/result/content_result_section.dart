@@ -13,21 +13,25 @@ class ContentResultSection extends StatelessWidget {
   const ContentResultSection({
     required this.title,
     required this.blocks,
+    this.onEdit,
     super.key,
   });
 
   final String title;
   final List<SsossContentsCardBlock> blocks;
+  final VoidCallback? onEdit;
 
   factory ContentResultSection.text({
     required String title,
     required String content,
     SsossRecommendationCardItem? recommendation,
+    VoidCallback? onEdit,
     Key? key,
   }) {
     return ContentResultSection(
       key: key,
       title: title,
+      onEdit: onEdit,
       blocks: [
         if (recommendation != null)
           SsossContentsCardRecommendationBlock(recommendation),
@@ -54,7 +58,7 @@ class ContentResultSection extends StatelessWidget {
               height: 32,
               child: IconButton(
                 padding: EdgeInsets.zero,
-                onPressed: () {},
+                onPressed: onEdit,
                 icon: SvgPicture.asset(
                   AppAssets.icEdit2,
                   width: 24,

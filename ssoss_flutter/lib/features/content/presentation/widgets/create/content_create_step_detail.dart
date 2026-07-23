@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_checkbox.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
@@ -7,7 +7,6 @@ import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_create_cubit.dart';
-import 'package:ssoss_flutter/features/content/presentation/widgets/create/content_keyword_chip.dart';
 
 class ContentCreateStepDetail extends StatefulWidget {
   const ContentCreateStepDetail({
@@ -39,20 +38,14 @@ class ContentCreateStepDetail extends StatefulWidget {
 }
 
 class _ContentCreateStepDetailState extends State<ContentCreateStepDetail> {
-  static const double _keywordRowHeight = 44;
-
   late final TextEditingController _highlightController;
   late final TextEditingController _forbiddenController;
-  late final TextEditingController _keywordController;
-  late final FocusNode _keywordFocusNode;
 
   @override
   void initState() {
     super.initState();
     _highlightController = TextEditingController(text: widget.highlight);
     _forbiddenController = TextEditingController(text: widget.forbidden);
-    _keywordController = TextEditingController();
-    _keywordFocusNode = FocusNode();
   }
 
   @override
@@ -70,22 +63,25 @@ class _ContentCreateStepDetailState extends State<ContentCreateStepDetail> {
   void dispose() {
     _highlightController.dispose();
     _forbiddenController.dispose();
-    _keywordController.dispose();
-    _keywordFocusNode.dispose();
     super.dispose();
   }
 
-  void _submitKeyword() {
+  void _onAddKeyword(String raw) {
     if (widget.keywords.length >= ContentCreateCubit.maxKeywords) {
-      showSsossToast(
-        context,
-        title: '키워드는 최대 ${ContentCreateCubit.maxKeywords}개까지만 추가할 수 있어요',
-        type: SsossToastType.warning,
-      );
       return;
     }
-    widget.onAddKeyword(_keywordController.text);
-    _keywordController.clear();
+    final normalized = SsossHashtagNormalizer.normalize(raw);
+    if (normalized == null) {
+      if (raw.trim().isNotEmpty) {
+        showSsossToast(
+          context,
+          title: '키워드는 ${ContentCreateCubit.maxKeywordLength}자 이하로 입력해주세요',
+          type: SsossToastType.warning,
+        );
+      }
+      return;
+    }
+    widget.onAddKeyword(raw);
   }
 
   @override
@@ -141,7 +137,7 @@ class _ContentCreateStepDetailState extends State<ContentCreateStepDetail> {
             ),
             const SizedBox(width: 8),
             AppText(
-              '선택, 최대 ${ContentCreateCubit.maxKeywords}개',
+              '선택',
               style: AppTextStyles.b6.copyWith(color: AppColors.neutral400),
             ),
           ],
@@ -152,84 +148,12 @@ class _ContentCreateStepDetailState extends State<ContentCreateStepDetail> {
           style: AppTextStyles.b5.copyWith(color: AppColors.neutral400),
         ),
         const SizedBox(height: 12),
-        SizedBox(
-          height: _keywordRowHeight,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: AnimatedBuilder(
-                  animation: _keywordFocusNode,
-                  builder: (context, _) {
-                    return DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: _keywordFocusNode.hasFocus
-                              ? AppColors.primary400
-                              : AppColors.neutral200,
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                        child: Center(
-                          child: TextField(
-                            controller: _keywordController,
-                            focusNode: _keywordFocusNode,
-                            style: AppTextStyles.b4.copyWith(
-                              color: AppColors.neutral800,
-                            ),
-                            cursorColor: AppColors.primary400,
-                            decoration: InputDecoration(
-                              isDense: true,
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              hintText: 'ex) 디저트맛집',
-                              hintStyle: AppTextStyles.b4.copyWith(
-                                color: AppColors.neutral400,
-                              ),
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (_) => _submitKeyword(),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              SsossButton(
-                label: '추가하기',
-                size: SsossButtonSize.small,
-                height: _keywordRowHeight,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                textStyle: AppTextStyles.h8,
-                onPressed: _submitKeyword,
-              ),
-            ],
-          ),
+        SsossHashtagInput(
+          hashtags: widget.keywords,
+          hintText: 'ex) 디저트맛집',
+          onAdd: _onAddKeyword,
+          onRemove: widget.onRemoveKeyword,
         ),
-        if (widget.keywords.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final keyword in widget.keywords)
-                ContentKeywordChip(
-                  keyword: keyword,
-                  onRemove: () => widget.onRemoveKeyword(keyword),
-                ),
-            ],
-          ),
-        ],
         const SizedBox(height: 36),
         Row(
           children: [

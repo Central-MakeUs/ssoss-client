@@ -28,6 +28,15 @@ class ContentManagementItem {
   final String tone;
   final String title;
   final List<String> tags;
+
+  /// 카드 목록에 표시할 제목 (최대 20자 + …).
+  String get displayTitle {
+    const maxLength = 20;
+    if (title.length <= maxLength) {
+      return title;
+    }
+    return '${title.substring(0, maxLength)}...';
+  }
 }
 
 class ContentManagementFilterBar extends StatelessWidget {
@@ -190,7 +199,7 @@ class ContentManagementCard extends StatelessWidget {
                   _ContentMetaText(item: item),
                   const SizedBox(height: 2),
                   AppText(
-                    item.title,
+                    item.displayTitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.h5.copyWith(color: AppColors.black),

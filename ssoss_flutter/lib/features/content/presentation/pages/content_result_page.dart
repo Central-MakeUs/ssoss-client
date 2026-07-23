@@ -9,16 +9,21 @@ import 'package:ssoss_flutter/common/widgets/modal/ssoss_modal.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_create_flow.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_edit_args.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_edit_result.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_edit_target.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_generation_args.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_result_draft.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_mode.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/content_edit_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_generating_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_save_complete_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/result/content_result_body.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 
-/// 콘텐츠 생성 결과 화면 (더미).
-class ContentResultPage extends StatelessWidget {
+/// 콘텐츠 생성 결과 화면.
+class ContentResultPage extends StatefulWidget {
   const ContentResultPage({
     required this.args,
     super.key,
@@ -29,13 +34,31 @@ class ContentResultPage extends StatelessWidget {
 
   final ContentGenerationArgs args;
 
+  @override
+  State<ContentResultPage> createState() => _ContentResultPageState();
+}
+
+class _ContentResultPageState extends State<ContentResultPage> {
+  late ContentResultDraft _draft;
+
+  ContentGenerationArgs get args => widget.args;
+
   bool get _isMulti => args.input.channels.length >= 2;
 
   bool get _isOtherChannel => args.flow == ContentCreateFlow.otherChannel;
 
-  /// 생성에 포함되지 않은 채널이 남아 있는지 여부.
   bool get _hasRemainingChannels => UploadChannel.values
       .any((channel) => !args.input.channels.contains(channel));
+
+  @override
+  void initState() {
+    super.initState();
+    _draft = ContentResultDraft.fromChannels(
+      channels: args.input.channels,
+      photoGuideEnabled: args.input.photoGuideEnabled,
+      compact: _isMulti,
+    );
+  }
 
   void _goHome(BuildContext context) {
     context.go(HomePage.routePath);
@@ -79,8 +102,56 @@ class ContentResultPage extends StatelessWidget {
       return;
     }
 
-    // 동일 채널·입력으로 생성 중 화면을 다시 시작한다.
     context.go(ContentGeneratingPage.routePath, extra: args);
+  }
+
+  Future<void> _openEdit(
+    UploadChannel channel,
+    ContentEditTarget target,
+  ) async {
+    final channelDraft = _draft.forChannel(channel);
+    final result = await context.push<ContentEditResult>(
+      ContentEditPage.routePath,
+      extra: ContentEditArgs(
+        channel: channel,
+        target: target,
+        initialTitle: channelDraft.title ?? '',
+        initialBody: channelDraft.body,
+        initialHashtags: channelDraft.hashtags,
+        photoGuideEnabled: channelDraft.showPhotoGuide,
+        recommendation: channelDraft.showPhotoGuide
+            ? contentResultPhotoGuide
+            : null,
+      ),
+    );
+
+    if (result == null || !mounted) {
+      return;
+    }
+
+    setState(() {
+      final current = _draft.forChannel(result.channel);
+      switch (result.target) {
+        case ContentEditTarget.title:
+          _draft = _draft.updateChannel(
+            result.channel,
+            current.copyWith(title: result.title),
+          );
+        case ContentEditTarget.body:
+          _draft = _draft.updateChannel(
+            result.channel,
+            current.copyWith(
+              body: result.body,
+              showPhotoGuide: result.photoGuidePresent ?? current.showPhotoGuide,
+            ),
+          );
+        case ContentEditTarget.hashtags:
+          _draft = _draft.updateChannel(
+            result.channel,
+            current.copyWith(hashtags: result.hashtags),
+          );
+      }
+    });
   }
 
   @override
@@ -104,8 +175,18 @@ class ContentResultPage extends StatelessWidget {
               ),
               Expanded(
                 child: _isMulti
-                    ? ContentResultMultiBody(input: args.input)
-                    : ContentResultSingleBody(input: args.input),
+                    ? ContentResultMultiBody(
+                        input: args.input,
+                        draft: _draft,
+                        onEdit: (channel, target) =>
+                            unawaited(_openEdit(channel, target)),
+                      )
+                    : ContentResultSingleBody(
+                        input: args.input,
+                        draft: _draft,
+                        onEdit: (channel, target) =>
+                            unawaited(_openEdit(channel, target)),
+                      ),
               ),
               Container(
                 width: double.infinity,
