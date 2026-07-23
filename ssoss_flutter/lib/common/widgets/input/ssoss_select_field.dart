@@ -82,19 +82,25 @@ class SsossSelectField extends StatelessWidget {
               Expanded(
                 child: AppText(
                   _hasValue ? value! : placeholder,
-                  style: AppTextStyles.b5.copyWith(
+                  style: AppTextStyles.b4.copyWith(
                     color: resolvedTextColor,
                   ),
                 ),
               ),
               const SizedBox(width: 10),
-              SvgPicture.asset(
-                isOpen ? AppAssets.icChevronUp : AppAssets.icChevronDown,
+              SizedBox(
                 width: 20,
                 height: 20,
-                colorFilter: ColorFilter.mode(
-                  resolvedIconColor,
-                  BlendMode.srcIn,
+                child: Center(
+                  child: SvgPicture.asset(
+                    isOpen ? AppAssets.icChevronUp : AppAssets.icChevronDown,
+                    width: 12,
+                    height: 6,
+                    colorFilter: ColorFilter.mode(
+                      resolvedIconColor,
+                      BlendMode.srcIn,
+                    ),
+                  ),
                 ),
               ),
             ],

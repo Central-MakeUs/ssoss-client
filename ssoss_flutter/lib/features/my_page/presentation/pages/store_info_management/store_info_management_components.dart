@@ -53,6 +53,7 @@ class StoreInfoFormField extends StatelessWidget {
     this.initialValue,
     this.showSearchIcon = false,
     this.readOnly = false,
+    this.multiline = false,
     this.onTap,
   });
 
@@ -62,6 +63,7 @@ class StoreInfoFormField extends StatelessWidget {
   final String? initialValue;
   final bool showSearchIcon;
   final bool readOnly;
+  final bool multiline;
   final VoidCallback? onTap;
 
   @override
@@ -83,129 +85,11 @@ class StoreInfoFormField extends StatelessWidget {
               hintText: hintText,
               showSearchIcon: showSearchIcon,
               readOnly: readOnly,
+              multiline: multiline,
               textColor: AppColors.neutral800,
               hintColor: AppColors.neutral400,
             ),
           ),
-        ),
-      ],
-    );
-  }
-}
-
-class StoreInfoSelectField extends StatelessWidget {
-  const StoreInfoSelectField({
-    required this.label,
-    super.key,
-    this.value,
-    this.placeholder = '선택해주세요',
-    this.isOpen = false,
-    this.showOptions = true,
-    this.options = const [],
-    this.onTap,
-    this.onOptionSelected,
-  });
-
-  final String label;
-  final String? value;
-  final String placeholder;
-  final bool isOpen;
-  final bool showOptions;
-  final List<String> options;
-  final VoidCallback? onTap;
-  final ValueChanged<String>? onOptionSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final hasValue = value != null && value!.isNotEmpty;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppText(
-          label,
-          style: AppTextStyles.h5.copyWith(color: AppColors.black),
-        ),
-        const SizedBox(height: 8),
-        Column(
-          children: [
-            GestureDetector(
-              onTap: onTap,
-              behavior: HitTestBehavior.opaque,
-              child: Container(
-                height: 40,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  border: Border.all(color: AppColors.neutral200),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: AppText(
-                        hasValue ? value! : placeholder,
-                        style: AppTextStyles.b4.copyWith(
-                          color: hasValue
-                              ? AppColors.neutral800
-                              : AppColors.neutral500,
-                        ),
-                      ),
-                    ),
-                    Icon(
-                      isOpen
-                          ? Icons.keyboard_arrow_up
-                          : Icons.keyboard_arrow_down,
-                      size: 20,
-                      color: AppColors.neutral400,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (showOptions && isOpen) ...[
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  border: Border.all(color: AppColors.neutral200),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  children: [
-                    for (final option in options)
-                      GestureDetector(
-                        onTap: () => onOptionSelected?.call(option),
-                        behavior: HitTestBehavior.opaque,
-                        child: SizedBox(
-                          height: 36,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 6,
-                            ),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: AppText(
-                                option,
-                                style: AppTextStyles.b4.copyWith(
-                                  color: AppColors.neutral500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ],
         ),
       ],
     );
@@ -575,14 +459,14 @@ class _StoreInfoTimePickerBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_select_dropdown.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -299,6 +300,7 @@ class _ContentInfoForm extends StatelessWidget {
           label: '매장 강점',
           controller: storeStrengthController,
           hintText: '입력해주세요',
+          multiline: true,
         ),
         const SizedBox(height: 32),
         StoreInfoSectionTitle(
@@ -317,6 +319,7 @@ class _ContentInfoForm extends StatelessWidget {
           label: '금지 내용',
           controller: prohibitedContentController,
           hintText: '입력해주세요',
+          multiline: true,
         ),
         const SizedBox(height: 32),
         const StoreInfoSectionTitle(title: '콘텐츠 작성 톤'),
@@ -364,128 +367,54 @@ class _BasicInfoFormState extends State<_BasicInfoForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
+    final selectedIndex = widget.storeType == null
+        ? null
+        : _storeTypeOptions.indexOf(widget.storeType!);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            StoreInfoFormField(
-              label: '매장명',
-              controller: widget.storeNameController,
-              hintText: '입력해주세요.',
-            ),
-            const SizedBox(height: 32),
-            StoreInfoSelectField(
-              label: '매장 유형',
-              value: widget.storeType,
-              placeholder: '선택해주세요',
-              isOpen: _isStoreTypeOpen,
-              showOptions: false,
-              onTap: () {
-                setState(() => _isStoreTypeOpen = !_isStoreTypeOpen);
-              },
-            ),
-            const SizedBox(height: 32),
-            StoreInfoFormField(
-              label: '주소',
-              controller: widget.addressController,
-              hintText: '주소를 검색해주세요',
-              showSearchIcon: true,
-              readOnly: true,
-              onTap: () {},
-            ),
-            const SizedBox(height: 32),
-            StoreInfoFormField(
-              label: '매장 한 줄 소개',
-              controller: widget.introController,
-              hintText: '입력해주세요.',
-            ),
-          ],
+        StoreInfoFormField(
+          label: '매장명',
+          controller: widget.storeNameController,
+          hintText: '입력해주세요.',
         ),
-        if (_isStoreTypeOpen)
-          Positioned(
-            top: 194,
-            left: 0,
-            right: 0,
-            child: _StoreTypeDropdownOverlay(
-              options: _storeTypeOptions,
-              onOptionSelected: (value) {
-                setState(() => _isStoreTypeOpen = false);
-                widget.onStoreTypeSelected(value);
-              },
-            ),
-          ),
+        const SizedBox(height: 32),
+        AppText(
+          '매장 유형',
+          style: AppTextStyles.h5.copyWith(color: AppColors.black),
+        ),
+        const SizedBox(height: 8),
+        SsossSelectDropdown(
+          options: _storeTypeOptions,
+          value: widget.storeType,
+          placeholder: '선택해주세요',
+          isOpen: _isStoreTypeOpen,
+          selectedIndex: selectedIndex == -1 ? null : selectedIndex,
+          onFieldTap: () {
+            setState(() => _isStoreTypeOpen = !_isStoreTypeOpen);
+          },
+          onOptionSelected: (index) {
+            setState(() => _isStoreTypeOpen = false);
+            widget.onStoreTypeSelected(_storeTypeOptions[index]);
+          },
+        ),
+        const SizedBox(height: 32),
+        StoreInfoFormField(
+          label: '주소',
+          controller: widget.addressController,
+          hintText: '주소를 검색해주세요',
+          showSearchIcon: true,
+          readOnly: true,
+          onTap: () {},
+        ),
+        const SizedBox(height: 32),
+        StoreInfoFormField(
+          label: '매장 한 줄 소개',
+          controller: widget.introController,
+          hintText: '입력해주세요.',
+        ),
       ],
-    );
-  }
-}
-
-class _StoreTypeDropdownOverlay extends StatelessWidget {
-  const _StoreTypeDropdownOverlay({
-    required this.options,
-    required this.onOptionSelected,
-  });
-
-  final List<String> options;
-  final ValueChanged<String> onOptionSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 160),
-      builder: (context, value, child) {
-        final curvedValue = Curves.easeOutCubic.transform(value);
-
-        return Opacity(
-          opacity: curvedValue,
-          child: ClipRect(
-            child: Align(
-              alignment: Alignment.topCenter,
-              heightFactor: curvedValue,
-              child: child,
-            ),
-          ),
-        );
-      },
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          border: Border.all(color: AppColors.neutral200),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            children: [
-              for (final option in options)
-                GestureDetector(
-                  onTap: () => onOptionSelected(option),
-                  behavior: HitTestBehavior.opaque,
-                  child: SizedBox(
-                    height: 36,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 6,
-                      ),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: AppText(
-                          option,
-                          style: AppTextStyles.b4.copyWith(
-                            color: AppColors.neutral500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

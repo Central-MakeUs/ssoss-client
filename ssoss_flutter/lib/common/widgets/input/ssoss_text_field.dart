@@ -16,6 +16,7 @@ class SsossTextField extends StatelessWidget {
     this.enabled = true,
     this.readOnly = false,
     this.obscureText = false,
+    this.multiline = false,
     this.keyboardType,
     this.textInputAction,
     this.inputFormatters,
@@ -41,6 +42,7 @@ class SsossTextField extends StatelessWidget {
   final bool enabled;
   final bool readOnly;
   final bool obscureText;
+  final bool multiline;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
   final List<TextInputFormatter>? inputFormatters;
@@ -58,7 +60,7 @@ class SsossTextField extends StatelessWidget {
   final double? width;
   final double? height;
 
-  static const double defaultHeight = 40;
+  static const double defaultHeight = 44;
   static const double _borderRadius = 8;
 
   @override
@@ -70,65 +72,85 @@ class SsossTextField extends StatelessWidget {
         ? fillColor ?? AppColors.white
         : disabledFillColor ?? AppColors.neutral50;
     final textStyle = showSearchIcon ? AppTextStyles.b5 : AppTextStyles.b4;
+    final resolvedHeight = height ?? defaultHeight;
+
+    final textField = TextField(
+      controller: controller,
+      focusNode: focusNode,
+      enabled: enabled,
+      readOnly: readOnly,
+      obscureText: multiline ? false : obscureText,
+      keyboardType:
+          keyboardType ?? (multiline ? TextInputType.multiline : null),
+      textInputAction:
+          textInputAction ?? (multiline ? TextInputAction.newline : null),
+      inputFormatters: inputFormatters,
+      onChanged: onChanged,
+      onSubmitted: onSubmitted,
+      minLines: multiline ? 1 : null,
+      maxLines: multiline ? null : 1,
+      textAlignVertical:
+          multiline ? TextAlignVertical.top : TextAlignVertical.center,
+      cursorColor: focusedBorderColor ?? AppColors.primary400,
+      style: textStyle.copyWith(
+        color: resolvedTextColor,
+      ),
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: textStyle.copyWith(
+          color: resolvedHintColor,
+        ),
+        filled: true,
+        fillColor: resolvedFillColor,
+        isDense: true,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: showSearchIcon ? 0 : 14,
+          vertical: 10,
+        ),
+        prefixIcon: showSearchIcon
+            ? Padding(
+                padding: const EdgeInsets.only(left: 14, right: 10),
+                child: SvgPicture.asset(
+                  AppAssets.icSearch,
+                  width: 24,
+                  height: 24,
+                  colorFilter: ColorFilter.mode(
+                    resolvedIconColor,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              )
+            : null,
+        prefixIconConstraints: showSearchIcon
+            ? const BoxConstraints(
+                minWidth: 48,
+                minHeight: 24,
+              )
+            : null,
+        border: _border(borderColor ?? AppColors.neutral200),
+        enabledBorder: _border(borderColor ?? AppColors.neutral200),
+        focusedBorder: _border(focusedBorderColor ?? AppColors.neutral600),
+        errorBorder: _border(errorBorderColor ?? AppColors.error500),
+        focusedErrorBorder: _border(errorBorderColor ?? AppColors.error500),
+        disabledBorder: _border(disabledBorderColor ?? AppColors.neutral200),
+      ),
+    );
+
+    if (multiline) {
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: resolvedHeight,
+          minWidth: width ?? 0,
+          maxWidth: width ?? double.infinity,
+        ),
+        child: textField,
+      );
+    }
 
     return SizedBox(
       width: width,
-      height: height ?? defaultHeight,
-      child: TextField(
-        controller: controller,
-        focusNode: focusNode,
-        enabled: enabled,
-        readOnly: readOnly,
-        obscureText: obscureText,
-        keyboardType: keyboardType,
-        textInputAction: textInputAction,
-        inputFormatters: inputFormatters,
-        onChanged: onChanged,
-        onSubmitted: onSubmitted,
-        cursorColor: focusedBorderColor ?? AppColors.primary400,
-        style: textStyle.copyWith(
-          color: resolvedTextColor,
-        ),
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: textStyle.copyWith(
-            color: resolvedHintColor,
-          ),
-          filled: true,
-          fillColor: resolvedFillColor,
-          isDense: true,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: showSearchIcon ? 0 : 14,
-            vertical: 10,
-          ),
-          prefixIcon: showSearchIcon
-              ? Padding(
-                  padding: const EdgeInsets.only(left: 14, right: 10),
-                  child: SvgPicture.asset(
-                    AppAssets.icSearch,
-                    width: 24,
-                    height: 24,
-                    colorFilter: ColorFilter.mode(
-                      resolvedIconColor,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                )
-              : null,
-          prefixIconConstraints: showSearchIcon
-              ? const BoxConstraints(
-                  minWidth: 48,
-                  minHeight: 24,
-                )
-              : null,
-          border: _border(borderColor ?? AppColors.neutral200),
-          enabledBorder: _border(borderColor ?? AppColors.neutral200),
-          focusedBorder: _border(focusedBorderColor ?? AppColors.neutral600),
-          errorBorder: _border(errorBorderColor ?? AppColors.error500),
-          focusedErrorBorder: _border(errorBorderColor ?? AppColors.error500),
-          disabledBorder: _border(disabledBorderColor ?? AppColors.neutral200),
-        ),
-      ),
+      height: resolvedHeight,
+      child: textField,
     );
   }
 

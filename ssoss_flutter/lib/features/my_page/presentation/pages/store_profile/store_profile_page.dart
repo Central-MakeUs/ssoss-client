@@ -69,13 +69,6 @@ class _StoreProfileAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (status == StoreProfileStatus.partial) {
-      return SsossAppBar.withBell(
-        title: '매장 정보',
-        onBellTap: () {},
-      );
-    }
-
     return SsossAppBar.back(
       title: '매장 정보',
       onBack: () => Navigator.of(context).pop(),
