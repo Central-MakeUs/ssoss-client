@@ -2,24 +2,42 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_recommendation_card.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
 import 'package:ssoss_flutter/common/widgets/tab/ssoss_tab_bar.dart';
 
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_edit_target.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_label_mapper.dart';
-import 'package:ssoss_flutter/features/content/presentation/models/content_result_dummy.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_result_draft.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/result/content_result_hashtag_section.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/result/content_result_section.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/result/content_result_summary.dart';
+
+typedef ContentResultEditCallback = void Function(
+  UploadChannel channel,
+  ContentEditTarget target,
+);
+
+const contentResultPhotoGuide = SsossRecommendationCardItem(
+  id: 'photo-guide',
+  label: '추천 사진',
+  title: '매장의 분위기가 담긴 사진을 추천해요.',
+  description: '방문하고 싶은 느낌을 전달하는 데 효과적이에요',
+);
 
 /// 단일 채널 결과 (스크롤 가능).
 class ContentResultSingleBody extends StatelessWidget {
   const ContentResultSingleBody({
     required this.input,
+    required this.draft,
+    required this.onEdit,
     super.key,
   });
 
   final ContentCreateInput input;
+  final ContentResultDraft draft;
+  final ContentResultEditCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +51,8 @@ class ContentResultSingleBody extends StatelessWidget {
           const SizedBox(height: 32),
           _ChannelResultSections(
             channel: channel,
-            compact: false,
-            photoGuideEnabled: input.photoGuideEnabled,
+            draft: draft.forChannel(channel),
+            onEdit: onEdit,
           ),
         ],
       ),
@@ -46,10 +64,14 @@ class ContentResultSingleBody extends StatelessWidget {
 class ContentResultMultiBody extends StatefulWidget {
   const ContentResultMultiBody({
     required this.input,
+    required this.draft,
+    required this.onEdit,
     super.key,
   });
 
   final ContentCreateInput input;
+  final ContentResultDraft draft;
+  final ContentResultEditCallback onEdit;
 
   @override
   State<ContentResultMultiBody> createState() => _ContentResultMultiBodyState();
@@ -119,12 +141,13 @@ class _ContentResultMultiBodyState extends State<ContentResultMultiBody> {
             itemCount: _orderedChannels.length,
             onPageChanged: _onPageChanged,
             itemBuilder: (context, index) {
+              final channel = _orderedChannels[index];
               return SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
                 child: _ChannelResultSections(
-                  channel: _orderedChannels[index],
-                  compact: true,
-                  photoGuideEnabled: widget.input.photoGuideEnabled,
+                  channel: channel,
+                  draft: widget.draft.forChannel(channel),
+                  onEdit: widget.onEdit,
                 ),
               );
             },
@@ -138,23 +161,16 @@ class _ContentResultMultiBodyState extends State<ContentResultMultiBody> {
 class _ChannelResultSections extends StatelessWidget {
   const _ChannelResultSections({
     required this.channel,
-    required this.compact,
-    required this.photoGuideEnabled,
+    required this.draft,
+    required this.onEdit,
   });
 
   final UploadChannel channel;
-  final bool compact;
-  final bool photoGuideEnabled;
-
-  static const _photoGuide = SsossRecommendationCardItem(
-    id: 'photo-guide',
-    label: '추천 사진',
-    title: '매장의 분위기가 담긴 사진을 추천해요.',
-    description: '방문하고 싶은 느낌을 전달하는 데 효과적이에요',
-  );
+  final ContentChannelDraft draft;
+  final ContentResultEditCallback onEdit;
 
   SsossRecommendationCardItem? get _recommendation =>
-      photoGuideEnabled ? _photoGuide : null;
+      draft.showPhotoGuide ? contentResultPhotoGuide : null;
 
   @override
   Widget build(BuildContext context) {
@@ -164,13 +180,15 @@ class _ChannelResultSections extends StatelessWidget {
         children: [
           ContentResultSection.text(
             title: '제목',
-            content: ContentResultDummy.blogTitle,
+            content: draft.title ?? '',
+            onEdit: () => onEdit(channel, ContentEditTarget.title),
           ),
           const SizedBox(height: 32),
           ContentResultSection.text(
             title: '본문',
-            content: ContentResultDummy.bodyFor(channel, compact: compact),
+            content: draft.body,
             recommendation: _recommendation,
+            onEdit: () => onEdit(channel, ContentEditTarget.body),
           ),
         ],
       );
@@ -182,12 +200,17 @@ class _ChannelResultSections extends StatelessWidget {
         children: [
           ContentResultSection.text(
             title: '본문',
-            content: ContentResultDummy.bodyFor(channel, compact: compact),
+            content: draft.body,
             recommendation: _recommendation,
+            onEdit: () => onEdit(channel, ContentEditTarget.body),
           ),
           const SizedBox(height: 32),
-          const ContentResultHashtagSection(
-            hashtags: ContentResultDummy.instagramHashtags,
+          ContentResultHashtagSection(
+            hashtags: [
+              for (final tag in draft.hashtags)
+                SsossHashtagNormalizer.display(tag),
+            ],
+            onEdit: () => onEdit(channel, ContentEditTarget.hashtags),
           ),
         ],
       );
@@ -195,8 +218,9 @@ class _ChannelResultSections extends StatelessWidget {
 
     return ContentResultSection.text(
       title: '본문',
-      content: ContentResultDummy.bodyFor(channel, compact: compact),
+      content: draft.body,
       recommendation: _recommendation,
+      onEdit: () => onEdit(channel, ContentEditTarget.body),
     );
   }
 }

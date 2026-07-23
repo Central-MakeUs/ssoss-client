@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
 
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_tone.dart';
@@ -47,14 +48,12 @@ class ContentCreateCubit extends Cubit<ContentCreateState> {
     emit(state.copyWith(forbidden: value));
   }
 
-  static const int maxKeywords = 10;
+  static const int maxKeywords = SsossHashtagLimits.maxCount;
+  static const int maxKeywordLength = SsossHashtagLimits.maxLength;
 
   void addKeyword(String raw) {
-    var text = raw.trim();
-    if (text.startsWith('#')) {
-      text = text.substring(1).trim();
-    }
-    if (text.isEmpty) {
+    final text = SsossHashtagNormalizer.normalize(raw);
+    if (text == null) {
       return;
     }
     if (state.keywords.contains(text)) {

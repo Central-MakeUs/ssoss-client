@@ -69,17 +69,26 @@ class ContentResultDummy {
 
 📍 서울 중구 을지로
 ⏰ 평일 08:00-20:00 / 주말 09:00-19:00
+''';
 
-#을지로카페 #을지로크루아상 #베이커리맛집 #크루아상 #을지로맛집
+  static const String carrotBody = '''
+을지로에서 크루아상 찾으신다면 저희 가게로 오세요 🥐
+
+매일 새벽부터 직접 만드는 버터 크루아상인데, 오늘도 오전에 다 팔렸어요. 내일은 조금 더 만들어볼게요!
+''';
+
+  static const String threadBody = '''
+매일 새벽부터 만드는 버터 크루아상, 오늘도 오전에 완판됐어요.
+
+을지로 산책 후 들르기 좋은 보니스커피에서 갓 구운 결을 만나보세요 🥐
 ''';
 
   static String bodyFor(UploadChannel channel, {required bool compact}) {
     return switch (channel) {
       UploadChannel.blog => blogBody,
-      UploadChannel.instagram ||
-      UploadChannel.carrot ||
-      UploadChannel.thread =>
-        compact ? shortSnsBody : snsBody,
+      UploadChannel.instagram => compact ? shortSnsBody : snsBody,
+      UploadChannel.carrot => carrotBody,
+      UploadChannel.thread => threadBody,
     };
   }
 }

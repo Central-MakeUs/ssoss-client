@@ -179,22 +179,28 @@ class _SsossContentsCardState extends State<SsossContentsCard> {
         ),
       SsossContentsCardRecommendationBlock(:final item) =>
         SsossRecommendationCard(item: item),
-      SsossContentsCardHashtagsBlock(:final hashtags) => Align(
-          alignment: Alignment.centerLeft,
-          child: Wrap(
-            alignment: WrapAlignment.start,
-            spacing: 6,
-            runSpacing: 8,
-            children: [
-              for (final tag in hashtags)
-                SsossTag(
-                  label: tag,
-                  type: SsossTagType.gray,
-                  showLeftIcon: false,
-                  showRightIcon: false,
-                ),
-            ],
-          ),
+      SsossContentsCardHashtagsBlock(:final hashtags) => LayoutBuilder(
+          builder: (context, constraints) {
+            return Wrap(
+              alignment: WrapAlignment.start,
+              spacing: 6,
+              runSpacing: 8,
+              children: [
+                for (final tag in hashtags)
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: constraints.maxWidth,
+                    ),
+                    child: SsossTag(
+                      label: tag,
+                      type: SsossTagType.gray,
+                      showLeftIcon: false,
+                      showRightIcon: false,
+                    ),
+                  ),
+              ],
+            );
+          },
         ),
     };
   }

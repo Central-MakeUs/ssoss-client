@@ -14,7 +14,9 @@ import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.da
 import 'package:ssoss_flutter/features/content/presentation/models/content_generation_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_mode.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_edit_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_create_page.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/content_edit_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_generating_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_other_channel_create_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_result_page.dart';
@@ -145,6 +147,17 @@ GoRouter createAppRouter(LoginBloc loginBloc) {
             return const ContentCreatePage();
           }
           return ContentResultPage(args: extra);
+        },
+      ),
+      GoRoute(
+        name: ContentEditPage.routeName,
+        path: ContentEditPage.routePath,
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is! ContentEditArgs) {
+            return const ContentCreatePage();
+          }
+          return ContentEditPage(args: extra);
         },
       ),
       GoRoute(

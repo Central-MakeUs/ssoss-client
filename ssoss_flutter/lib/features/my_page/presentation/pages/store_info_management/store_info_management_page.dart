@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
+import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_info_management/store_info_management_components.dart';
@@ -32,7 +34,6 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
   late final TextEditingController _introController;
   late final TextEditingController _menuController;
   late final TextEditingController _storeStrengthController;
-  late final TextEditingController _keywordController;
   late final TextEditingController _prohibitedContentController;
   String? _storeType;
   String _openingTime = '00:00';
@@ -48,7 +49,7 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
     '카페 라떼',
     '아이스티',
   ];
-  final List<String> _keywords = [
+  final List<String> _keywords = SsossHashtagNormalizer.stripAll([
     '#을지로카페',
     '#을지로크루아상',
     '#을지로베이커리',
@@ -58,7 +59,7 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
     '#을지로디저트',
     '#서울카페',
     '#베이커리추천',
-  ];
+  ]);
   final Map<StoreFacilityType, bool> _facilities = {
     StoreFacilityType.takeout: true,
     StoreFacilityType.reservation: true,
@@ -74,7 +75,6 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
     _introController = TextEditingController();
     _menuController = TextEditingController();
     _storeStrengthController = TextEditingController();
-    _keywordController = TextEditingController();
     _prohibitedContentController = TextEditingController();
   }
 
@@ -85,7 +85,6 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
     _introController.dispose();
     _menuController.dispose();
     _storeStrengthController.dispose();
-    _keywordController.dispose();
     _prohibitedContentController.dispose();
     super.dispose();
   }
@@ -162,7 +161,6 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
       case StoreInfoTab.content:
         return _ContentInfoForm(
           storeStrengthController: _storeStrengthController,
-          keywordController: _keywordController,
           prohibitedContentController: _prohibitedContentController,
           keywords: _keywords,
           selectedTone: _selectedTone,
@@ -201,21 +199,32 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
     setState(() => _menus.remove(menu));
   }
 
-  void _addKeyword() {
-    final rawKeyword = _keywordController.text.trim();
-    if (rawKeyword.isEmpty || _keywords.length >= 10) {
+  void _addKeyword(String raw) {
+    if (_keywords.length >= SsossHashtagLimits.maxCount) {
       return;
     }
 
-    final keyword = rawKeyword.startsWith('#') ? rawKeyword : '#$rawKeyword';
+    final keyword = SsossHashtagNormalizer.normalize(raw);
+    if (keyword == null) {
+      if (raw.trim().isNotEmpty) {
+        showSsossToast(
+          context,
+          title: '키워드는 ${SsossHashtagLimits.maxLength}자 이하로 입력해주세요',
+          type: SsossToastType.warning,
+        );
+      }
+      return;
+    }
     if (_keywords.contains(keyword)) {
+      showSsossToast(
+        context,
+        title: '이미 추가된 키워드예요',
+        type: SsossToastType.warning,
+      );
       return;
     }
 
-    setState(() {
-      _keywords.add(keyword);
-      _keywordController.clear();
-    });
+    setState(() => _keywords.add(keyword));
   }
 
   void _removeKeyword(String keyword) {
@@ -265,7 +274,6 @@ extension on StoreInfoTab {
 class _ContentInfoForm extends StatelessWidget {
   const _ContentInfoForm({
     required this.storeStrengthController,
-    required this.keywordController,
     required this.prohibitedContentController,
     required this.keywords,
     required this.selectedTone,
@@ -275,11 +283,10 @@ class _ContentInfoForm extends StatelessWidget {
   });
 
   final TextEditingController storeStrengthController;
-  final TextEditingController keywordController;
   final TextEditingController prohibitedContentController;
   final List<String> keywords;
   final StoreContentTone selectedTone;
-  final VoidCallback onAddKeyword;
+  final ValueChanged<String> onAddKeyword;
   final ValueChanged<String> onRemoveKeyword;
   final ValueChanged<StoreContentTone> onToneChanged;
 
@@ -294,19 +301,15 @@ class _ContentInfoForm extends StatelessWidget {
           hintText: '입력해주세요',
         ),
         const SizedBox(height: 32),
-        const StoreInfoSectionTitle(
+        StoreInfoSectionTitle(
           title: '매장 키워드',
-          helperText: '최대 10개',
+          helperText: SsossHashtagInput.defaultLimitHint,
         ),
         const SizedBox(height: 8),
-        StoreInfoMenuInputRow(
-          controller: keywordController,
+        SsossHashtagInput(
+          hashtags: keywords,
           hintText: 'ex) 디저트맛집',
           onAdd: onAddKeyword,
-        ),
-        const SizedBox(height: 12),
-        StoreInfoMenuTagWrap(
-          menus: keywords,
           onRemove: onRemoveKeyword,
         ),
         const SizedBox(height: 32),

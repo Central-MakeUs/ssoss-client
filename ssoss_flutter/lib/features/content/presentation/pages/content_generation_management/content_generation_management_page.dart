@@ -34,16 +34,16 @@ class _ContentGenerationManagementPageState
 
   static const List<ContentManagementItem> _initialItems = [
     ContentManagementItem(
-      id: 'content-1',
+      id: 'content-blog-1',
       date: '26.09.01',
       channel: '블로그',
       category: '정보성',
       tone: '일상형',
-      title: '을지로 크루아상 맛집 | 겹겹이 살아있는 바삭함',
+      title: '을지로 크루아상 맛집 | 겹겹이 살아있는 결, 보니스커피',
       tags: ['#을지로카페', '#을지로크루아상'],
     ),
     ContentManagementItem(
-      id: 'content-2',
+      id: 'content-blog-2',
       date: '26.08.23',
       channel: '블로그',
       category: '이벤트/할인',
@@ -52,13 +52,31 @@ class _ContentGenerationManagementPageState
       tags: ['#을지로카페', '#을지로토스트'],
     ),
     ContentManagementItem(
-      id: 'content-3',
+      id: 'content-instagram-1',
       date: '26.08.20',
-      channel: '블로그',
+      channel: '인스타그램',
       category: '정보성',
-      tone: '일상형',
-      title: '녹차라떼 리뉴얼 소식! 진하고 향긋한 맛',
-      tags: ['#을지로카페', '#녹차라떼맛집'],
+      tone: '감성형',
+      title: '겹겹이 살아있는 결 🥐 매일 아침 직접 구워내는 을지로 크루아상',
+      tags: ['#을지로카페', '#을지로크루아상', '#베이커리추천'],
+    ),
+    ContentManagementItem(
+      id: 'content-carrot-1',
+      date: '26.08.15',
+      channel: '당근',
+      category: '신메뉴/홍보',
+      tone: '홍보형',
+      title: '을지로에서 크루아상 찾으신다면 저희 가게로 오세요 🥐',
+      tags: ['#을지로맛집', '#보니스커피'],
+    ),
+    ContentManagementItem(
+      id: 'content-thread-1',
+      date: '26.08.10',
+      channel: '스레드',
+      category: '정보성',
+      tone: '정보형',
+      title: '매일 새벽부터 만드는 버터 크루아상, 오늘도 오전에 완판됐어요',
+      tags: ['#을지로디저트', '#서울카페'],
     ),
   ];
 

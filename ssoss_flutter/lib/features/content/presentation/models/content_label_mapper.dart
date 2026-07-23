@@ -36,4 +36,15 @@ class ContentLabelMapper {
   static String channelsJoined(List<UploadChannel> channels) {
     return orderedChannels(channels).map(channel).join('/');
   }
+
+  /// 한글 라벨 → [UploadChannel]. 매칭 실패 시 null.
+  static UploadChannel? channelFromLabel(String label) {
+    return switch (label) {
+      '블로그' => UploadChannel.blog,
+      '인스타그램' => UploadChannel.instagram,
+      '당근' => UploadChannel.carrot,
+      '스레드' => UploadChannel.thread,
+      _ => null,
+    };
+  }
 }
