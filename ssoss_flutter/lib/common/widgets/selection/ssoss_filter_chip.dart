@@ -23,7 +23,7 @@ class SsossFilterChip extends StatelessWidget {
     this.disabledForegroundColor,
     this.padding,
     this.borderRadius,
-    this.height = 36,
+    this.height = 40,
     this.gap = 4,
     this.icon,
     this.textStyle,
@@ -61,40 +61,40 @@ class SsossFilterChip extends StatelessWidget {
       onTap: _isInteractive ? onTap : null,
       behavior: HitTestBehavior.opaque,
       child: Container(
-          height: height,
-          padding: padding ??
-              const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 10,
-              ),
-          decoration: BoxDecoration(
-            color: resolvedBackgroundColor,
-            borderRadius: resolvedBorderRadius,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null) ...[
-                IconTheme(
-                  data: IconThemeData(
-                    color: resolvedForegroundColor,
-                    size: 16,
-                  ),
-                  child: icon!,
-                ),
-                SizedBox(width: gap),
-              ],
-              AppText(
-                label,
-                textAlign: TextAlign.center,
-                style: (textStyle ?? AppTextStyles.h8).copyWith(
-                  color: resolvedForegroundColor,
-                ),
-              ),
-            ],
-          ),
+        height: height,
+        padding: padding ??
+            const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
+        decoration: BoxDecoration(
+          color: resolvedBackgroundColor,
+          borderRadius: resolvedBorderRadius,
         ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              IconTheme(
+                data: IconThemeData(
+                  color: resolvedForegroundColor,
+                  size: 16,
+                ),
+                child: icon!,
+              ),
+              SizedBox(width: gap),
+            ],
+            AppText(
+              label,
+              textAlign: TextAlign.center,
+              style: (textStyle ?? AppTextStyles.h8).copyWith(
+                color: resolvedForegroundColor,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -112,7 +112,7 @@ class _FilterChipStyle {
     switch (state) {
       case SsossFilterChipState.normal:
         return const _FilterChipStyle(
-          backgroundColor: AppColors.white,
+          backgroundColor: AppColors.neutral100,
           foregroundColor: AppColors.neutral700,
         );
       case SsossFilterChipState.hover:

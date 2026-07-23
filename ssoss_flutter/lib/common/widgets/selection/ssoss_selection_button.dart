@@ -67,40 +67,39 @@ class SsossSelectionButton extends StatelessWidget {
       onTap: _isEnabled ? onTap : null,
       behavior: HitTestBehavior.opaque,
       child: Container(
-          height: 36,
-          padding: padding ??
-              const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 7,
-              ),
-          decoration: BoxDecoration(
-            color: resolvedBackgroundColor,
-            borderRadius: resolvedBorderRadius,
-            border: Border.all(color: resolvedBorderColor),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null) ...[
-                IconTheme(
-                  data: IconThemeData(
-                    color: resolvedForegroundColor,
-                    size: 20,
-                  ),
-                  child: icon!,
-                ),
-                SizedBox(width: gap),
-              ],
-              AppText(
-                label,
-                style: (textStyle ?? AppTextStyles.h8).copyWith(
-                  color: resolvedForegroundColor,
-                ),
-              ),
-            ],
-          ),
+        padding: padding ??
+            const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+        decoration: BoxDecoration(
+          color: resolvedBackgroundColor,
+          borderRadius: resolvedBorderRadius,
+          border: Border.all(color: resolvedBorderColor),
         ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              IconTheme(
+                data: IconThemeData(
+                  color: resolvedForegroundColor,
+                  size: 20,
+                ),
+                child: icon!,
+              ),
+              SizedBox(width: gap),
+            ],
+            AppText(
+              label,
+              style: (textStyle ?? AppTextStyles.h8).copyWith(
+                color: resolvedForegroundColor,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
