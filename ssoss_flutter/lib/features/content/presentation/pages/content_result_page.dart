@@ -78,12 +78,21 @@ class _ContentResultPageState extends State<ContentResultPage> {
     final mode = _hasRemainingChannels
         ? ContentSaveCompleteMode.continueAvailable
         : ContentSaveCompleteMode.finalSave;
+    // 저장 API 미연동: stub ID. 연동 후 저장 응답 ID로 교체한다.
+    final sourceContentId =
+        'stub-saved-${args.input.channels.map((c) => c.name).join('-')}';
     context.go(
       ContentSaveCompletePage.routePath,
       extra: ContentSaveCompleteArgs(
         mode: mode,
-        previousInput:
-            mode == ContentSaveCompleteMode.continueAvailable ? args.input : null,
+        sourceContentId:
+            mode == ContentSaveCompleteMode.continueAvailable
+                ? sourceContentId
+                : null,
+        excludedChannels:
+            mode == ContentSaveCompleteMode.continueAvailable
+                ? args.input.channels
+                : const [],
       ),
     );
   }

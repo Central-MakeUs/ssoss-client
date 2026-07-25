@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
+import 'package:ssoss_flutter/common/widgets/navigation/ssoss_navigation_bar.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_other_channel_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_mode.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_other_channel_create_page.dart';
@@ -27,14 +29,24 @@ class ContentSaveCompletePage extends StatelessWidget {
     context.go(HomePage.routePath);
   }
 
+  void _goHistory(BuildContext context) {
+    context.go(
+      HomePage.routePath,
+      extra: SsossNavigationItem.dashboard,
+    );
+  }
+
   void _goOtherChannel(BuildContext context) {
-    final previous = args.previousInput;
-    if (previous == null) {
+    final sourceContentId = args.sourceContentId;
+    if (sourceContentId == null || sourceContentId.isEmpty) {
       return;
     }
     context.go(
       ContentOtherChannelCreatePage.routePath,
-      extra: previous,
+      extra: ContentOtherChannelArgs(
+        sourceContentId: sourceContentId,
+        excludedChannels: args.excludedChannels,
+      ),
     );
   }
 
@@ -60,9 +72,10 @@ class ContentSaveCompletePage extends StatelessWidget {
               Expanded(
                 child: ContentSaveCompleteView(
                   mode: args.mode,
+                  onViewHistory: () => _goHistory(context),
                   onCreateForOtherChannel: args.mode ==
                               ContentSaveCompleteMode.continueAvailable &&
-                          args.previousInput != null
+                          args.sourceContentId != null
                       ? () => _goOtherChannel(context)
                       : null,
                 ),

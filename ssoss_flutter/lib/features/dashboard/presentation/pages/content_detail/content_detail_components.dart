@@ -6,7 +6,7 @@ import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/content_generation_management/content_generation_management_components.dart';
+import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/content_generation_management_components.dart';
 
 class ContentDetailInfoPanel extends StatelessWidget {
   const ContentDetailInfoPanel({

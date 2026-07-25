@@ -1,7 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/content_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.dart';
 
 class ContentOtherChannelCreateState {
   const ContentOtherChannelCreateState({
@@ -32,20 +34,20 @@ class ContentOtherChannelCreateState {
 class ContentOtherChannelCreateCubit
     extends Cubit<ContentOtherChannelCreateState> {
   ContentOtherChannelCreateCubit({
-    required ContentCreateInput baseInput,
-    required List<UploadChannel> completedChannels,
-  })  : _baseInput = baseInput,
+    required String sourceContentId,
+    required List<UploadChannel> excludedChannels,
+  })  : _sourceContentId = sourceContentId,
         super(
           ContentOtherChannelCreateState(
             availableChannels: UploadChannel.values
-                .where((channel) => !completedChannels.contains(channel))
+                .where((channel) => !excludedChannels.contains(channel))
                 .toList(growable: false),
           ),
         );
 
-  final ContentCreateInput _baseInput;
+  final String _sourceContentId;
 
-  ContentCreateInput get baseInput => _baseInput;
+  String get sourceContentId => _sourceContentId;
 
   void toggleChannel(UploadChannel channel) {
     if (!state.availableChannels.contains(channel)) {
@@ -72,18 +74,20 @@ class ContentOtherChannelCreateCubit
     );
   }
 
+  /// 원문 콘텐츠 ID + 선택 채널로 생성 입력을 만든다.
+  ///
+  /// purpose/tone/highlight는 API가 원문에서 조회할 예정이며,
+  /// 연동 전 더미 기본값을 채운다.
   ContentCreateInput? buildCreateInput() {
     if (!state.canSubmit) {
       return null;
     }
     return ContentCreateInput(
       channels: List<UploadChannel>.unmodifiable(state.selected),
-      purpose: _baseInput.purpose,
-      tone: _baseInput.tone,
-      highlight: _baseInput.highlight,
-      forbidden: _baseInput.forbidden,
-      keywords: _baseInput.keywords,
-      photoGuideEnabled: _baseInput.photoGuideEnabled,
+      purpose: UploadPurpose.informative,
+      tone: ContentTone.daily,
+      highlight: 'source-content',
+      sourceContentId: _sourceContentId,
     );
   }
 }

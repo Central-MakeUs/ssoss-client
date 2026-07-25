@@ -18,6 +18,7 @@ _CreateContentRequest _$CreateContentRequestFromJson(
           (json['keywords'] as List<dynamic>).map((e) => e as String).toList(),
       photoGuideEnabled: json['photoGuideEnabled'] as bool,
       forbidden: json['forbidden'] as String?,
+      sourceContentId: json['sourceContentId'] as String?,
     );
 
 Map<String, dynamic> _$CreateContentRequestToJson(
@@ -30,4 +31,5 @@ Map<String, dynamic> _$CreateContentRequestToJson(
       'keywords': instance.keywords,
       'photoGuideEnabled': instance.photoGuideEnabled,
       'forbidden': instance.forbidden,
+      'sourceContentId': instance.sourceContentId,
     };

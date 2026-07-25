@@ -6,17 +6,28 @@ import 'package:ssoss_flutter/features/home/presentation/widgets/home_tab_pages.
 
 /// 로그인 성공 후 진입하는 메인 셸 화면. 하단 네비게이션으로 탭을 전환한다.
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({
+    super.key,
+    this.initialTab = SsossNavigationItem.contentCreation,
+  });
 
   static const String routeName = 'home';
   static const String routePath = '/home';
+
+  final SsossNavigationItem initialTab;
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  SsossNavigationItem _currentItem = SsossNavigationItem.contentCreation;
+  late SsossNavigationItem _currentItem;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentItem = widget.initialTab;
+  }
 
   @override
   Widget build(BuildContext context) {

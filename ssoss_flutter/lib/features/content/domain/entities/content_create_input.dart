@@ -12,6 +12,7 @@ class ContentCreateInput {
     this.forbidden,
     this.keywords = const [],
     this.photoGuideEnabled = false,
+    this.sourceContentId,
   });
 
   final List<UploadChannel> channels;
@@ -21,4 +22,7 @@ class ContentCreateInput {
   final String? forbidden;
   final List<String> keywords;
   final bool photoGuideEnabled;
+
+  /// 다른 채널용 생성 시 원문으로 사용할 저장된 콘텐츠 ID.
+  final String? sourceContentId;
 }
