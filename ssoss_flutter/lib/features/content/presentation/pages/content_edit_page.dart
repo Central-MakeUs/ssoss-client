@@ -57,6 +57,29 @@ class _ContentEditView extends StatelessWidget {
     context.read<ContentEditCubit>().reset();
   }
 
+  Future<void> _onBack(BuildContext context) async {
+    final state = context.read<ContentEditCubit>().state;
+    if (!state.isDirty) {
+      context.pop();
+      return;
+    }
+
+    final result = await showSsossModal(
+      context,
+      title: '수정한 내용이 저장되지 않았어요',
+      message: '지금 나가면 수정한 내용은 저장되지 않아요',
+      primaryButtonLabel: '계속 수정하기',
+      secondaryButtonLabel: '나가기',
+      showButtonIcons: false,
+    );
+
+    if (result != SsossModalResult.secondary || !context.mounted) {
+      return;
+    }
+
+    context.pop();
+  }
+
   void _onSubmit(BuildContext context) {
     final editResult = context.read<ContentEditCubit>().buildResult();
     if (editResult == null) {
@@ -96,30 +119,39 @@ class _ContentEditView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ContentEditCubit, ContentEditState>(
       builder: (context, state) {
-        return Scaffold(
-          backgroundColor: AppColors.white,
-          body: SafeArea(
-            child: Column(
-              children: [
-                SsossAppBar.back(
-                  title: '콘텐츠 편집',
-                  onBack: () => context.pop(),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-                    child: _EditBody(
-                      state: state,
-                      onAddHashtag: (raw) => _onAddHashtag(context, raw),
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) {
+            if (didPop) {
+              return;
+            }
+            unawaited(_onBack(context));
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.white,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  SsossAppBar.back(
+                    title: '콘텐츠 편집',
+                    onBack: () => unawaited(_onBack(context)),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                      child: _EditBody(
+                        state: state,
+                        onAddHashtag: (raw) => _onAddHashtag(context, raw),
+                      ),
                     ),
                   ),
-                ),
-                ContentEditBottomBar(
-                  canSubmit: state.canSubmit,
-                  onReset: () => unawaited(_onReset(context)),
-                  onSubmit: () => _onSubmit(context),
-                ),
-              ],
+                  ContentEditBottomBar(
+                    canSubmit: state.canSubmit,
+                    onReset: () => unawaited(_onReset(context)),
+                    onSubmit: () => _onSubmit(context),
+                  ),
+                ],
+              ),
             ),
           ),
         );

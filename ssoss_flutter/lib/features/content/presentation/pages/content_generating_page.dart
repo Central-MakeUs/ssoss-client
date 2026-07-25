@@ -76,8 +76,8 @@ class _ContentGeneratingPageState extends State<ContentGeneratingPage> {
       context,
       title: '콘텐츠 생성을 중단할까요?',
       message: '지금 나가면 콘텐츠 생성이 중단되며\n생성 결과는 저장되지 않아요',
-      primaryButtonLabel: '중단하기',
-      secondaryButtonLabel: '취소',
+      primaryButtonLabel: '계속 생성하기',
+      secondaryButtonLabel: '중단하기',
       showButtonIcons: false,
     );
 
@@ -87,12 +87,12 @@ class _ContentGeneratingPageState extends State<ContentGeneratingPage> {
 
     _isExitModalVisible = false;
 
-    if (result == SsossModalResult.primary) {
+    if (result == SsossModalResult.secondary) {
       _goHome();
       return;
     }
 
-    // 취소·X: 모달 표시 중 생성이 끝났다면 결과 화면으로 이동
+    // 계속 생성하기·X: 모달 표시 중 생성이 끝났다면 결과 화면으로 이동
     if (_isGenerationComplete) {
       _goToResult();
     }

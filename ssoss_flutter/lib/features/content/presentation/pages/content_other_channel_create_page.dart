@@ -48,10 +48,10 @@ class _ContentOtherChannelCreateView extends StatelessWidget {
   Future<void> _confirmLeave(BuildContext context) async {
     final result = await showSsossModal(
       context,
-      title: '홈화면으로 돌아가시겠어요?',
-      message: '기존 생성 결과는 저장 되지 않아요',
-      primaryButtonLabel: '다시 생성하기',
-      secondaryButtonLabel: '취소',
+      title: '다른 채널용 생성을 종료하시겠어요?',
+      message: '선택한 채널 정보는 저장되지 않으며\n홈 화면으로 이동해요',
+      primaryButtonLabel: '홈으로 이동',
+      secondaryButtonLabel: '계속하기',
       showButtonIcons: false,
     );
 
