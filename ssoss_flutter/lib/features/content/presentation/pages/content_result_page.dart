@@ -64,6 +64,23 @@ class _ContentResultPageState extends State<ContentResultPage> {
     context.go(HomePage.routePath);
   }
 
+  Future<void> _onBack(BuildContext context) async {
+    final result = await showSsossModal(
+      context,
+      title: '생성된 콘텐츠가 저장되지 않았어요',
+      message: '지금 나가면 생성 결과는 저장되지 않아요',
+      primaryButtonLabel: '계속 진행하기',
+      secondaryButtonLabel: '나가기',
+      showButtonIcons: false,
+    );
+
+    if (result != SsossModalResult.secondary || !context.mounted) {
+      return;
+    }
+
+    _goHome(context);
+  }
+
   void _save(BuildContext context) {
     if (_isOtherChannel) {
       context.go(
@@ -85,14 +102,12 @@ class _ContentResultPageState extends State<ContentResultPage> {
       ContentSaveCompletePage.routePath,
       extra: ContentSaveCompleteArgs(
         mode: mode,
-        sourceContentId:
-            mode == ContentSaveCompleteMode.continueAvailable
-                ? sourceContentId
-                : null,
-        excludedChannels:
-            mode == ContentSaveCompleteMode.continueAvailable
-                ? args.input.channels
-                : const [],
+        sourceContentId: mode == ContentSaveCompleteMode.continueAvailable
+            ? sourceContentId
+            : null,
+        excludedChannels: mode == ContentSaveCompleteMode.continueAvailable
+            ? args.input.channels
+            : const [],
       ),
     );
   }
@@ -128,9 +143,8 @@ class _ContentResultPageState extends State<ContentResultPage> {
         initialBody: channelDraft.body,
         initialHashtags: channelDraft.hashtags,
         photoGuideEnabled: channelDraft.showPhotoGuide,
-        recommendation: channelDraft.showPhotoGuide
-            ? contentResultPhotoGuide
-            : null,
+        recommendation:
+            channelDraft.showPhotoGuide ? contentResultPhotoGuide : null,
       ),
     );
 
@@ -151,7 +165,8 @@ class _ContentResultPageState extends State<ContentResultPage> {
             result.channel,
             current.copyWith(
               body: result.body,
-              showPhotoGuide: result.photoGuidePresent ?? current.showPhotoGuide,
+              showPhotoGuide:
+                  result.photoGuidePresent ?? current.showPhotoGuide,
             ),
           );
         case ContentEditTarget.hashtags:
@@ -171,7 +186,7 @@ class _ContentResultPageState extends State<ContentResultPage> {
         if (didPop) {
           return;
         }
-        _goHome(context);
+        unawaited(_onBack(context));
       },
       child: Scaffold(
         backgroundColor: AppColors.white,
@@ -180,7 +195,7 @@ class _ContentResultPageState extends State<ContentResultPage> {
             children: [
               SsossAppBar.back(
                 title: _isOtherChannel ? '다른 채널용 생성 결과' : '콘텐츠 생성 결과',
-                onBack: () => _goHome(context),
+                onBack: () => unawaited(_onBack(context)),
               ),
               Expanded(
                 child: _isMulti
