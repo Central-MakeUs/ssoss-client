@@ -14,10 +14,12 @@ class ContentSaveCompleteView extends StatelessWidget {
     required this.mode,
     super.key,
     this.onCreateForOtherChannel,
+    this.onViewHistory,
   });
 
   final ContentSaveCompleteMode mode;
   final VoidCallback? onCreateForOtherChannel;
+  final VoidCallback? onViewHistory;
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +65,11 @@ class ContentSaveCompleteView extends StatelessWidget {
             ContentSaveCompleteMode.continueAvailable =>
               _ContinueAvailableActions(
                 onCreateForOtherChannel: onCreateForOtherChannel,
+                onViewHistory: onViewHistory,
               ),
-            ContentSaveCompleteMode.finalSave => const _FinalSaveActions(),
+            ContentSaveCompleteMode.finalSave => _FinalSaveActions(
+                onViewHistory: onViewHistory,
+              ),
           },
         ),
       ],
@@ -75,9 +80,11 @@ class ContentSaveCompleteView extends StatelessWidget {
 class _ContinueAvailableActions extends StatelessWidget {
   const _ContinueAvailableActions({
     this.onCreateForOtherChannel,
+    this.onViewHistory,
   });
 
   final VoidCallback? onCreateForOtherChannel;
+  final VoidCallback? onViewHistory;
 
   @override
   Widget build(BuildContext context) {
@@ -94,10 +101,11 @@ class _ContinueAvailableActions extends StatelessWidget {
           onPressed: onCreateForOtherChannel,
         ),
         const SizedBox(height: 12),
-        const SsossButton(
+        SsossButton(
           label: '저장 내역 보기',
           type: SsossButtonType.secondary,
           width: double.infinity,
+          onPressed: onViewHistory,
         ),
       ],
     );
@@ -105,13 +113,16 @@ class _ContinueAvailableActions extends StatelessWidget {
 }
 
 class _FinalSaveActions extends StatelessWidget {
-  const _FinalSaveActions();
+  const _FinalSaveActions({this.onViewHistory});
+
+  final VoidCallback? onViewHistory;
 
   @override
   Widget build(BuildContext context) {
-    return const SsossButton(
+    return SsossButton(
       label: '저장 내역 보기',
       width: double.infinity,
+      onPressed: onViewHistory,
     );
   }
 }

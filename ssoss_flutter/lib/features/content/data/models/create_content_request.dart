@@ -16,6 +16,7 @@ abstract class CreateContentRequest with _$CreateContentRequest {
     required List<String> keywords,
     required bool photoGuideEnabled,
     String? forbidden,
+    String? sourceContentId,
   }) = _CreateContentRequest;
 
   factory CreateContentRequest.fromEntity(ContentCreateInput input) =>
@@ -27,6 +28,7 @@ abstract class CreateContentRequest with _$CreateContentRequest {
         forbidden: input.forbidden,
         keywords: input.keywords,
         photoGuideEnabled: input.photoGuideEnabled,
+        sourceContentId: input.sourceContentId,
       );
 
   factory CreateContentRequest.fromJson(Map<String, dynamic> json) =>

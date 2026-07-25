@@ -9,9 +9,10 @@ import 'package:ssoss_flutter/features/auth/presentation/pages/login_page.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/signup/signup_complete_page.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/signup/signup_terms_page.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/splash_page.dart';
-import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
+import 'package:ssoss_flutter/common/widgets/navigation/ssoss_navigation_bar.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_generation_args.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_other_channel_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_mode.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_args.dart';
@@ -101,7 +102,16 @@ GoRouter createAppRouter(LoginBloc loginBloc) {
       GoRoute(
         name: HomePage.routeName,
         path: HomePage.routePath,
-        builder: (context, state) => const HomePage(),
+        builder: (context, state) {
+          final extra = state.extra;
+          final initialTab = extra is SsossNavigationItem
+              ? extra
+              : SsossNavigationItem.contentCreation;
+          return HomePage(
+            key: ValueKey(initialTab),
+            initialTab: initialTab,
+          );
+        },
       ),
       GoRoute(
         name: ContentCreatePage.routeName,
@@ -117,14 +127,11 @@ GoRouter createAppRouter(LoginBloc loginBloc) {
         name: ContentOtherChannelCreatePage.routeName,
         path: ContentOtherChannelCreatePage.routePath,
         builder: (context, state) {
-          final previous = state.extra;
-          if (previous is! ContentCreateInput) {
+          final extra = state.extra;
+          if (extra is! ContentOtherChannelArgs) {
             return const ContentCreatePage();
           }
-          return ContentOtherChannelCreatePage(
-            baseInput: previous,
-            completedChannels: previous.channels,
-          );
+          return ContentOtherChannelCreatePage(args: extra);
         },
       ),
       GoRoute(

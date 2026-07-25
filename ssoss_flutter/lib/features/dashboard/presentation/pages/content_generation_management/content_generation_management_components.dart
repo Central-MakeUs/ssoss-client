@@ -204,20 +204,22 @@ class ContentManagementCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.h5.copyWith(color: AppColors.black),
                   ),
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      for (final tag in item.tags)
-                        SsossTag(
-                          label: tag,
-                          type: SsossTagType.gray,
-                          showLeftIcon: false,
-                          showRightIcon: false,
-                        ),
-                    ],
-                  ),
+                  if (item.channel == '인스타그램' && item.tags.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        for (final tag in item.tags.take(2))
+                          SsossTag(
+                            label: tag,
+                            type: SsossTagType.gray,
+                            showLeftIcon: false,
+                            showRightIcon: false,
+                          ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 24),
                   SsossButton(
                     label: '콘텐츠 재활용하기',

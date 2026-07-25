@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/content_generation_management/content_generation_management_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_page.dart';
+import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/content_generation_management_page.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/my_page/my_page_page.dart';
 
 typedef HomeTabAppBarBuilder = Widget Function(BuildContext context);

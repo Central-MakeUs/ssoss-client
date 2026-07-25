@@ -8,11 +8,11 @@ import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/modal/ssoss_modal.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
-import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_other_channel_create_cubit.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_create_flow.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_generation_args.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_other_channel_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_generating_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/create/content_other_channel_info_banner.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/create/content_other_channel_select_list.dart';
@@ -21,23 +21,21 @@ import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 /// 다른 채널용 생성 — 채널 선택 화면.
 class ContentOtherChannelCreatePage extends StatelessWidget {
   const ContentOtherChannelCreatePage({
-    required this.baseInput,
-    required this.completedChannels,
+    required this.args,
     super.key,
   });
 
   static const String routeName = 'content-other-channel-create';
   static const String routePath = '/content/create/other-channel';
 
-  final ContentCreateInput baseInput;
-  final List<UploadChannel> completedChannels;
+  final ContentOtherChannelArgs args;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ContentOtherChannelCreateCubit(
-        baseInput: baseInput,
-        completedChannels: completedChannels,
+        sourceContentId: args.sourceContentId,
+        excludedChannels: args.excludedChannels,
       ),
       child: const _ContentOtherChannelCreateView(),
     );

@@ -21,6 +21,7 @@ mixin _$CreateContentRequest {
   List<String> get keywords;
   bool get photoGuideEnabled;
   String? get forbidden;
+  String? get sourceContentId;
 
   /// Create a copy of CreateContentRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -47,7 +48,9 @@ mixin _$CreateContentRequest {
             (identical(other.photoGuideEnabled, photoGuideEnabled) ||
                 other.photoGuideEnabled == photoGuideEnabled) &&
             (identical(other.forbidden, forbidden) ||
-                other.forbidden == forbidden));
+                other.forbidden == forbidden) &&
+            (identical(other.sourceContentId, sourceContentId) ||
+                other.sourceContentId == sourceContentId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -60,11 +63,12 @@ mixin _$CreateContentRequest {
       highlight,
       const DeepCollectionEquality().hash(keywords),
       photoGuideEnabled,
-      forbidden);
+      forbidden,
+      sourceContentId);
 
   @override
   String toString() {
-    return 'CreateContentRequest(channels: $channels, purpose: $purpose, tone: $tone, highlight: $highlight, keywords: $keywords, photoGuideEnabled: $photoGuideEnabled, forbidden: $forbidden)';
+    return 'CreateContentRequest(channels: $channels, purpose: $purpose, tone: $tone, highlight: $highlight, keywords: $keywords, photoGuideEnabled: $photoGuideEnabled, forbidden: $forbidden, sourceContentId: $sourceContentId)';
   }
 }
 
@@ -81,7 +85,8 @@ abstract mixin class $CreateContentRequestCopyWith<$Res> {
       String highlight,
       List<String> keywords,
       bool photoGuideEnabled,
-      String? forbidden});
+      String? forbidden,
+      String? sourceContentId});
 }
 
 /// @nodoc
@@ -104,6 +109,7 @@ class _$CreateContentRequestCopyWithImpl<$Res>
     Object? keywords = null,
     Object? photoGuideEnabled = null,
     Object? forbidden = freezed,
+    Object? sourceContentId = freezed,
   }) {
     return _then(_self.copyWith(
       channels: null == channels
@@ -133,6 +139,10 @@ class _$CreateContentRequestCopyWithImpl<$Res>
       forbidden: freezed == forbidden
           ? _self.forbidden
           : forbidden // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sourceContentId: freezed == sourceContentId
+          ? _self.sourceContentId
+          : sourceContentId // ignore: cast_nullable_to_non_nullable
               as String?,
     ));
   }
@@ -238,7 +248,8 @@ extension CreateContentRequestPatterns on CreateContentRequest {
             String highlight,
             List<String> keywords,
             bool photoGuideEnabled,
-            String? forbidden)?
+            String? forbidden,
+            String? sourceContentId)?
         $default, {
     required TResult orElse(),
   }) {
@@ -252,7 +263,8 @@ extension CreateContentRequestPatterns on CreateContentRequest {
             _that.highlight,
             _that.keywords,
             _that.photoGuideEnabled,
-            _that.forbidden);
+            _that.forbidden,
+            _that.sourceContentId);
       case _:
         return orElse();
     }
@@ -280,7 +292,8 @@ extension CreateContentRequestPatterns on CreateContentRequest {
             String highlight,
             List<String> keywords,
             bool photoGuideEnabled,
-            String? forbidden)
+            String? forbidden,
+            String? sourceContentId)
         $default,
   ) {
     final _that = this;
@@ -293,7 +306,8 @@ extension CreateContentRequestPatterns on CreateContentRequest {
             _that.highlight,
             _that.keywords,
             _that.photoGuideEnabled,
-            _that.forbidden);
+            _that.forbidden,
+            _that.sourceContentId);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -320,7 +334,8 @@ extension CreateContentRequestPatterns on CreateContentRequest {
             String highlight,
             List<String> keywords,
             bool photoGuideEnabled,
-            String? forbidden)?
+            String? forbidden,
+            String? sourceContentId)?
         $default,
   ) {
     final _that = this;
@@ -333,7 +348,8 @@ extension CreateContentRequestPatterns on CreateContentRequest {
             _that.highlight,
             _that.keywords,
             _that.photoGuideEnabled,
-            _that.forbidden);
+            _that.forbidden,
+            _that.sourceContentId);
       case _:
         return null;
     }
@@ -350,7 +366,8 @@ class _CreateContentRequest implements CreateContentRequest {
       required this.highlight,
       required final List<String> keywords,
       required this.photoGuideEnabled,
-      this.forbidden})
+      this.forbidden,
+      this.sourceContentId})
       : _channels = channels,
         _keywords = keywords;
   factory _CreateContentRequest.fromJson(Map<String, dynamic> json) =>
@@ -382,6 +399,8 @@ class _CreateContentRequest implements CreateContentRequest {
   final bool photoGuideEnabled;
   @override
   final String? forbidden;
+  @override
+  final String? sourceContentId;
 
   /// Create a copy of CreateContentRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -413,7 +432,9 @@ class _CreateContentRequest implements CreateContentRequest {
             (identical(other.photoGuideEnabled, photoGuideEnabled) ||
                 other.photoGuideEnabled == photoGuideEnabled) &&
             (identical(other.forbidden, forbidden) ||
-                other.forbidden == forbidden));
+                other.forbidden == forbidden) &&
+            (identical(other.sourceContentId, sourceContentId) ||
+                other.sourceContentId == sourceContentId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -426,11 +447,12 @@ class _CreateContentRequest implements CreateContentRequest {
       highlight,
       const DeepCollectionEquality().hash(_keywords),
       photoGuideEnabled,
-      forbidden);
+      forbidden,
+      sourceContentId);
 
   @override
   String toString() {
-    return 'CreateContentRequest(channels: $channels, purpose: $purpose, tone: $tone, highlight: $highlight, keywords: $keywords, photoGuideEnabled: $photoGuideEnabled, forbidden: $forbidden)';
+    return 'CreateContentRequest(channels: $channels, purpose: $purpose, tone: $tone, highlight: $highlight, keywords: $keywords, photoGuideEnabled: $photoGuideEnabled, forbidden: $forbidden, sourceContentId: $sourceContentId)';
   }
 }
 
@@ -449,7 +471,8 @@ abstract mixin class _$CreateContentRequestCopyWith<$Res>
       String highlight,
       List<String> keywords,
       bool photoGuideEnabled,
-      String? forbidden});
+      String? forbidden,
+      String? sourceContentId});
 }
 
 /// @nodoc
@@ -472,6 +495,7 @@ class __$CreateContentRequestCopyWithImpl<$Res>
     Object? keywords = null,
     Object? photoGuideEnabled = null,
     Object? forbidden = freezed,
+    Object? sourceContentId = freezed,
   }) {
     return _then(_CreateContentRequest(
       channels: null == channels
@@ -501,6 +525,10 @@ class __$CreateContentRequestCopyWithImpl<$Res>
       forbidden: freezed == forbidden
           ? _self.forbidden
           : forbidden // ignore: cast_nullable_to_non_nullable
+              as String?,
+      sourceContentId: freezed == sourceContentId
+          ? _self.sourceContentId
+          : sourceContentId // ignore: cast_nullable_to_non_nullable
               as String?,
     ));
   }

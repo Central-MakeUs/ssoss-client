@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_contents_card.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_contents_card_block.dart';
@@ -12,10 +13,12 @@ import 'package:ssoss_flutter/features/content/presentation/models/content_edit_
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_result.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_target.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_label_mapper.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_other_channel_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_result_dummy.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/content_detail/content_detail_components.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_edit_page.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/content_generation_management/content_generation_management_components.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/content_other_channel_create_page.dart';
+import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_detail/content_detail_components.dart';
+import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/content_generation_management_components.dart';
 
 class ContentDetailPage extends StatefulWidget {
   const ContentDetailPage({
@@ -97,6 +100,18 @@ class _ContentDetailPageState extends State<ContentDetailPage> {
     });
   }
 
+  void _openOtherChannelCreate() {
+    unawaited(
+      context.push(
+        ContentOtherChannelCreatePage.routePath,
+        extra: ContentOtherChannelArgs(
+          sourceContentId: widget.item.id,
+          excludedChannels: [_channel],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -157,7 +172,7 @@ class _ContentDetailPageState extends State<ContentDetailPage> {
                   ],
                   const SizedBox(height: 27),
                   ContentDetailActionButtons(
-                    onCreateOtherChannel: () {},
+                    onCreateOtherChannel: _openOtherChannelCreate,
                     onReuse: () {},
                   ),
                 ],
