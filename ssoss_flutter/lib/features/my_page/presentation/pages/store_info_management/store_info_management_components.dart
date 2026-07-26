@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/svg.dart';
 
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
@@ -9,6 +10,7 @@ import 'package:ssoss_flutter/common/widgets/tab/ssoss_tab_bar.dart';
 import 'package:ssoss_flutter/common/widgets/tag/ssoss_tag.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
 enum StoreInfoTab {
@@ -311,7 +313,15 @@ class StoreInfoMenuTagWrap extends StatelessWidget {
               type: SsossTagType.gray,
               showLeftIcon: false,
               showRightIcon: true,
-              icon: const Icon(Icons.close, size: 12),
+              icon: SvgPicture.asset(
+                AppAssets.icClose,
+                width: 12,
+                height: 12,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.neutral500,
+                  BlendMode.srcIn,
+                ),
+              ),
               iconSize: 12,
               backgroundColor: AppColors.neutral100,
               foregroundColor: AppColors.neutral500,

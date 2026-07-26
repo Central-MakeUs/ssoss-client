@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:ssoss_flutter/common/widgets/modal/ssoss_modal.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
 /// 추천 카드 삭제 시 feature 계층의 repository / use case를 연결한다.
@@ -144,10 +146,14 @@ class _SsossRecommendationCardState extends State<SsossRecommendationCard> {
                   Expanded(
                     child: Row(
                       children: [
-                        const Icon(
-                          Icons.image_outlined,
-                          size: 20,
-                          color: AppColors.primary500,
+                        SvgPicture.asset(
+                          AppAssets.icImage,
+                          width: 20,
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.primary500,
+                            BlendMode.srcIn,
+                          ),
                         ),
                         const SizedBox(width: 6),
                         Expanded(
@@ -165,10 +171,14 @@ class _SsossRecommendationCardState extends State<SsossRecommendationCard> {
                     GestureDetector(
                       onTap: _handleDismissTap,
                       behavior: HitTestBehavior.opaque,
-                      child: const Icon(
-                        Icons.close,
-                        size: 24,
-                        color: AppColors.neutral500,
+                      child: SvgPicture.asset(
+                        AppAssets.icClose,
+                        width: 24,
+                        height: 24,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.neutral500,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                 ],

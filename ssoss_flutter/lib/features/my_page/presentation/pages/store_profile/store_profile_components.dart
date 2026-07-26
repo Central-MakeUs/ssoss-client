@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
 enum StoreProfileStatus {
@@ -79,10 +81,14 @@ class StoreProfileTipCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.lightbulb_outline,
-                size: 20,
-                color: AppColors.primary700,
+              SvgPicture.asset(
+                AppAssets.icBulb,
+                width: 20,
+                height: 20,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.primary700,
+                  BlendMode.srcIn,
+                ),
               ),
               const SizedBox(width: 8),
               AppText(
@@ -126,10 +132,12 @@ class StoreProfileSection extends StatelessWidget {
           style: AppTextStyles.h5.copyWith(color: AppColors.black),
         ),
         const SizedBox(width: 8),
-        const Icon(
-          Icons.edit_outlined,
-          size: 20,
-          color: AppColors.primary400,
+        SvgPicture.asset(
+          AppAssets.icEdit2,
+          width: 20,
+          height: 20,
+          colorFilter:
+              const ColorFilter.mode(AppColors.primary400, BlendMode.srcIn),
         ),
       ],
     );

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
 /// 해시태그/키워드 개수·글자 수 한도.
@@ -80,10 +82,14 @@ class SsossHashtagChip extends StatelessWidget {
           GestureDetector(
             onTap: onRemove,
             behavior: HitTestBehavior.opaque,
-            child: const Icon(
-              Icons.close,
-              size: 12,
-              color: AppColors.neutral500,
+            child: SvgPicture.asset(
+              AppAssets.icClose,
+              width: 12,
+              height: 12,
+              colorFilter: const ColorFilter.mode(
+                AppColors.neutral500,
+                BlendMode.srcIn,
+              ),
             ),
           ),
         ],
@@ -143,8 +149,7 @@ class _SsossHashtagInputState extends State<SsossHashtagInput> {
     _controller.clear();
   }
 
-  bool get _canAdd =>
-      widget.hashtags.length < SsossHashtagLimits.maxCount;
+  bool get _canAdd => widget.hashtags.length < SsossHashtagLimits.maxCount;
 
   @override
   Widget build(BuildContext context) {

@@ -14,12 +14,47 @@ class AppAssets {
   static const String icChevronDown =
       'assets/icons/common/Icons.chevron_down.svg';
   static const String icChevronUp = 'assets/icons/common/Icons.chevron_up.svg';
+  static const String icChevronRight =
+      'assets/icons/common/icons.chevron_right.svg';
   static const String icBell = 'assets/icons/common/ic_bell.svg';
   static const String icSearch = 'assets/icons/common/ic_search.svg';
   static const String icRefresh = 'assets/icons/common/ic_refresh.svg';
   static const String icArrowLeft = 'assets/icons/common/ic_arrow_left.svg';
   static const String icEdit2 = 'assets/icons/common/ic_edit_2.svg';
   static const String icCopy = 'assets/icons/common/ic_copy.svg';
+  static const String icBag = 'assets/icons/common/ic_bag.svg';
+  static const String icBulb = 'assets/icons/common/ic_bulb.svg';
+  static const String icBurger = 'assets/icons/common/ic_burger.svg';
+  static const String icCalendar = 'assets/icons/common/ic_calendar.svg';
+  static const String icChange = 'assets/icons/common/ic_change.svg';
+  static const String icClose = 'assets/icons/common/ic_close.svg';
+  static const String icCheck = 'assets/icons/common/ic_check.svg';
+  static const String icCoffee = 'assets/icons/common/ic_coffee.svg';
+  static const String icCoins = 'assets/icons/common/ic_coins.svg';
+  static const String icCoupon = 'assets/icons/common/ic_coupon.svg';
+  static const String icCredit = 'assets/icons/common/ic_credit.svg';
+  static const String icCreditCard = 'assets/icons/common/ic_credit_card.svg';
+  static const String icDelete = 'assets/icons/common/ic_delete.svg';
+  static const String icFire = 'assets/icons/common/ic_fire.svg';
+  static const String icFolder = 'assets/icons/common/ic_folder.svg';
+  static const String icImage = 'assets/icons/common/ic_image.svg';
+  static const String icLink = 'assets/icons/common/ic_link.svg';
+  static const String icLocation = 'assets/icons/common/ic_location.svg';
+  static const String icMoreHorizontal =
+      'assets/icons/common/ic_more_horizontal.svg';
+  static const String icMoreVertical =
+      'assets/icons/common/ic_more_vertical.svg';
+  static const String icParking = 'assets/icons/common/ic_parking.svg';
+  static const String icPhone = 'assets/icons/common/ic_phone.svg';
+  static const String icReceipt = 'assets/icons/common/ic_receipt.svg';
+  static const String icReset = 'assets/icons/common/ic_reset.svg';
+  static const String icSale = 'assets/icons/common/ic_sale.svg';
+  static const String icSettings = 'assets/icons/common/ic_settings.svg';
+  static const String icShare = 'assets/icons/common/ic_share.svg';
+  static const String icSort = 'assets/icons/common/ic_sort.svg';
+  static const String icStore = 'assets/icons/common/ic_store.svg';
+  static const String icTimeSquare = 'assets/icons/common/ic_time_square.svg';
+  static const String icWithdraw = 'assets/icons/common/ic_withdraw.svg';
   static const String icRadioUnchecked =
       'assets/icons/common/ic_radio_unchecked.svg';
   static const String icRadioChecked =

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_recent_item.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/home/content_recent_list_item.dart';
@@ -61,10 +63,14 @@ class ContentRecentSection extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      const Icon(
-                        Icons.chevron_right,
-                        size: 18,
-                        color: AppColors.neutral500,
+                      SvgPicture.asset(
+                        AppAssets.icChevronRight,
+                        width: 18,
+                        height: 18,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.neutral500,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ],
                   ),

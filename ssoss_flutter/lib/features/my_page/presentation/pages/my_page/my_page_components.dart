@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/tag/ssoss_tag.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
 class MyPageStoreSummaryCard extends StatelessWidget {
@@ -71,10 +73,14 @@ class MyPageStoreSummaryCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(
-                  Icons.chevron_right,
-                  size: 24,
-                  color: AppColors.neutral400,
+                SvgPicture.asset(
+                  AppAssets.icChevronRight,
+                  width: 24,
+                  height: 24,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.neutral400,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ],
             ),
@@ -85,10 +91,14 @@ class MyPageStoreSummaryCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 16),
             child: Row(
               children: [
-                const Icon(
-                  Icons.monetization_on_outlined,
-                  size: 20,
-                  color: AppColors.neutral500,
+                SvgPicture.asset(
+                  AppAssets.icCredit,
+                  width: 20,
+                  height: 20,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.neutral500,
+                    BlendMode.srcIn,
+                  ),
                 ),
                 const SizedBox(width: 6),
                 AppText(
@@ -269,10 +279,14 @@ class StoreInfoManagementTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 4),
-            const Icon(
-              Icons.chevron_right,
-              size: 20,
-              color: AppColors.neutral400,
+            SvgPicture.asset(
+              AppAssets.icChevronRight,
+              width: 20,
+              height: 20,
+              colorFilter: const ColorFilter.mode(
+                AppColors.neutral400,
+                BlendMode.srcIn,
+              ),
             ),
           ],
         ),
