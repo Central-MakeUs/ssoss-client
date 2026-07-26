@@ -103,8 +103,8 @@ class _ExpandToggleButton extends StatelessWidget {
               child: Center(
                 child: SvgPicture.asset(
                   isExpanded ? AppAssets.icChevronUp : AppAssets.icChevronDown,
-                  width: 10,
-                  height: 5,
+                  width: 20,
+                  height: 20,
                   colorFilter: const ColorFilter.mode(
                     AppColors.neutral500,
                     BlendMode.srcIn,
