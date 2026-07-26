@@ -26,4 +26,8 @@ sealed class LoginEvent with _$LoginEvent {
   /// 회원가입 완료 화면 확인 — 홈으로 이동.
   const factory LoginEvent.signupCompleteAcknowledged() =
       SignupCompleteAcknowledged;
+
+  /// 탈퇴 완료 화면 확인 — 로그인 화면으로 이동.
+  const factory LoginEvent.withdrawCompleteAcknowledged() =
+      WithdrawCompleteAcknowledged;
 }

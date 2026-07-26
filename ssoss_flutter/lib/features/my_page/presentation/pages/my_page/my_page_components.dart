@@ -223,6 +223,7 @@ class StoreInfoManagementTile extends StatelessWidget {
             Container(
               width: 40,
               height: 40,
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: AppColors.primary50,
                 borderRadius: BorderRadius.circular(8),

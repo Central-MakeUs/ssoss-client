@@ -75,7 +75,7 @@
   - `toEntity()` extension: provider → `SocialProvider` 매핑
 - [x] **2-3** `data/models/user_model.dart` — `toEntity(SocialProvider provider)` 시그니처 변경
 - [x] **2-4** `data/models/auth_response_model.dart` — `toEntity(SocialProvider provider)` 시그니처 변경
-- [x] **2-5** `data/models/social_login_request.dart` — Apple credential 필드 확장 (`identityToken`, `authorizationCode`) — **Phase 7** 백엔드 연동용
+- [x] **2-5** `data/models/social_login_request.dart` — `accessToken` + `refreshToken` (apple: identityToken / authorizationCode) — **Phase 7** 백엔드 연동용
 - [x] **2-6** `build_runner.sh` 실행하여 `*.g.dart`, `*.freezed.dart` 생성
   ```bash
   ./script/build_runner.sh
@@ -174,7 +174,7 @@
 
 - [x] **7-1** `env/.env.*` 의 `API_BASE_URL` 확정 (네이버 Phase 7-1 과 공유)
 - [x] **7-2** 에러 코드·DTO·`AuthRemoteDatasourceImpl` (네이버 Phase 7-2~7-4 와 공유)
-- [x] **7-3** `loginWithApple()` — `POST /v1/social-logins/apple` body `{ accessToken: identityToken }`
+- [x] **7-3** `loginWithApple()` — `POST /v1/social-logins/apple` body `{ accessToken: identityToken, refreshToken: authorizationCode }`
 - [x] **7-4** Dio 인터셉터·세션 만료 UX (네이버 Phase 7-6~7-7 과 공유)
 - [x] **7-5** DI: Demo → 실구현 전환 (네이버 Phase 7-5·7-8 과 공유)
 - [ ] **7-6** FR-02·FR-07 동작 검증 (실기기/스테이징 수동 검증)
@@ -195,13 +195,14 @@
 
 ---
 
-## Follow-up — 탈퇴 확인 페이지
+## Follow-up — 탈퇴 사유·완료 UX / 사유 API
 
-> 현재는 설정 `SsossModal`(`탈퇴하시겠어요?`). 추후 전용 페이지로 교체. 상세는 [`naver-login/tasks.md`](../naver-login/tasks.md) Follow-up 과 공유.
+> [`naver-login/tasks.md`](../naver-login/tasks.md) Follow-up 과 공유.
 
-- [ ] **F-1** 탈퇴 확인 전용 페이지 추가
-- [ ] **F-2** 설정 → 확인 페이지 → `withdrawRequested`
-- [ ] **F-3** 모달 확인 UX 제거
+- [x] **F-1** 탈퇴 사유 페이지 (`WithdrawReasonPage`)
+- [x] **F-2** 설정 모달 → 사유 페이지 → 완료 화면 → 로그인
+- [x] **F-3** 모달에서 직접 `performWithdraw` 제거
+- [ ] **F-4~F-7** 탈퇴 사유 저장 API 연동 (서버 스펙 대기) — 상세는 naver-login Follow-up
 
 ---
 
@@ -210,7 +211,7 @@
 > naver-login Phase 10 과 공유.
 
 - [x] **10-1** `loginWithApple` PENDING → 약관 화면 라우팅
-- [x] **10-2** Apple 이메일 `SharedPreferences` 저장·복원
+- [x] ~~**10-2** Apple 이메일 `SharedPreferences` 저장·복원~~ — **제거됨** (SDK email만 세션 캐시에 저장, 서버가 소셜 이메일 수집)
 - [x] **10-3** `SignupTermsPage` / `SignupCompletePage` (공유)
 - [ ] **10-4** 실기기/스테이징 수동 검증
 
@@ -254,5 +255,7 @@
 | 2026-07-07 | Apple credential revoke는 서버 처리. 클라이언트 `logoutAndDeleteToken` 미사용 (Out of Scope) | Open |
 | 2026-07-07 | Apple 로그인 버튼은 iOS 전용. Android Apple Sign In은 후속 스펙 | Open |
 | 2026-07-15 | OpenAPI 확정. Apple identityToken 을 `accessToken` 필드로 전달. 탈퇴는 Phase 8 | Resolved |
-| 2026-07-22 | Phase 8 공유 구현: status·탈퇴·복구·설정 연동. 탈퇴 확인 페이지 Follow-up | Open |
-| 2026-07-22 | Phase 10 공유: PENDING signup, Apple 이메일 SharedPreferences | Open |
+| 2026-07-22 | Phase 8 공유 구현: status·탈퇴·복구·설정 연동. 탈퇴 확인 페이지 Follow-up | Superseded |
+| 2026-07-27 | 탈퇴 사유·완료 UI 반영. 사유 저장 API는 서버 스펙 대기 (naver Follow-up F-4~F-7) | Open |
+| 2026-07-22 | Phase 10 공유: PENDING signup, Apple 이메일 SharedPreferences | Superseded |
+| 2026-07-27 | 소셜 로그인 body에 `refreshToken`(authorizationCode) 필수 추가. Apple 이메일 SharedPreferences 저장·복원 제거 | Resolved |

@@ -89,8 +89,9 @@ class SsossButton extends StatefulWidget {
 class _SsossButtonState extends State<SsossButton> {
   bool _isPressed = false;
 
-  /// `enabled`만으로 시각적 활성 상태를 결정한다. `onPressed`가 없어도 기본 스타일을 유지한다.
-  bool get _isVisuallyEnabled => widget.enabled;
+  /// `enabled`·`isLoading`으로 시각적 활성 상태를 결정한다.
+  /// 로딩 중에는 disabled 컬러를 적용한다.
+  bool get _isVisuallyEnabled => widget.enabled && !widget.isLoading;
 
   /// 탭·프레스 피드백은 콜백이 있을 때만 동작한다.
   bool get _isInteractive =>

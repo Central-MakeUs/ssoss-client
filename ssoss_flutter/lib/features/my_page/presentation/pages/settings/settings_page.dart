@@ -1,14 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/modal/ssoss_modal.dart';
-import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/app_urls.dart';
 import 'package:ssoss_flutter/features/auth/presentation/bloc/login_bloc.dart';
-import 'package:ssoss_flutter/features/auth/presentation/bloc/login_event.dart';
-import 'package:ssoss_flutter/features/auth/presentation/bloc/login_state.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/settings/settings_components.dart';
+import 'package:ssoss_flutter/features/my_page/presentation/pages/withdraw/withdraw_reason_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -18,31 +20,17 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginBloc, LoginState>(
-      listenWhen: (previous, current) => current is LoginFailure,
-      listener: (context, state) {
-        if (state is! LoginFailure) {
-          return;
-        }
-        showSsossToast(
-          context,
-          title: state.message,
-          type: SsossToastType.error,
-        );
-        context.read<LoginBloc>().add(const LoginEvent.failureAcknowledged());
-      },
-      child: Scaffold(
-        backgroundColor: AppColors.white,
-        body: SafeArea(
-          child: Column(
-            children: [
-              SsossAppBar.back(
-                title: '설정',
-                onBack: () => Navigator.of(context).pop(),
-              ),
-              const Expanded(child: SettingsBody()),
-            ],
-          ),
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            SsossAppBar.back(
+              title: '설정',
+              onBack: () => Navigator.of(context).pop(),
+            ),
+            const Expanded(child: SettingsBody()),
+          ],
         ),
       ),
     );
@@ -67,12 +55,27 @@ class SettingsBody extends StatelessWidget {
   Future<void> _onWithdraw(BuildContext context) async {
     await showSsossModal(
       context,
-      title: '탈퇴하시겠어요?',
+      title: '정말 탈퇴하시겠습니까?',
+      message: '탈퇴하면 저장한 콘텐츠와 계정 정보가\n모두 삭제되며 삭제된 정보는 복구할 수 없어요',
       primaryButtonLabel: '탈퇴하기',
+      primaryButtonColor: AppColors.error700,
       secondaryButtonLabel: '취소',
       showButtonIcons: false,
-      onPrimaryPressedAsync: () => context.read<LoginBloc>().performWithdraw(),
+      onPrimaryPressed: () {
+        unawaited(
+          Navigator.of(context, rootNavigator: true).push(
+            MaterialPageRoute<void>(
+              builder: (_) => const WithdrawReasonPage(),
+            ),
+          ),
+        );
+      },
     );
+  }
+
+  Future<void> _onPrivacyPolicy() async {
+    final uri = Uri.parse(AppUrls.privacyPolicy);
+    await launchUrl(uri);
   }
 
   @override
@@ -83,7 +86,7 @@ class SettingsBody extends StatelessWidget {
         children: [
           SettingsMenuItem(
             label: '개인정보 처리방침',
-            onTap: () {},
+            onTap: () => unawaited(_onPrivacyPolicy()),
           ),
           const SizedBox(height: 10),
           SettingsMenuItem(

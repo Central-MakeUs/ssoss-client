@@ -8,7 +8,6 @@ import '../../domain/entities/social_provider.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/apple_auth_datasource.dart';
-import '../datasources/apple_email_local_datasource.dart';
 import '../datasources/auth_local_datasource.dart';
 import '../datasources/auth_remote_datasource.dart';
 import '../datasources/naver_auth_datasource.dart';
@@ -23,27 +22,30 @@ class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl({
     required NaverAuthDatasource naverDatasource,
     required AppleAuthDatasource appleDatasource,
-    required AppleEmailLocalDatasource appleEmailLocalDatasource,
     required AuthRemoteDatasource remoteDatasource,
     required AuthLocalDatasource localDatasource,
   })  : _naverDatasource = naverDatasource,
         _appleDatasource = appleDatasource,
-        _appleEmailLocalDatasource = appleEmailLocalDatasource,
         _remoteDatasource = remoteDatasource,
         _localDatasource = localDatasource;
 
   final NaverAuthDatasource _naverDatasource;
   final AppleAuthDatasource _appleDatasource;
-  final AppleEmailLocalDatasource _appleEmailLocalDatasource;
   final AuthRemoteDatasource _remoteDatasource;
   final AuthLocalDatasource _localDatasource;
 
   @override
   Future<AuthSession> loginWithNaver() async {
     final account = await _naverDatasource.login();
+    if (account.refreshToken.isEmpty) {
+      throw AuthException.socialFailed('네이버 리프레시 토큰을 가져오지 못했습니다.');
+    }
     final loginResponse = await _remoteDatasource.socialLogin(
       provider: 'naver',
-      request: SocialLoginRequest(accessToken: account.accessToken),
+      request: SocialLoginRequest(
+        accessToken: account.accessToken,
+        refreshToken: account.refreshToken,
+      ),
     );
     final resolved = await _resolveLoginResponse(loginResponse);
     final session = AuthSession(
@@ -75,22 +77,26 @@ class AuthRepositoryImpl implements AuthRepository {
     if (identityToken == null || identityToken.isEmpty) {
       throw AuthException.socialFailed('Apple identity token 을 가져오지 못했습니다.');
     }
-
-    final email = await _resolveAppleEmail(
-      userIdentifier: account.userIdentifier,
-      email: account.email,
-    );
+    final authorizationCode = account.authorizationCode;
+    if (authorizationCode == null || authorizationCode.isEmpty) {
+      throw AuthException.socialFailed(
+        'Apple authorization code 를 가져오지 못했습니다.',
+      );
+    }
 
     final loginResponse = await _remoteDatasource.socialLogin(
       provider: 'apple',
-      request: SocialLoginRequest(accessToken: identityToken),
+      request: SocialLoginRequest(
+        accessToken: identityToken,
+        refreshToken: authorizationCode,
+      ),
     );
     final resolved = await _resolveLoginResponse(loginResponse);
     final session = AuthSession(
       user: User(
         id: account.userIdentifier,
         nickname: account.nickname,
-        email: email,
+        email: account.email,
         provider: SocialProvider.apple,
       ),
       tokens: resolved.token.toEntity(),
@@ -187,20 +193,6 @@ class AuthRepositoryImpl implements AuthRepository {
     final token = await _remoteDatasource.refresh(refreshToken);
     await _localDatasource.updateTokens(token);
     return token.toEntity();
-  }
-
-  Future<String?> _resolveAppleEmail({
-    required String userIdentifier,
-    required String? email,
-  }) async {
-    if (email != null && email.isNotEmpty) {
-      await _appleEmailLocalDatasource.saveEmail(
-        userIdentifier: userIdentifier,
-        email: email,
-      );
-      return email;
-    }
-    return _appleEmailLocalDatasource.readEmail(userIdentifier);
   }
 
   Future<({AuthTokenModel token, MemberStatus memberStatus})>

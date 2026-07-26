@@ -78,11 +78,11 @@
 
 ### Models
 
-- [x] **2-1** `data/models/naver_account_model.dart` — 네이버 SDK 결과(accessToken, id, nickname, email?, profileImage?)
+- [x] **2-1** `data/models/naver_account_model.dart` — 네이버 SDK 결과(accessToken, refreshToken, id, nickname, email?, profileImage?)
 - [x] **2-2** `data/models/user_model.dart` (`@freezed`, `@JsonSerializable`) + `toEntity()`
 - [x] **2-3** `data/models/auth_token_model.dart` (accessToken, refreshToken, expiresIn) + `toEntity()`
 - [x] **2-4** `data/models/auth_response_model.dart` (user + token) + `toEntity()`
-- [x] **2-5** `data/models/social_login_request.dart` (provider, accessToken) — 백엔드 요청용 (Phase 7)
+- [x] **2-5** `data/models/social_login_request.dart` (accessToken, refreshToken) — 백엔드 요청용 (Phase 7)
 - [x] **2-6** `build_runner.sh` 실행하여 `*.g.dart`, `*.freezed.dart` 생성
   ```bash
   ./script/build_runner.sh
@@ -186,7 +186,7 @@
 - [x] **7-1** `env/.env.*` 의 `API_BASE_URL` 확정 (`https://api.ssoss.site` 등)
 - [x] **7-2** 확장 가능한 에러 코드 계층 (`ErrorResponse`, `ApiErrorCode`, Dio → `AppException` 매퍼)
 - [x] **7-3** DTO·엔드포인트 OpenAPI 반영
-  - `POST /v1/social-logins/{provider}` — body `{ accessToken }`
+  - `POST /v1/social-logins/{provider}` — body `{ accessToken, refreshToken }` (둘 다 필수)
   - `POST /v1/tokens` — body `{ refreshToken }` (RTR)
   - `POST /v1/logout` — body `{ refreshToken }` (멱등 204)
 - [x] **7-4** `auth_remote_datasource_impl.dart` — Dio 로 login / refresh / logout 구현
@@ -222,13 +222,17 @@
 
 ---
 
-## Follow-up — 탈퇴 확인 페이지
+## Follow-up — 탈퇴 사유·완료 UX / 사유 API
 
-> 현재는 설정에서 `SsossModal`(`탈퇴하시겠어요?`)로 확인한다. 추후 전용 페이지로 교체한다.
+> 탈퇴 사유·완료 UI는 반영됨. 사유 저장 API는 서버 스펙 확정 후 연동한다.
 
-- [ ] **F-1** 탈퇴 확인 전용 페이지 추가 (`my_page` 또는 `auth`)
-- [ ] **F-2** 설정 「탈퇴하기」→ 확인 페이지 이동 → 최종 확인 후 `withdrawRequested`
-- [ ] **F-3** 모달 확인 UX 제거
+- [x] **F-1** 탈퇴 사유 페이지 추가 (`WithdrawReasonPage` — `SsossRadio` + 기타 `SsossTextField`)
+- [x] **F-2** 설정 모달 「탈퇴하기」→ 사유 페이지 → `performWithdraw` → `/withdraw/complete` → 2초 후 로그인
+- [x] **F-3** 모달에서 직접 `performWithdraw` 호출 제거 (사유 페이지로 이동만)
+- [ ] **F-4** 탈퇴 사유 저장 API 서버 스펙 확정 (`reasonCode` / `reasonDetail`, `tdd.md` 6장 초안)
+- [ ] **F-5** `WithdrawRequestModel`(가칭) + `AuthRemoteDatasource.withdraw(reason…)` 시그니처 확장
+- [ ] **F-6** `AuthRepository` / `WithdrawUseCase` / `LoginEvent.withdrawRequested` 에 사유 전달
+- [ ] **F-7** `WithdrawReasonPage` 선택값 → API 매핑 후 전송 (로딩·실패 UX 기존 유지)
 
 ---
 
@@ -278,4 +282,6 @@
 | 2026-07-03 | 네이버 키는 iOS/Android 네이티브 secret 파일로 관리(설정 완료). Dart/env 에 네이버 키 불필요 | Resolved |
 | 2026-07-07 | 탈퇴 시 네이버 연동 revoke는 서버 처리. 클라이언트는 로컬 세션 삭제만 (`logoutAndDeleteToken` 제거) | Resolved |
 | 2026-07-15 | OpenAPI 확정: `/v1/social-logins/{provider}`, `/v1/tokens`, `/v1/logout`. 탈퇴는 Phase 8 분리 | Resolved |
-| 2026-07-22 | Phase 10: PENDING signup 플로우, Apple 이메일 SharedPreferences | Open |
+| 2026-07-22 | Phase 10: PENDING signup 플로우, Apple 이메일 SharedPreferences | Superseded |
+| 2026-07-27 | 소셜 로그인 body에 `refreshToken` 필수 추가 (naver refresh / apple authorizationCode). Apple 이메일 SharedPreferences 저장·복원 제거 | Resolved |
+| 2026-07-27 | 탈퇴 사유·완료 UI 반영. 사유 저장 API는 서버 스펙 대기 (Follow-up F-4~F-7) | Open |

@@ -8,6 +8,7 @@ import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_checkbox.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/app_urls.dart';
 import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/auth/domain/entities/social_provider.dart';
@@ -108,8 +109,6 @@ class _SignupTermsView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SignupProviderHeader(provider: provider),
-                        const SizedBox(height: 18),
-                        SignupEmailField(email: email),
                         const SizedBox(height: 40),
                         SsossCheckbox(
                           isChecked: state.agreeAll,
@@ -149,7 +148,9 @@ class _SignupTermsView extends StatelessWidget {
                                 onTap: cubit.toggleServiceTerms,
                               ),
                             ),
-                            const SignupTermsViewLink(),
+                            const SignupTermsViewLink(
+                              url: AppUrls.serviceTerms,
+                            ),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -167,7 +168,9 @@ class _SignupTermsView extends StatelessWidget {
                                 onTap: cubit.togglePrivacyPolicy,
                               ),
                             ),
-                            const SignupTermsViewLink(),
+                            const SignupTermsViewLink(
+                              url: AppUrls.privacyPolicy,
+                            ),
                           ],
                         ),
                       ],
