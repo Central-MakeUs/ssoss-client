@@ -2,6 +2,8 @@
 class AppAssets {
   const AppAssets._();
 
+  static const String brandApple = 'assets/icons/brand/apple.svg';
+  static const String brandNaver = 'assets/icons/brand/naver.svg';
   static const String brandNaverBlog =
       'assets/icons/brand/brand_naver_blog.svg';
   static const String brandDaangn = 'assets/icons/brand/brand_daangn.png';

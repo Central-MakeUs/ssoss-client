@@ -19,7 +19,11 @@ class SsossModal extends StatelessWidget {
     this.message,
     this.onClose,
     this.primaryButtonLabel = 'Button',
+    this.primaryButtonColor = AppColors.primary400,
+    this.primaryButtonTextColor = AppColors.white,
     this.secondaryButtonLabel = 'Button',
+    this.secondaryButtonColor = AppColors.neutral100,
+    this.secondaryButtonTextColor = AppColors.black,
     this.onPrimaryPressed,
     this.onSecondaryPressed,
     this.showButtonIcons = true,
@@ -46,7 +50,11 @@ class SsossModal extends StatelessWidget {
   final String? message;
   final VoidCallback? onClose;
   final String primaryButtonLabel;
+  final Color primaryButtonColor;
+  final Color primaryButtonTextColor;
   final String secondaryButtonLabel;
+  final Color secondaryButtonColor;
+  final Color secondaryButtonTextColor;
   final VoidCallback? onPrimaryPressed;
   final VoidCallback? onSecondaryPressed;
   final bool showButtonIcons;
@@ -119,6 +127,8 @@ class SsossModal extends StatelessWidget {
         Expanded(
           child: SsossButton(
             label: secondaryButtonLabel,
+            backgroundColor: secondaryButtonColor,
+            foregroundColor: secondaryButtonTextColor,
             size: SsossButtonSize.medium,
             type: SsossButtonType.neutral,
             width: double.infinity,
@@ -132,6 +142,8 @@ class SsossModal extends StatelessWidget {
         Expanded(
           child: SsossButton(
             label: primaryButtonLabel,
+            backgroundColor: primaryButtonColor,
+            foregroundColor: primaryButtonTextColor,
             size: SsossButtonSize.medium,
             type: SsossButtonType.primary,
             width: double.infinity,
@@ -152,7 +164,11 @@ Future<SsossModalResult?> showSsossModal(
   required String title,
   String? message,
   String primaryButtonLabel = 'Button',
+  Color primaryButtonColor = AppColors.primary400,
+  Color primaryButtonTextColor = AppColors.white,
   String secondaryButtonLabel = 'Button',
+  Color secondaryButtonColor = AppColors.neutral100,
+  Color secondaryButtonTextColor = AppColors.black,
   VoidCallback? onPrimaryPressed,
   VoidCallback? onSecondaryPressed,
   Future<void> Function()? onPrimaryPressedAsync,
@@ -190,6 +206,10 @@ Future<SsossModalResult?> showSsossModal(
       }
 
       Widget buildModal({
+        required Color primaryButtonColor,
+        required Color secondaryButtonColor,
+        required Color primaryButtonTextColor,
+        required Color secondaryButtonTextColor,
         required bool isPrimaryLoading,
         required bool isActionsDisabled,
         required VoidCallback? onPrimaryTap,
@@ -200,7 +220,11 @@ Future<SsossModalResult?> showSsossModal(
           title: title,
           message: message,
           primaryButtonLabel: primaryButtonLabel,
+          primaryButtonColor: primaryButtonColor,
+          primaryButtonTextColor: primaryButtonTextColor,
           secondaryButtonLabel: secondaryButtonLabel,
+          secondaryButtonColor: secondaryButtonColor,
+          secondaryButtonTextColor: secondaryButtonTextColor,
           showButtonIcons: showButtonIcons,
           isPrimaryLoading: isPrimaryLoading,
           isActionsDisabled: isActionsDisabled,
@@ -259,6 +283,10 @@ Future<SsossModalResult?> showSsossModal(
             }
 
             return buildModal(
+              primaryButtonColor: primaryButtonColor,
+              secondaryButtonColor: secondaryButtonColor,
+              primaryButtonTextColor: primaryButtonTextColor,
+              secondaryButtonTextColor: secondaryButtonTextColor,
               isPrimaryLoading: isPrimaryLoading,
               isActionsDisabled: isActionsDisabled,
               onPrimaryTap: isActionsDisabled ? null : handlePrimaryPressed,
@@ -279,6 +307,10 @@ Future<SsossModalResult?> showSsossModal(
         );
       } else {
         modal = buildModal(
+          primaryButtonColor: primaryButtonColor,
+          secondaryButtonColor: secondaryButtonColor,
+          primaryButtonTextColor: primaryButtonTextColor,
+          secondaryButtonTextColor: secondaryButtonTextColor,
           isPrimaryLoading: false,
           isActionsDisabled: false,
           onPrimaryTap: () {

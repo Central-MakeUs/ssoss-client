@@ -9,9 +9,11 @@ part of 'social_login_request.dart';
 _SocialLoginRequest _$SocialLoginRequestFromJson(Map<String, dynamic> json) =>
     _SocialLoginRequest(
       accessToken: json['accessToken'] as String,
+      refreshToken: json['refreshToken'] as String,
     );
 
 Map<String, dynamic> _$SocialLoginRequestToJson(_SocialLoginRequest instance) =>
     <String, dynamic>{
       'accessToken': instance.accessToken,
+      'refreshToken': instance.refreshToken,
     };

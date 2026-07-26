@@ -32,18 +32,23 @@ class NaverAuthDatasourceImpl implements NaverAuthDatasource {
       );
     }
 
-    final token = await _resolveAccessToken(result);
+    final token = await _resolveToken(result);
     final account = await _resolveAccount(result);
 
+    final accessPreview = token?.accessToken;
     dev.log(
-      '[login] token=${token?.substring(0, token.length.clamp(0, 8))}… '
+      '[login] token=${accessPreview == null ? 'null' : '${accessPreview.substring(0, accessPreview.length.clamp(0, 8))}…'} '
       'accountId=${account?.id}',
       name: _tag,
     );
 
-    if (token != null && token.isNotEmpty && account?.id?.isNotEmpty == true) {
+    if (token != null &&
+        token.accessToken.isNotEmpty &&
+        token.refreshToken.isNotEmpty &&
+        account?.id?.isNotEmpty == true) {
       return NaverAccountModel.fromResult(
-        accessToken: token,
+        accessToken: token.accessToken,
+        refreshToken: token.refreshToken,
         account: account!,
       );
     }
@@ -73,17 +78,19 @@ class NaverAuthDatasourceImpl implements NaverAuthDatasource {
     await FlutterNaverLogin.logOut();
   }
 
-  Future<String?> _resolveAccessToken(NaverLoginResult result) async {
-    final tokenFromResult = result.accessToken?.accessToken;
-    dev.log('[resolveAccessToken] tokenFromResult=$tokenFromResult',
-        name: _tag);
-    if (tokenFromResult != null && tokenFromResult.isNotEmpty) {
+  Future<NaverToken?> _resolveToken(NaverLoginResult result) async {
+    final tokenFromResult = result.accessToken;
+    if (tokenFromResult != null &&
+        tokenFromResult.accessToken.isNotEmpty &&
+        tokenFromResult.refreshToken.isNotEmpty) {
       return tokenFromResult;
     }
 
     final NaverToken token = await FlutterNaverLogin.getCurrentAccessToken();
-    if (token.accessToken.isEmpty) return null;
-    return token.accessToken;
+    if (token.accessToken.isEmpty || token.refreshToken.isEmpty) {
+      return null;
+    }
+    return token;
   }
 
   Future<NaverAccountResult?> _resolveAccount(NaverLoginResult result) async {

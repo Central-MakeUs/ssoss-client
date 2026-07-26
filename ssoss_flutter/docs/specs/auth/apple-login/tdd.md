@@ -142,7 +142,7 @@ abstract class AuthRepository {
 | `data/models/stored_auth_cache_model.dart` | **`StoredAuthCacheModel`** | (로컬 세션 캐시) | `@freezed` + `@JsonSerializable` |
 | `data/models/user_model.dart` | `UserModel` | `User` | `@freezed` + `@JsonSerializable` (**`toEntity(SocialProvider)` 수정**) |
 | `data/models/auth_token_model.dart` | `AuthTokenModel` | `AuthTokens` | `@freezed` + `@JsonSerializable` |
-| `data/models/social_login_request.dart` | `SocialLoginRequest` | (요청 전용) | `@freezed` + `@JsonSerializable` (**Apple 필드 Phase 7 확장**) |
+| `data/models/social_login_request.dart` | `SocialLoginRequest` | (요청 전용) | `@freezed` + `@JsonSerializable` (`accessToken` + `refreshToken`) |
 | `data/models/auth_response_model.dart` | `AuthResponseModel` | `AuthSession` | `@freezed` + `@JsonSerializable` |
 
 **신규 Model 정의**
@@ -411,27 +411,31 @@ sealed class LoginEvent with _$LoginEvent {
 
 | 메서드 | 엔드포인트 | 설명 | 인증 필요 |
 |--------|-----------|------|---------|
-| `POST` | `/v1/social-logins/apple` | Apple identityToken → `status` + JWT 쌍 | N |
+| `POST` | `/v1/social-logins/apple` | identityToken + authorizationCode → `status` + JWT 쌍 | N |
 | `POST` | `/v1/tokens` | refresh 재발급 (RTR) | N |
 | `POST` | `/v1/logout` | refresh 세션 폐기 (멱등 204) | N |
 | `POST` | `/v1/members/me/recovery` | WITHDRAWN → ACTIVE 복구 | Y |
 | `POST` | `/v1/signup` | PENDING 약관 동의 → ACTIVE | Y |
 | `DELETE` | `/v1/members/me` | ACTIVE 탈퇴 (204). 서버에서 Apple revoke | Y |
 
-**Request** (`POST /v1/social-logins/apple`)
+> 탈퇴 사유 저장 API(예정)는 [`naver-login/tdd.md`](../naver-login/tdd.md) 6장 「예정 — 탈퇴 사유 저장 API」와 공유. 현재 UI만 수집, API 미전송.
+
+**Request** (`POST /v1/social-logins/apple`) — 두 필드 모두 필수  
+`accessToken` = identityToken, `refreshToken` = authorizationCode (서버가 탈퇴 시 소셜 연결 해제용으로 보관)
 
 ```json
 {
-  "accessToken": "eyJhbGciOiJSUzI1NiIs..."
+  "accessToken": "eyJhbGciOiJSUzI1NiIs...",
+  "refreshToken": "apple-authorization-code"
 }
 ```
 
 **Response** — `status` + `accessToken` + `refreshToken` (`SocialLoginResponseModel`).  
 `WITHDRAWN` 이면 Repository 가 recover 후 ACTIVE 세션으로 로그인 완료.  
 `PENDING` 이면 `/signup/terms` → signup → `/signup/complete` → 홈.  
-Apple 이메일은 최초 로그인 시 `SharedPreferences`(`apple_email_{userId}`)에 저장·재사용.
+Apple 이메일은 SDK가 준 값만 세션 캐시(`StoredAuthCacheModel.email`)에 저장한다. 별도 SharedPreferences 저장·복원은 하지 않는다.
 
-**탈퇴 UX** — 설정 모달 `"탈퇴하시겠어요?"` (임시). 추후 탈퇴 확인 페이지 (Follow-up).
+**탈퇴 UX** — 설정 모달 → `WithdrawReasonPage` → `/withdraw/complete` (2초) → 로그인. 상세는 [`naver-login/tdd.md`](../naver-login/tdd.md) 탈퇴 UX와 공유. 사유 API는 Follow-up.
 
 ---
 
@@ -448,7 +452,7 @@ Apple 이메일은 최초 로그인 시 `SharedPreferences`(`apple_email_{userId
 | 네트워크 오류 | `AuthRemoteDatasource` | `NetworkException` throw |
 | 서버 에러 4xx/5xx | `AuthRemoteDatasource` | `ServerException(statusCode, message, code)` throw |
 | 토큰 갱신 실패 (`A0004`/`A0005`) | Dio 인증 인터셉터 | 세션 만료 모달(로그인 후 화면) → `/login` |
-| 탈퇴 API 실패 | 설정 | `SsossToast(error)` + authenticated 복원 (화면 유지) |
+| 탈퇴 API 실패 | 탈퇴 사유 화면 | `SsossToast(error)` + authenticated 복원 (화면 유지) |
 
 ---
 
@@ -542,9 +546,10 @@ LoginBloc(
 | 탈퇴 | **remote withdraw → local clear** (naver/apple 공통) | 서버에서 소셜 연동 revoke |
 | WITHDRAWN 로그인 | **자동 recover** | naver와 공유 |
 | PENDING 로그인 | **약관 → signup → complete** | naver와 공유 |
-| Apple 이메일 | **SharedPreferences** (`apple_email_{userId}`) | 최초 로그인 시만 SDK 수신 |
-| 탈퇴 확인 UX | **임시 모달** → 추후 확인 페이지 | Follow-up |
-| 탈퇴 실패 UX | **`SsossToast(error)`** | 설정 화면 유지 |
+| Apple 이메일 | **별도 SharedPreferences 미사용** | SDK `email`만 세션 캐시에 저장. 미제공 시 null (서버가 소셜 이메일 수집) |
+| 탈퇴 확인 UX | **모달 → 사유 페이지 → 완료(2초) → 로그인** | naver와 공유 |
+| 탈퇴 실패 UX | **`SsossToast(error)`** | 사유 화면 유지 |
+| 탈퇴 사유 API | **UI만 수집, API 미전송** (서버 스펙 대기) | naver Follow-up F-4~F-7 공유 |
 | 세션 만료 UX | 로그인 후 화면만 `SsossModal` | 네이버 Phase 7 과 공유 |
 | UI 노출 | **iOS만** Apple 버튼 | PRD 플랫폼 요구, Android Out of Scope |
 | 상태 관리 | 기존 **Bloc** 유지 | 네이버와 동일 이벤트 모델 확장 |

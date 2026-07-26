@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/auth/domain/entities/social_provider.dart';
 
@@ -30,20 +35,11 @@ class SignupProviderHeader extends StatelessWidget {
             color: isNaver ? _naverGreen : AppColors.black,
             shape: BoxShape.circle,
           ),
-          child: isNaver
-              ? const AppText(
-                  'N',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                )
-              : const Icon(
-                  Icons.apple,
-                  color: AppColors.white,
-                  size: 18,
-                ),
+          child: SvgPicture.asset(
+            isNaver ? AppAssets.brandNaver : AppAssets.brandApple,
+            width: 16,
+            height: 16,
+          ),
         ),
         const SizedBox(width: 12),
         AppText(
@@ -96,16 +92,21 @@ class SignupTermsDivider extends StatelessWidget {
 
 class SignupTermsViewLink extends StatelessWidget {
   const SignupTermsViewLink({
-    this.onTap,
+    required this.url,
     super.key,
   });
 
-  final VoidCallback? onTap;
+  final String url;
+
+  Future<void> _openUrl() async {
+    final uri = Uri.parse(url);
+    await launchUrl(uri);
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () => unawaited(_openUrl()),
       behavior: HitTestBehavior.opaque,
       child: AppText(
         '보기',

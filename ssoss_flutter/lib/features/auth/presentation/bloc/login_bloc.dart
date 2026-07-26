@@ -7,6 +7,7 @@ import 'package:ssoss_flutter/core/network/session_expired_notifier.dart';
 
 import '../../domain/entities/auth_session.dart';
 import '../../domain/entities/member_status.dart';
+import '../../domain/entities/social_provider.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/usecases/login_with_apple_usecase.dart';
 import '../../domain/usecases/login_with_naver_usecase.dart';
@@ -40,10 +41,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<FailureAcknowledged>(_onFailureAcknowledged);
     on<SignupSucceeded>(_onSignupSucceeded);
     on<SignupCompleteAcknowledged>(_onSignupCompleteAcknowledged);
+    on<WithdrawCompleteAcknowledged>(_onWithdrawCompleteAcknowledged);
 
     if (sessionExpiredNotifier != null) {
-      _sessionExpiredSubscription =
-          sessionExpiredNotifier.stream.listen((_) {
+      _sessionExpiredSubscription = sessionExpiredNotifier.stream.listen((_) {
         if (!isClosed) {
           add(const LoginEvent.sessionExpired());
         }
@@ -94,16 +95,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       return;
     }
     _isLoginInProgress = true;
-    emit(const LoginState.loading());
+    emit(const LoginState.loading(provider: SocialProvider.naver));
     try {
       final session = await _loginWithNaver();
       _emitSessionResult(emit, session);
-    } on AuthException catch (e) {
+    } on ServerException catch (e) {
       emit(LoginState.failure(e.message));
-    } on AppException catch (e) {
-      emit(LoginState.failure(e.message));
+    } on AuthException {
+      emit(const LoginState.unauthenticated());
+    } on AppException {
+      emit(const LoginState.unauthenticated());
     } catch (_) {
-      emit(const LoginState.failure('로그인 중 오류가 발생했습니다.'));
+      emit(const LoginState.unauthenticated());
     } finally {
       _isLoginInProgress = false;
     }
@@ -117,28 +120,34 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       return;
     }
     _isLoginInProgress = true;
-    emit(const LoginState.loading());
+    emit(const LoginState.loading(provider: SocialProvider.apple));
     try {
       final session = await _loginWithApple();
       _emitSessionResult(emit, session);
-    } on AuthException catch (e) {
+    } on ServerException catch (e) {
       emit(LoginState.failure(e.message));
-    } on AppException catch (e) {
-      emit(LoginState.failure(e.message));
+    } on AuthException {
+      emit(const LoginState.unauthenticated());
+    } on AppException {
+      emit(const LoginState.unauthenticated());
     } catch (_) {
-      emit(const LoginState.failure('로그인 중 오류가 발생했습니다.'));
+      emit(const LoginState.unauthenticated());
     } finally {
       _isLoginInProgress = false;
     }
   }
+
+  static const Duration _minimumSplashDuration = Duration(seconds: 2);
 
   Future<void> _onSessionRestoreRequested(
     SessionRestoreRequested event,
     Emitter<LoginState> emit,
   ) async {
     emit(const LoginState.restoring());
+    final startedAt = DateTime.now();
     try {
       final session = await _restoreSession();
+      await _ensureMinimumSplashDuration(startedAt);
       if (session == null) {
         _lastAuthenticatedUser = null;
         emit(const LoginState.unauthenticated());
@@ -154,8 +163,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         emit(LoginState.authenticated(session.user));
       }
     } catch (_) {
+      await _ensureMinimumSplashDuration(startedAt);
       _lastAuthenticatedUser = null;
       emit(const LoginState.unauthenticated());
+    }
+  }
+
+  /// 세션 복원이 빨리 끝나도 스플래시를 최소 시간만큼 보여 준다.
+  Future<void> _ensureMinimumSplashDuration(DateTime startedAt) async {
+    final remaining =
+        _minimumSplashDuration - DateTime.now().difference(startedAt);
+    if (remaining > Duration.zero) {
+      await Future<void>.delayed(remaining);
     }
   }
 
@@ -198,7 +217,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     try {
       await _withdraw();
       _lastAuthenticatedUser = null;
-      emit(const LoginState.unauthenticated());
+      emit(const LoginState.withdrawComplete());
       completer?.complete();
     } on AppException catch (e) {
       emit(LoginState.failure(e.message));
@@ -279,6 +298,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       emit(LoginState.authenticated(user));
       return;
     }
+    emit(const LoginState.unauthenticated());
+  }
+
+  Future<void> _onWithdrawCompleteAcknowledged(
+    WithdrawCompleteAcknowledged event,
+    Emitter<LoginState> emit,
+  ) async {
+    _lastAuthenticatedUser = null;
     emit(const LoginState.unauthenticated());
   }
 

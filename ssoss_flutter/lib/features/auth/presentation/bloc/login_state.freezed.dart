@@ -56,6 +56,7 @@ extension LoginStatePatterns on LoginState {
     TResult Function(LoginPendingSignup value)? pendingSignup,
     TResult Function(LoginAuthenticated value)? authenticated,
     TResult Function(LoginSignupComplete value)? signupComplete,
+    TResult Function(LoginWithdrawComplete value)? withdrawComplete,
     TResult Function(LoginSessionExpired value)? sessionExpired,
     TResult Function(LoginUnauthenticated value)? unauthenticated,
     TResult Function(LoginFailure value)? failure,
@@ -75,6 +76,8 @@ extension LoginStatePatterns on LoginState {
         return authenticated(_that);
       case LoginSignupComplete() when signupComplete != null:
         return signupComplete(_that);
+      case LoginWithdrawComplete() when withdrawComplete != null:
+        return withdrawComplete(_that);
       case LoginSessionExpired() when sessionExpired != null:
         return sessionExpired(_that);
       case LoginUnauthenticated() when unauthenticated != null:
@@ -107,6 +110,7 @@ extension LoginStatePatterns on LoginState {
     required TResult Function(LoginPendingSignup value) pendingSignup,
     required TResult Function(LoginAuthenticated value) authenticated,
     required TResult Function(LoginSignupComplete value) signupComplete,
+    required TResult Function(LoginWithdrawComplete value) withdrawComplete,
     required TResult Function(LoginSessionExpired value) sessionExpired,
     required TResult Function(LoginUnauthenticated value) unauthenticated,
     required TResult Function(LoginFailure value) failure,
@@ -125,6 +129,8 @@ extension LoginStatePatterns on LoginState {
         return authenticated(_that);
       case LoginSignupComplete():
         return signupComplete(_that);
+      case LoginWithdrawComplete():
+        return withdrawComplete(_that);
       case LoginSessionExpired():
         return sessionExpired(_that);
       case LoginUnauthenticated():
@@ -154,6 +160,7 @@ extension LoginStatePatterns on LoginState {
     TResult? Function(LoginPendingSignup value)? pendingSignup,
     TResult? Function(LoginAuthenticated value)? authenticated,
     TResult? Function(LoginSignupComplete value)? signupComplete,
+    TResult? Function(LoginWithdrawComplete value)? withdrawComplete,
     TResult? Function(LoginSessionExpired value)? sessionExpired,
     TResult? Function(LoginUnauthenticated value)? unauthenticated,
     TResult? Function(LoginFailure value)? failure,
@@ -172,6 +179,8 @@ extension LoginStatePatterns on LoginState {
         return authenticated(_that);
       case LoginSignupComplete() when signupComplete != null:
         return signupComplete(_that);
+      case LoginWithdrawComplete() when withdrawComplete != null:
+        return withdrawComplete(_that);
       case LoginSessionExpired() when sessionExpired != null:
         return sessionExpired(_that);
       case LoginUnauthenticated() when unauthenticated != null:
@@ -199,10 +208,11 @@ extension LoginStatePatterns on LoginState {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? restoring,
-    TResult Function()? loading,
+    TResult Function(SocialProvider provider)? loading,
     TResult Function(User user, String email)? pendingSignup,
     TResult Function(User user)? authenticated,
     TResult Function()? signupComplete,
+    TResult Function()? withdrawComplete,
     TResult Function()? sessionExpired,
     TResult Function()? unauthenticated,
     TResult Function(String message)? failure,
@@ -215,13 +225,15 @@ extension LoginStatePatterns on LoginState {
       case LoginRestoring() when restoring != null:
         return restoring();
       case LoginLoading() when loading != null:
-        return loading();
+        return loading(_that.provider);
       case LoginPendingSignup() when pendingSignup != null:
         return pendingSignup(_that.user, _that.email);
       case LoginAuthenticated() when authenticated != null:
         return authenticated(_that.user);
       case LoginSignupComplete() when signupComplete != null:
         return signupComplete();
+      case LoginWithdrawComplete() when withdrawComplete != null:
+        return withdrawComplete();
       case LoginSessionExpired() when sessionExpired != null:
         return sessionExpired();
       case LoginUnauthenticated() when unauthenticated != null:
@@ -250,10 +262,11 @@ extension LoginStatePatterns on LoginState {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() restoring,
-    required TResult Function() loading,
+    required TResult Function(SocialProvider provider) loading,
     required TResult Function(User user, String email) pendingSignup,
     required TResult Function(User user) authenticated,
     required TResult Function() signupComplete,
+    required TResult Function() withdrawComplete,
     required TResult Function() sessionExpired,
     required TResult Function() unauthenticated,
     required TResult Function(String message) failure,
@@ -265,13 +278,15 @@ extension LoginStatePatterns on LoginState {
       case LoginRestoring():
         return restoring();
       case LoginLoading():
-        return loading();
+        return loading(_that.provider);
       case LoginPendingSignup():
         return pendingSignup(_that.user, _that.email);
       case LoginAuthenticated():
         return authenticated(_that.user);
       case LoginSignupComplete():
         return signupComplete();
+      case LoginWithdrawComplete():
+        return withdrawComplete();
       case LoginSessionExpired():
         return sessionExpired();
       case LoginUnauthenticated():
@@ -297,10 +312,11 @@ extension LoginStatePatterns on LoginState {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? restoring,
-    TResult? Function()? loading,
+    TResult? Function(SocialProvider provider)? loading,
     TResult? Function(User user, String email)? pendingSignup,
     TResult? Function(User user)? authenticated,
     TResult? Function()? signupComplete,
+    TResult? Function()? withdrawComplete,
     TResult? Function()? sessionExpired,
     TResult? Function()? unauthenticated,
     TResult? Function(String message)? failure,
@@ -312,13 +328,15 @@ extension LoginStatePatterns on LoginState {
       case LoginRestoring() when restoring != null:
         return restoring();
       case LoginLoading() when loading != null:
-        return loading();
+        return loading(_that.provider);
       case LoginPendingSignup() when pendingSignup != null:
         return pendingSignup(_that.user, _that.email);
       case LoginAuthenticated() when authenticated != null:
         return authenticated(_that.user);
       case LoginSignupComplete() when signupComplete != null:
         return signupComplete();
+      case LoginWithdrawComplete() when withdrawComplete != null:
+        return withdrawComplete();
       case LoginSessionExpired() when sessionExpired != null:
         return sessionExpired();
       case LoginUnauthenticated() when unauthenticated != null:
@@ -374,20 +392,64 @@ class LoginRestoring implements LoginState {
 /// @nodoc
 
 class LoginLoading implements LoginState {
-  const LoginLoading();
+  const LoginLoading({required this.provider});
+
+  final SocialProvider provider;
+
+  /// Create a copy of LoginState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $LoginLoadingCopyWith<LoginLoading> get copyWith =>
+      _$LoginLoadingCopyWithImpl<LoginLoading>(this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is LoginLoading);
+        (other.runtimeType == runtimeType &&
+            other is LoginLoading &&
+            (identical(other.provider, provider) ||
+                other.provider == provider));
   }
 
   @override
-  int get hashCode => runtimeType.hashCode;
+  int get hashCode => Object.hash(runtimeType, provider);
 
   @override
   String toString() {
-    return 'LoginState.loading()';
+    return 'LoginState.loading(provider: $provider)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $LoginLoadingCopyWith<$Res>
+    implements $LoginStateCopyWith<$Res> {
+  factory $LoginLoadingCopyWith(
+          LoginLoading value, $Res Function(LoginLoading) _then) =
+      _$LoginLoadingCopyWithImpl;
+  @useResult
+  $Res call({SocialProvider provider});
+}
+
+/// @nodoc
+class _$LoginLoadingCopyWithImpl<$Res> implements $LoginLoadingCopyWith<$Res> {
+  _$LoginLoadingCopyWithImpl(this._self, this._then);
+
+  final LoginLoading _self;
+  final $Res Function(LoginLoading) _then;
+
+  /// Create a copy of LoginState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? provider = null,
+  }) {
+    return _then(LoginLoading(
+      provider: null == provider
+          ? _self.provider
+          : provider // ignore: cast_nullable_to_non_nullable
+              as SocialProvider,
+    ));
   }
 }
 
@@ -543,6 +605,26 @@ class LoginSignupComplete implements LoginState {
   @override
   String toString() {
     return 'LoginState.signupComplete()';
+  }
+}
+
+/// @nodoc
+
+class LoginWithdrawComplete implements LoginState {
+  const LoginWithdrawComplete();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is LoginWithdrawComplete);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginState.withdrawComplete()';
   }
 }
 

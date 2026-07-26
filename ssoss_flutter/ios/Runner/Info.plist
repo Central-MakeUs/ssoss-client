@@ -59,6 +59,8 @@
 
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+		<string>https</string>
+		<string>http</string>
 		<string>naversearchapp</string>
 		<string>naversearchthirdlogin</string>
 	</array>

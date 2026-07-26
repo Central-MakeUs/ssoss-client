@@ -62,6 +62,8 @@ extension LoginEventPatterns on LoginEvent {
     TResult Function(SignupSucceeded value)? signupSucceeded,
     TResult Function(SignupCompleteAcknowledged value)?
         signupCompleteAcknowledged,
+    TResult Function(WithdrawCompleteAcknowledged value)?
+        withdrawCompleteAcknowledged,
     required TResult orElse(),
   }) {
     final _that = this;
@@ -86,6 +88,9 @@ extension LoginEventPatterns on LoginEvent {
         return signupSucceeded(_that);
       case SignupCompleteAcknowledged() when signupCompleteAcknowledged != null:
         return signupCompleteAcknowledged(_that);
+      case WithdrawCompleteAcknowledged()
+          when withdrawCompleteAcknowledged != null:
+        return withdrawCompleteAcknowledged(_that);
       case _:
         return orElse();
     }
@@ -119,6 +124,8 @@ extension LoginEventPatterns on LoginEvent {
     required TResult Function(SignupSucceeded value) signupSucceeded,
     required TResult Function(SignupCompleteAcknowledged value)
         signupCompleteAcknowledged,
+    required TResult Function(WithdrawCompleteAcknowledged value)
+        withdrawCompleteAcknowledged,
   }) {
     final _that = this;
     switch (_that) {
@@ -142,6 +149,8 @@ extension LoginEventPatterns on LoginEvent {
         return signupSucceeded(_that);
       case SignupCompleteAcknowledged():
         return signupCompleteAcknowledged(_that);
+      case WithdrawCompleteAcknowledged():
+        return withdrawCompleteAcknowledged(_that);
     }
   }
 
@@ -171,6 +180,8 @@ extension LoginEventPatterns on LoginEvent {
     TResult? Function(SignupSucceeded value)? signupSucceeded,
     TResult? Function(SignupCompleteAcknowledged value)?
         signupCompleteAcknowledged,
+    TResult? Function(WithdrawCompleteAcknowledged value)?
+        withdrawCompleteAcknowledged,
   }) {
     final _that = this;
     switch (_that) {
@@ -194,6 +205,9 @@ extension LoginEventPatterns on LoginEvent {
         return signupSucceeded(_that);
       case SignupCompleteAcknowledged() when signupCompleteAcknowledged != null:
         return signupCompleteAcknowledged(_that);
+      case WithdrawCompleteAcknowledged()
+          when withdrawCompleteAcknowledged != null:
+        return withdrawCompleteAcknowledged(_that);
       case _:
         return null;
     }
@@ -223,6 +237,7 @@ extension LoginEventPatterns on LoginEvent {
     TResult Function()? failureAcknowledged,
     TResult Function()? signupSucceeded,
     TResult Function()? signupCompleteAcknowledged,
+    TResult Function()? withdrawCompleteAcknowledged,
     required TResult orElse(),
   }) {
     final _that = this;
@@ -247,6 +262,9 @@ extension LoginEventPatterns on LoginEvent {
         return signupSucceeded();
       case SignupCompleteAcknowledged() when signupCompleteAcknowledged != null:
         return signupCompleteAcknowledged();
+      case WithdrawCompleteAcknowledged()
+          when withdrawCompleteAcknowledged != null:
+        return withdrawCompleteAcknowledged();
       case _:
         return orElse();
     }
@@ -277,6 +295,7 @@ extension LoginEventPatterns on LoginEvent {
     required TResult Function() failureAcknowledged,
     required TResult Function() signupSucceeded,
     required TResult Function() signupCompleteAcknowledged,
+    required TResult Function() withdrawCompleteAcknowledged,
   }) {
     final _that = this;
     switch (_that) {
@@ -300,6 +319,8 @@ extension LoginEventPatterns on LoginEvent {
         return signupSucceeded();
       case SignupCompleteAcknowledged():
         return signupCompleteAcknowledged();
+      case WithdrawCompleteAcknowledged():
+        return withdrawCompleteAcknowledged();
     }
   }
 
@@ -327,6 +348,7 @@ extension LoginEventPatterns on LoginEvent {
     TResult? Function()? failureAcknowledged,
     TResult? Function()? signupSucceeded,
     TResult? Function()? signupCompleteAcknowledged,
+    TResult? Function()? withdrawCompleteAcknowledged,
   }) {
     final _that = this;
     switch (_that) {
@@ -350,6 +372,9 @@ extension LoginEventPatterns on LoginEvent {
         return signupSucceeded();
       case SignupCompleteAcknowledged() when signupCompleteAcknowledged != null:
         return signupCompleteAcknowledged();
+      case WithdrawCompleteAcknowledged()
+          when withdrawCompleteAcknowledged != null:
+        return withdrawCompleteAcknowledged();
       case _:
         return null;
     }
@@ -555,6 +580,27 @@ class SignupCompleteAcknowledged implements LoginEvent {
   @override
   String toString() {
     return 'LoginEvent.signupCompleteAcknowledged()';
+  }
+}
+
+/// @nodoc
+
+class WithdrawCompleteAcknowledged implements LoginEvent {
+  const WithdrawCompleteAcknowledged();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is WithdrawCompleteAcknowledged);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.withdrawCompleteAcknowledged()';
   }
 }
 

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:ssoss_flutter/core/config/app_config.dart';
+import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
+import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/assets.dart';
+import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
+import 'package:ssoss_flutter/features/auth/domain/entities/social_provider.dart';
 
 import '../bloc/login_bloc.dart';
 import '../bloc/login_event.dart';
@@ -19,89 +23,90 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final config = AppConfig.instance;
-
     return Scaffold(
+      backgroundColor: AppColors.white,
       body: SafeArea(
         child: BlocConsumer<LoginBloc, LoginState>(
           listenWhen: (previous, current) => current is LoginFailure,
           listener: (context, state) {
             if (state is LoginFailure) {
-              ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(SnackBar(content: AppText(state.message)));
+              showSsossToast(
+                context,
+                title: state.message,
+                type: SsossToastType.error,
+              );
             }
           },
           builder: (context, state) {
-            final isLoading = state is LoginLoading;
-            final errorMessage =
-                state is LoginFailure ? state.message : null;
+            final isNaverLoading =
+                state is LoginLoading && state.provider == SocialProvider.naver;
+            final isAppleLoading =
+                state is LoginLoading && state.provider == SocialProvider.apple;
+            final isAnyLoading = state is LoginLoading;
 
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    AppText(
-                      config.flavor.displayName,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    AppText(
-                      '네이버 또는 Apple 계정으로 간편하게 시작하세요.',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 40),
-                    NaverLoginButton(
-                      enabled: !isLoading,
-                      onPressed: () {
-                        context
-                            .read<LoginBloc>()
-                            .add(const LoginEvent.naverLoginRequested());
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    AppleLoginButton(
-                      enabled: !isLoading,
-                      onPressed: () {
-                        context
-                            .read<LoginBloc>()
-                            .add(const LoginEvent.appleLoginRequested());
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      height: 40,
-                      child: isLoading
-                          ? const Center(
-                              child: SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+            return Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          AppAssets.appIcon,
+                          width: 150,
+                          height: 150,
+                          fit: BoxFit.contain,
+                        ),
+                        const SizedBox(height: 24),
+                        Text.rich(
+                          TextSpan(
+                            style: AppTextStyles.h4.copyWith(
+                              color: AppColors.neutral800,
+                            ),
+                            children: [
+                              const TextSpan(text: '사장님의 콘텐츠 비법, '),
+                              TextSpan(
+                                text: '쏘쓰',
+                                style: AppTextStyles.h4.copyWith(
+                                  color: AppColors.primary400,
+                                ),
                               ),
-                            )
-                          : errorMessage != null
-                              ? AppText(
-                                  '오류: $errorMessage',
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .error,
-                                      ),
-                                )
-                              : null,
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 42),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      NaverLoginButton(
+                        enabled: !isAnyLoading,
+                        isLoading: isNaverLoading,
+                        onPressed: () {
+                          context
+                              .read<LoginBloc>()
+                              .add(const LoginEvent.naverLoginRequested());
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      AppleLoginButton(
+                        enabled: !isAnyLoading,
+                        isLoading: isAppleLoading,
+                        onPressed: () {
+                          context
+                              .read<LoginBloc>()
+                              .add(const LoginEvent.appleLoginRequested());
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             );
           },
         ),

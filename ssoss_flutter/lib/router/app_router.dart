@@ -9,6 +9,7 @@ import 'package:ssoss_flutter/features/auth/presentation/pages/login_page.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/signup/signup_complete_page.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/signup/signup_terms_page.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/splash_page.dart';
+import 'package:ssoss_flutter/features/auth/presentation/pages/withdraw/withdraw_complete_page.dart';
 import 'package:ssoss_flutter/common/widgets/navigation/ssoss_navigation_bar.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_generation_args.dart';
@@ -38,6 +39,7 @@ GoRouter createAppRouter(LoginBloc loginBloc) {
       final isOnLogin = location == LoginPage.routePath;
       final isOnSignupTerms = location == SignupTermsPage.routePath;
       final isOnSignupComplete = location == SignupCompletePage.routePath;
+      final isOnWithdrawComplete = location == WithdrawCompletePage.routePath;
       final isOnSignupFlow = isOnSignupTerms || isOnSignupComplete;
 
       // 세션 복원 중에는 스플래시에 머문다 (로그인 화면 플래시 방지).
@@ -65,6 +67,10 @@ GoRouter createAppRouter(LoginBloc loginBloc) {
         return isOnSignupComplete ? null : SignupCompletePage.routePath;
       }
 
+      if (authState is LoginWithdrawComplete) {
+        return isOnWithdrawComplete ? null : WithdrawCompletePage.routePath;
+      }
+
       final isAuthenticated = authState is LoginAuthenticated;
 
       if (!isAuthenticated) {
@@ -73,7 +79,7 @@ GoRouter createAppRouter(LoginBloc loginBloc) {
         return LoginPage.routePath;
       }
 
-      if (isOnLogin || isOnSplash || isOnSignupFlow) {
+      if (isOnLogin || isOnSplash || isOnSignupFlow || isOnWithdrawComplete) {
         return HomePage.routePath;
       }
       return null;
@@ -98,6 +104,11 @@ GoRouter createAppRouter(LoginBloc loginBloc) {
         name: SignupCompletePage.routeName,
         path: SignupCompletePage.routePath,
         builder: (context, state) => const SignupCompletePage(),
+      ),
+      GoRoute(
+        name: WithdrawCompletePage.routeName,
+        path: WithdrawCompletePage.routePath,
+        builder: (context, state) => const WithdrawCompletePage(),
       ),
       GoRoute(
         name: HomePage.routeName,

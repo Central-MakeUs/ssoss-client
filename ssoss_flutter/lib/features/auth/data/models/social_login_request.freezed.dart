@@ -15,6 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SocialLoginRequest {
   String get accessToken;
+  String get refreshToken;
 
   /// Create a copy of SocialLoginRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -33,16 +34,18 @@ mixin _$SocialLoginRequest {
         (other.runtimeType == runtimeType &&
             other is SocialLoginRequest &&
             (identical(other.accessToken, accessToken) ||
-                other.accessToken == accessToken));
+                other.accessToken == accessToken) &&
+            (identical(other.refreshToken, refreshToken) ||
+                other.refreshToken == refreshToken));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, accessToken);
+  int get hashCode => Object.hash(runtimeType, accessToken, refreshToken);
 
   @override
   String toString() {
-    return 'SocialLoginRequest(accessToken: $accessToken)';
+    return 'SocialLoginRequest(accessToken: $accessToken, refreshToken: $refreshToken)';
   }
 }
 
@@ -52,7 +55,7 @@ abstract mixin class $SocialLoginRequestCopyWith<$Res> {
           SocialLoginRequest value, $Res Function(SocialLoginRequest) _then) =
       _$SocialLoginRequestCopyWithImpl;
   @useResult
-  $Res call({String accessToken});
+  $Res call({String accessToken, String refreshToken});
 }
 
 /// @nodoc
@@ -69,11 +72,16 @@ class _$SocialLoginRequestCopyWithImpl<$Res>
   @override
   $Res call({
     Object? accessToken = null,
+    Object? refreshToken = null,
   }) {
     return _then(_self.copyWith(
       accessToken: null == accessToken
           ? _self.accessToken
           : accessToken // ignore: cast_nullable_to_non_nullable
+              as String,
+      refreshToken: null == refreshToken
+          ? _self.refreshToken
+          : refreshToken // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
@@ -172,13 +180,13 @@ extension SocialLoginRequestPatterns on SocialLoginRequest {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String accessToken)? $default, {
+    TResult Function(String accessToken, String refreshToken)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _SocialLoginRequest() when $default != null:
-        return $default(_that.accessToken);
+        return $default(_that.accessToken, _that.refreshToken);
       case _:
         return orElse();
     }
@@ -199,12 +207,12 @@ extension SocialLoginRequestPatterns on SocialLoginRequest {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String accessToken) $default,
+    TResult Function(String accessToken, String refreshToken) $default,
   ) {
     final _that = this;
     switch (_that) {
       case _SocialLoginRequest():
-        return $default(_that.accessToken);
+        return $default(_that.accessToken, _that.refreshToken);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -224,12 +232,12 @@ extension SocialLoginRequestPatterns on SocialLoginRequest {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String accessToken)? $default,
+    TResult? Function(String accessToken, String refreshToken)? $default,
   ) {
     final _that = this;
     switch (_that) {
       case _SocialLoginRequest() when $default != null:
-        return $default(_that.accessToken);
+        return $default(_that.accessToken, _that.refreshToken);
       case _:
         return null;
     }
@@ -239,12 +247,15 @@ extension SocialLoginRequestPatterns on SocialLoginRequest {
 /// @nodoc
 @JsonSerializable()
 class _SocialLoginRequest implements SocialLoginRequest {
-  const _SocialLoginRequest({required this.accessToken});
+  const _SocialLoginRequest(
+      {required this.accessToken, required this.refreshToken});
   factory _SocialLoginRequest.fromJson(Map<String, dynamic> json) =>
       _$SocialLoginRequestFromJson(json);
 
   @override
   final String accessToken;
+  @override
+  final String refreshToken;
 
   /// Create a copy of SocialLoginRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -267,16 +278,18 @@ class _SocialLoginRequest implements SocialLoginRequest {
         (other.runtimeType == runtimeType &&
             other is _SocialLoginRequest &&
             (identical(other.accessToken, accessToken) ||
-                other.accessToken == accessToken));
+                other.accessToken == accessToken) &&
+            (identical(other.refreshToken, refreshToken) ||
+                other.refreshToken == refreshToken));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, accessToken);
+  int get hashCode => Object.hash(runtimeType, accessToken, refreshToken);
 
   @override
   String toString() {
-    return 'SocialLoginRequest(accessToken: $accessToken)';
+    return 'SocialLoginRequest(accessToken: $accessToken, refreshToken: $refreshToken)';
   }
 }
 
@@ -288,7 +301,7 @@ abstract mixin class _$SocialLoginRequestCopyWith<$Res>
       __$SocialLoginRequestCopyWithImpl;
   @override
   @useResult
-  $Res call({String accessToken});
+  $Res call({String accessToken, String refreshToken});
 }
 
 /// @nodoc
@@ -305,11 +318,16 @@ class __$SocialLoginRequestCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   $Res call({
     Object? accessToken = null,
+    Object? refreshToken = null,
   }) {
     return _then(_SocialLoginRequest(
       accessToken: null == accessToken
           ? _self.accessToken
           : accessToken // ignore: cast_nullable_to_non_nullable
+              as String,
+      refreshToken: null == refreshToken
+          ? _self.refreshToken
+          : refreshToken // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
