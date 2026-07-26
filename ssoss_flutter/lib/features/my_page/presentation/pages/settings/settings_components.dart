@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
 class SettingsMenuGroup extends StatelessWidget {
@@ -76,16 +78,20 @@ class SettingsWithdrawButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             AppText(
-              '탈퇴 하기',
+              '탈퇴하기',
               style: AppTextStyles.h6.copyWith(
                 color: AppColors.primary600,
               ),
             ),
             const SizedBox(width: 6),
-            const Icon(
-              Icons.logout_rounded,
-              size: 20,
-              color: AppColors.primary600,
+            SvgPicture.asset(
+              AppAssets.icWithdraw,
+              width: 20,
+              height: 20,
+              colorFilter: const ColorFilter.mode(
+                AppColors.primary600,
+                BlendMode.srcIn,
+              ),
             ),
           ],
         ),

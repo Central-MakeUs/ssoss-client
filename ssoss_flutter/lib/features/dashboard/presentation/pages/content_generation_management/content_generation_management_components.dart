@@ -111,10 +111,14 @@ class ContentManagementSummaryRow extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons.swap_vert,
-                    size: 18,
-                    color: AppColors.neutral500,
+                  SvgPicture.asset(
+                    AppAssets.icSort,
+                    width: 18,
+                    height: 18,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.neutral500,
+                      BlendMode.srcIn,
+                    ),
                   ),
                   const SizedBox(width: 6),
                   AppText(
@@ -288,10 +292,14 @@ class ContentDeleteMenu extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.delete_outline,
-                size: 24,
-                color: AppColors.error700,
+              SvgPicture.asset(
+                AppAssets.icDelete,
+                width: 24,
+                height: 24,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.error700,
+                  BlendMode.srcIn,
+                ),
               ),
               const SizedBox(width: 8),
               AppText(
