@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
 enum SsossModalResult {
@@ -349,12 +351,14 @@ class _ModalHeader extends StatelessWidget {
           child: GestureDetector(
             onTap: onClose,
             behavior: HitTestBehavior.opaque,
-            child: Icon(
-              Icons.close,
-              size: 24,
-              color: onClose == null
-                  ? closeIconColor.withValues(alpha: 0.4)
-                  : closeIconColor,
+            child: SvgPicture.asset(
+              AppAssets.icClose,
+              width: 24,
+              height: 24,
+              colorFilter: const ColorFilter.mode(
+                AppColors.neutral400,
+                BlendMode.srcIn,
+              ),
             ),
           ),
         ),

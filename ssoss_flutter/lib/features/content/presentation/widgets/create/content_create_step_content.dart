@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_text_button.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_square_selection_button.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.dart';
@@ -22,25 +24,26 @@ class ContentCreateStepContent extends StatelessWidget {
   final ValueChanged<UploadPurpose> onSelectPurpose;
   final ValueChanged<ContentTone> onSelectTone;
 
-  static const _purposes = <({UploadPurpose value, String label, IconData icon})>[
+  static const _purposes = <({UploadPurpose value, String label, String icon})>[
     (
       value: UploadPurpose.informative,
       label: '정보성',
-      icon: Icons.description_outlined,
+      icon: AppAssets.icDocument,
     ),
     (
       value: UploadPurpose.eventDiscount,
       label: '이벤트/할인',
-      icon: Icons.local_offer_outlined,
+      icon: AppAssets.icSale,
     ),
     (
       value: UploadPurpose.newMenuPromo,
       label: '신메뉴/홍보',
-      icon: Icons.local_cafe_outlined,
+      icon: AppAssets.icCoffee,
     ),
   ];
 
-  static const _tones = <({ContentTone value, String label, String description})>[
+  static const _tones =
+      <({ContentTone value, String label, String description})>[
     (
       value: ContentTone.daily,
       label: '일상형',
@@ -92,12 +95,14 @@ class ContentCreateStepContent extends StatelessWidget {
                   type: selectedPurpose == _purposes[i].value
                       ? SsossSquareSelectionButtonType.primarySelected
                       : SsossSquareSelectionButtonType.normal,
-                  icon: Icon(
+                  icon: SvgPicture.asset(
                     _purposes[i].icon,
-                    size: 28,
-                    color: selectedPurpose == _purposes[i].value
-                        ? AppColors.primary500
-                        : AppColors.neutral400,
+                    width: 28,
+                    height: 28,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.neutral400,
+                      BlendMode.srcIn,
+                    ),
                   ),
                   onTap: () => onSelectPurpose(_purposes[i].value),
                 ),

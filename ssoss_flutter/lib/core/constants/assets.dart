@@ -16,6 +16,7 @@ class AppAssets {
   static const String icChevronUp = 'assets/icons/common/Icons.chevron_up.svg';
   static const String icChevronRight =
       'assets/icons/common/icons.chevron_right.svg';
+  static const String icAdd = 'assets/icons/common/ic_add.svg';
   static const String icBell = 'assets/icons/common/ic_bell.svg';
   static const String icSearch = 'assets/icons/common/ic_search.svg';
   static const String icRefresh = 'assets/icons/common/ic_refresh.svg';
@@ -35,6 +36,7 @@ class AppAssets {
   static const String icCredit = 'assets/icons/common/ic_credit.svg';
   static const String icCreditCard = 'assets/icons/common/ic_credit_card.svg';
   static const String icDelete = 'assets/icons/common/ic_delete.svg';
+  static const String icDocument = 'assets/icons/common/ic_document.svg';
   static const String icFire = 'assets/icons/common/ic_fire.svg';
   static const String icFolder = 'assets/icons/common/ic_folder.svg';
   static const String icImage = 'assets/icons/common/ic_image.svg';
@@ -92,4 +94,6 @@ class AppAssets {
   static const String imgComplete = 'assets/img/complete.png';
 
   static const String appIcon = 'assets/icons/app_icon.png';
+
+  static dynamic get icDescription => null;
 }
