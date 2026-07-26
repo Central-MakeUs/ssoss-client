@@ -189,7 +189,7 @@ class StoreInfoManagementItem {
   const StoreInfoManagementItem({
     required this.title,
     required this.description,
-    required this.icon,
+    required this.iconPath,
     this.statusLabel = '입력 전',
     this.isCompleted = false,
     this.onTap,
@@ -197,7 +197,7 @@ class StoreInfoManagementItem {
 
   final String title;
   final String description;
-  final IconData icon;
+  final String iconPath;
   final String statusLabel;
   final bool isCompleted;
   final VoidCallback? onTap;
@@ -227,10 +227,14 @@ class StoreInfoManagementTile extends StatelessWidget {
                 color: AppColors.primary50,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
-                item.icon,
-                size: 20,
-                color: AppColors.primary300,
+              child: SvgPicture.asset(
+                item.iconPath,
+                width: 20,
+                height: 20,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.primary300,
+                  BlendMode.srcIn,
+                ),
               ),
             ),
             const SizedBox(width: 12),

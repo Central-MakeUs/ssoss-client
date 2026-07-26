@@ -71,7 +71,7 @@ class _ResetButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SvgPicture.asset(
-              AppAssets.icRefresh,
+              AppAssets.icReset,
               width: 22,
               height: 22,
               colorFilter: const ColorFilter.mode(

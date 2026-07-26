@@ -184,12 +184,12 @@ class StoreBasicInfoBlock extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         const _IconTextRow(
-          icon: Icons.storefront_outlined,
+          iconPath: AppAssets.icStore,
           text: '베이커리',
         ),
         const SizedBox(height: 4),
         _IconTextRow(
-          icon: Icons.location_on_outlined,
+          iconPath: AppAssets.icLocation,
           text: isCompleted ? '서울 마포구 동교로16길 21' : '',
         ),
         const SizedBox(height: 16),
@@ -252,19 +252,19 @@ class StoreOperationInfoBlock extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         StoreProfileFacilityRow(
-          icon: Icons.shopping_bag_outlined,
+          iconPath: AppAssets.icBag,
           label: '포장',
           value: isCompleted ? '가능' : '불가',
         ),
         const SizedBox(height: 8),
         StoreProfileFacilityRow(
-          icon: Icons.calendar_today_outlined,
+          iconPath: AppAssets.icCalendar,
           label: '예약',
           value: isCompleted ? '가능' : '불가',
         ),
         const SizedBox(height: 8),
         const StoreProfileFacilityRow(
-          icon: Icons.local_parking_outlined,
+          iconPath: AppAssets.icParking,
           label: '주차',
           value: '불가',
         ),
@@ -431,13 +431,13 @@ class StoreProfileInfoRow extends StatelessWidget {
 
 class StoreProfileFacilityRow extends StatelessWidget {
   const StoreProfileFacilityRow({
-    required this.icon,
+    required this.iconPath,
     required this.label,
     required this.value,
     super.key,
   });
 
-  final IconData icon;
+  final String iconPath;
   final String label;
   final String value;
 
@@ -449,7 +449,15 @@ class StoreProfileFacilityRow extends StatelessWidget {
           width: 76,
           child: Row(
             children: [
-              Icon(icon, size: 16, color: AppColors.neutral400),
+              SvgPicture.asset(
+                iconPath,
+                width: 16,
+                height: 16,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.neutral400,
+                  BlendMode.srcIn,
+                ),
+              ),
               const SizedBox(width: 8),
               AppText(
                 label,
@@ -480,18 +488,26 @@ class StoreProfileDivider extends StatelessWidget {
 
 class _IconTextRow extends StatelessWidget {
   const _IconTextRow({
-    required this.icon,
+    required this.iconPath,
     required this.text,
   });
 
-  final IconData icon;
+  final String iconPath;
   final String text;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: AppColors.neutral800),
+        SvgPicture.asset(
+          iconPath,
+          width: 18,
+          height: 18,
+          colorFilter: const ColorFilter.mode(
+            AppColors.neutral800,
+            BlendMode.srcIn,
+          ),
+        ),
         if (text.isNotEmpty) ...[
           const SizedBox(width: 8),
           AppText(

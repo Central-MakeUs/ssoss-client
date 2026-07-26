@@ -233,7 +233,7 @@ class ContentManagementCard extends StatelessWidget {
                     onPressed: onReuseTap,
                     showRightIcon: true,
                     icon: SvgPicture.asset(
-                      AppAssets.icRefresh,
+                      AppAssets.icChange,
                       width: 14,
                       height: 14,
                       colorFilter: const ColorFilter.mode(

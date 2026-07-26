@@ -48,42 +48,42 @@ class SsossAccordion extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-          width: width,
-          height: height,
-          child: Row(
-            children: [
-              if (showLeadingIcon || leading != null) ...[
-                leading ?? _RefreshIcon(color: leadingIconColor),
-                const SizedBox(width: 10),
-              ],
-              Expanded(
-                child: AppText(
-                  title,
-                  style: titleTextStyle.copyWith(
-                    color: resolvedTitleColor,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
+        width: width,
+        height: height,
+        child: Row(
+          children: [
+            if (showLeadingIcon || leading != null) ...[
+              leading ?? _RefreshIcon(color: leadingIconColor),
               const SizedBox(width: 10),
-              SizedBox(
-                width: _trailingIconSize,
-                height: _trailingIconSize,
-                child: Center(
-                  child: SvgPicture.asset(
-                    isOpen ? AppAssets.icChevronUp : AppAssets.icChevronDown,
-                    width: _trailingIconSize,
-                    height: _trailingIconSize,
-                    colorFilter: ColorFilter.mode(
-                      resolvedIconColor,
-                      BlendMode.srcIn,
-                    ),
+            ],
+            Expanded(
+              child: AppText(
+                title,
+                style: titleTextStyle.copyWith(
+                  color: resolvedTitleColor,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            SizedBox(
+              width: _trailingIconSize,
+              height: _trailingIconSize,
+              child: Center(
+                child: SvgPicture.asset(
+                  isOpen ? AppAssets.icChevronUp : AppAssets.icChevronDown,
+                  width: _trailingIconSize,
+                  height: _trailingIconSize,
+                  colorFilter: ColorFilter.mode(
+                    resolvedIconColor,
+                    BlendMode.srcIn,
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
     );
   }
 }
@@ -102,7 +102,7 @@ class _RefreshIcon extends StatelessWidget {
       height: 20,
       child: Center(
         child: SvgPicture.asset(
-          AppAssets.icRefresh,
+          AppAssets.icChange,
           width: 15,
           height: 16,
           colorFilter: ColorFilter.mode(

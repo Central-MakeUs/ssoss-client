@@ -333,14 +333,14 @@ class StoreInfoMenuTagWrap extends StatelessWidget {
 }
 
 enum StoreFacilityType {
-  takeout('포장', Icons.shopping_bag_outlined),
-  reservation('예약', Icons.calendar_today_outlined),
-  parking('주차', Icons.local_parking_outlined);
+  takeout('포장', AppAssets.icBag),
+  reservation('예약', AppAssets.icCalendar),
+  parking('주차', AppAssets.icParking);
 
-  const StoreFacilityType(this.label, this.icon);
+  const StoreFacilityType(this.label, this.iconPath);
 
   final String label;
-  final IconData icon;
+  final String iconPath;
 }
 
 class StoreInfoFacilityRow extends StatelessWidget {
@@ -366,10 +366,14 @@ class StoreInfoFacilityRow extends StatelessWidget {
           Expanded(
             child: Row(
               children: [
-                Icon(
-                  type.icon,
-                  size: 20,
-                  color: AppColors.neutral600,
+                SvgPicture.asset(
+                  type.iconPath,
+                  width: 20,
+                  height: 20,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.neutral600,
+                    BlendMode.srcIn,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 AppText(
