@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'create_content_request.dart';
+part of 'generation_start_request.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,40 +13,40 @@ part of 'create_content_request.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$CreateContentRequest {
+mixin _$GenerationStartRequest {
   List<String> get channels;
   String get purpose;
   String get tone;
-  String get highlight;
+  String get emphasis;
   List<String> get keywords;
-  bool get photoGuideEnabled;
+  bool get photoGuideChecked;
   String? get forbidden;
-  String? get sourceContentId;
+  int? get sourceContentId;
 
-  /// Create a copy of CreateContentRequest
+  /// Create a copy of GenerationStartRequest
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $CreateContentRequestCopyWith<CreateContentRequest> get copyWith =>
-      _$CreateContentRequestCopyWithImpl<CreateContentRequest>(
-          this as CreateContentRequest, _$identity);
+  $GenerationStartRequestCopyWith<GenerationStartRequest> get copyWith =>
+      _$GenerationStartRequestCopyWithImpl<GenerationStartRequest>(
+          this as GenerationStartRequest, _$identity);
 
-  /// Serializes this CreateContentRequest to a JSON map.
+  /// Serializes this GenerationStartRequest to a JSON map.
   Map<String, dynamic> toJson();
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is CreateContentRequest &&
+            other is GenerationStartRequest &&
             const DeepCollectionEquality().equals(other.channels, channels) &&
             (identical(other.purpose, purpose) || other.purpose == purpose) &&
             (identical(other.tone, tone) || other.tone == tone) &&
-            (identical(other.highlight, highlight) ||
-                other.highlight == highlight) &&
+            (identical(other.emphasis, emphasis) ||
+                other.emphasis == emphasis) &&
             const DeepCollectionEquality().equals(other.keywords, keywords) &&
-            (identical(other.photoGuideEnabled, photoGuideEnabled) ||
-                other.photoGuideEnabled == photoGuideEnabled) &&
+            (identical(other.photoGuideChecked, photoGuideChecked) ||
+                other.photoGuideChecked == photoGuideChecked) &&
             (identical(other.forbidden, forbidden) ||
                 other.forbidden == forbidden) &&
             (identical(other.sourceContentId, sourceContentId) ||
@@ -60,44 +60,44 @@ mixin _$CreateContentRequest {
       const DeepCollectionEquality().hash(channels),
       purpose,
       tone,
-      highlight,
+      emphasis,
       const DeepCollectionEquality().hash(keywords),
-      photoGuideEnabled,
+      photoGuideChecked,
       forbidden,
       sourceContentId);
 
   @override
   String toString() {
-    return 'CreateContentRequest(channels: $channels, purpose: $purpose, tone: $tone, highlight: $highlight, keywords: $keywords, photoGuideEnabled: $photoGuideEnabled, forbidden: $forbidden, sourceContentId: $sourceContentId)';
+    return 'GenerationStartRequest(channels: $channels, purpose: $purpose, tone: $tone, emphasis: $emphasis, keywords: $keywords, photoGuideChecked: $photoGuideChecked, forbidden: $forbidden, sourceContentId: $sourceContentId)';
   }
 }
 
 /// @nodoc
-abstract mixin class $CreateContentRequestCopyWith<$Res> {
-  factory $CreateContentRequestCopyWith(CreateContentRequest value,
-          $Res Function(CreateContentRequest) _then) =
-      _$CreateContentRequestCopyWithImpl;
+abstract mixin class $GenerationStartRequestCopyWith<$Res> {
+  factory $GenerationStartRequestCopyWith(GenerationStartRequest value,
+          $Res Function(GenerationStartRequest) _then) =
+      _$GenerationStartRequestCopyWithImpl;
   @useResult
   $Res call(
       {List<String> channels,
       String purpose,
       String tone,
-      String highlight,
+      String emphasis,
       List<String> keywords,
-      bool photoGuideEnabled,
+      bool photoGuideChecked,
       String? forbidden,
-      String? sourceContentId});
+      int? sourceContentId});
 }
 
 /// @nodoc
-class _$CreateContentRequestCopyWithImpl<$Res>
-    implements $CreateContentRequestCopyWith<$Res> {
-  _$CreateContentRequestCopyWithImpl(this._self, this._then);
+class _$GenerationStartRequestCopyWithImpl<$Res>
+    implements $GenerationStartRequestCopyWith<$Res> {
+  _$GenerationStartRequestCopyWithImpl(this._self, this._then);
 
-  final CreateContentRequest _self;
-  final $Res Function(CreateContentRequest) _then;
+  final GenerationStartRequest _self;
+  final $Res Function(GenerationStartRequest) _then;
 
-  /// Create a copy of CreateContentRequest
+  /// Create a copy of GenerationStartRequest
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -105,9 +105,9 @@ class _$CreateContentRequestCopyWithImpl<$Res>
     Object? channels = null,
     Object? purpose = null,
     Object? tone = null,
-    Object? highlight = null,
+    Object? emphasis = null,
     Object? keywords = null,
-    Object? photoGuideEnabled = null,
+    Object? photoGuideChecked = null,
     Object? forbidden = freezed,
     Object? sourceContentId = freezed,
   }) {
@@ -124,17 +124,17 @@ class _$CreateContentRequestCopyWithImpl<$Res>
           ? _self.tone
           : tone // ignore: cast_nullable_to_non_nullable
               as String,
-      highlight: null == highlight
-          ? _self.highlight
-          : highlight // ignore: cast_nullable_to_non_nullable
+      emphasis: null == emphasis
+          ? _self.emphasis
+          : emphasis // ignore: cast_nullable_to_non_nullable
               as String,
       keywords: null == keywords
           ? _self.keywords
           : keywords // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      photoGuideEnabled: null == photoGuideEnabled
-          ? _self.photoGuideEnabled
-          : photoGuideEnabled // ignore: cast_nullable_to_non_nullable
+      photoGuideChecked: null == photoGuideChecked
+          ? _self.photoGuideChecked
+          : photoGuideChecked // ignore: cast_nullable_to_non_nullable
               as bool,
       forbidden: freezed == forbidden
           ? _self.forbidden
@@ -143,13 +143,13 @@ class _$CreateContentRequestCopyWithImpl<$Res>
       sourceContentId: freezed == sourceContentId
           ? _self.sourceContentId
           : sourceContentId // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as int?,
     ));
   }
 }
 
-/// Adds pattern-matching-related methods to [CreateContentRequest].
-extension CreateContentRequestPatterns on CreateContentRequest {
+/// Adds pattern-matching-related methods to [GenerationStartRequest].
+extension GenerationStartRequestPatterns on GenerationStartRequest {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
@@ -164,12 +164,12 @@ extension CreateContentRequestPatterns on CreateContentRequest {
 
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>(
-    TResult Function(_CreateContentRequest value)? $default, {
+    TResult Function(_GenerationStartRequest value)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _CreateContentRequest() when $default != null:
+      case _GenerationStartRequest() when $default != null:
         return $default(_that);
       case _:
         return orElse();
@@ -191,11 +191,11 @@ extension CreateContentRequestPatterns on CreateContentRequest {
 
   @optionalTypeArgs
   TResult map<TResult extends Object?>(
-    TResult Function(_CreateContentRequest value) $default,
+    TResult Function(_GenerationStartRequest value) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _CreateContentRequest():
+      case _GenerationStartRequest():
         return $default(_that);
       case _:
         throw StateError('Unexpected subclass');
@@ -216,11 +216,11 @@ extension CreateContentRequestPatterns on CreateContentRequest {
 
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_CreateContentRequest value)? $default,
+    TResult? Function(_GenerationStartRequest value)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _CreateContentRequest() when $default != null:
+      case _GenerationStartRequest() when $default != null:
         return $default(_that);
       case _:
         return null;
@@ -245,24 +245,24 @@ extension CreateContentRequestPatterns on CreateContentRequest {
             List<String> channels,
             String purpose,
             String tone,
-            String highlight,
+            String emphasis,
             List<String> keywords,
-            bool photoGuideEnabled,
+            bool photoGuideChecked,
             String? forbidden,
-            String? sourceContentId)?
+            int? sourceContentId)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _CreateContentRequest() when $default != null:
+      case _GenerationStartRequest() when $default != null:
         return $default(
             _that.channels,
             _that.purpose,
             _that.tone,
-            _that.highlight,
+            _that.emphasis,
             _that.keywords,
-            _that.photoGuideEnabled,
+            _that.photoGuideChecked,
             _that.forbidden,
             _that.sourceContentId);
       case _:
@@ -289,23 +289,23 @@ extension CreateContentRequestPatterns on CreateContentRequest {
             List<String> channels,
             String purpose,
             String tone,
-            String highlight,
+            String emphasis,
             List<String> keywords,
-            bool photoGuideEnabled,
+            bool photoGuideChecked,
             String? forbidden,
-            String? sourceContentId)
+            int? sourceContentId)
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _CreateContentRequest():
+      case _GenerationStartRequest():
         return $default(
             _that.channels,
             _that.purpose,
             _that.tone,
-            _that.highlight,
+            _that.emphasis,
             _that.keywords,
-            _that.photoGuideEnabled,
+            _that.photoGuideChecked,
             _that.forbidden,
             _that.sourceContentId);
       case _:
@@ -331,23 +331,23 @@ extension CreateContentRequestPatterns on CreateContentRequest {
             List<String> channels,
             String purpose,
             String tone,
-            String highlight,
+            String emphasis,
             List<String> keywords,
-            bool photoGuideEnabled,
+            bool photoGuideChecked,
             String? forbidden,
-            String? sourceContentId)?
+            int? sourceContentId)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _CreateContentRequest() when $default != null:
+      case _GenerationStartRequest() when $default != null:
         return $default(
             _that.channels,
             _that.purpose,
             _that.tone,
-            _that.highlight,
+            _that.emphasis,
             _that.keywords,
-            _that.photoGuideEnabled,
+            _that.photoGuideChecked,
             _that.forbidden,
             _that.sourceContentId);
       case _:
@@ -358,20 +358,20 @@ extension CreateContentRequestPatterns on CreateContentRequest {
 
 /// @nodoc
 @JsonSerializable()
-class _CreateContentRequest implements CreateContentRequest {
-  const _CreateContentRequest(
+class _GenerationStartRequest implements GenerationStartRequest {
+  const _GenerationStartRequest(
       {required final List<String> channels,
       required this.purpose,
       required this.tone,
-      required this.highlight,
+      required this.emphasis,
       required final List<String> keywords,
-      required this.photoGuideEnabled,
+      required this.photoGuideChecked,
       this.forbidden,
       this.sourceContentId})
       : _channels = channels,
         _keywords = keywords;
-  factory _CreateContentRequest.fromJson(Map<String, dynamic> json) =>
-      _$CreateContentRequestFromJson(json);
+  factory _GenerationStartRequest.fromJson(Map<String, dynamic> json) =>
+      _$GenerationStartRequestFromJson(json);
 
   final List<String> _channels;
   @override
@@ -386,7 +386,7 @@ class _CreateContentRequest implements CreateContentRequest {
   @override
   final String tone;
   @override
-  final String highlight;
+  final String emphasis;
   final List<String> _keywords;
   @override
   List<String> get keywords {
@@ -396,24 +396,24 @@ class _CreateContentRequest implements CreateContentRequest {
   }
 
   @override
-  final bool photoGuideEnabled;
+  final bool photoGuideChecked;
   @override
   final String? forbidden;
   @override
-  final String? sourceContentId;
+  final int? sourceContentId;
 
-  /// Create a copy of CreateContentRequest
+  /// Create a copy of GenerationStartRequest
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$CreateContentRequestCopyWith<_CreateContentRequest> get copyWith =>
-      __$CreateContentRequestCopyWithImpl<_CreateContentRequest>(
+  _$GenerationStartRequestCopyWith<_GenerationStartRequest> get copyWith =>
+      __$GenerationStartRequestCopyWithImpl<_GenerationStartRequest>(
           this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$CreateContentRequestToJson(
+    return _$GenerationStartRequestToJson(
       this,
     );
   }
@@ -422,15 +422,15 @@ class _CreateContentRequest implements CreateContentRequest {
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _CreateContentRequest &&
+            other is _GenerationStartRequest &&
             const DeepCollectionEquality().equals(other._channels, _channels) &&
             (identical(other.purpose, purpose) || other.purpose == purpose) &&
             (identical(other.tone, tone) || other.tone == tone) &&
-            (identical(other.highlight, highlight) ||
-                other.highlight == highlight) &&
+            (identical(other.emphasis, emphasis) ||
+                other.emphasis == emphasis) &&
             const DeepCollectionEquality().equals(other._keywords, _keywords) &&
-            (identical(other.photoGuideEnabled, photoGuideEnabled) ||
-                other.photoGuideEnabled == photoGuideEnabled) &&
+            (identical(other.photoGuideChecked, photoGuideChecked) ||
+                other.photoGuideChecked == photoGuideChecked) &&
             (identical(other.forbidden, forbidden) ||
                 other.forbidden == forbidden) &&
             (identical(other.sourceContentId, sourceContentId) ||
@@ -444,46 +444,46 @@ class _CreateContentRequest implements CreateContentRequest {
       const DeepCollectionEquality().hash(_channels),
       purpose,
       tone,
-      highlight,
+      emphasis,
       const DeepCollectionEquality().hash(_keywords),
-      photoGuideEnabled,
+      photoGuideChecked,
       forbidden,
       sourceContentId);
 
   @override
   String toString() {
-    return 'CreateContentRequest(channels: $channels, purpose: $purpose, tone: $tone, highlight: $highlight, keywords: $keywords, photoGuideEnabled: $photoGuideEnabled, forbidden: $forbidden, sourceContentId: $sourceContentId)';
+    return 'GenerationStartRequest(channels: $channels, purpose: $purpose, tone: $tone, emphasis: $emphasis, keywords: $keywords, photoGuideChecked: $photoGuideChecked, forbidden: $forbidden, sourceContentId: $sourceContentId)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$CreateContentRequestCopyWith<$Res>
-    implements $CreateContentRequestCopyWith<$Res> {
-  factory _$CreateContentRequestCopyWith(_CreateContentRequest value,
-          $Res Function(_CreateContentRequest) _then) =
-      __$CreateContentRequestCopyWithImpl;
+abstract mixin class _$GenerationStartRequestCopyWith<$Res>
+    implements $GenerationStartRequestCopyWith<$Res> {
+  factory _$GenerationStartRequestCopyWith(_GenerationStartRequest value,
+          $Res Function(_GenerationStartRequest) _then) =
+      __$GenerationStartRequestCopyWithImpl;
   @override
   @useResult
   $Res call(
       {List<String> channels,
       String purpose,
       String tone,
-      String highlight,
+      String emphasis,
       List<String> keywords,
-      bool photoGuideEnabled,
+      bool photoGuideChecked,
       String? forbidden,
-      String? sourceContentId});
+      int? sourceContentId});
 }
 
 /// @nodoc
-class __$CreateContentRequestCopyWithImpl<$Res>
-    implements _$CreateContentRequestCopyWith<$Res> {
-  __$CreateContentRequestCopyWithImpl(this._self, this._then);
+class __$GenerationStartRequestCopyWithImpl<$Res>
+    implements _$GenerationStartRequestCopyWith<$Res> {
+  __$GenerationStartRequestCopyWithImpl(this._self, this._then);
 
-  final _CreateContentRequest _self;
-  final $Res Function(_CreateContentRequest) _then;
+  final _GenerationStartRequest _self;
+  final $Res Function(_GenerationStartRequest) _then;
 
-  /// Create a copy of CreateContentRequest
+  /// Create a copy of GenerationStartRequest
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
@@ -491,13 +491,13 @@ class __$CreateContentRequestCopyWithImpl<$Res>
     Object? channels = null,
     Object? purpose = null,
     Object? tone = null,
-    Object? highlight = null,
+    Object? emphasis = null,
     Object? keywords = null,
-    Object? photoGuideEnabled = null,
+    Object? photoGuideChecked = null,
     Object? forbidden = freezed,
     Object? sourceContentId = freezed,
   }) {
-    return _then(_CreateContentRequest(
+    return _then(_GenerationStartRequest(
       channels: null == channels
           ? _self._channels
           : channels // ignore: cast_nullable_to_non_nullable
@@ -510,17 +510,17 @@ class __$CreateContentRequestCopyWithImpl<$Res>
           ? _self.tone
           : tone // ignore: cast_nullable_to_non_nullable
               as String,
-      highlight: null == highlight
-          ? _self.highlight
-          : highlight // ignore: cast_nullable_to_non_nullable
+      emphasis: null == emphasis
+          ? _self.emphasis
+          : emphasis // ignore: cast_nullable_to_non_nullable
               as String,
       keywords: null == keywords
           ? _self._keywords
           : keywords // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      photoGuideEnabled: null == photoGuideEnabled
-          ? _self.photoGuideEnabled
-          : photoGuideEnabled // ignore: cast_nullable_to_non_nullable
+      photoGuideChecked: null == photoGuideChecked
+          ? _self.photoGuideChecked
+          : photoGuideChecked // ignore: cast_nullable_to_non_nullable
               as bool,
       forbidden: freezed == forbidden
           ? _self.forbidden
@@ -529,7 +529,7 @@ class __$CreateContentRequestCopyWithImpl<$Res>
       sourceContentId: freezed == sourceContentId
           ? _self.sourceContentId
           : sourceContentId // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as int?,
     ));
   }
 }

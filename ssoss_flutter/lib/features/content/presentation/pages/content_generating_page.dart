@@ -1,19 +1,28 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/modal/ssoss_modal.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/generation_detail.dart';
+import 'package:ssoss_flutter/features/content/domain/repositories/content_repository.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/run_generation_usecase.dart';
+import 'package:ssoss_flutter/features/content/presentation/cubit/content_generating_cubit.dart';
+import 'package:ssoss_flutter/features/content/presentation/cubit/content_generating_state.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_create_flow.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_generation_args.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_other_channel_args.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/content_create_page.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/content_other_channel_create_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_result_page.dart';
+import 'package:ssoss_flutter/features/content/presentation/widgets/content_generation_failure_view.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/content_generating_view.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 
-/// 콘텐츠 생성 대기 화면.
-///
-/// 백엔드 완료 대기 대신 당분간 2초 후 결과 화면으로 이동한다.
+/// 콘텐츠 생성 대기·실패 화면.
 class ContentGeneratingPage extends StatefulWidget {
   const ContentGeneratingPage({
     required this.args,
@@ -30,40 +39,112 @@ class ContentGeneratingPage extends StatefulWidget {
 }
 
 class _ContentGeneratingPageState extends State<ContentGeneratingPage> {
-  Timer? _navigateTimer;
   bool _isExitModalVisible = false;
   bool _isGenerationComplete = false;
+  GenerationDetail? _completedDetail;
+
+  ContentGenerationArgs get args => widget.args;
 
   @override
-  void initState() {
-    super.initState();
-    _navigateTimer = Timer(const Duration(seconds: 2), _onGenerationComplete);
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => ContentGeneratingCubit(
+        runGeneration: context.read<RunGenerationUseCase>(),
+        contentRepository: context.read<ContentRepository>(),
+      )..start(args.input),
+      child: BlocListener<ContentGeneratingCubit, ContentGeneratingState>(
+        listener: (context, state) {
+          state.whenOrNull(
+            success: (detail) {
+              _completedDetail = detail;
+              if (_isExitModalVisible) {
+                _isGenerationComplete = true;
+                return;
+              }
+              _goToResult(detail);
+            },
+          );
+        },
+        child: BlocBuilder<ContentGeneratingCubit, ContentGeneratingState>(
+          builder: (context, state) {
+            final isFailure = state.maybeWhen(
+              failure: (_) => true,
+              orElse: () => false,
+            );
+            return PopScope(
+              canPop: false,
+              onPopInvokedWithResult: (didPop, _) {
+                if (didPop) {
+                  return;
+                }
+                if (isFailure) {
+                  _goBackToCreate(context);
+                  return;
+                }
+                unawaited(_onExitPressed());
+              },
+              child: Scaffold(
+                backgroundColor: AppColors.white,
+                body: SafeArea(
+                  child: state.when(
+                    loading: () => _buildLoading(),
+                    success: (_) => _buildLoading(),
+                    failure: (message) => ContentGenerationFailureView(
+                      onBack: () => _goBackToCreate(context),
+                      onClose: () => context.go(HomePage.routePath),
+                      onRetry: () =>
+                          context.read<ContentGeneratingCubit>().start(
+                                args.input,
+                              ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
   }
 
-  @override
-  void dispose() {
-    _navigateTimer?.cancel();
-    super.dispose();
-  }
-
-  void _onGenerationComplete() {
-    if (!mounted) {
-      return;
+  void _goBackToCreate(BuildContext context) {
+    if (args.flow == ContentCreateFlow.otherChannel) {
+      final sourceContentId = args.input.sourceContentId;
+      if (sourceContentId != null && sourceContentId.isNotEmpty) {
+        context.go(
+          ContentOtherChannelCreatePage.routePath,
+          extra: ContentOtherChannelArgs(
+            sourceContentId: sourceContentId,
+            excludedChannels: args.completedChannels,
+            previousInput: args.input,
+            initialSelected: args.input.channels,
+          ),
+        );
+        return;
+      }
     }
-    if (_isExitModalVisible) {
-      _isGenerationComplete = true;
-      return;
-    }
-    _goToResult();
+    context.go(
+      ContentCreatePage.routePath,
+      extra: args.input,
+    );
   }
 
-  void _goToResult() {
-    context.go(ContentResultPage.routePath, extra: widget.args);
+  Widget _buildLoading() {
+    return Column(
+      children: [
+        SsossAppBar.exitOnly(
+          onExit: () => unawaited(_onExitPressed()),
+        ),
+        const Expanded(child: ContentGeneratingView()),
+      ],
+    );
   }
 
-  void _goHome() {
-    _navigateTimer?.cancel();
-    context.go(HomePage.routePath);
+  void _goToResult(GenerationDetail detail) {
+    context.go(
+      ContentResultPage.routePath,
+      extra: args.copyWith(generationDetail: detail),
+    );
   }
 
   Future<void> _onExitPressed() async {
@@ -71,6 +152,7 @@ class _ContentGeneratingPageState extends State<ContentGeneratingPage> {
       return;
     }
 
+    final cubit = context.read<ContentGeneratingCubit>();
     _isExitModalVisible = true;
     final result = await showSsossModal(
       context,
@@ -88,41 +170,13 @@ class _ContentGeneratingPageState extends State<ContentGeneratingPage> {
     _isExitModalVisible = false;
 
     if (result == SsossModalResult.secondary) {
-      _goHome();
+      cubit.cancel();
+      context.go(HomePage.routePath);
       return;
     }
 
-    // 계속 생성하기·X: 모달 표시 중 생성이 끝났다면 결과 화면으로 이동
-    if (_isGenerationComplete) {
-      _goToResult();
+    if (_isGenerationComplete && _completedDetail != null) {
+      _goToResult(_completedDetail!);
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop) {
-          return;
-        }
-        unawaited(_onExitPressed());
-      },
-      child: Scaffold(
-        backgroundColor: AppColors.white,
-        body: SafeArea(
-          child: Column(
-            children: [
-              SsossAppBar.exitOnly(
-                onExit: _onExitPressed,
-              ),
-              const Expanded(
-                child: ContentGeneratingView(),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

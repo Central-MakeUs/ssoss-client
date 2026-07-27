@@ -2,10 +2,18 @@ import 'package:dio/dio.dart';
 
 import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/features/content/data/datasources/content_remote_datasource.dart';
-import 'package:ssoss_flutter/features/content/data/models/create_content_request.dart';
-import 'package:ssoss_flutter/features/content/data/models/create_content_result_model.dart';
+import 'package:ssoss_flutter/features/content/data/models/content_channel_edit_request.dart';
+import 'package:ssoss_flutter/features/content/data/models/content_channel_response_model.dart';
+import 'package:ssoss_flutter/features/content/data/models/content_save_request.dart';
+import 'package:ssoss_flutter/features/content/data/models/content_save_response_model.dart';
+import 'package:ssoss_flutter/features/content/data/models/generation_channel_result_model.dart';
+import 'package:ssoss_flutter/features/content/data/models/generation_detail_model.dart';
+import 'package:ssoss_flutter/features/content/data/models/generation_start_request.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/content_channel_content.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
-import 'package:ssoss_flutter/features/content/domain/entities/create_content_result.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/generation_channel_result.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/generation_detail.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/saved_content.dart';
 import 'package:ssoss_flutter/features/content/domain/repositories/content_repository.dart';
 
 class ContentRepositoryImpl implements ContentRepository {
@@ -17,34 +25,72 @@ class ContentRepositoryImpl implements ContentRepository {
   CancelToken? _activeCancelToken;
 
   @override
-  Future<CreateContentResult> createContent(ContentCreateInput input) async {
+  Future<int> startGeneration(ContentCreateInput input) async {
     _activeCancelToken?.cancel('superseded');
     _activeCancelToken = CancelToken();
     try {
-      final model = await _remote.createContent(
-        CreateContentRequest.fromEntity(input),
+      final response = await _remote.startGeneration(
+        GenerationStartRequest.fromEntity(input),
         cancelToken: _activeCancelToken,
       );
-      return model.toEntity();
+      return response.generationId;
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.cancel || CancelToken.isCancel(e)) {
-        throw const CancelledException();
-      }
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout ||
-          e.type == DioExceptionType.connectionError) {
-        throw const NetworkException();
-      }
-      final statusCode = e.response?.statusCode ?? 0;
-      throw ServerException(statusCode, e.message ?? '서버 오류가 발생했습니다.');
-    } finally {
-      _activeCancelToken = null;
+      throw _mapCancel(e);
     }
   }
 
   @override
-  void cancelCreate() {
+  Future<GenerationDetail> getGeneration(int generationId) async {
+    final model = await _remote.getGeneration(
+      generationId,
+      cancelToken: _activeCancelToken,
+    );
+    return model.toEntity();
+  }
+
+  @override
+  Future<SavedContent> saveContent({
+    required int generationId,
+    required List<GenerationChannelResult> channels,
+  }) async {
+    final model = await _remote.saveContent(
+      ContentSaveRequest(
+        generationId: generationId,
+        contents: channels.map((c) => c.toSaveModel()).toList(growable: false),
+      ),
+    );
+    return model.toEntity();
+  }
+
+  @override
+  Future<ContentChannelContent> editChannel({
+    required int contentId,
+    required int contentChannelId,
+    required GenerationChannelResult channel,
+  }) async {
+    final saveModel = channel.toSaveModel();
+    final model = await _remote.editChannel(
+      contentId: contentId,
+      contentChannelId: contentChannelId,
+      request: ContentChannelEditRequest(
+        title: saveModel.title,
+        body: saveModel.body,
+        hashtags: saveModel.hashtags,
+      ),
+    );
+    return model.toEntity();
+  }
+
+  @override
+  void cancelGeneration() {
     _activeCancelToken?.cancel('user_exit');
     _activeCancelToken = null;
+  }
+
+  Never _mapCancel(DioException e) {
+    if (e.type == DioExceptionType.cancel || CancelToken.isCancel(e)) {
+      throw const CancelledException();
+    }
+    throw e.error is AppException ? e.error as AppException : e;
   }
 }

@@ -2,12 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/modal/ssoss_modal.dart';
+import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/save_content_usecase.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_create_flow.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_result.dart';
@@ -40,8 +44,11 @@ class ContentResultPage extends StatefulWidget {
 
 class _ContentResultPageState extends State<ContentResultPage> {
   late ContentResultDraft _draft;
+  bool _isSaving = false;
 
   ContentGenerationArgs get args => widget.args;
+
+  int? get _generationId => args.generationDetail?.generationId;
 
   bool get _isMulti => args.input.channels.length >= 2;
 
@@ -53,11 +60,11 @@ class _ContentResultPageState extends State<ContentResultPage> {
   @override
   void initState() {
     super.initState();
-    _draft = ContentResultDraft.fromChannels(
-      channels: args.input.channels,
-      photoGuideEnabled: args.input.photoGuideEnabled,
-      compact: _isMulti,
-    );
+    final detail = args.generationDetail;
+    if (detail == null) {
+      throw StateError('ContentResultPage requires generationDetail');
+    }
+    _draft = ContentResultDraft.fromGenerationDetail(detail);
   }
 
   void _goHome(BuildContext context) {
@@ -81,35 +88,71 @@ class _ContentResultPageState extends State<ContentResultPage> {
     _goHome(context);
   }
 
-  void _save(BuildContext context) {
-    if (_isOtherChannel) {
-      context.go(
-        ContentSaveCompletePage.routePath,
-        extra: const ContentSaveCompleteArgs(
-          mode: ContentSaveCompleteMode.finalSave,
-        ),
-      );
+  Future<void> _save(BuildContext context) async {
+    if (_isSaving) {
       return;
     }
 
-    final mode = _hasRemainingChannels
-        ? ContentSaveCompleteMode.continueAvailable
-        : ContentSaveCompleteMode.finalSave;
-    // 저장 API 미연동: stub ID. 연동 후 저장 응답 ID로 교체한다.
-    final sourceContentId =
-        'stub-saved-${args.input.channels.map((c) => c.name).join('-')}';
-    context.go(
-      ContentSaveCompletePage.routePath,
-      extra: ContentSaveCompleteArgs(
-        mode: mode,
-        sourceContentId: mode == ContentSaveCompleteMode.continueAvailable
-            ? sourceContentId
-            : null,
-        excludedChannels: mode == ContentSaveCompleteMode.continueAvailable
-            ? args.input.channels
-            : const [],
-      ),
-    );
+    final generationId = _generationId;
+    if (generationId == null) {
+      return;
+    }
+
+    setState(() => _isSaving = true);
+    try {
+      final saved = await context.read<SaveContentUseCase>()(
+        generationId: generationId,
+        channels: _draft.toGenerationChannelResults(),
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      if (_isOtherChannel) {
+        context.go(
+          ContentSaveCompletePage.routePath,
+          extra: const ContentSaveCompleteArgs(
+            mode: ContentSaveCompleteMode.finalSave,
+          ),
+        );
+        return;
+      }
+
+      final mode = _hasRemainingChannels
+          ? ContentSaveCompleteMode.continueAvailable
+          : ContentSaveCompleteMode.finalSave;
+      final sourceContentId = saved.contentId.toString();
+
+      context.go(
+        ContentSaveCompletePage.routePath,
+        extra: ContentSaveCompleteArgs(
+          mode: mode,
+          sourceContentId: mode == ContentSaveCompleteMode.continueAvailable
+              ? sourceContentId
+              : null,
+          excludedChannels: mode == ContentSaveCompleteMode.continueAvailable
+              ? args.input.channels
+              : const [],
+          previousInput: mode == ContentSaveCompleteMode.continueAvailable
+              ? args.input
+              : null,
+        ),
+      );
+    } on AppException catch (e) {
+      if (!mounted) {
+        return;
+      }
+      showSsossToast(
+        context,
+        title: e.message,
+        type: SsossToastType.error,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
   }
 
   Future<void> _remake(BuildContext context) async {
@@ -126,7 +169,14 @@ class _ContentResultPageState extends State<ContentResultPage> {
       return;
     }
 
-    context.go(ContentGeneratingPage.routePath, extra: args);
+    context.go(
+      ContentGeneratingPage.routePath,
+      extra: ContentGenerationArgs(
+        input: args.input,
+        flow: args.flow,
+        completedChannels: args.completedChannels,
+      ),
+    );
   }
 
   Future<void> _openEdit(
@@ -142,9 +192,9 @@ class _ContentResultPageState extends State<ContentResultPage> {
         initialTitle: channelDraft.title ?? '',
         initialBody: channelDraft.body,
         initialHashtags: channelDraft.hashtags,
-        photoGuideEnabled: channelDraft.showPhotoGuide,
-        recommendation:
-            channelDraft.showPhotoGuide ? contentResultPhotoGuide : null,
+        photoGuides: target == ContentEditTarget.body
+            ? channelDraft.photoGuides
+            : const [],
       ),
     );
 
@@ -165,8 +215,7 @@ class _ContentResultPageState extends State<ContentResultPage> {
             result.channel,
             current.copyWith(
               body: result.body,
-              showPhotoGuide:
-                  result.photoGuidePresent ?? current.showPhotoGuide,
+              photoGuides: result.photoGuides ?? current.photoGuides,
             ),
           );
         case ContentEditTarget.hashtags:
@@ -228,6 +277,7 @@ class _ContentResultPageState extends State<ContentResultPage> {
                         label: '다시 생성하기',
                         type: SsossButtonType.outline,
                         width: double.infinity,
+                        enabled: !_isSaving,
                         onPressed: () => unawaited(_remake(context)),
                       ),
                     ),
@@ -236,7 +286,8 @@ class _ContentResultPageState extends State<ContentResultPage> {
                       child: SsossButton(
                         label: '저장하기',
                         width: double.infinity,
-                        onPressed: () => _save(context),
+                        enabled: !_isSaving,
+                        onPressed: () => unawaited(_save(context)),
                       ),
                     ),
                   ],

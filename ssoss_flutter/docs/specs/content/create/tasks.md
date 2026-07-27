@@ -184,14 +184,11 @@
 
 ---
 
-## Phase 7 — 백엔드 연동 (후순위)
+## Phase 7 — 백엔드 연동
 
-> API 스펙 확정 시 `tdd.md` 6장을 갱신한 뒤 진행한다.
+> **`docs/specs/content/generation-api/`** 스펙·tasks 로 위임한다. (POST/GET `/v1/generations`, POST `/v1/contents`)
 
-- [ ] **7-1** 실 `ContentRemoteDatasourceImpl` 로 스텁 교체 (`POST /api/v1/contents`)
-- [ ] **7-2** `ContentCreateApiMapper` 문자열을 서버 확정값에 맞게 조정
-- [ ] **7-3** 인증 헤더·에러 코드 매핑 검증
-- [ ] **7-4** FR-12·FR-13 실서버 검증
+- [ ] **7-1** → [`generation-api/tasks.md`](../generation-api/tasks.md) Phase 2~5 참조
 
 ---
 

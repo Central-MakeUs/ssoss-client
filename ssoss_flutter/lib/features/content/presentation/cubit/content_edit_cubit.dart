@@ -1,29 +1,29 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ssoss_flutter/common/widgets/card/content-edit/ssoss_contents_edit_document.dart';
-import 'package:ssoss_flutter/common/widgets/card/ssoss_recommendation_card.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/content_channel_limits.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_edit_state.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_result.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_target.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_photo_guide_display.dart';
+import 'package:ssoss_flutter/utils/photo_guide_parser.dart';
 
 class ContentEditCubit extends Cubit<ContentEditState> {
   ContentEditCubit({
     required ContentEditArgs args,
   })  : channel = args.channel,
-        managesPhotoGuide = args.channel != UploadChannel.blog &&
-            args.photoGuideEnabled &&
-            args.recommendation != null,
+        originalPhotoGuides = List<PhotoGuidePlacement>.of(args.photoGuides),
+        managesPhotoGuide = args.photoGuides.isNotEmpty &&
+            args.target == ContentEditTarget.body,
         super(_initialState(args));
 
   final UploadChannel channel;
+  final List<PhotoGuidePlacement> originalPhotoGuides;
 
-  /// 비블로그 본문 편집에서 추천사진 블록을 다루는 경우 true.
+  /// 본문 편집에서 추천사진 블록을 다루는 경우 true.
   final bool managesPhotoGuide;
-
-  static const int titleMaxLength = 40;
-  static const int bodyMaxLength = 5000;
 
   static ContentEditState _initialState(ContentEditArgs args) {
     switch (args.target) {
@@ -37,30 +37,17 @@ class ContentEditCubit extends Cubit<ContentEditState> {
           originalPlainText: document.plainText,
         );
       case ContentEditTarget.body:
-        final includeGuide = args.channel != UploadChannel.blog &&
-            args.photoGuideEnabled &&
-            args.recommendation != null;
-        final recommendation = includeGuide
-            ? SsossRecommendationCardItem(
-                id: args.recommendation!.id,
-                label: args.recommendation!.label,
-                title: args.recommendation!.title,
-                description: args.recommendation!.description,
-                dismissible: true,
-              )
-            : null;
-        final document = recommendation == null
+        final includeGuide = args.photoGuides.isNotEmpty;
+        final document = includeGuide
             ? SsossContentsEditDocument.fromPlainText(
                 plainText: args.initialBody,
+                anchors: photoGuideEditAnchors(
+                  args.photoGuides,
+                  dismissible: true,
+                ),
               )
             : SsossContentsEditDocument.fromPlainText(
                 plainText: args.initialBody,
-                anchors: [
-                  SsossContentsEditRecommendationAnchor(
-                    offset: 0,
-                    item: recommendation,
-                  ),
-                ],
               );
         return ContentEditState(
           target: args.target,
@@ -125,8 +112,24 @@ class ContentEditCubit extends Cubit<ContentEditState> {
     }
   }
 
+  bool get canSubmit => state.isDirty && _isWithinLimit;
+
+  bool get _isWithinLimit {
+    switch (state.target) {
+      case ContentEditTarget.title:
+        final length = state.document?.plainText.length ?? 0;
+        final max = ContentChannelLimits.titleMaxLength(channel);
+        return max == null || length <= max;
+      case ContentEditTarget.body:
+        final length = state.document?.plainText.length ?? 0;
+        return length <= ContentChannelLimits.bodyMaxLength(channel);
+      case ContentEditTarget.hashtags:
+        return true;
+    }
+  }
+
   ContentEditResult? buildResult() {
-    if (!state.canSubmit) {
+    if (!canSubmit) {
       return null;
     }
     switch (state.target) {
@@ -138,13 +141,17 @@ class ContentEditCubit extends Cubit<ContentEditState> {
         );
       case ContentEditTarget.body:
         final document = state.document;
+        final photoGuides = managesPhotoGuide && document != null
+            ? photoGuidesFromAnchors(
+                document.recommendationAnchors,
+                original: originalPhotoGuides,
+              )
+            : (managesPhotoGuide ? const <PhotoGuidePlacement>[] : null);
         return ContentEditResult(
           channel: channel,
           target: state.target,
           body: document?.plainText ?? '',
-          photoGuidePresent: managesPhotoGuide
-              ? document != null && document.recommendationAnchors.isNotEmpty
-              : null,
+          photoGuides: photoGuides,
         );
       case ContentEditTarget.hashtags:
         return ContentEditResult(
@@ -158,9 +165,9 @@ class ContentEditCubit extends Cubit<ContentEditState> {
   int get maxLength {
     switch (state.target) {
       case ContentEditTarget.title:
-        return titleMaxLength;
+        return ContentChannelLimits.titleMaxLength(channel) ?? 0;
       case ContentEditTarget.body:
-        return bodyMaxLength;
+        return ContentChannelLimits.bodyMaxLength(channel);
       case ContentEditTarget.hashtags:
         return SsossHashtagLimits.maxLength;
     }

@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'create_content_result_model.dart';
+part of 'generation_start_response.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,74 +13,74 @@ part of 'create_content_result_model.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$CreateContentResultModel {
-  String get contentId;
+mixin _$GenerationStartResponse {
+  int get generationId;
 
-  /// Create a copy of CreateContentResultModel
+  /// Create a copy of GenerationStartResponse
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $CreateContentResultModelCopyWith<CreateContentResultModel> get copyWith =>
-      _$CreateContentResultModelCopyWithImpl<CreateContentResultModel>(
-          this as CreateContentResultModel, _$identity);
+  $GenerationStartResponseCopyWith<GenerationStartResponse> get copyWith =>
+      _$GenerationStartResponseCopyWithImpl<GenerationStartResponse>(
+          this as GenerationStartResponse, _$identity);
 
-  /// Serializes this CreateContentResultModel to a JSON map.
+  /// Serializes this GenerationStartResponse to a JSON map.
   Map<String, dynamic> toJson();
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is CreateContentResultModel &&
-            (identical(other.contentId, contentId) ||
-                other.contentId == contentId));
+            other is GenerationStartResponse &&
+            (identical(other.generationId, generationId) ||
+                other.generationId == generationId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, contentId);
+  int get hashCode => Object.hash(runtimeType, generationId);
 
   @override
   String toString() {
-    return 'CreateContentResultModel(contentId: $contentId)';
+    return 'GenerationStartResponse(generationId: $generationId)';
   }
 }
 
 /// @nodoc
-abstract mixin class $CreateContentResultModelCopyWith<$Res> {
-  factory $CreateContentResultModelCopyWith(CreateContentResultModel value,
-          $Res Function(CreateContentResultModel) _then) =
-      _$CreateContentResultModelCopyWithImpl;
+abstract mixin class $GenerationStartResponseCopyWith<$Res> {
+  factory $GenerationStartResponseCopyWith(GenerationStartResponse value,
+          $Res Function(GenerationStartResponse) _then) =
+      _$GenerationStartResponseCopyWithImpl;
   @useResult
-  $Res call({String contentId});
+  $Res call({int generationId});
 }
 
 /// @nodoc
-class _$CreateContentResultModelCopyWithImpl<$Res>
-    implements $CreateContentResultModelCopyWith<$Res> {
-  _$CreateContentResultModelCopyWithImpl(this._self, this._then);
+class _$GenerationStartResponseCopyWithImpl<$Res>
+    implements $GenerationStartResponseCopyWith<$Res> {
+  _$GenerationStartResponseCopyWithImpl(this._self, this._then);
 
-  final CreateContentResultModel _self;
-  final $Res Function(CreateContentResultModel) _then;
+  final GenerationStartResponse _self;
+  final $Res Function(GenerationStartResponse) _then;
 
-  /// Create a copy of CreateContentResultModel
+  /// Create a copy of GenerationStartResponse
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? contentId = null,
+    Object? generationId = null,
   }) {
     return _then(_self.copyWith(
-      contentId: null == contentId
-          ? _self.contentId
-          : contentId // ignore: cast_nullable_to_non_nullable
-              as String,
+      generationId: null == generationId
+          ? _self.generationId
+          : generationId // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
 
-/// Adds pattern-matching-related methods to [CreateContentResultModel].
-extension CreateContentResultModelPatterns on CreateContentResultModel {
+/// Adds pattern-matching-related methods to [GenerationStartResponse].
+extension GenerationStartResponsePatterns on GenerationStartResponse {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
@@ -95,12 +95,12 @@ extension CreateContentResultModelPatterns on CreateContentResultModel {
 
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>(
-    TResult Function(_CreateContentResultModel value)? $default, {
+    TResult Function(_GenerationStartResponse value)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _CreateContentResultModel() when $default != null:
+      case _GenerationStartResponse() when $default != null:
         return $default(_that);
       case _:
         return orElse();
@@ -122,11 +122,11 @@ extension CreateContentResultModelPatterns on CreateContentResultModel {
 
   @optionalTypeArgs
   TResult map<TResult extends Object?>(
-    TResult Function(_CreateContentResultModel value) $default,
+    TResult Function(_GenerationStartResponse value) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _CreateContentResultModel():
+      case _GenerationStartResponse():
         return $default(_that);
       case _:
         throw StateError('Unexpected subclass');
@@ -147,11 +147,11 @@ extension CreateContentResultModelPatterns on CreateContentResultModel {
 
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_CreateContentResultModel value)? $default,
+    TResult? Function(_GenerationStartResponse value)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _CreateContentResultModel() when $default != null:
+      case _GenerationStartResponse() when $default != null:
         return $default(_that);
       case _:
         return null;
@@ -172,13 +172,13 @@ extension CreateContentResultModelPatterns on CreateContentResultModel {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String contentId)? $default, {
+    TResult Function(int generationId)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _CreateContentResultModel() when $default != null:
-        return $default(_that.contentId);
+      case _GenerationStartResponse() when $default != null:
+        return $default(_that.generationId);
       case _:
         return orElse();
     }
@@ -199,12 +199,12 @@ extension CreateContentResultModelPatterns on CreateContentResultModel {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String contentId) $default,
+    TResult Function(int generationId) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _CreateContentResultModel():
-        return $default(_that.contentId);
+      case _GenerationStartResponse():
+        return $default(_that.generationId);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -224,12 +224,12 @@ extension CreateContentResultModelPatterns on CreateContentResultModel {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String contentId)? $default,
+    TResult? Function(int generationId)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _CreateContentResultModel() when $default != null:
-        return $default(_that.contentId);
+      case _GenerationStartResponse() when $default != null:
+        return $default(_that.generationId);
       case _:
         return null;
     }
@@ -238,26 +238,26 @@ extension CreateContentResultModelPatterns on CreateContentResultModel {
 
 /// @nodoc
 @JsonSerializable()
-class _CreateContentResultModel implements CreateContentResultModel {
-  const _CreateContentResultModel({required this.contentId});
-  factory _CreateContentResultModel.fromJson(Map<String, dynamic> json) =>
-      _$CreateContentResultModelFromJson(json);
+class _GenerationStartResponse implements GenerationStartResponse {
+  const _GenerationStartResponse({required this.generationId});
+  factory _GenerationStartResponse.fromJson(Map<String, dynamic> json) =>
+      _$GenerationStartResponseFromJson(json);
 
   @override
-  final String contentId;
+  final int generationId;
 
-  /// Create a copy of CreateContentResultModel
+  /// Create a copy of GenerationStartResponse
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$CreateContentResultModelCopyWith<_CreateContentResultModel> get copyWith =>
-      __$CreateContentResultModelCopyWithImpl<_CreateContentResultModel>(
+  _$GenerationStartResponseCopyWith<_GenerationStartResponse> get copyWith =>
+      __$GenerationStartResponseCopyWithImpl<_GenerationStartResponse>(
           this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$CreateContentResultModelToJson(
+    return _$GenerationStartResponseToJson(
       this,
     );
   }
@@ -266,52 +266,52 @@ class _CreateContentResultModel implements CreateContentResultModel {
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _CreateContentResultModel &&
-            (identical(other.contentId, contentId) ||
-                other.contentId == contentId));
+            other is _GenerationStartResponse &&
+            (identical(other.generationId, generationId) ||
+                other.generationId == generationId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, contentId);
+  int get hashCode => Object.hash(runtimeType, generationId);
 
   @override
   String toString() {
-    return 'CreateContentResultModel(contentId: $contentId)';
+    return 'GenerationStartResponse(generationId: $generationId)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$CreateContentResultModelCopyWith<$Res>
-    implements $CreateContentResultModelCopyWith<$Res> {
-  factory _$CreateContentResultModelCopyWith(_CreateContentResultModel value,
-          $Res Function(_CreateContentResultModel) _then) =
-      __$CreateContentResultModelCopyWithImpl;
+abstract mixin class _$GenerationStartResponseCopyWith<$Res>
+    implements $GenerationStartResponseCopyWith<$Res> {
+  factory _$GenerationStartResponseCopyWith(_GenerationStartResponse value,
+          $Res Function(_GenerationStartResponse) _then) =
+      __$GenerationStartResponseCopyWithImpl;
   @override
   @useResult
-  $Res call({String contentId});
+  $Res call({int generationId});
 }
 
 /// @nodoc
-class __$CreateContentResultModelCopyWithImpl<$Res>
-    implements _$CreateContentResultModelCopyWith<$Res> {
-  __$CreateContentResultModelCopyWithImpl(this._self, this._then);
+class __$GenerationStartResponseCopyWithImpl<$Res>
+    implements _$GenerationStartResponseCopyWith<$Res> {
+  __$GenerationStartResponseCopyWithImpl(this._self, this._then);
 
-  final _CreateContentResultModel _self;
-  final $Res Function(_CreateContentResultModel) _then;
+  final _GenerationStartResponse _self;
+  final $Res Function(_GenerationStartResponse) _then;
 
-  /// Create a copy of CreateContentResultModel
+  /// Create a copy of GenerationStartResponse
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? contentId = null,
+    Object? generationId = null,
   }) {
-    return _then(_CreateContentResultModel(
-      contentId: null == contentId
-          ? _self.contentId
-          : contentId // ignore: cast_nullable_to_non_nullable
-              as String,
+    return _then(_GenerationStartResponse(
+      generationId: null == generationId
+          ? _self.generationId
+          : generationId // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }

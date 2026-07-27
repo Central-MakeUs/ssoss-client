@@ -46,6 +46,12 @@ class AuthInterceptor extends QueuedInterceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
+    // 사용자 취소는 세션 만료로 취급하지 않는다.
+    if (_isCancelled(err)) {
+      handler.next(err);
+      return;
+    }
+
     final status = err.response?.statusCode;
     final alreadyRetried =
         err.requestOptions.extra[AuthRequestExtra.authRetried] == true;
@@ -78,10 +84,23 @@ class AuthInterceptor extends QueuedInterceptor {
     } on AuthException catch (_) {
       await _expireSession();
       handler.next(err);
-    } catch (_) {
+    } catch (e) {
+      // 401 재시도 중 CancelToken 이 끊기면 로그아웃하지 않는다.
+      if (_isCancelled(e) || _isCancelled(err)) {
+        handler.next(err);
+        return;
+      }
       await _expireSession();
       handler.next(err);
     }
+  }
+
+  bool _isCancelled(Object error) {
+    if (error is DioException) {
+      return error.type == DioExceptionType.cancel ||
+          CancelToken.isCancel(error);
+    }
+    return false;
   }
 
   Future<void> _expireSession() async {

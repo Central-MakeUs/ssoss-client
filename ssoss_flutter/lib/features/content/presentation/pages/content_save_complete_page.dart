@@ -46,6 +46,7 @@ class ContentSaveCompletePage extends StatelessWidget {
       extra: ContentOtherChannelArgs(
         sourceContentId: sourceContentId,
         excludedChannels: args.excludedChannels,
+        previousInput: args.previousInput,
       ),
     );
   }

@@ -1,14 +1,13 @@
 import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
-import 'package:ssoss_flutter/features/content/domain/entities/create_content_result.dart';
 import 'package:ssoss_flutter/features/content/domain/repositories/content_repository.dart';
 
-class CreateContentUseCase {
-  CreateContentUseCase(this._repository);
+class StartGenerationUseCase {
+  StartGenerationUseCase(this._repository);
 
   final ContentRepository _repository;
 
-  Future<CreateContentResult> call(ContentCreateInput input) {
+  Future<int> call(ContentCreateInput input) {
     final hasSourceContent =
         input.sourceContentId != null && input.sourceContentId!.trim().isNotEmpty;
 
@@ -18,7 +17,7 @@ class CreateContentUseCase {
     }
 
     final trimmedForbidden = input.forbidden?.trim();
-    return _repository.createContent(
+    return _repository.startGeneration(
       ContentCreateInput(
         channels: input.channels,
         purpose: input.purpose,

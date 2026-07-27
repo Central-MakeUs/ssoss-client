@@ -1,3 +1,4 @@
+import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_mode.dart';
 
@@ -7,6 +8,7 @@ class ContentSaveCompleteArgs {
     required this.mode,
     this.sourceContentId,
     this.excludedChannels = const [],
+    this.previousInput,
   });
 
   final ContentSaveCompleteMode mode;
@@ -16,4 +18,7 @@ class ContentSaveCompleteArgs {
 
   /// 다른 채널 선택에서 제외할 채널.
   final List<UploadChannel> excludedChannels;
+
+  /// 최초 생성 시 입력한 purpose/tone/keywords 등. 다른 채널용 생성에 재사용.
+  final ContentCreateInput? previousInput;
 }

@@ -36,16 +36,23 @@ class ContentOtherChannelCreateCubit
   ContentOtherChannelCreateCubit({
     required String sourceContentId,
     required List<UploadChannel> excludedChannels,
+    ContentCreateInput? previousInput,
+    List<UploadChannel> initialSelected = const [],
   })  : _sourceContentId = sourceContentId,
+        _previousInput = previousInput,
         super(
           ContentOtherChannelCreateState(
             availableChannels: UploadChannel.values
+                .where((channel) => !excludedChannels.contains(channel))
+                .toList(growable: false),
+            selected: initialSelected
                 .where((channel) => !excludedChannels.contains(channel))
                 .toList(growable: false),
           ),
         );
 
   final String _sourceContentId;
+  final ContentCreateInput? _previousInput;
 
   String get sourceContentId => _sourceContentId;
 
@@ -74,14 +81,27 @@ class ContentOtherChannelCreateCubit
     );
   }
 
-  /// 원문 콘텐츠 ID + 선택 채널로 생성 입력을 만든다.
-  ///
-  /// purpose/tone/highlight는 API가 원문에서 조회할 예정이며,
-  /// 연동 전 더미 기본값을 채운다.
+  /// 이전 생성 입력 + 선택 채널 + sourceContentId로 생성 입력을 만든다.
   ContentCreateInput? buildCreateInput() {
     if (!state.canSubmit) {
       return null;
     }
+
+    final previous = _previousInput;
+    if (previous != null) {
+      return ContentCreateInput(
+        channels: List<UploadChannel>.unmodifiable(state.selected),
+        purpose: previous.purpose,
+        tone: previous.tone,
+        highlight: previous.highlight,
+        forbidden: previous.forbidden,
+        keywords: List<String>.unmodifiable(previous.keywords),
+        photoGuideEnabled: previous.photoGuideEnabled,
+        sourceContentId: _sourceContentId,
+      );
+    }
+
+    // 상세 등 previousInput이 없는 진입: sourceContentId만 넘기고 기본값 사용.
     return ContentCreateInput(
       channels: List<UploadChannel>.unmodifiable(state.selected),
       purpose: UploadPurpose.informative,

@@ -1,5 +1,6 @@
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_target.dart';
+import 'package:ssoss_flutter/utils/photo_guide_parser.dart';
 
 /// 편집 화면에서 결과 화면으로 넘기는 값.
 class ContentEditResult {
@@ -9,7 +10,7 @@ class ContentEditResult {
     this.title,
     this.body,
     this.hashtags,
-    this.photoGuidePresent,
+    this.photoGuides,
   });
 
   final UploadChannel channel;
@@ -18,6 +19,6 @@ class ContentEditResult {
   final String? body;
   final List<String>? hashtags;
 
-  /// 본문 편집 후 추천사진 블록이 남아 있는지. null이면 미변경.
-  final bool? photoGuidePresent;
+  /// 본문 편집 후 남은 photo-guide. null이면 미변경(대상이 본문이 아님).
+  final List<PhotoGuidePlacement>? photoGuides;
 }

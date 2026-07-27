@@ -10,17 +10,40 @@ import 'package:ssoss_flutter/features/content/presentation/cubit/content_create
 class ContentCreateCubit extends Cubit<ContentCreateState> {
   ContentCreateCubit({
     UploadChannel? initialChannel,
+    ContentCreateInput? restoredInput,
   }) : super(
-          ContentCreateState(
-            channels: initialChannel != null
-                ? <UploadChannel>[initialChannel]
-                : const <UploadChannel>[],
-            // 채널 바로가기 진입 시 콘텐츠 설정(2단계)부터 시작
-            step: initialChannel != null
-                ? ContentCreateStep.content
-                : ContentCreateStep.channel,
+          _initialState(
+            initialChannel: initialChannel,
+            restoredInput: restoredInput,
           ),
         );
+
+  static ContentCreateState _initialState({
+    UploadChannel? initialChannel,
+    ContentCreateInput? restoredInput,
+  }) {
+    if (restoredInput != null) {
+      return ContentCreateState(
+        step: ContentCreateStep.detail,
+        channels: List<UploadChannel>.of(restoredInput.channels),
+        purpose: restoredInput.purpose,
+        tone: restoredInput.tone,
+        highlight: restoredInput.highlight,
+        forbidden: restoredInput.forbidden ?? '',
+        keywords: List<String>.of(restoredInput.keywords),
+        photoGuideEnabled: restoredInput.photoGuideEnabled,
+      );
+    }
+    return ContentCreateState(
+      channels: initialChannel != null
+          ? <UploadChannel>[initialChannel]
+          : const <UploadChannel>[],
+      // 채널 바로가기 진입 시 콘텐츠 설정(2단계)부터 시작
+      step: initialChannel != null
+          ? ContentCreateStep.content
+          : ContentCreateStep.channel,
+    );
+  }
 
   void toggleChannel(UploadChannel channel) {
     final current = List<UploadChannel>.of(state.channels);

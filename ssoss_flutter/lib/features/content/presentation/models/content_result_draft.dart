@@ -1,6 +1,8 @@
 import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/generation_channel_result.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/generation_detail.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
-import 'package:ssoss_flutter/features/content/presentation/models/content_result_dummy.dart';
+import 'package:ssoss_flutter/utils/photo_guide_parser.dart';
 
 /// 채널별 결과 draft (로컬 편집 반영용).
 class ContentChannelDraft {
@@ -8,25 +10,31 @@ class ContentChannelDraft {
     required this.body,
     this.title,
     this.hashtags = const [],
-    this.showPhotoGuide = false,
+    this.photoGuides = const [],
   });
 
   final String? title;
+
+  /// 태그 제거된 화면용 본문.
   final String body;
   final List<String> hashtags;
-  final bool showPhotoGuide;
+
+  /// displayBody 기준 추천 사진 가이드 위치.
+  final List<PhotoGuidePlacement> photoGuides;
+
+  bool get showPhotoGuide => photoGuides.isNotEmpty;
 
   ContentChannelDraft copyWith({
     String? title,
     String? body,
     List<String>? hashtags,
-    bool? showPhotoGuide,
+    List<PhotoGuidePlacement>? photoGuides,
   }) {
     return ContentChannelDraft(
       title: title ?? this.title,
       body: body ?? this.body,
       hashtags: hashtags ?? this.hashtags,
-      showPhotoGuide: showPhotoGuide ?? this.showPhotoGuide,
+      photoGuides: photoGuides ?? this.photoGuides,
     );
   }
 }
@@ -59,27 +67,53 @@ class ContentResultDraft {
     );
   }
 
-  /// 더미 + 생성 입력 기준으로 초기 draft를 만든다.
-  factory ContentResultDraft.fromChannels({
-    required List<UploadChannel> channels,
-    required bool photoGuideEnabled,
-    required bool compact,
-  }) {
+  factory ContentResultDraft.fromGenerationDetail(GenerationDetail detail) {
     final map = <UploadChannel, ContentChannelDraft>{};
-    for (final channel in channels) {
-      map[channel] = ContentChannelDraft(
-        title: channel == UploadChannel.blog
-            ? ContentResultDummy.blogTitle
-            : null,
-        body: ContentResultDummy.bodyFor(channel, compact: compact),
-        hashtags: channel == UploadChannel.instagram
-            ? SsossHashtagNormalizer.stripAll(
-                ContentResultDummy.instagramHashtags,
-              )
-            : const [],
-        showPhotoGuide: photoGuideEnabled,
-      );
+    for (final result in detail.results) {
+      map[result.channel] = _draftFromResult(result);
     }
     return ContentResultDraft(byChannel: map);
+  }
+
+  static ContentChannelDraft _draftFromResult(GenerationChannelResult result) {
+    final parsed = PhotoGuideParser.parse(result.body);
+    return ContentChannelDraft(
+      title: result.title,
+      body: parsed.displayBody,
+      hashtags: SsossHashtagNormalizer.stripAll(result.hashtags),
+      photoGuides: parsed.placements,
+    );
+  }
+
+  /// 저장(POST)용 채널별 완전체. 작업의 전 채널을 포함하며,
+  /// 각 원소는 title/body/hashtags를 통째로 담는다.
+  ///
+  /// - 블로그: trim된 title (빈/공백이면 null → 직렬화 시 omit)
+  /// - 그 외: title 없음
+  /// - hashtags: 화면에 보이는 `#` 포함 형태로 전송
+  /// - body: 남은 photo-guide 태그를 재삽입한 API 본문
+  List<GenerationChannelResult> toGenerationChannelResults() {
+    return byChannel.entries
+        .map((entry) {
+          final channel = entry.key;
+          final draft = entry.value;
+          final trimmed = draft.title?.trim();
+          final title = channel == UploadChannel.blog
+              ? (trimmed == null || trimmed.isEmpty ? null : trimmed)
+              : null;
+          return GenerationChannelResult(
+            channel: channel,
+            title: title,
+            body: PhotoGuideParser.serialize(
+              draft.body,
+              placements: draft.photoGuides,
+            ),
+            hashtags: [
+              for (final tag in draft.hashtags)
+                SsossHashtagNormalizer.display(tag),
+            ],
+          );
+        })
+        .toList(growable: false);
   }
 }
