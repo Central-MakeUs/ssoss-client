@@ -20,7 +20,7 @@ class WithdrawReasonPage extends StatefulWidget {
 }
 
 class _WithdrawReasonPageState extends State<WithdrawReasonPage> {
-  int _selectedIndex = 0;
+  int? _selectedIndex;
   bool _isSubmitting = false;
   late final TextEditingController _otherController;
 
@@ -37,7 +37,7 @@ class _WithdrawReasonPageState extends State<WithdrawReasonPage> {
   }
 
   Future<void> _onWithdraw() async {
-    if (_isSubmitting) {
+    if (_isSubmitting || _selectedIndex == null) {
       return;
     }
 
@@ -107,6 +107,7 @@ class _WithdrawReasonPageState extends State<WithdrawReasonPage> {
                     label: '계정 탈퇴하기',
                     width: double.infinity,
                     isLoading: _isSubmitting,
+                    enabled: _selectedIndex != null,
                     onPressed: () => unawaited(_onWithdraw()),
                   ),
                 ),
