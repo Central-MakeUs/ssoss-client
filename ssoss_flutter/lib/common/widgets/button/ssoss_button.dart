@@ -97,17 +97,61 @@ class _SsossButtonState extends State<SsossButton> {
   bool get _isInteractive =>
       widget.enabled && !widget.isLoading && widget.onPressed != null;
 
-  bool get _usePressedStyle =>
-      _isPressed &&
-      _isInteractive &&
-      widget.backgroundColor == null &&
-      widget.foregroundColor == null &&
-      widget.borderColor == null;
+  bool get _usePressedStyle => _isPressed && _isInteractive;
 
   void _setPressed(bool value) {
     if (_isPressed != value) {
       setState(() => _isPressed = value);
     }
+  }
+
+  Color _resolveBackgroundColor(_ButtonStyle style) {
+    if (!_isVisuallyEnabled) {
+      return widget.disabledBackgroundColor ??
+          style.disabledBackgroundColor ??
+          AppColors.neutral100;
+    }
+    if (_usePressedStyle) {
+      if (widget.backgroundColor != null) {
+        return Color.alphaBlend(
+          const Color(0x1F000000),
+          widget.backgroundColor!,
+        );
+      }
+      return style.pressedBackgroundColor ?? style.backgroundColor;
+    }
+    return widget.backgroundColor ?? style.backgroundColor;
+  }
+
+  Color _resolveForegroundColor(_ButtonStyle style) {
+    if (!_isVisuallyEnabled) {
+      return widget.disabledForegroundColor ??
+          style.disabledForegroundColor ??
+          AppColors.neutral400;
+    }
+    if (_usePressedStyle) {
+      if (widget.foregroundColor != null) {
+        return widget.foregroundColor!;
+      }
+      return style.pressedForegroundColor ?? style.foregroundColor;
+    }
+    return widget.foregroundColor ?? style.foregroundColor;
+  }
+
+  Color? _resolveBorderColor(_ButtonStyle style) {
+    if (!_isVisuallyEnabled) {
+      return widget.disabledBorderColor ?? style.disabledBorderColor;
+    }
+    if (_usePressedStyle) {
+      if (widget.borderColor != null) {
+        return Color.alphaBlend(
+          const Color(0x1F000000),
+          widget.borderColor!,
+        );
+      }
+      return style.pressedBorderColor ?? style.borderColor;
+    }
+    return widget.borderColor ?? style.borderColor;
   }
 
   @override
@@ -117,25 +161,9 @@ class _SsossButtonState extends State<SsossButton> {
       widget.type,
       widget.isIconOnly,
     );
-    final resolvedForegroundColor = !_isVisuallyEnabled
-        ? widget.disabledForegroundColor ??
-            style.disabledForegroundColor ??
-            AppColors.neutral400
-        : _usePressedStyle
-            ? style.pressedForegroundColor ?? style.foregroundColor
-            : widget.foregroundColor ?? style.foregroundColor;
-    final resolvedBackgroundColor = !_isVisuallyEnabled
-        ? widget.disabledBackgroundColor ??
-            style.disabledBackgroundColor ??
-            AppColors.neutral100
-        : _usePressedStyle
-            ? style.pressedBackgroundColor ?? style.backgroundColor
-            : widget.backgroundColor ?? style.backgroundColor;
-    final resolvedBorderColor = !_isVisuallyEnabled
-        ? widget.disabledBorderColor ?? style.disabledBorderColor
-        : _usePressedStyle
-            ? style.pressedBorderColor ?? style.borderColor
-            : widget.borderColor ?? style.borderColor;
+    final resolvedForegroundColor = _resolveForegroundColor(style);
+    final resolvedBackgroundColor = _resolveBackgroundColor(style);
+    final resolvedBorderColor = _resolveBorderColor(style);
     final resolvedBorderRadius =
         widget.borderRadius ?? BorderRadius.circular(8);
     final resolvedHeight = widget.height ?? style.height;

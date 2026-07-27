@@ -27,6 +27,8 @@ class SsossModal extends StatelessWidget {
     this.onPrimaryPressed,
     this.onSecondaryPressed,
     this.showButtonIcons = true,
+    this.showCloseButton = true,
+    this.showSecondaryButton = true,
     this.isPrimaryLoading = false,
     this.isActionsDisabled = false,
     this.actions,
@@ -58,6 +60,8 @@ class SsossModal extends StatelessWidget {
   final VoidCallback? onPrimaryPressed;
   final VoidCallback? onSecondaryPressed;
   final bool showButtonIcons;
+  final bool showCloseButton;
+  final bool showSecondaryButton;
   final bool isPrimaryLoading;
   final bool isActionsDisabled;
   final Widget? actions;
@@ -85,9 +89,9 @@ class SsossModal extends StatelessWidget {
     return Container(
       width: width,
       padding: padding ??
-          const EdgeInsets.fromLTRB(
+          EdgeInsets.fromLTRB(
             16,
-            16,
+            showCloseButton ? 16 : 18,
             16,
             18,
           ),
@@ -104,6 +108,7 @@ class SsossModal extends StatelessWidget {
             message: message,
             hasMessage: _hasMessage,
             onClose: isActionsDisabled ? null : onClose,
+            showCloseButton: showCloseButton,
             titleColor: titleColor ?? AppColors.neutral800,
             messageColor: messageColor ?? AppColors.neutral400,
             closeIconColor: closeIconColor ?? AppColors.neutral400,
@@ -122,6 +127,24 @@ class SsossModal extends StatelessWidget {
   Widget _buildDefaultActions() {
     final actionsEnabled = !isActionsDisabled;
 
+    final primaryButton = SsossButton(
+      label: primaryButtonLabel,
+      backgroundColor: primaryButtonColor,
+      foregroundColor: primaryButtonTextColor,
+      size: SsossButtonSize.medium,
+      type: SsossButtonType.primary,
+      width: double.infinity,
+      enabled: actionsEnabled,
+      isLoading: isPrimaryLoading,
+      onPressed: actionsEnabled ? onPrimaryPressed : null,
+      showLeftIcon: showButtonIcons,
+      showRightIcon: showButtonIcons,
+    );
+
+    if (!showSecondaryButton) {
+      return primaryButton;
+    }
+
     return Row(
       children: [
         Expanded(
@@ -139,21 +162,7 @@ class SsossModal extends StatelessWidget {
           ),
         ),
         SizedBox(width: actionGap),
-        Expanded(
-          child: SsossButton(
-            label: primaryButtonLabel,
-            backgroundColor: primaryButtonColor,
-            foregroundColor: primaryButtonTextColor,
-            size: SsossButtonSize.medium,
-            type: SsossButtonType.primary,
-            width: double.infinity,
-            enabled: actionsEnabled,
-            isLoading: isPrimaryLoading,
-            onPressed: actionsEnabled ? onPrimaryPressed : null,
-            showLeftIcon: showButtonIcons,
-            showRightIcon: showButtonIcons,
-          ),
-        ),
+        Expanded(child: primaryButton),
       ],
     );
   }
@@ -174,6 +183,9 @@ Future<SsossModalResult?> showSsossModal(
   Future<void> Function()? onPrimaryPressedAsync,
   VoidCallback? onClose,
   bool showButtonIcons = true,
+  bool showCloseButton = true,
+  bool showSecondaryButton = true,
+  bool dismissOnPrimaryPressed = true,
   Widget? actions,
   double? width = double.infinity,
   double? maxWidth,
@@ -226,6 +238,8 @@ Future<SsossModalResult?> showSsossModal(
           secondaryButtonColor: secondaryButtonColor,
           secondaryButtonTextColor: secondaryButtonTextColor,
           showButtonIcons: showButtonIcons,
+          showCloseButton: showCloseButton,
+          showSecondaryButton: showSecondaryButton,
           isPrimaryLoading: isPrimaryLoading,
           isActionsDisabled: isActionsDisabled,
           actions: actions,
@@ -314,7 +328,9 @@ Future<SsossModalResult?> showSsossModal(
           isPrimaryLoading: false,
           isActionsDisabled: false,
           onPrimaryTap: () {
-            dismiss(SsossModalResult.primary);
+            if (dismissOnPrimaryPressed) {
+              dismiss(SsossModalResult.primary);
+            }
             onPrimaryPressed?.call();
           },
           onSecondaryTap: () {
@@ -355,6 +371,7 @@ class _ModalHeader extends StatelessWidget {
     required this.closeIconColor,
     required this.headerGap,
     required this.messageGap,
+    required this.showCloseButton,
     this.onClose,
     this.titleStyle,
     this.messageStyle,
@@ -364,6 +381,7 @@ class _ModalHeader extends StatelessWidget {
   final String? message;
   final bool hasMessage;
   final VoidCallback? onClose;
+  final bool showCloseButton;
   final Color titleColor;
   final Color messageColor;
   final Color closeIconColor;
@@ -378,22 +396,23 @@ class _ModalHeader extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: GestureDetector(
-            onTap: onClose,
-            behavior: HitTestBehavior.opaque,
-            child: SvgPicture.asset(
-              AppAssets.icClose,
-              width: 24,
-              height: 24,
-              colorFilter: const ColorFilter.mode(
-                AppColors.neutral400,
-                BlendMode.srcIn,
+        if (showCloseButton)
+          Align(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              onTap: onClose,
+              behavior: HitTestBehavior.opaque,
+              child: SvgPicture.asset(
+                AppAssets.icClose,
+                width: 24,
+                height: 24,
+                colorFilter: ColorFilter.mode(
+                  closeIconColor,
+                  BlendMode.srcIn,
+                ),
               ),
             ),
           ),
-        ),
         SizedBox(height: headerGap),
         AppText(
           title,
