@@ -55,7 +55,7 @@ class WithdrawReasonOptionList extends StatelessWidget {
     super.key,
   });
 
-  final int selectedIndex;
+  final int? selectedIndex;
   final bool isDisabled;
   final ValueChanged<int> onSelected;
   final TextEditingController otherController;
