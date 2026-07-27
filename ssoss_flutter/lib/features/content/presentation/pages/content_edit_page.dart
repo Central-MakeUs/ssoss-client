@@ -11,10 +11,14 @@ import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/edit_content_channel_usecase.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_edit_cubit.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_edit_state.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_args.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_edit_channel_merge.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_edit_persist_mode.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_target.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/edit/content_edit_bottom_bar.dart';
 
@@ -34,15 +38,29 @@ class ContentEditPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ContentEditCubit(args: args),
-      child: const _ContentEditView(),
+      child: _ContentEditView(args: args),
     );
   }
 }
 
-class _ContentEditView extends StatelessWidget {
-  const _ContentEditView();
+class _ContentEditView extends StatefulWidget {
+  const _ContentEditView({required this.args});
+
+  final ContentEditArgs args;
+
+  @override
+  State<_ContentEditView> createState() => _ContentEditViewState();
+}
+
+class _ContentEditViewState extends State<_ContentEditView> {
+  bool _isSubmitting = false;
+
+  ContentEditArgs get args => widget.args;
 
   Future<void> _onReset(BuildContext context) async {
+    if (_isSubmitting) {
+      return;
+    }
     final result = await showSsossModal(
       context,
       title: '수정한 내용을 초기화하시겠어요?',
@@ -58,6 +76,9 @@ class _ContentEditView extends StatelessWidget {
   }
 
   Future<void> _onBack(BuildContext context) async {
+    if (_isSubmitting) {
+      return;
+    }
     final state = context.read<ContentEditCubit>().state;
     if (!state.isDirty) {
       context.pop();
@@ -80,12 +101,66 @@ class _ContentEditView extends StatelessWidget {
     context.pop();
   }
 
-  void _onSubmit(BuildContext context) {
-    final editResult = context.read<ContentEditCubit>().buildResult();
+  Future<void> _onSubmit(BuildContext context) async {
+    if (_isSubmitting) {
+      return;
+    }
+    final cubit = context.read<ContentEditCubit>();
+    final editResult = cubit.buildResult();
     if (editResult == null) {
       return;
     }
-    context.pop(editResult);
+
+    if (args.persistMode == ContentEditPersistMode.none) {
+      context.pop(editResult);
+      return;
+    }
+
+    final contentId = args.contentId;
+    final contentChannelId = args.contentChannelId;
+    if (contentId == null || contentChannelId == null) {
+      showSsossToast(
+        context,
+        title: '편집에 필요한 정보가 없어요',
+        type: SsossToastType.error,
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    try {
+      final channelPayload = mergeEditToChannelResult(
+        channel: args.channel,
+        initialTitle: args.initialTitle,
+        initialBody: args.initialBody,
+        initialHashtags: args.initialHashtags,
+        initialPhotoGuides: args.photoGuides,
+        editResult: editResult,
+      );
+      final editUseCase = context.read<EditContentChannelUseCase>();
+      await editUseCase(
+        contentId: contentId,
+        contentChannelId: contentChannelId,
+        channel: channelPayload,
+      );
+      if (!mounted) {
+        return;
+      }
+      this.context.pop(editResult);
+    } on AppException catch (e) {
+      if (!mounted) {
+        return;
+      }
+      showSsossToast(
+        this.context,
+        title: e.message,
+        type: SsossToastType.error,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
   }
 
   void _onAddHashtag(BuildContext context, String raw) {
@@ -146,9 +221,10 @@ class _ContentEditView extends StatelessWidget {
                     ),
                   ),
                   ContentEditBottomBar(
-                    canSubmit: state.canSubmit,
+                    canSubmit: context.read<ContentEditCubit>().canSubmit,
+                    isLoading: _isSubmitting,
                     onReset: () => unawaited(_onReset(context)),
-                    onSubmit: () => _onSubmit(context),
+                    onSubmit: () => unawaited(_onSubmit(context)),
                   ),
                 ],
               ),

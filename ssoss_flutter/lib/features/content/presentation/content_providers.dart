@@ -1,30 +1,47 @@
+import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
 import 'package:ssoss_flutter/features/content/data/datasources/content_remote_datasource.dart';
-import 'package:ssoss_flutter/features/content/data/datasources/demo_content_remote_datasource.dart';
+import 'package:ssoss_flutter/features/content/data/datasources/content_remote_datasource_impl.dart';
 import 'package:ssoss_flutter/features/content/data/repositories/content_repository_impl.dart';
 import 'package:ssoss_flutter/features/content/domain/repositories/content_repository.dart';
-import 'package:ssoss_flutter/features/content/domain/usecases/create_content_usecase.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/edit_content_channel_usecase.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/poll_generation_usecase.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/run_generation_usecase.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/save_content_usecase.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/start_generation_usecase.dart';
 
 /// content 피처 전용 provider 묶음.
-///
-/// `SsossAppScope` 의 `MultiProvider` 에 추가한다.
-/// 데모 단계이므로 [DemoContentRemoteDatasource] 를 사용한다.
 class ContentProviders {
   ContentProviders._();
 
   static List<SingleChildWidget> build() => [
-        Provider<ContentRemoteDatasource>(
-          create: (_) => const DemoContentRemoteDatasource(),
+        ProxyProvider<Dio, ContentRemoteDatasource>(
+          update: (_, dio, __) => ContentRemoteDatasourceImpl(dio),
         ),
         ProxyProvider<ContentRemoteDatasource, ContentRepository>(
           update: (_, remote, __) => ContentRepositoryImpl(
             remoteDatasource: remote,
           ),
         ),
-        ProxyProvider<ContentRepository, CreateContentUseCase>(
-          update: (_, repository, __) => CreateContentUseCase(repository),
+        ProxyProvider<ContentRepository, StartGenerationUseCase>(
+          update: (_, repository, __) => StartGenerationUseCase(repository),
+        ),
+        ProxyProvider<ContentRepository, PollGenerationUseCase>(
+          update: (_, repository, __) => PollGenerationUseCase(repository),
+        ),
+        ProxyProvider<ContentRepository, RunGenerationUseCase>(
+          update: (_, repository, __) => RunGenerationUseCase(
+            startGeneration: StartGenerationUseCase(repository),
+            pollGeneration: PollGenerationUseCase(repository),
+          ),
+        ),
+        ProxyProvider<ContentRepository, SaveContentUseCase>(
+          update: (_, repository, __) => SaveContentUseCase(repository),
+        ),
+        ProxyProvider<ContentRepository, EditContentChannelUseCase>(
+          update: (_, repository, __) => EditContentChannelUseCase(repository),
         ),
       ];
 }

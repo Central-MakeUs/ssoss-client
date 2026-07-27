@@ -147,8 +147,8 @@ extension ContentGeneratingStatePatterns on ContentGeneratingState {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function(String contentId)? success,
-    TResult Function(String message)? failure,
+    TResult Function(GenerationDetail detail)? success,
+    TResult Function(String? message)? failure,
     required TResult orElse(),
   }) {
     final _that = this;
@@ -156,7 +156,7 @@ extension ContentGeneratingStatePatterns on ContentGeneratingState {
       case _Loading() when loading != null:
         return loading();
       case _Success() when success != null:
-        return success(_that.contentId);
+        return success(_that.detail);
       case _Failure() when failure != null:
         return failure(_that.message);
       case _:
@@ -180,15 +180,15 @@ extension ContentGeneratingStatePatterns on ContentGeneratingState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function(String contentId) success,
-    required TResult Function(String message) failure,
+    required TResult Function(GenerationDetail detail) success,
+    required TResult Function(String? message) failure,
   }) {
     final _that = this;
     switch (_that) {
       case _Loading():
         return loading();
       case _Success():
-        return success(_that.contentId);
+        return success(_that.detail);
       case _Failure():
         return failure(_that.message);
       case _:
@@ -211,15 +211,15 @@ extension ContentGeneratingStatePatterns on ContentGeneratingState {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loading,
-    TResult? Function(String contentId)? success,
-    TResult? Function(String message)? failure,
+    TResult? Function(GenerationDetail detail)? success,
+    TResult? Function(String? message)? failure,
   }) {
     final _that = this;
     switch (_that) {
       case _Loading() when loading != null:
         return loading();
       case _Success() when success != null:
-        return success(_that.contentId);
+        return success(_that.detail);
       case _Failure() when failure != null:
         return failure(_that.message);
       case _:
@@ -251,9 +251,9 @@ class _Loading implements ContentGeneratingState {
 /// @nodoc
 
 class _Success implements ContentGeneratingState {
-  const _Success(this.contentId);
+  const _Success(this.detail);
 
-  final String contentId;
+  final GenerationDetail detail;
 
   /// Create a copy of ContentGeneratingState
   /// with the given fields replaced by the non-null parameter values.
@@ -267,16 +267,15 @@ class _Success implements ContentGeneratingState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _Success &&
-            (identical(other.contentId, contentId) ||
-                other.contentId == contentId));
+            (identical(other.detail, detail) || other.detail == detail));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, contentId);
+  int get hashCode => Object.hash(runtimeType, detail);
 
   @override
   String toString() {
-    return 'ContentGeneratingState.success(contentId: $contentId)';
+    return 'ContentGeneratingState.success(detail: $detail)';
   }
 }
 
@@ -286,7 +285,7 @@ abstract mixin class _$SuccessCopyWith<$Res>
   factory _$SuccessCopyWith(_Success value, $Res Function(_Success) _then) =
       __$SuccessCopyWithImpl;
   @useResult
-  $Res call({String contentId});
+  $Res call({GenerationDetail detail});
 }
 
 /// @nodoc
@@ -300,13 +299,13 @@ class __$SuccessCopyWithImpl<$Res> implements _$SuccessCopyWith<$Res> {
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? contentId = null,
+    Object? detail = null,
   }) {
     return _then(_Success(
-      null == contentId
-          ? _self.contentId
-          : contentId // ignore: cast_nullable_to_non_nullable
-              as String,
+      null == detail
+          ? _self.detail
+          : detail // ignore: cast_nullable_to_non_nullable
+              as GenerationDetail,
     ));
   }
 }
@@ -314,9 +313,9 @@ class __$SuccessCopyWithImpl<$Res> implements _$SuccessCopyWith<$Res> {
 /// @nodoc
 
 class _Failure implements ContentGeneratingState {
-  const _Failure(this.message);
+  const _Failure({this.message});
 
-  final String message;
+  final String? message;
 
   /// Create a copy of ContentGeneratingState
   /// with the given fields replaced by the non-null parameter values.
@@ -348,7 +347,7 @@ abstract mixin class _$FailureCopyWith<$Res>
   factory _$FailureCopyWith(_Failure value, $Res Function(_Failure) _then) =
       __$FailureCopyWithImpl;
   @useResult
-  $Res call({String message});
+  $Res call({String? message});
 }
 
 /// @nodoc
@@ -362,13 +361,13 @@ class __$FailureCopyWithImpl<$Res> implements _$FailureCopyWith<$Res> {
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? message = null,
+    Object? message = freezed,
   }) {
     return _then(_Failure(
-      null == message
+      message: freezed == message
           ? _self.message
           : message // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
     ));
   }
 }

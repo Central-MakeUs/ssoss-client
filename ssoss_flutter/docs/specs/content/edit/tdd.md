@@ -16,7 +16,10 @@
 
 ## 1. 기능 요약
 
-콘텐츠 생성 결과의 섹션별 편집 아이콘에서 편집 화면으로 이동한다. 대상(제목/본문/해시태그)과 채널에 따라 UI가 달라지며, dirty일 때만 수정하기가 활성화된다. 초기화는 확인 모달 후 초안을 복구한다. `수정하기`는 서버 호출 없이 결과 화면 draft에 반영한다.
+콘텐츠 생성 결과의 섹션별 편집 아이콘에서 편집 화면으로 이동한다. 대상(제목/본문/해시태그)과 채널에 따라 UI가 달라지며, dirty일 때만 수정하기가 활성화된다. 초기화는 확인 모달 후 초안을 복구한다.
+
+- 결과 화면(`persistMode: none`): `수정하기`는 서버 호출 없이 draft에 반영. DB 저장은 **저장하기** POST.
+- 상세 등(`persistMode: put`): `수정하기` → `PUT /v1/contents/{contentId}/channels/{contentChannelId}`.
 
 **피처 경로**: `lib/features/content/`
 
@@ -25,14 +28,16 @@
 ## 2. 전체 데이터 흐름
 
 ```
-[ContentResultPage]  — draft state (채널별 title/body/hashtags)
-    ↓ 편집 아이콘
-[ContentEditPage] + ContentEditCubit
-    ├─ 문서/해시태그 편집 → isDirty
-    ├─ 초기화 → showSsossModal → reset
-    └─ 수정하기 → context.pop(ContentEditResult)
-    ↓
-[ContentResultPage] draft 갱신
+[ContentResultPage]  — draft
+    ↓ 편집
+[ContentEditPage] persist=none
+    └─ 수정하기 → pop(ContentEditResult) → draft 갱신
+    └─ (결과) 저장하기 → POST /v1/contents
+
+[ContentDetailPage]
+    ↓ 편집
+[ContentEditPage] persist=put + contentId/contentChannelId
+    └─ 수정하기 → EditContentChannelUseCase → PUT → pop
 ```
 
 ```mermaid
@@ -48,15 +53,19 @@ flowchart LR
 
 ## 3. Domain 레이어
 
-이번 범위에서 신규 Entity / Repository / UseCase 없음. 기존 `UploadChannel`만 참조.
-
----
+| 파일 | 역할 |
+|------|------|
+| `EditContentChannelUseCase` | PUT 전 `ContentChannelLimits.validate` |
+| `ContentRepository.editChannel` | PUT 계약 |
+| `ContentChannelContent` | PUT 응답 entity |
 
 ## 4. Data 레이어
 
-신규 없음 (API 미연동).
-
----
+| 파일 | 역할 |
+|------|------|
+| `ContentChannelEditRequest` | title?/body/hashtags (`toApiJson` title omit) |
+| `ContentChannelResponseModel` | PUT 응답 |
+| `ContentRemoteDatasource.editChannel` | `PUT /v1/contents/{id}/channels/{id}` |
 
 ## 5. Presentation 레이어
 
@@ -64,10 +73,9 @@ flowchart LR
 
 | 항목 | 결정 | 이유 |
 |------|------|------|
-| 상태 관리 | Cubit | 단순 로컬 편집·dirty |
-| 진입 | 섹션별 단일 대상 | Figma 프레임과 일치 |
-| 본문 카드 | `SsossContentsEditCard` | ADR-004: 일반 본문 |
-| 결과 반영 | push/pop result | API 없이 draft 갱신 |
+| 상태 관리 | Cubit | 로컬 편집·dirty |
+| persistMode | none / put | 결과 vs 상세 |
+| PUT payload | 채널 완전체 | API: 일부만 고쳐도 세 값 |
 
 ### 5.2 Cubit / State
 
@@ -119,10 +127,17 @@ class ContentEditState with _$ContentEditState {
 
 ### 5.6 글자/개수 제한
 
+채널별 본문 상한은 domain [`ContentChannelLimits`](../../../lib/features/content/domain/entities/content_channel_limits.dart) 및 [`../generation-api/prd.md`](../generation-api/prd.md) §4 와 동일하다.
+
+| 채널 | 제목 | 본문 |
+|------|------|------|
+| 블로그 | 40 | 2,000 |
+| 인스타그램 | — | 700 |
+| 당근 비즈 | — | 400 |
+| 스레드 | — | 500 |
+
 | 대상 | max |
 |------|-----|
-| 제목 | 40 |
-| 본문 | 5000 |
 | 해시태그/키워드 개수 | 10 |
 | 해시태그/키워드 길이 | 30 |
 
@@ -130,7 +145,10 @@ class ContentEditState with _$ContentEditState {
 
 ## 6. API 명세
 
-없음.
+| 메서드 | 엔드포인트 | 언제 |
+|--------|-----------|------|
+| PUT | `/v1/contents/{contentId}/channels/{contentChannelId}` | 상세 등 `persistMode: put` 수정하기 |
+| POST | `/v1/contents` | 결과 화면 **저장하기** (generation-api) — 수정하기에서는 호출하지 않음 |
 
 ---
 
@@ -139,6 +157,7 @@ class ContentEditState with _$ContentEditState {
 | 케이스 | 처리 |
 |--------|------|
 | 해시태그 한도 초과 | 추가 거부 + 토스트 |
+| PUT 실패 | toast, 편집 화면 유지 |
 | 잘못된 route extra | Create 페이지로 fallback |
 
 ---

@@ -25,7 +25,8 @@
 
 ## Phase 0 — Domain / Data
 
-- [x] **0-1** 신규 Domain/Data 없음 (로컬 편집만)
+- [x] **0-1** 로컬 편집 기반 구현 완료
+- [x] **0-2** `editChannel` Repository / UseCase / Model / Datasource + DI
 
 ---
 
@@ -34,6 +35,7 @@
 - [x] **1-1** `ContentEditTarget`, `ContentEditArgs`, `ContentEditResult`, draft 모델
 - [x] **1-2** `ContentEditState` + `ContentEditCubit`
 - [x] **1-3** freezed 생성 (`build_runner`)
+- [x] **1-4** `ContentEditPersistMode` (none / put)
 
 ---
 
@@ -42,13 +44,14 @@
 - [x] **2-1** `ContentEditPage` + bottom bar
 - [x] **2-2** 해시태그 에디터 (10개/30자)
 - [x] **2-3** 라우트 등록
+- [x] **2-4** put 모드 수정하기 → PUT + loading
 
 ---
 
 ## Phase 3 — Result 연결
 
 - [x] **3-1** Result draft state
-- [x] **3-2** 섹션 `onEdit` → push/pop 반영
+- [x] **3-2** 섹션 `onEdit` → push/pop 반영 (persist=none)
 
 ---
 
@@ -58,10 +61,17 @@
 
 ---
 
+## Phase 5 — Detail PUT
+
+- [x] **5-1** `ContentManagementItem` contentId / contentChannelId
+- [x] **5-2** `ContentDetailPage` persist=put 연결
+
+---
+
 ## 완료 기준
 
 - [x] FR Must 구현
-- [x] `flutter analyze` 통과 (신규 코드)
+- [x] 결과 수정하기=로컬, 저장하기=POST, 상세 수정하기=PUT
 - [x] 라우트 등록
 
 ---
@@ -70,4 +80,5 @@
 
 | 날짜 | 내용 | 처리 상태 |
 |------|------|---------|
-| 2026-07-23 | API 미연동, pop result로 draft 반영 | Resolved |
+| 2026-07-23 | API 미연동, pop result로 draft 반영 | Superseded |
+| 2026-07-28 | 상세 PUT 연동, 결과는 로컬+저장 POST | Done |

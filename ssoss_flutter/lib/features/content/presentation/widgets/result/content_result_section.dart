@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_contents_card.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_contents_card_block.dart';
-import 'package:ssoss_flutter/common/widgets/card/ssoss_recommendation_card.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -24,7 +23,6 @@ class ContentResultSection extends StatelessWidget {
   factory ContentResultSection.text({
     required String title,
     required String content,
-    SsossRecommendationCardItem? recommendation,
     VoidCallback? onEdit,
     Key? key,
   }) {
@@ -32,11 +30,21 @@ class ContentResultSection extends StatelessWidget {
       key: key,
       title: title,
       onEdit: onEdit,
-      blocks: [
-        if (recommendation != null)
-          SsossContentsCardRecommendationBlock(recommendation),
-        SsossContentsCardTextBlock(content),
-      ],
+      blocks: [SsossContentsCardTextBlock(content)],
+    );
+  }
+
+  factory ContentResultSection.body({
+    required String title,
+    required List<SsossContentsCardBlock> blocks,
+    VoidCallback? onEdit,
+    Key? key,
+  }) {
+    return ContentResultSection(
+      key: key,
+      title: title,
+      onEdit: onEdit,
+      blocks: blocks,
     );
   }
 

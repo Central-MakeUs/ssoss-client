@@ -23,7 +23,7 @@
 
 **목적**
 
-결과 화면에서 섹션별 편집으로 진입해 원문을 수정·초기화하고, 변경된 내용을 결과 화면에 반영한다. (이번 범위는 로컬 반영만)
+결과 화면에서 섹션별 편집으로 진입해 원문을 수정·초기화하고, 변경된 내용을 결과 화면 draft에 반영한다. 저장한 콘텐츠 상세(`ContentDetailPage`)에서는 수정하기 시 `PUT`으로 서버에 반영한다.
 
 ---
 
@@ -48,16 +48,17 @@
 | FR-05 | 인스타 해시태그 편집: 최대 10개, 각 30자 | Must |
 | FR-06 | 원문과 다를 때만 `수정하기` 활성 | Must |
 | FR-07 | 초기화 → 확인 모달 → 초안 복구 | Must |
-| FR-08 | `수정하기` 시 로컬 반영 후 결과 화면으로 pop | Must |
+| FR-08 | 결과 화면 `수정하기` 시 로컬 draft 반영 후 pop (API 없음). 실제 DB 저장은 결과 화면 **저장하기** `POST /v1/contents` | Must |
 | FR-09 | 생성 플로우 키워드 입력에도 10개·30자 제한 적용 | Must |
+| FR-10 | `ContentDetailPage` 등 저장 후 편집: `수정하기` → `PUT /v1/contents/{contentId}/channels/{contentChannelId}` (채널 title/body/hashtags 완전체) | Must |
 
 ### 3.2 비기능 요구사항 (Non-functional Requirements)
 
 | 항목 | 요구사항 |
 |------|---------|
-| 성능 | 로컬 편집만, API 대기 없음 |
+| 성능 | 결과 편집은 로컬. 상세 PUT 시 로딩 표시 |
 | 보안 | 인증된 사용자만 (기존 라우터 정책) |
-| 오프라인 | 로컬 상태만 사용 |
+| 오프라인 | 결과 로컬만. PUT은 네트워크 필요 |
 | 접근성 | 기존 공용 컴포넌트 준수 |
 
 ---
@@ -66,17 +67,18 @@
 
 ### In Scope (이번 구현에 포함)
 
-- 콘텐츠 결과 → 편집 화면 네비게이션
+- 콘텐츠 결과 → 편집 화면 네비게이션 (로컬 draft)
 - 채널·대상별 편집 UI
 - dirty 기반 CTA, 초기화 모달
 - 해시태그/키워드 10개·30자 공통 제한
-- 결과 draft 로컬 반영
+- 결과 draft 로컬 반영 + 저장하기 POST (generation-api)
+- ContentDetailPage 수정하기 → PUT 채널 편집
 
 ### Out of Scope (이번 구현에서 제외)
 
-- 편집 내용 서버 PATCH/저장 API
-- ContentDetailPage 편집 연결
+- ContentDetail 실서버 상세 GET
 - 템플릿 본문 편집 (`SsossTemplateContentsEditCard`)
+- 결과 화면 수정하기에서 POST/PUT 호출
 
 ---
 
@@ -97,9 +99,14 @@
 ```
 [콘텐츠 생성 결과]
   → 섹션 편집 아이콘
-  → [콘텐츠 편집]
-      ├─ 텍스트 변경 → 수정하기 활성 → 탭 → pop + 결과 반영
-      └─ 초기화 → 모달 → 초기화하기 → 초안 복구
+  → [콘텐츠 편집] persist=none
+      ├─ 수정하기 → pop + draft 반영
+      └─ (결과) 저장하기 → POST /v1/contents
+
+[콘텐츠 상세]
+  → 섹션 편집
+  → [콘텐츠 편집] persist=put
+      └─ 수정하기 → PUT channel → pop + UI 반영
 ```
 
 ---

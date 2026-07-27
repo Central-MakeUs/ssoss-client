@@ -11,6 +11,7 @@ import 'package:ssoss_flutter/features/auth/presentation/pages/signup/signup_ter
 import 'package:ssoss_flutter/features/auth/presentation/pages/splash_page.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/withdraw/withdraw_complete_page.dart';
 import 'package:ssoss_flutter/common/widgets/navigation/ssoss_navigation_bar.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_generation_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_other_channel_args.dart';
@@ -132,9 +133,11 @@ GoRouter createAppRouter(
         name: ContentCreatePage.routeName,
         path: ContentCreatePage.routePath,
         builder: (context, state) {
-          final channel = state.extra is UploadChannel
-              ? state.extra! as UploadChannel
-              : null;
+          final extra = state.extra;
+          if (extra is ContentCreateInput) {
+            return ContentCreatePage(restoredInput: extra);
+          }
+          final channel = extra is UploadChannel ? extra : null;
           return ContentCreatePage(initialChannel: channel);
         },
       ),

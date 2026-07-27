@@ -36,6 +36,8 @@ class ContentOtherChannelCreatePage extends StatelessWidget {
       create: (_) => ContentOtherChannelCreateCubit(
         sourceContentId: args.sourceContentId,
         excludedChannels: args.excludedChannels,
+        previousInput: args.previousInput,
+        initialSelected: args.initialSelected,
       ),
       child: const _ContentOtherChannelCreateView(),
     );

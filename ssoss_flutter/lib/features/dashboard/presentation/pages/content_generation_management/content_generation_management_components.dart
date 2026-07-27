@@ -19,6 +19,8 @@ class ContentManagementItem {
     required this.tone,
     required this.title,
     required this.tags,
+    this.contentId,
+    this.contentChannelId,
   });
 
   final String id;
@@ -28,6 +30,14 @@ class ContentManagementItem {
   final String tone;
   final String title;
   final List<String> tags;
+
+  /// PUT 편집용 콘텐츠 id. 없으면 [id] 숫자 파싱을 시도한다.
+  final int? contentId;
+
+  /// PUT 편집용 채널별 콘텐츠 id.
+  final int? contentChannelId;
+
+  int? get resolvedContentId => contentId ?? int.tryParse(id);
 
   /// 카드 목록에 표시할 제목 (최대 20자 + …).
   String get displayTitle {

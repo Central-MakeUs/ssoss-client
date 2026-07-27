@@ -9,16 +9,20 @@ import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_edit_persist_mode.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_result.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_target.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_label_mapper.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_other_channel_args.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_photo_guide_display.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_result_dummy.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_edit_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_other_channel_create_page.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_detail/content_detail_components.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/content_generation_management_components.dart';
+import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
+import 'package:ssoss_flutter/utils/photo_guide_parser.dart';
 
 class ContentDetailPage extends StatefulWidget {
   const ContentDetailPage({
@@ -41,10 +45,16 @@ class _ContentDetailPageState extends State<ContentDetailPage> {
   late String _body;
   late List<String> _hashtags;
   late List<String> _keywords;
+  late List<PhotoGuidePlacement> _photoGuides;
 
   bool get _showTitle => _channel == UploadChannel.blog;
 
   bool get _showHashtags => _channel == UploadChannel.instagram;
+
+  List<SsossContentsCardBlock> get _bodyBlocks => photoGuideBodyBlocks(
+        displayBody: _body,
+        placements: _photoGuides,
+      );
 
   @override
   void initState() {
@@ -56,7 +66,10 @@ class _ContentDetailPageState extends State<ContentDetailPage> {
             ? widget.item.title
             : ContentResultDummy.blogTitle)
         : '';
-    _body = ContentResultDummy.bodyFor(_channel, compact: false);
+    final rawBody = ContentResultDummy.bodyFor(_channel, compact: false);
+    final parsed = PhotoGuideParser.parse(rawBody);
+    _body = parsed.displayBody;
+    _photoGuides = parsed.placements;
     _hashtags = _showHashtags
         ? SsossHashtagNormalizer.stripAll(
             widget.item.tags.isNotEmpty
@@ -70,6 +83,17 @@ class _ContentDetailPageState extends State<ContentDetailPage> {
   }
 
   Future<void> _openEdit(ContentEditTarget target) async {
+    final contentId = widget.item.resolvedContentId;
+    final contentChannelId = widget.item.contentChannelId;
+    if (contentId == null || contentChannelId == null) {
+      showSsossToast(
+        context,
+        title: '편집에 필요한 정보가 없어요',
+        type: SsossToastType.error,
+      );
+      return;
+    }
+
     final result = await Navigator.of(context).push<ContentEditResult>(
       MaterialPageRoute(
         builder: (_) => ContentEditPage(
@@ -79,6 +103,10 @@ class _ContentDetailPageState extends State<ContentDetailPage> {
             initialTitle: _title,
             initialBody: _body,
             initialHashtags: _hashtags,
+            photoGuides: _photoGuides,
+            persistMode: ContentEditPersistMode.put,
+            contentId: contentId,
+            contentChannelId: contentChannelId,
           ),
         ),
       ),
@@ -94,6 +122,9 @@ class _ContentDetailPageState extends State<ContentDetailPage> {
           _title = result.title ?? _title;
         case ContentEditTarget.body:
           _body = result.body ?? _body;
+          if (result.photoGuides != null) {
+            _photoGuides = List<PhotoGuidePlacement>.of(result.photoGuides!);
+          }
         case ContentEditTarget.hashtags:
           _hashtags = result.hashtags ?? _hashtags;
       }
@@ -150,7 +181,7 @@ class _ContentDetailPageState extends State<ContentDetailPage> {
                         unawaited(_openEdit(ContentEditTarget.body)),
                     child: SsossContentsCard(
                       width: double.infinity,
-                      blocks: [SsossContentsCardTextBlock(_body)],
+                      blocks: _bodyBlocks,
                     ),
                   ),
                   if (_showHashtags) ...[

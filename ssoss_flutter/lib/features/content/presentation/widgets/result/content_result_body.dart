@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:ssoss_flutter/common/widgets/card/ssoss_recommendation_card.dart';
+import 'package:ssoss_flutter/common/widgets/card/ssoss_contents_card_block.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
 import 'package:ssoss_flutter/common/widgets/tab/ssoss_tab_bar.dart';
 
@@ -9,6 +9,7 @@ import 'package:ssoss_flutter/features/content/domain/entities/content_create_in
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_target.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_label_mapper.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_photo_guide_display.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_result_draft.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/result/content_result_hashtag_section.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/result/content_result_section.dart';
@@ -17,13 +18,6 @@ import 'package:ssoss_flutter/features/content/presentation/widgets/result/conte
 typedef ContentResultEditCallback = void Function(
   UploadChannel channel,
   ContentEditTarget target,
-);
-
-const contentResultPhotoGuide = SsossRecommendationCardItem(
-  id: 'photo-guide',
-  label: '추천 사진',
-  title: '매장의 분위기가 담긴 사진을 추천해요.',
-  description: '방문하고 싶은 느낌을 전달하는 데 효과적이에요',
 );
 
 /// 단일 채널 결과 (스크롤 가능).
@@ -169,8 +163,10 @@ class _ChannelResultSections extends StatelessWidget {
   final ContentChannelDraft draft;
   final ContentResultEditCallback onEdit;
 
-  SsossRecommendationCardItem? get _recommendation =>
-      draft.showPhotoGuide ? contentResultPhotoGuide : null;
+  List<SsossContentsCardBlock> get _bodyBlocks => photoGuideBodyBlocks(
+        displayBody: draft.body,
+        placements: draft.photoGuides,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -184,10 +180,9 @@ class _ChannelResultSections extends StatelessWidget {
             onEdit: () => onEdit(channel, ContentEditTarget.title),
           ),
           const SizedBox(height: 32),
-          ContentResultSection.text(
+          ContentResultSection.body(
             title: '본문',
-            content: draft.body,
-            recommendation: _recommendation,
+            blocks: _bodyBlocks,
             onEdit: () => onEdit(channel, ContentEditTarget.body),
           ),
         ],
@@ -198,10 +193,9 @@ class _ChannelResultSections extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ContentResultSection.text(
+          ContentResultSection.body(
             title: '본문',
-            content: draft.body,
-            recommendation: _recommendation,
+            blocks: _bodyBlocks,
             onEdit: () => onEdit(channel, ContentEditTarget.body),
           ),
           const SizedBox(height: 32),
@@ -216,10 +210,9 @@ class _ChannelResultSections extends StatelessWidget {
       );
     }
 
-    return ContentResultSection.text(
+    return ContentResultSection.body(
       title: '본문',
-      content: draft.body,
-      recommendation: _recommendation,
+      blocks: _bodyBlocks,
       onEdit: () => onEdit(channel, ContentEditTarget.body),
     );
   }

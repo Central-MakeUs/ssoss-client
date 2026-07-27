@@ -13,10 +13,12 @@ class ContentEditBottomBar extends StatelessWidget {
     required this.canSubmit,
     required this.onReset,
     required this.onSubmit,
+    this.isLoading = false,
     super.key,
   });
 
   final bool canSubmit;
+  final bool isLoading;
   final VoidCallback onReset;
   final VoidCallback onSubmit;
 
@@ -33,14 +35,15 @@ class ContentEditBottomBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _ResetButton(onPressed: onReset),
+          _ResetButton(onPressed: isLoading ? null : onReset),
           const SizedBox(width: 12),
           Expanded(
             child: SsossButton(
               label: '수정하기',
               width: double.infinity,
-              enabled: canSubmit,
-              onPressed: canSubmit ? onSubmit : null,
+              enabled: canSubmit && !isLoading,
+              isLoading: isLoading,
+              onPressed: canSubmit && !isLoading ? onSubmit : null,
             ),
           ),
         ],
@@ -52,7 +55,7 @@ class ContentEditBottomBar extends StatelessWidget {
 class _ResetButton extends StatelessWidget {
   const _ResetButton({required this.onPressed});
 
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -74,15 +77,21 @@ class _ResetButton extends StatelessWidget {
               AppAssets.icReset,
               width: 22,
               height: 22,
-              colorFilter: const ColorFilter.mode(
-                AppColors.neutral600,
+              colorFilter: ColorFilter.mode(
+                onPressed == null
+                    ? AppColors.neutral300
+                    : AppColors.neutral600,
                 BlendMode.srcIn,
               ),
             ),
             const SizedBox(height: 2),
             AppText(
               '초기화',
-              style: AppTextStyles.h9.copyWith(color: AppColors.neutral600),
+              style: AppTextStyles.h9.copyWith(
+                color: onPressed == null
+                    ? AppColors.neutral300
+                    : AppColors.neutral600,
+              ),
             ),
           ],
         ),

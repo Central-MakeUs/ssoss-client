@@ -79,6 +79,18 @@ class ContentGenerationPreview {
   }
 
   String managementItemId(UploadChannel channel) => '$id-${channel.name}';
+
+  /// 더미 PUT용 contentId. `content-N` → N.
+  int get dummyContentId {
+    final match = RegExp(r'(\d+)$').firstMatch(id);
+    return int.tryParse(match?.group(1) ?? '') ?? 1;
+  }
+
+  int dummyContentChannelId(UploadChannel channel) {
+    final base = dummyContentId * 10;
+    final index = orderedChannelEnums.indexOf(channel);
+    return base + (index < 0 ? 0 : index);
+  }
 }
 
 /// API 연동 전 홈·대시보드 공통 더미.
@@ -182,6 +194,8 @@ Iterable<ContentManagementItem> _toManagementItems(
       tone: channel.tone,
       title: channel.title,
       tags: channel.tags,
+      contentId: generation.dummyContentId,
+      contentChannelId: generation.dummyContentChannelId(channelEnum),
     );
   });
 }
