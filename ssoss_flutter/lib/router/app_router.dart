@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:ssoss_flutter/features/auth/presentation/bloc/login_bloc.dart';
@@ -28,8 +28,12 @@ import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 /// [LoginBloc] 의 인증 상태에 따라 스플래시/로그인/홈으로 분기하는 라우터를 생성한다.
 ///
 /// 새 화면 추가 시 이 파일의 `routes` 에 라우트를 등록한다.
-GoRouter createAppRouter(LoginBloc loginBloc) {
+GoRouter createAppRouter(
+  LoginBloc loginBloc, {
+  GlobalKey<NavigatorState>? navigatorKey,
+}) {
   return GoRouter(
+    navigatorKey: navigatorKey,
     initialLocation: SplashPage.routePath,
     refreshListenable: _GoRouterRefreshStream(loginBloc.stream),
     redirect: (context, state) {
