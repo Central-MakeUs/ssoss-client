@@ -16,9 +16,13 @@ T _$identity<T>(T value) => value;
 mixin _$ContentGenerationManagementState {
   List<ContentManagementItem> get items;
   String get selectedFilter;
-  bool get isLatestFirst;
+  int get totalCount;
+  int get page;
+  bool get hasNext;
   String? get openedMenuItemId;
   bool get isLoading;
+  bool get isLoadingMore;
+  bool get isRefreshing;
   String? get errorMessage;
 
   /// Create a copy of ContentGenerationManagementState
@@ -38,12 +42,18 @@ mixin _$ContentGenerationManagementState {
             const DeepCollectionEquality().equals(other.items, items) &&
             (identical(other.selectedFilter, selectedFilter) ||
                 other.selectedFilter == selectedFilter) &&
-            (identical(other.isLatestFirst, isLatestFirst) ||
-                other.isLatestFirst == isLatestFirst) &&
+            (identical(other.totalCount, totalCount) ||
+                other.totalCount == totalCount) &&
+            (identical(other.page, page) || other.page == page) &&
+            (identical(other.hasNext, hasNext) || other.hasNext == hasNext) &&
             (identical(other.openedMenuItemId, openedMenuItemId) ||
                 other.openedMenuItemId == openedMenuItemId) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
+            (identical(other.isLoadingMore, isLoadingMore) ||
+                other.isLoadingMore == isLoadingMore) &&
+            (identical(other.isRefreshing, isRefreshing) ||
+                other.isRefreshing == isRefreshing) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
@@ -53,14 +63,18 @@ mixin _$ContentGenerationManagementState {
       runtimeType,
       const DeepCollectionEquality().hash(items),
       selectedFilter,
-      isLatestFirst,
+      totalCount,
+      page,
+      hasNext,
       openedMenuItemId,
       isLoading,
+      isLoadingMore,
+      isRefreshing,
       errorMessage);
 
   @override
   String toString() {
-    return 'ContentGenerationManagementState(items: $items, selectedFilter: $selectedFilter, isLatestFirst: $isLatestFirst, openedMenuItemId: $openedMenuItemId, isLoading: $isLoading, errorMessage: $errorMessage)';
+    return 'ContentGenerationManagementState(items: $items, selectedFilter: $selectedFilter, totalCount: $totalCount, page: $page, hasNext: $hasNext, openedMenuItemId: $openedMenuItemId, isLoading: $isLoading, isLoadingMore: $isLoadingMore, isRefreshing: $isRefreshing, errorMessage: $errorMessage)';
   }
 }
 
@@ -74,9 +88,13 @@ abstract mixin class $ContentGenerationManagementStateCopyWith<$Res> {
   $Res call(
       {List<ContentManagementItem> items,
       String selectedFilter,
-      bool isLatestFirst,
+      int totalCount,
+      int page,
+      bool hasNext,
       String? openedMenuItemId,
       bool isLoading,
+      bool isLoadingMore,
+      bool isRefreshing,
       String? errorMessage});
 }
 
@@ -95,9 +113,13 @@ class _$ContentGenerationManagementStateCopyWithImpl<$Res>
   $Res call({
     Object? items = null,
     Object? selectedFilter = null,
-    Object? isLatestFirst = null,
+    Object? totalCount = null,
+    Object? page = null,
+    Object? hasNext = null,
     Object? openedMenuItemId = freezed,
     Object? isLoading = null,
+    Object? isLoadingMore = null,
+    Object? isRefreshing = null,
     Object? errorMessage = freezed,
   }) {
     return _then(_self.copyWith(
@@ -109,9 +131,17 @@ class _$ContentGenerationManagementStateCopyWithImpl<$Res>
           ? _self.selectedFilter
           : selectedFilter // ignore: cast_nullable_to_non_nullable
               as String,
-      isLatestFirst: null == isLatestFirst
-          ? _self.isLatestFirst
-          : isLatestFirst // ignore: cast_nullable_to_non_nullable
+      totalCount: null == totalCount
+          ? _self.totalCount
+          : totalCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      page: null == page
+          ? _self.page
+          : page // ignore: cast_nullable_to_non_nullable
+              as int,
+      hasNext: null == hasNext
+          ? _self.hasNext
+          : hasNext // ignore: cast_nullable_to_non_nullable
               as bool,
       openedMenuItemId: freezed == openedMenuItemId
           ? _self.openedMenuItemId
@@ -120,6 +150,14 @@ class _$ContentGenerationManagementStateCopyWithImpl<$Res>
       isLoading: null == isLoading
           ? _self.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isLoadingMore: null == isLoadingMore
+          ? _self.isLoadingMore
+          : isLoadingMore // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isRefreshing: null == isRefreshing
+          ? _self.isRefreshing
+          : isRefreshing // ignore: cast_nullable_to_non_nullable
               as bool,
       errorMessage: freezed == errorMessage
           ? _self.errorMessage
@@ -226,9 +264,13 @@ extension ContentGenerationManagementStatePatterns
     TResult Function(
             List<ContentManagementItem> items,
             String selectedFilter,
-            bool isLatestFirst,
+            int totalCount,
+            int page,
+            bool hasNext,
             String? openedMenuItemId,
             bool isLoading,
+            bool isLoadingMore,
+            bool isRefreshing,
             String? errorMessage)?
         $default, {
     required TResult orElse(),
@@ -236,8 +278,17 @@ extension ContentGenerationManagementStatePatterns
     final _that = this;
     switch (_that) {
       case _ContentGenerationManagementState() when $default != null:
-        return $default(_that.items, _that.selectedFilter, _that.isLatestFirst,
-            _that.openedMenuItemId, _that.isLoading, _that.errorMessage);
+        return $default(
+            _that.items,
+            _that.selectedFilter,
+            _that.totalCount,
+            _that.page,
+            _that.hasNext,
+            _that.openedMenuItemId,
+            _that.isLoading,
+            _that.isLoadingMore,
+            _that.isRefreshing,
+            _that.errorMessage);
       case _:
         return orElse();
     }
@@ -261,17 +312,30 @@ extension ContentGenerationManagementStatePatterns
     TResult Function(
             List<ContentManagementItem> items,
             String selectedFilter,
-            bool isLatestFirst,
+            int totalCount,
+            int page,
+            bool hasNext,
             String? openedMenuItemId,
             bool isLoading,
+            bool isLoadingMore,
+            bool isRefreshing,
             String? errorMessage)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ContentGenerationManagementState():
-        return $default(_that.items, _that.selectedFilter, _that.isLatestFirst,
-            _that.openedMenuItemId, _that.isLoading, _that.errorMessage);
+        return $default(
+            _that.items,
+            _that.selectedFilter,
+            _that.totalCount,
+            _that.page,
+            _that.hasNext,
+            _that.openedMenuItemId,
+            _that.isLoading,
+            _that.isLoadingMore,
+            _that.isRefreshing,
+            _that.errorMessage);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -294,17 +358,30 @@ extension ContentGenerationManagementStatePatterns
     TResult? Function(
             List<ContentManagementItem> items,
             String selectedFilter,
-            bool isLatestFirst,
+            int totalCount,
+            int page,
+            bool hasNext,
             String? openedMenuItemId,
             bool isLoading,
+            bool isLoadingMore,
+            bool isRefreshing,
             String? errorMessage)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ContentGenerationManagementState() when $default != null:
-        return $default(_that.items, _that.selectedFilter, _that.isLatestFirst,
-            _that.openedMenuItemId, _that.isLoading, _that.errorMessage);
+        return $default(
+            _that.items,
+            _that.selectedFilter,
+            _that.totalCount,
+            _that.page,
+            _that.hasNext,
+            _that.openedMenuItemId,
+            _that.isLoading,
+            _that.isLoadingMore,
+            _that.isRefreshing,
+            _that.errorMessage);
       case _:
         return null;
     }
@@ -319,9 +396,13 @@ class _ContentGenerationManagementState
       {final List<ContentManagementItem> items =
           const <ContentManagementItem>[],
       this.selectedFilter = '전체',
-      this.isLatestFirst = true,
+      this.totalCount = 0,
+      this.page = 0,
+      this.hasNext = false,
       this.openedMenuItemId,
       this.isLoading = false,
+      this.isLoadingMore = false,
+      this.isRefreshing = false,
       this.errorMessage})
       : _items = items,
         super._();
@@ -340,12 +421,24 @@ class _ContentGenerationManagementState
   final String selectedFilter;
   @override
   @JsonKey()
-  final bool isLatestFirst;
+  final int totalCount;
+  @override
+  @JsonKey()
+  final int page;
+  @override
+  @JsonKey()
+  final bool hasNext;
   @override
   final String? openedMenuItemId;
   @override
   @JsonKey()
   final bool isLoading;
+  @override
+  @JsonKey()
+  final bool isLoadingMore;
+  @override
+  @JsonKey()
+  final bool isRefreshing;
   @override
   final String? errorMessage;
 
@@ -366,12 +459,18 @@ class _ContentGenerationManagementState
             const DeepCollectionEquality().equals(other._items, _items) &&
             (identical(other.selectedFilter, selectedFilter) ||
                 other.selectedFilter == selectedFilter) &&
-            (identical(other.isLatestFirst, isLatestFirst) ||
-                other.isLatestFirst == isLatestFirst) &&
+            (identical(other.totalCount, totalCount) ||
+                other.totalCount == totalCount) &&
+            (identical(other.page, page) || other.page == page) &&
+            (identical(other.hasNext, hasNext) || other.hasNext == hasNext) &&
             (identical(other.openedMenuItemId, openedMenuItemId) ||
                 other.openedMenuItemId == openedMenuItemId) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
+            (identical(other.isLoadingMore, isLoadingMore) ||
+                other.isLoadingMore == isLoadingMore) &&
+            (identical(other.isRefreshing, isRefreshing) ||
+                other.isRefreshing == isRefreshing) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
@@ -381,14 +480,18 @@ class _ContentGenerationManagementState
       runtimeType,
       const DeepCollectionEquality().hash(_items),
       selectedFilter,
-      isLatestFirst,
+      totalCount,
+      page,
+      hasNext,
       openedMenuItemId,
       isLoading,
+      isLoadingMore,
+      isRefreshing,
       errorMessage);
 
   @override
   String toString() {
-    return 'ContentGenerationManagementState(items: $items, selectedFilter: $selectedFilter, isLatestFirst: $isLatestFirst, openedMenuItemId: $openedMenuItemId, isLoading: $isLoading, errorMessage: $errorMessage)';
+    return 'ContentGenerationManagementState(items: $items, selectedFilter: $selectedFilter, totalCount: $totalCount, page: $page, hasNext: $hasNext, openedMenuItemId: $openedMenuItemId, isLoading: $isLoading, isLoadingMore: $isLoadingMore, isRefreshing: $isRefreshing, errorMessage: $errorMessage)';
   }
 }
 
@@ -404,9 +507,13 @@ abstract mixin class _$ContentGenerationManagementStateCopyWith<$Res>
   $Res call(
       {List<ContentManagementItem> items,
       String selectedFilter,
-      bool isLatestFirst,
+      int totalCount,
+      int page,
+      bool hasNext,
       String? openedMenuItemId,
       bool isLoading,
+      bool isLoadingMore,
+      bool isRefreshing,
       String? errorMessage});
 }
 
@@ -425,9 +532,13 @@ class __$ContentGenerationManagementStateCopyWithImpl<$Res>
   $Res call({
     Object? items = null,
     Object? selectedFilter = null,
-    Object? isLatestFirst = null,
+    Object? totalCount = null,
+    Object? page = null,
+    Object? hasNext = null,
     Object? openedMenuItemId = freezed,
     Object? isLoading = null,
+    Object? isLoadingMore = null,
+    Object? isRefreshing = null,
     Object? errorMessage = freezed,
   }) {
     return _then(_ContentGenerationManagementState(
@@ -439,9 +550,17 @@ class __$ContentGenerationManagementStateCopyWithImpl<$Res>
           ? _self.selectedFilter
           : selectedFilter // ignore: cast_nullable_to_non_nullable
               as String,
-      isLatestFirst: null == isLatestFirst
-          ? _self.isLatestFirst
-          : isLatestFirst // ignore: cast_nullable_to_non_nullable
+      totalCount: null == totalCount
+          ? _self.totalCount
+          : totalCount // ignore: cast_nullable_to_non_nullable
+              as int,
+      page: null == page
+          ? _self.page
+          : page // ignore: cast_nullable_to_non_nullable
+              as int,
+      hasNext: null == hasNext
+          ? _self.hasNext
+          : hasNext // ignore: cast_nullable_to_non_nullable
               as bool,
       openedMenuItemId: freezed == openedMenuItemId
           ? _self.openedMenuItemId
@@ -450,6 +569,14 @@ class __$ContentGenerationManagementStateCopyWithImpl<$Res>
       isLoading: null == isLoading
           ? _self.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isLoadingMore: null == isLoadingMore
+          ? _self.isLoadingMore
+          : isLoadingMore // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isRefreshing: null == isRefreshing
+          ? _self.isRefreshing
+          : isRefreshing // ignore: cast_nullable_to_non_nullable
               as bool,
       errorMessage: freezed == errorMessage
           ? _self.errorMessage

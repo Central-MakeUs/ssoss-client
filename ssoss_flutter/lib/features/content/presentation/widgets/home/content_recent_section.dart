@@ -13,27 +13,21 @@ class ContentRecentSection extends StatelessWidget {
   const ContentRecentSection({
     super.key,
     this.recentContents = const [],
+    this.isLoading = false,
     this.onCreateTap,
     this.onContentTap,
     this.onViewAllTap,
   });
 
   final List<ContentRecentItem> recentContents;
+  final bool isLoading;
   final VoidCallback? onCreateTap;
   final ValueChanged<ContentRecentItem>? onContentTap;
   final VoidCallback? onViewAllTap;
 
-  static const _maxVisibleCount = 3;
-
-  List<ContentRecentItem> get _visibleContents {
-    final sorted = List<ContentRecentItem>.from(recentContents)
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    return sorted.take(_maxVisibleCount).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final visibleContents = _visibleContents;
+    final visibleContents = recentContents;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +73,16 @@ class ContentRecentSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        if (visibleContents.isEmpty)
+        if (isLoading && visibleContents.isEmpty)
+          const SizedBox(
+            height: 180,
+            child: Center(
+              child: CircularProgressIndicator(
+                color: AppColors.primary400,
+              ),
+            ),
+          )
+        else if (visibleContents.isEmpty)
           _EmptyRecentContents(onCreateTap: onCreateTap)
         else
           Column(

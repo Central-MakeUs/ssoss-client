@@ -1,8 +1,11 @@
 import 'package:ssoss_flutter/features/content/domain/entities/content_channel_content.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/content_detail.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/content_list_page.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/generation_channel_result.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/generation_detail.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/saved_content.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 
 /// Content 도메인 repository 계약.
 abstract class ContentRepository {
@@ -24,6 +27,19 @@ abstract class ContentRepository {
     required int contentChannelId,
     required GenerationChannelResult channel,
   });
+
+  /// 저장 콘텐츠 목록을 조회한다. 정렬은 저장 시각 최신순 고정.
+  Future<ContentListPage> listContents({
+    UploadChannel? channel,
+    int page = 0,
+    int size = 20,
+  });
+
+  /// 저장 콘텐츠 상세를 조회한다.
+  Future<ContentDetail> getContent(int contentId);
+
+  /// 저장 콘텐츠 1건을 삭제한다.
+  Future<void> deleteContent(int contentId);
 
   /// 진행 중인 생성 요청·폴링을 취소한다.
   void cancelGeneration();

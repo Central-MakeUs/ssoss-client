@@ -9,7 +9,12 @@ import 'package:ssoss_flutter/features/my_page/presentation/pages/my_page/my_pag
 typedef HomeTabAppBarBuilder = Widget Function(BuildContext context);
 
 class ContentCreationTab extends StatelessWidget {
-  const ContentCreationTab({super.key});
+  const ContentCreationTab({
+    super.key,
+    this.isActive = true,
+  });
+
+  final bool isActive;
 
   static Widget buildAppBar(BuildContext context) {
     return SsossAppBar.withBell(title: '', onBellTap: () {});
@@ -17,12 +22,17 @@ class ContentCreationTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ContentPage();
+    return ContentPage(isActive: isActive);
   }
 }
 
 class DashboardTab extends StatelessWidget {
-  const DashboardTab({super.key});
+  const DashboardTab({
+    super.key,
+    this.isActive = true,
+  });
+
+  final bool isActive;
 
   static Widget buildAppBar(BuildContext context) {
     return ContentGenerationManagementPage.buildAppBar(context);
@@ -30,7 +40,7 @@ class DashboardTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ContentGenerationManagementPage();
+    return ContentGenerationManagementPage(isActive: isActive);
   }
 }
 

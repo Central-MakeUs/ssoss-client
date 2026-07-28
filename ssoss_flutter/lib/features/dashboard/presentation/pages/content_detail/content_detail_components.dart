@@ -6,16 +6,19 @@ import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
-import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/content_generation_management_components.dart';
 
 class ContentDetailInfoPanel extends StatelessWidget {
   const ContentDetailInfoPanel({
-    required this.item,
+    required this.purpose,
+    required this.tone,
+    required this.channelsLabel,
     required this.keywords,
     super.key,
   });
 
-  final ContentManagementItem item;
+  final String purpose;
+  final String tone;
+  final String channelsLabel;
   final List<String> keywords;
 
   @override
@@ -30,27 +33,33 @@ class ContentDetailInfoPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _DetailMetaText(item: item),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              AppText(
-                '활용 키워드',
-                style: AppTextStyles.h6.copyWith(color: AppColors.neutral500),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: AppText(
-                  keywords.join(', '),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.b4.copyWith(
-                    color: AppColors.neutral500,
+          _DetailMetaText(
+            channelsLabel: channelsLabel,
+            purpose: purpose,
+            tone: tone,
+          ),
+          if (keywords.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                AppText(
+                  '활용 키워드',
+                  style: AppTextStyles.h6.copyWith(color: AppColors.neutral500),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: AppText(
+                    keywords.join(', '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.b4.copyWith(
+                      color: AppColors.neutral500,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -123,18 +132,20 @@ class ContentDetailActionButtons extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SsossButton(
-          label: '다른 채널용으로 만들기',
-          size: SsossButtonSize.large,
-          type: SsossButtonType.outline,
-          width: double.infinity,
-          backgroundColor: AppColors.primary50,
-          foregroundColor: AppColors.primary500,
-          borderColor: AppColors.primary300,
-          textStyle: AppTextStyles.h5,
-          onPressed: onCreateOtherChannel,
-        ),
-        const SizedBox(height: 12),
+        if (onCreateOtherChannel != null) ...[
+          SsossButton(
+            label: '다른 채널용으로 만들기',
+            size: SsossButtonSize.large,
+            type: SsossButtonType.outline,
+            width: double.infinity,
+            backgroundColor: AppColors.primary50,
+            foregroundColor: AppColors.primary500,
+            borderColor: AppColors.primary300,
+            textStyle: AppTextStyles.h5,
+            onPressed: onCreateOtherChannel,
+          ),
+          const SizedBox(height: 12),
+        ],
         SsossButton(
           label: '콘텐츠 재활용하기',
           size: SsossButtonSize.large,
@@ -152,53 +163,21 @@ class ContentDetailActionButtons extends StatelessWidget {
 }
 
 class _DetailMetaText extends StatelessWidget {
-  const _DetailMetaText({required this.item});
+  const _DetailMetaText({
+    required this.channelsLabel,
+    required this.purpose,
+    required this.tone,
+  });
 
-  final ContentManagementItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        _MetaText(item.channel),
-        const _MetaDivider(),
-        _MetaText(item.category),
-        const _MetaDivider(),
-        _MetaText(item.tone),
-      ],
-    );
-  }
-}
-
-class _MetaText extends StatelessWidget {
-  const _MetaText(this.label);
-
-  final String label;
+  final String channelsLabel;
+  final String purpose;
+  final String tone;
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      child: AppText(
-        label,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: AppTextStyles.h5.copyWith(color: AppColors.black),
-      ),
-    );
-  }
-}
-
-class _MetaDivider extends StatelessWidget {
-  const _MetaDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: AppText(
-        '·',
-        style: AppTextStyles.h5.copyWith(color: AppColors.neutral400),
-      ),
+    return AppText(
+      '$channelsLabel · $purpose · $tone',
+      style: AppTextStyles.h5.copyWith(color: AppColors.black),
     );
   }
 }

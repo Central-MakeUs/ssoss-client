@@ -2,7 +2,6 @@ import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.da
 import 'package:ssoss_flutter/features/content/presentation/models/content_label_mapper.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_recent_item.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_result_dummy.dart';
-import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/content_generation_management_components.dart';
 
 /// 채널별 생성 결과 프리뷰 (API 연동 전 더미).
 class ContentGenerationChannelPreview {
@@ -157,15 +156,9 @@ final List<ContentGenerationPreview> contentGenerationPreviews =
   ),
 ];
 
-/// 홈「최근 생성된 콘텐츠」용. generation당 1행.
+/// 홈「최근 생성된 콘텐츠」용. generation당 1행. (위젯 테스트·프리뷰용)
 final List<ContentRecentItem> contentRecentPreviewItems =
     contentGenerationPreviews.map(_toRecentItem).toList(growable: false);
-
-/// 대시보드「콘텐츠 생성 관리」용. 채널마다 1행.
-final List<ContentManagementItem> contentManagementPreviewItems =
-    contentGenerationPreviews
-        .expand(_toManagementItems)
-        .toList(growable: false);
 
 ContentRecentItem _toRecentItem(ContentGenerationPreview generation) {
   final first = generation.firstChannel;
@@ -177,50 +170,4 @@ ContentRecentItem _toRecentItem(ContentGenerationPreview generation) {
         .map(ContentLabelMapper.channel)
         .toList(growable: false),
   );
-}
-
-Iterable<ContentManagementItem> _toManagementItems(
-  ContentGenerationPreview generation,
-) {
-  return generation.orderedChannelEnums.map((channelEnum) {
-    final channel = generation.channels.firstWhere(
-      (c) => c.channel == channelEnum,
-    );
-    return ContentManagementItem(
-      id: generation.managementItemId(channelEnum),
-      date: generation.managementDate,
-      channel: ContentLabelMapper.channel(channelEnum),
-      category: channel.category,
-      tone: channel.tone,
-      title: channel.title,
-      tags: channel.tags,
-      contentId: generation.dummyContentId,
-      contentChannelId: generation.dummyContentChannelId(channelEnum),
-    );
-  });
-}
-
-/// 최근 목록 항목 → 상세 페이지용 [ContentManagementItem] (첫 채널 기준).
-ContentManagementItem? detailItemForRecent(ContentRecentItem recent) {
-  ContentGenerationPreview? generation;
-  for (final preview in contentGenerationPreviews) {
-    if (preview.id == recent.id) {
-      generation = preview;
-      break;
-    }
-  }
-  if (generation == null) {
-    return null;
-  }
-  final first = generation.firstChannel;
-  if (first == null) {
-    return null;
-  }
-  final itemId = generation.managementItemId(first.channel);
-  for (final item in contentManagementPreviewItems) {
-    if (item.id == itemId) {
-      return item;
-    }
-  }
-  return null;
 }
