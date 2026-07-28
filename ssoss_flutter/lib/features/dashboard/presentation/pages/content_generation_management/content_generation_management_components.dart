@@ -224,7 +224,7 @@ class ContentManagementCard extends StatelessWidget {
                   ],
                   const SizedBox(height: 24),
                   SsossButton(
-                    label: '콘텐츠 재활용하기',
+                    label: '이 스타일로 새로 만들기',
                     size: SsossButtonSize.small,
                     type: SsossButtonType.outline,
                     width: double.infinity,
