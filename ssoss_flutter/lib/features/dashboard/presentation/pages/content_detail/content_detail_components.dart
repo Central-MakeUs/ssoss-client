@@ -147,7 +147,7 @@ class ContentDetailActionButtons extends StatelessWidget {
           const SizedBox(height: 12),
         ],
         SsossButton(
-          label: '콘텐츠 재활용하기',
+          label: '이 스타일로 새로 만들기',
           size: SsossButtonSize.large,
           type: SsossButtonType.outline,
           width: double.infinity,
