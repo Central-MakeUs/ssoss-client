@@ -276,6 +276,17 @@ class _ButtonContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return SizedBox(
+        width: iconSize,
+        height: iconSize,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: loadingIndicatorColor,
+        ),
+      );
+    }
+
     final labelWidget = DefaultTextStyle(
       style: textStyle,
       textAlign: TextAlign.center,
@@ -287,7 +298,7 @@ class _ButtonContent extends StatelessWidget {
           ),
     );
 
-    if (!isLoading && !showLeftIcon && !showRightIcon) {
+    if (!showLeftIcon && !showRightIcon) {
       return labelWidget;
     }
 
@@ -295,17 +306,7 @@ class _ButtonContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (isLoading) ...[
-          SizedBox(
-            width: iconSize,
-            height: iconSize,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: loadingIndicatorColor,
-            ),
-          ),
-          SizedBox(width: gap),
-        ] else if (showLeftIcon) ...[
+        if (showLeftIcon) ...[
           _ButtonIcon(
             icon: icon,
             assetPath: iconAssetPath,

@@ -34,7 +34,11 @@ class ContentLabelMapper {
   }
 
   static String channelsJoined(List<UploadChannel> channels) {
-    return orderedChannels(channels).map(channel).join('/');
+    final ordered = orderedChannels(channels);
+    if (ordered.length >= UploadChannel.values.length) {
+      return '모든 채널';
+    }
+    return ordered.map(channel).join('/');
   }
 
   /// 한글 라벨 → [UploadChannel]. 매칭 실패 시 null.

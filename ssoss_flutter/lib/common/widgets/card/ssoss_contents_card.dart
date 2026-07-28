@@ -60,10 +60,12 @@ class SsossContentsCard extends StatefulWidget {
           }
           insertNewlineBeforeNextText = false;
           buffer.write(text);
-        case SsossContentsCardRecommendationBlock():
+        case SsossContentsCardRecommendationBlock(:final item):
           if (buffer.isNotEmpty) {
-            insertNewlineBeforeNextText = true;
+            buffer.write('\n');
           }
+          buffer.write('[${item.title} 삽입]');
+          insertNewlineBeforeNextText = true;
         case SsossContentsCardHashtagsBlock(:final hashtags):
           insertNewlineBeforeNextText = false;
           if (buffer.isNotEmpty) {

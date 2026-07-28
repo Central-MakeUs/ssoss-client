@@ -9,44 +9,42 @@ import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 
 class ContentManagementItem {
   const ContentManagementItem({
-    required this.id,
+    required this.contentId,
     required this.date,
     required this.channel,
     required this.category,
     required this.tone,
     required this.title,
     required this.tags,
-    this.contentId,
-    this.contentChannelId,
+    this.initialChannel,
+    this.includesInstagram = false,
   });
 
-  final String id;
+  final int contentId;
   final String date;
+
+  /// 표시용 채널 라벨. 예: `블로그`, `블로그/인스타그램`, `모든 채널`
   final String channel;
+
+  /// 상세 진입 시 초기 탭. null이면 첫 채널.
+  final UploadChannel? initialChannel;
   final String category;
   final String tone;
+
+  /// 카드 미리보기 제목(서버 말줄임 그대로).
   final String title;
   final List<String> tags;
 
-  /// PUT 편집용 콘텐츠 id. 없으면 [id] 숫자 파싱을 시도한다.
-  final int? contentId;
+  /// 생성 채널에 인스타그램이 포함됐는지.
+  final bool includesInstagram;
 
-  /// PUT 편집용 채널별 콘텐츠 id.
-  final int? contentChannelId;
+  String get menuId => contentId.toString();
 
-  int? get resolvedContentId => contentId ?? int.tryParse(id);
-
-  /// 카드 목록에 표시할 제목 (최대 20자 + …).
-  String get displayTitle {
-    const maxLength = 20;
-    if (title.length <= maxLength) {
-      return title;
-    }
-    return '${title.substring(0, maxLength)}...';
-  }
+  bool get showsHashtags => includesInstagram && tags.isNotEmpty;
 }
 
 class ContentManagementFilterBar extends StatelessWidget {
@@ -92,14 +90,12 @@ class ContentManagementFilterBar extends StatelessWidget {
 class ContentManagementSummaryRow extends StatelessWidget {
   const ContentManagementSummaryRow({
     required this.count,
-    required this.sortLabel,
-    required this.onSortTap,
+    this.sortLabel = '최신순',
     super.key,
   });
 
   final int count;
   final String sortLabel;
-  final VoidCallback onSortTap;
 
   @override
   Widget build(BuildContext context) {
@@ -110,36 +106,28 @@ class ContentManagementSummaryRow extends StatelessWidget {
           '$count건',
           style: AppTextStyles.h7.copyWith(color: AppColors.neutral400),
         ),
-        Semantics(
-          button: true,
-          label: sortLabel,
-          child: GestureDetector(
-            onTap: onSortTap,
-            behavior: HitTestBehavior.opaque,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SvgPicture.asset(
-                    AppAssets.icSort,
-                    width: 18,
-                    height: 18,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.neutral500,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  AppText(
-                    sortLabel,
-                    style: AppTextStyles.h6.copyWith(
-                      color: AppColors.neutral500,
-                    ),
-                  ),
-                ],
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SvgPicture.asset(
+                AppAssets.icSort,
+                width: 18,
+                height: 18,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.neutral500,
+                  BlendMode.srcIn,
+                ),
               ),
-            ),
+              const SizedBox(width: 6),
+              AppText(
+                sortLabel,
+                style: AppTextStyles.h6.copyWith(
+                  color: AppColors.neutral500,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -213,12 +201,12 @@ class ContentManagementCard extends StatelessWidget {
                   _ContentMetaText(item: item),
                   const SizedBox(height: 2),
                   AppText(
-                    item.displayTitle,
+                    item.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.h5.copyWith(color: AppColors.black),
                   ),
-                  if (item.channel == '인스타그램' && item.tags.isNotEmpty) ...[
+                  if (item.showsHashtags) ...[
                     const SizedBox(height: 10),
                     Wrap(
                       spacing: 6,
@@ -383,47 +371,9 @@ class _ContentMetaText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        _MetaText(item.channel),
-        const _MetaDivider(),
-        _MetaText(item.category),
-        const _MetaDivider(),
-        _MetaText(item.tone),
-      ],
-    );
-  }
-}
-
-class _MetaText extends StatelessWidget {
-  const _MetaText(this.label);
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Flexible(
-      child: AppText(
-        label,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: AppTextStyles.h6.copyWith(color: AppColors.neutral400),
-      ),
-    );
-  }
-}
-
-class _MetaDivider extends StatelessWidget {
-  const _MetaDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: AppText(
-        '·',
-        style: AppTextStyles.h5.copyWith(color: AppColors.neutral300),
-      ),
+    return AppText(
+      '${item.channel} · ${item.category} · ${item.tone}',
+      style: AppTextStyles.h6.copyWith(color: AppColors.neutral400),
     );
   }
 }

@@ -22,10 +22,6 @@ class ContentResultSummary extends StatelessWidget {
       ContentLabelMapper.tone(input.tone),
     ].join(' · ');
 
-    final keywords = input.keywords.isEmpty
-        ? '디저트, 크루아상, 을지로베이커리'
-        : input.keywords.join(', ');
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -40,23 +36,26 @@ class ContentResultSummary extends StatelessWidget {
             meta,
             style: AppTextStyles.h5.copyWith(color: AppColors.neutral700),
           ),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppText(
-                '활용 키워드',
-                style: AppTextStyles.h6.copyWith(color: AppColors.neutral500),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: AppText(
-                  keywords,
-                  style: AppTextStyles.b4.copyWith(color: AppColors.neutral500),
+          if (input.keywords.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppText(
+                  '활용 키워드',
+                  style: AppTextStyles.h6.copyWith(color: AppColors.neutral500),
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: AppText(
+                    input.keywords.join(', '),
+                    style:
+                        AppTextStyles.b4.copyWith(color: AppColors.neutral500),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );

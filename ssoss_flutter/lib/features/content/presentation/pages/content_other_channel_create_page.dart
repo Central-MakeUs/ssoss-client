@@ -48,6 +48,12 @@ class _ContentOtherChannelCreateView extends StatelessWidget {
   const _ContentOtherChannelCreateView();
 
   Future<void> _confirmLeave(BuildContext context) async {
+    // 콘텐츠 상세 등에서 push로 진입한 경우 확인 모달 없이 바로 복귀한다.
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+
     final result = await showSsossModal(
       context,
       title: '다른 채널용 생성을 종료하시겠어요?',
