@@ -66,9 +66,9 @@ class SignupTermsCubit extends Cubit<SignupTermsState> {
     try {
       final session = await _signup(
         SignupAgreement(
+          ageOver14Agreed: state.age14,
           serviceTermsAgreed: state.serviceTerms,
           privacyPolicyAgreed: state.privacyPolicy,
-          marketingAgreed: false,
         ),
       );
       emit(state.copyWith(isSubmitting: false));
