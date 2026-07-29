@@ -150,11 +150,12 @@ class _ContentPageView extends StatelessWidget {
               onChannelTap: (channel) => _openCreate(context, channel),
             ),
             const SizedBox(height: 36),
-            ContentTemplateSection(
-              onViewAllTap: () => _openRecommendedTemplates(context),
-              onTemplateTap: (item) => _openRecommendedTemplate(context, item),
-            ),
-            const SizedBox(height: 36),
+            // 배포 최소 기능: 추천 콘텐츠 소스 임시 비활성
+            // ContentTemplateSection(
+            //   onViewAllTap: () => _openRecommendedTemplates(context),
+            //   onTemplateTap: (item) => _openRecommendedTemplate(context, item),
+            // ),
+            // const SizedBox(height: 36),
             BlocBuilder<ContentRecentCubit, ContentRecentState>(
               builder: (context, state) {
                 return ContentRecentSection(
