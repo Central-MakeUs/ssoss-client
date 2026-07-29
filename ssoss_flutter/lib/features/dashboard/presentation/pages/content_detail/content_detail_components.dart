@@ -144,19 +144,21 @@ class ContentDetailActionButtons extends StatelessWidget {
             textStyle: AppTextStyles.h5,
             onPressed: onCreateOtherChannel,
           ),
-          const SizedBox(height: 12),
+          // 배포 최소 기능: 이 스타일로 새로 만들기 임시 비활성
+          // const SizedBox(height: 12),
         ],
-        SsossButton(
-          label: '이 스타일로 새로 만들기',
-          size: SsossButtonSize.large,
-          type: SsossButtonType.outline,
-          width: double.infinity,
-          backgroundColor: AppColors.white,
-          foregroundColor: AppColors.black,
-          borderColor: AppColors.neutral200,
-          textStyle: AppTextStyles.h5,
-          onPressed: onReuse,
-        ),
+        // 배포 최소 기능: 이 스타일로 새로 만들기 임시 비활성
+        // SsossButton(
+        //   label: '이 스타일로 새로 만들기',
+        //   size: SsossButtonSize.large,
+        //   type: SsossButtonType.outline,
+        //   width: double.infinity,
+        //   backgroundColor: AppColors.white,
+        //   foregroundColor: AppColors.black,
+        //   borderColor: AppColors.neutral200,
+        //   textStyle: AppTextStyles.h5,
+        //   onPressed: onReuse,
+        // ),
       ],
     );
   }
