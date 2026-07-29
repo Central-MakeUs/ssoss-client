@@ -81,6 +81,8 @@ class AppAssets {
   static const String icToastWarning =
       'assets/icons/common/ic_toast_warning.svg';
   static const String icToastError = 'assets/icons/common/ic_toast_error.svg';
+  static const String icOnboardingStoreInfoComplete =
+      'assets/img/onboarding/ic_onboarding_store_info_complete.svg';
 
   static const String navContent = 'assets/icons/navigation/ic_nav_content.svg';
   static const String navDashboard =
@@ -95,6 +97,34 @@ class AppAssets {
   static const String imgNotice = 'assets/img/notice.png';
   static const String imgComplete = 'assets/img/complete.png';
   static const String imgFail = 'assets/img/fail.png';
+  static const String imgOnboardingIntroHome =
+      'assets/img/onboarding/onboarding_intro_home.png';
+  static const String imgOnboardingContentInput =
+      'assets/img/onboarding/onboarding_content_input.png';
+  static const String imgOnboardingContentInputFilled =
+      'assets/img/onboarding/onboarding_content_input_filled.png';
+  static const String imgOnboardingContentInputBlocked =
+      'assets/img/onboarding/onboarding_content_input_blocked.png';
+  static const String imgOnboardingResultEmpty =
+      'assets/img/onboarding/onboarding_result_empty.png';
+  static const String imgOnboardingResultWriting =
+      'assets/img/onboarding/onboarding_result_writing.png';
+  static const String imgOnboardingResultBody =
+      'assets/img/onboarding/onboarding_result_body.png';
+  static const String imgOnboardingResultComplete =
+      'assets/img/onboarding/onboarding_result_complete.png';
+  static const String imgOnboardingEditStart =
+      'assets/img/onboarding/onboarding_edit_start.png';
+  static const String imgOnboardingEditTitle =
+      'assets/img/onboarding/onboarding_edit_title.png';
+  static const String imgOnboardingEditBody =
+      'assets/img/onboarding/onboarding_edit_body.png';
+  static const String imgOnboardingEditComplete =
+      'assets/img/onboarding/onboarding_edit_complete.png';
+  static const String imgOnboardingCopyReady =
+      'assets/img/onboarding/onboarding_copy_ready.png';
+  static const String imgOnboardingCopyDone =
+      'assets/img/onboarding/onboarding_copy_done.png';
 
   static const String appIcon = 'assets/icons/app_icon.png';
 

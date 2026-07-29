@@ -22,6 +22,7 @@ class SsossSelectField extends StatelessWidget {
     this.placeholderColor,
     this.iconColor,
     this.width,
+    this.height,
   });
 
   final String? value;
@@ -37,8 +38,9 @@ class SsossSelectField extends StatelessWidget {
   final Color? placeholderColor;
   final Color? iconColor;
   final double? width;
+  final double? height;
 
-  static const double height = 40;
+  static const double defaultHeight = 40;
   static const double _borderRadius = 8;
 
   bool get _hasValue => value != null && value!.isNotEmpty;
@@ -70,7 +72,7 @@ class SsossSelectField extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: Container(
           width: width,
-          height: height,
+          height: height ?? SsossSelectField.defaultHeight,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: resolvedFillColor,

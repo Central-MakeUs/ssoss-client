@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_apply/recommended_content_template_apply_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_detail/recommended_content_template_detail_components.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
 
@@ -36,23 +40,13 @@ class _RecommendedContentTemplateDetailPageState
       ),
       body: SafeArea(
         top: false,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(15, 12, 16, 40),
-          children: [
-            ContentTemplateDetailHeader(item: widget.item),
-            const SizedBox(height: 24),
-            const Divider(height: 1, color: AppColors.neutral200),
-            const SizedBox(height: 24),
-            ContentTemplatePreviewSection(
-              previewText: _previewText,
-              isExampleOpen: _isExampleOpen,
-              onExampleTap: () {
-                setState(() => _isExampleOpen = !_isExampleOpen);
-              },
-            ),
-            const SizedBox(height: 24),
-            const ContentTemplateNoticeBox(),
-          ],
+        child: ContentTemplateDetailBody(
+          item: widget.item,
+          previewText: _previewText,
+          isExampleOpen: _isExampleOpen,
+          onExampleTap: () {
+            setState(() => _isExampleOpen = !_isExampleOpen);
+          },
         ),
       ),
       bottomNavigationBar: ContentTemplateDetailBottomBar(
@@ -60,7 +54,14 @@ class _RecommendedContentTemplateDetailPageState
         onSaveTap: () {
           setState(() => _isSaved = !_isSaved);
         },
-        onApplyTap: () {},
+        onApplyTap: () {
+          unawaited(
+            context.push(
+              RecommendedContentTemplateApplyPage.routePath,
+              extra: widget.item,
+            ),
+          );
+        },
       ),
     );
   }

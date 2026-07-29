@@ -29,6 +29,7 @@ class SsossTemplateContentsEditCard extends StatefulWidget {
     this.onChanged,
     this.state,
     this.maxLength = 5000,
+    this.showCounter = true,
     this.enabled = true,
     this.readOnly = false,
     this.width,
@@ -53,6 +54,7 @@ class SsossTemplateContentsEditCard extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final SsossTemplateContentsEditCardState? state;
   final int maxLength;
+  final bool showCounter;
   final bool enabled;
   final bool readOnly;
   final double? width;
@@ -250,22 +252,24 @@ class _SsossTemplateContentsEditCardState
               contentPadding: EdgeInsets.zero,
             ),
           ),
-          const SizedBox(height: 36),
-          ValueListenableBuilder<int>(
-            valueListenable: _lengthNotifier,
-            builder: (context, textLength, _) {
-              return _TemplateCounterText(
-                current: textLength,
-                max: widget.maxLength,
-                isError: _resolveState() ==
-                        SsossTemplateContentsEditCardState.error ||
-                    textLength > widget.maxLength,
-                currentColor: widget.counterColor ?? style.counterColor,
-                mutedColor: widget.counterMutedColor ?? AppColors.neutral300,
-                textStyle: widget.counterStyle,
-              );
-            },
-          ),
+          if (widget.showCounter) ...[
+            const SizedBox(height: 36),
+            ValueListenableBuilder<int>(
+              valueListenable: _lengthNotifier,
+              builder: (context, textLength, _) {
+                return _TemplateCounterText(
+                  current: textLength,
+                  max: widget.maxLength,
+                  isError: _resolveState() ==
+                          SsossTemplateContentsEditCardState.error ||
+                      textLength > widget.maxLength,
+                  currentColor: widget.counterColor ?? style.counterColor,
+                  mutedColor: widget.counterMutedColor ?? AppColors.neutral300,
+                  textStyle: widget.counterStyle,
+                );
+              },
+            ),
+          ],
         ],
       ),
     );

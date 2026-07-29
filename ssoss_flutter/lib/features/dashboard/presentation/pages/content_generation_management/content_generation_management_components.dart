@@ -42,9 +42,18 @@ class ContentManagementItem {
   /// 생성 채널에 인스타그램이 포함됐는지.
   final bool includesInstagram;
 
+  static const int maxDashboardTagCount = 2;
+
   String get menuId => contentId.toString();
 
   bool get showsHashtags => includesInstagram && tags.isNotEmpty;
+
+  List<String> get dashboardTags {
+    if (!showsHashtags) {
+      return const [];
+    }
+    return tags.take(maxDashboardTagCount).toList(growable: false);
+  }
 }
 
 class ContentManagementFilterBar extends StatelessWidget {
@@ -206,13 +215,13 @@ class ContentManagementCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.h5.copyWith(color: AppColors.black),
                   ),
-                  if (item.showsHashtags) ...[
+                  if (item.dashboardTags.isNotEmpty) ...[
                     const SizedBox(height: 10),
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
                       children: [
-                        for (final tag in item.tags.take(2))
+                        for (final tag in item.dashboardTags)
                           SsossTag(
                             label: tag,
                             type: SsossTagType.gray,

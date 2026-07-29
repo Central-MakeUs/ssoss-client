@@ -202,7 +202,8 @@ class _ContentGenerationManagementViewState
                             ),
                             const SizedBox(height: 12),
                             ContentManagementSummaryRow(
-                                count: state.totalCount),
+                              count: state.totalCount,
+                            ),
                           ],
                         ),
                       ),

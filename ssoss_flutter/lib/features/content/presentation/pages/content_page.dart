@@ -12,6 +12,9 @@ import 'package:ssoss_flutter/features/content/presentation/cubit/content_recent
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_recent_state.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_recent_item.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_create_page.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_detail/recommended_content_template_detail_page.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/home/content_channel_shortcuts.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/home/content_hero_section.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/home/content_recent_section.dart';
@@ -109,6 +112,29 @@ class _ContentPageView extends StatelessWidget {
     }
   }
 
+  void _openRecommendedTemplates(BuildContext context) {
+    unawaited(context.push(RecommendedContentTemplatesPage.routePath));
+  }
+
+  void _openRecommendedTemplate(
+    BuildContext context,
+    ContentTemplateItem item,
+  ) {
+    final recommendedItem = _recommendedTemplateForHomeItem(item);
+    if (recommendedItem == null) {
+      return;
+    }
+    unawaited(
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => RecommendedContentTemplateDetailPage(
+            item: recommendedItem,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
@@ -124,7 +150,10 @@ class _ContentPageView extends StatelessWidget {
               onChannelTap: (channel) => _openCreate(context, channel),
             ),
             const SizedBox(height: 36),
-            const ContentTemplateSection(),
+            ContentTemplateSection(
+              onViewAllTap: () => _openRecommendedTemplates(context),
+              onTemplateTap: (item) => _openRecommendedTemplate(context, item),
+            ),
             const SizedBox(height: 36),
             BlocBuilder<ContentRecentCubit, ContentRecentState>(
               builder: (context, state) {
@@ -143,4 +172,36 @@ class _ContentPageView extends StatelessWidget {
       ),
     );
   }
+}
+
+RecommendedContentTemplateItem? _recommendedTemplateForHomeItem(
+  ContentTemplateItem item,
+) {
+  switch (item.id) {
+    case 'new-menu':
+      return const RecommendedContentTemplateItem(
+        id: 'template-1',
+        category: ContentTemplateCategory.newMenu,
+        title: '신메뉴 출시 안내',
+        description: '새로 나온 메뉴의 특징과 매력을 소개하는 글',
+        channels: ['당근', '인스타그램', '스레드'],
+      );
+    case 'event-discount':
+      return const RecommendedContentTemplateItem(
+        id: 'template-2',
+        category: ContentTemplateCategory.event,
+        title: '주말 한정 이벤트 안내',
+        description: '기간, 혜택, 참여 방법을 명확하게 전달하는 글',
+        channels: ['당근', '인스타그램', '스레드'],
+      );
+    case 'introduction':
+      return const RecommendedContentTemplateItem(
+        id: 'template-4',
+        category: ContentTemplateCategory.storeIntro,
+        title: '매장 분위기 소개',
+        description: '우리 가게의 공간감과 장점을 소개하는 글',
+        channels: ['인스타그램', '스레드'],
+      );
+  }
+  return null;
 }
