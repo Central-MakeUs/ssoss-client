@@ -452,13 +452,13 @@ final GoRouter appRouter = GoRouter(
 
 ```json
 {
+  "ageOver14Agreed": true,
   "serviceTermsAgreed": true,
-  "privacyPolicyAgreed": true,
-  "marketingAgreed": false
+  "privacyPolicyAgreed": true
 }
 ```
 
-응답은 소셜 로그인과 동일 (`status` + tokens). 만 14세 동의는 클라이언트 UI 검증만.
+응답은 소셜 로그인과 동일 (`status` + tokens). 세 항목 모두 필수 약관.
 
 **회원가입 UX**
 - `/signup/terms`: 프로바이더 헤더 + 이메일(읽기 전용) + 약관 체크박스 + `다음`

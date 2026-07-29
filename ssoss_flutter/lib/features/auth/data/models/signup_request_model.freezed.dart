@@ -14,9 +14,9 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$SignupRequestModel {
+  bool get ageOver14Agreed;
   bool get serviceTermsAgreed;
   bool get privacyPolicyAgreed;
-  bool get marketingAgreed;
 
   /// Create a copy of SignupRequestModel
   /// with the given fields replaced by the non-null parameter values.
@@ -34,22 +34,22 @@ mixin _$SignupRequestModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is SignupRequestModel &&
+            (identical(other.ageOver14Agreed, ageOver14Agreed) ||
+                other.ageOver14Agreed == ageOver14Agreed) &&
             (identical(other.serviceTermsAgreed, serviceTermsAgreed) ||
                 other.serviceTermsAgreed == serviceTermsAgreed) &&
             (identical(other.privacyPolicyAgreed, privacyPolicyAgreed) ||
-                other.privacyPolicyAgreed == privacyPolicyAgreed) &&
-            (identical(other.marketingAgreed, marketingAgreed) ||
-                other.marketingAgreed == marketingAgreed));
+                other.privacyPolicyAgreed == privacyPolicyAgreed));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, serviceTermsAgreed, privacyPolicyAgreed, marketingAgreed);
+      runtimeType, ageOver14Agreed, serviceTermsAgreed, privacyPolicyAgreed);
 
   @override
   String toString() {
-    return 'SignupRequestModel(serviceTermsAgreed: $serviceTermsAgreed, privacyPolicyAgreed: $privacyPolicyAgreed, marketingAgreed: $marketingAgreed)';
+    return 'SignupRequestModel(ageOver14Agreed: $ageOver14Agreed, serviceTermsAgreed: $serviceTermsAgreed, privacyPolicyAgreed: $privacyPolicyAgreed)';
   }
 }
 
@@ -60,9 +60,9 @@ abstract mixin class $SignupRequestModelCopyWith<$Res> {
       _$SignupRequestModelCopyWithImpl;
   @useResult
   $Res call(
-      {bool serviceTermsAgreed,
-      bool privacyPolicyAgreed,
-      bool marketingAgreed});
+      {bool ageOver14Agreed,
+      bool serviceTermsAgreed,
+      bool privacyPolicyAgreed});
 }
 
 /// @nodoc
@@ -78,11 +78,15 @@ class _$SignupRequestModelCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? ageOver14Agreed = null,
     Object? serviceTermsAgreed = null,
     Object? privacyPolicyAgreed = null,
-    Object? marketingAgreed = null,
   }) {
     return _then(_self.copyWith(
+      ageOver14Agreed: null == ageOver14Agreed
+          ? _self.ageOver14Agreed
+          : ageOver14Agreed // ignore: cast_nullable_to_non_nullable
+              as bool,
       serviceTermsAgreed: null == serviceTermsAgreed
           ? _self.serviceTermsAgreed
           : serviceTermsAgreed // ignore: cast_nullable_to_non_nullable
@@ -90,10 +94,6 @@ class _$SignupRequestModelCopyWithImpl<$Res>
       privacyPolicyAgreed: null == privacyPolicyAgreed
           ? _self.privacyPolicyAgreed
           : privacyPolicyAgreed // ignore: cast_nullable_to_non_nullable
-              as bool,
-      marketingAgreed: null == marketingAgreed
-          ? _self.marketingAgreed
-          : marketingAgreed // ignore: cast_nullable_to_non_nullable
               as bool,
     ));
   }
@@ -192,16 +192,16 @@ extension SignupRequestModelPatterns on SignupRequestModel {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(bool serviceTermsAgreed, bool privacyPolicyAgreed,
-            bool marketingAgreed)?
+    TResult Function(bool ageOver14Agreed, bool serviceTermsAgreed,
+            bool privacyPolicyAgreed)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _SignupRequestModel() when $default != null:
-        return $default(_that.serviceTermsAgreed, _that.privacyPolicyAgreed,
-            _that.marketingAgreed);
+        return $default(_that.ageOver14Agreed, _that.serviceTermsAgreed,
+            _that.privacyPolicyAgreed);
       case _:
         return orElse();
     }
@@ -222,15 +222,15 @@ extension SignupRequestModelPatterns on SignupRequestModel {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(bool serviceTermsAgreed, bool privacyPolicyAgreed,
-            bool marketingAgreed)
+    TResult Function(bool ageOver14Agreed, bool serviceTermsAgreed,
+            bool privacyPolicyAgreed)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _SignupRequestModel():
-        return $default(_that.serviceTermsAgreed, _that.privacyPolicyAgreed,
-            _that.marketingAgreed);
+        return $default(_that.ageOver14Agreed, _that.serviceTermsAgreed,
+            _that.privacyPolicyAgreed);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -250,15 +250,15 @@ extension SignupRequestModelPatterns on SignupRequestModel {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(bool serviceTermsAgreed, bool privacyPolicyAgreed,
-            bool marketingAgreed)?
+    TResult? Function(bool ageOver14Agreed, bool serviceTermsAgreed,
+            bool privacyPolicyAgreed)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _SignupRequestModel() when $default != null:
-        return $default(_that.serviceTermsAgreed, _that.privacyPolicyAgreed,
-            _that.marketingAgreed);
+        return $default(_that.ageOver14Agreed, _that.serviceTermsAgreed,
+            _that.privacyPolicyAgreed);
       case _:
         return null;
     }
@@ -269,18 +269,18 @@ extension SignupRequestModelPatterns on SignupRequestModel {
 @JsonSerializable()
 class _SignupRequestModel implements SignupRequestModel {
   const _SignupRequestModel(
-      {required this.serviceTermsAgreed,
-      required this.privacyPolicyAgreed,
-      required this.marketingAgreed});
+      {required this.ageOver14Agreed,
+      required this.serviceTermsAgreed,
+      required this.privacyPolicyAgreed});
   factory _SignupRequestModel.fromJson(Map<String, dynamic> json) =>
       _$SignupRequestModelFromJson(json);
 
   @override
+  final bool ageOver14Agreed;
+  @override
   final bool serviceTermsAgreed;
   @override
   final bool privacyPolicyAgreed;
-  @override
-  final bool marketingAgreed;
 
   /// Create a copy of SignupRequestModel
   /// with the given fields replaced by the non-null parameter values.
@@ -302,22 +302,22 @@ class _SignupRequestModel implements SignupRequestModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _SignupRequestModel &&
+            (identical(other.ageOver14Agreed, ageOver14Agreed) ||
+                other.ageOver14Agreed == ageOver14Agreed) &&
             (identical(other.serviceTermsAgreed, serviceTermsAgreed) ||
                 other.serviceTermsAgreed == serviceTermsAgreed) &&
             (identical(other.privacyPolicyAgreed, privacyPolicyAgreed) ||
-                other.privacyPolicyAgreed == privacyPolicyAgreed) &&
-            (identical(other.marketingAgreed, marketingAgreed) ||
-                other.marketingAgreed == marketingAgreed));
+                other.privacyPolicyAgreed == privacyPolicyAgreed));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, serviceTermsAgreed, privacyPolicyAgreed, marketingAgreed);
+      runtimeType, ageOver14Agreed, serviceTermsAgreed, privacyPolicyAgreed);
 
   @override
   String toString() {
-    return 'SignupRequestModel(serviceTermsAgreed: $serviceTermsAgreed, privacyPolicyAgreed: $privacyPolicyAgreed, marketingAgreed: $marketingAgreed)';
+    return 'SignupRequestModel(ageOver14Agreed: $ageOver14Agreed, serviceTermsAgreed: $serviceTermsAgreed, privacyPolicyAgreed: $privacyPolicyAgreed)';
   }
 }
 
@@ -330,9 +330,9 @@ abstract mixin class _$SignupRequestModelCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {bool serviceTermsAgreed,
-      bool privacyPolicyAgreed,
-      bool marketingAgreed});
+      {bool ageOver14Agreed,
+      bool serviceTermsAgreed,
+      bool privacyPolicyAgreed});
 }
 
 /// @nodoc
@@ -348,11 +348,15 @@ class __$SignupRequestModelCopyWithImpl<$Res>
   @override
   @pragma('vm:prefer-inline')
   $Res call({
+    Object? ageOver14Agreed = null,
     Object? serviceTermsAgreed = null,
     Object? privacyPolicyAgreed = null,
-    Object? marketingAgreed = null,
   }) {
     return _then(_SignupRequestModel(
+      ageOver14Agreed: null == ageOver14Agreed
+          ? _self.ageOver14Agreed
+          : ageOver14Agreed // ignore: cast_nullable_to_non_nullable
+              as bool,
       serviceTermsAgreed: null == serviceTermsAgreed
           ? _self.serviceTermsAgreed
           : serviceTermsAgreed // ignore: cast_nullable_to_non_nullable
@@ -360,10 +364,6 @@ class __$SignupRequestModelCopyWithImpl<$Res>
       privacyPolicyAgreed: null == privacyPolicyAgreed
           ? _self.privacyPolicyAgreed
           : privacyPolicyAgreed // ignore: cast_nullable_to_non_nullable
-              as bool,
-      marketingAgreed: null == marketingAgreed
-          ? _self.marketingAgreed
-          : marketingAgreed // ignore: cast_nullable_to_non_nullable
               as bool,
     ));
   }

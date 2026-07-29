@@ -7,9 +7,9 @@ part 'signup_request_model.g.dart';
 @freezed
 abstract class SignupRequestModel with _$SignupRequestModel {
   const factory SignupRequestModel({
+    required bool ageOver14Agreed,
     required bool serviceTermsAgreed,
     required bool privacyPolicyAgreed,
-    required bool marketingAgreed,
   }) = _SignupRequestModel;
 
   factory SignupRequestModel.fromJson(Map<String, dynamic> json) =>

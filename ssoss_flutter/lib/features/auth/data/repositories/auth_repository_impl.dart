@@ -149,9 +149,9 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<AuthSession> signup(SignupAgreement agreement) async {
     final response = await _remoteDatasource.signup(
       SignupRequestModel(
+        ageOver14Agreed: agreement.ageOver14Agreed,
         serviceTermsAgreed: agreement.serviceTermsAgreed,
         privacyPolicyAgreed: agreement.privacyPolicyAgreed,
-        marketingAgreed: agreement.marketingAgreed,
       ),
     );
     final token = response.toTokenModel();
