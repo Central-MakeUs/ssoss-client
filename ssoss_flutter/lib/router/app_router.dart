@@ -9,7 +9,6 @@ import 'package:ssoss_flutter/features/auth/presentation/pages/login_page.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/signup/signup_complete_page.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/signup/signup_terms_page.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/splash_page.dart';
-import 'package:ssoss_flutter/features/auth/presentation/pages/withdraw/withdraw_complete_page.dart';
 import 'package:ssoss_flutter/common/widgets/navigation/ssoss_navigation_bar.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
@@ -24,7 +23,17 @@ import 'package:ssoss_flutter/features/content/presentation/pages/content_genera
 import 'package:ssoss_flutter/features/content/presentation/pages/content_other_channel_create_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_result_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_save_complete_page.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_apply/recommended_content_template_apply_page.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_detail/recommended_content_template_detail_page.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_edit/recommended_content_template_edit_page.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_save_complete/recommended_content_template_save_complete_page.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_page.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
+import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_intro_page.dart';
+import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_operation_info_page.dart';
+import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_store_info_complete_page.dart';
+import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_store_info_page.dart';
 
 /// [LoginBloc] 의 인증 상태에 따라 스플래시/로그인/홈으로 분기하는 라우터를 생성한다.
 ///
@@ -44,7 +53,13 @@ GoRouter createAppRouter(
       final isOnLogin = location == LoginPage.routePath;
       final isOnSignupTerms = location == SignupTermsPage.routePath;
       final isOnSignupComplete = location == SignupCompletePage.routePath;
-      final isOnWithdrawComplete = location == WithdrawCompletePage.routePath;
+      final isOnOnboarding = location == OnboardingIntroPage.routePath;
+      final isOnOnboardingStoreInfo =
+          location == OnboardingStoreInfoPage.routePath;
+      final isOnOnboardingOperationInfo =
+          location == OnboardingOperationInfoPage.routePath;
+      final isOnOnboardingStoreInfoComplete =
+          location == OnboardingStoreInfoCompletePage.routePath;
       final isOnSignupFlow = isOnSignupTerms || isOnSignupComplete;
 
       // 세션 복원 중에는 스플래시에 머문다 (로그인 화면 플래시 방지).
@@ -59,7 +74,7 @@ GoRouter createAppRouter(
         return null;
       }
 
-      // 로그인 진행·실패(설정 탈퇴 실패 포함) 중에는 현재 화면 유지.
+      // 로그인 진행·실패 중에는 현재 화면 유지.
       if (authState is LoginLoading || authState is LoginFailure) {
         return null;
       }
@@ -72,20 +87,22 @@ GoRouter createAppRouter(
         return isOnSignupComplete ? null : SignupCompletePage.routePath;
       }
 
-      if (authState is LoginWithdrawComplete) {
-        return isOnWithdrawComplete ? null : WithdrawCompletePage.routePath;
-      }
-
       final isAuthenticated = authState is LoginAuthenticated;
 
       if (!isAuthenticated) {
         if (isOnLogin) return null;
-        if (isOnSignupFlow) return LoginPage.routePath;
+        if (isOnSignupFlow ||
+            isOnOnboarding ||
+            isOnOnboardingStoreInfo ||
+            isOnOnboardingOperationInfo ||
+            isOnOnboardingStoreInfoComplete) {
+          return LoginPage.routePath;
+        }
         return LoginPage.routePath;
       }
 
-      if (isOnLogin || isOnSplash || isOnSignupFlow || isOnWithdrawComplete) {
-        return HomePage.routePath;
+      if (isOnLogin || isOnSplash || isOnSignupFlow) {
+        return OnboardingIntroPage.routePath;
       }
       return null;
     },
@@ -111,9 +128,24 @@ GoRouter createAppRouter(
         builder: (context, state) => const SignupCompletePage(),
       ),
       GoRoute(
-        name: WithdrawCompletePage.routeName,
-        path: WithdrawCompletePage.routePath,
-        builder: (context, state) => const WithdrawCompletePage(),
+        name: OnboardingIntroPage.routeName,
+        path: OnboardingIntroPage.routePath,
+        builder: (context, state) => const OnboardingIntroPage(),
+      ),
+      GoRoute(
+        name: OnboardingStoreInfoPage.routeName,
+        path: OnboardingStoreInfoPage.routePath,
+        builder: (context, state) => const OnboardingStoreInfoPage(),
+      ),
+      GoRoute(
+        name: OnboardingOperationInfoPage.routeName,
+        path: OnboardingOperationInfoPage.routePath,
+        builder: (context, state) => const OnboardingOperationInfoPage(),
+      ),
+      GoRoute(
+        name: OnboardingStoreInfoCompletePage.routeName,
+        path: OnboardingStoreInfoCompletePage.routePath,
+        builder: (context, state) => const OnboardingStoreInfoCompletePage(),
       ),
       GoRoute(
         name: HomePage.routeName,
@@ -204,6 +236,50 @@ GoRouter createAppRouter(
             ),
           );
         },
+      ),
+      GoRoute(
+        name: RecommendedContentTemplatesPage.routeName,
+        path: RecommendedContentTemplatesPage.routePath,
+        builder: (context, state) => const RecommendedContentTemplatesPage(),
+      ),
+      GoRoute(
+        name: RecommendedContentTemplateDetailPage.routeName,
+        path: RecommendedContentTemplateDetailPage.routePath,
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is! RecommendedContentTemplateItem) {
+            return const RecommendedContentTemplatesPage();
+          }
+          return RecommendedContentTemplateDetailPage(item: extra);
+        },
+      ),
+      GoRoute(
+        name: RecommendedContentTemplateApplyPage.routeName,
+        path: RecommendedContentTemplateApplyPage.routePath,
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is! RecommendedContentTemplateItem) {
+            return const RecommendedContentTemplatesPage();
+          }
+          return RecommendedContentTemplateApplyPage(item: extra);
+        },
+      ),
+      GoRoute(
+        name: RecommendedContentTemplateEditPage.routeName,
+        path: RecommendedContentTemplateEditPage.routePath,
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is! RecommendedContentTemplateEditArgs) {
+            return const RecommendedContentTemplatesPage();
+          }
+          return RecommendedContentTemplateEditPage(args: extra);
+        },
+      ),
+      GoRoute(
+        name: RecommendedContentTemplateSaveCompletePage.routeName,
+        path: RecommendedContentTemplateSaveCompletePage.routePath,
+        builder: (context, state) =>
+            const RecommendedContentTemplateSaveCompletePage(),
       ),
     ],
   );

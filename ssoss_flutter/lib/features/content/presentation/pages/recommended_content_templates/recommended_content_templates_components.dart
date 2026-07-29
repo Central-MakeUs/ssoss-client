@@ -1,8 +1,15 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_filter_chip.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
+import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
 enum ContentTemplateCategory {
@@ -42,6 +49,128 @@ class RecommendedContentTemplateItem {
       description: description,
       channels: channels,
       isSaved: isSaved ?? this.isSaved,
+    );
+  }
+}
+
+class RecommendedHashtagSetItem {
+  const RecommendedHashtagSetItem({
+    required this.id,
+    required this.title,
+    required this.hashtags,
+    this.isSaved = false,
+  });
+
+  final String id;
+  final String title;
+  final List<String> hashtags;
+  final bool isSaved;
+
+  RecommendedHashtagSetItem copyWith({bool? isSaved}) {
+    return RecommendedHashtagSetItem(
+      id: id,
+      title: title,
+      hashtags: hashtags,
+      isSaved: isSaved ?? this.isSaved,
+    );
+  }
+}
+
+class RecommendedContentTemplateControls extends StatelessWidget {
+  const RecommendedContentTemplateControls({
+    required this.searchController,
+    required this.selectedTabIndex,
+    required this.selectedCategory,
+    required this.onSearchChanged,
+    required this.onTabChanged,
+    required this.onCategoryChanged,
+    this.showIntro = false,
+    this.showCategoryFilter = true,
+    super.key,
+  });
+
+  final TextEditingController searchController;
+  final int selectedTabIndex;
+  final ContentTemplateCategory selectedCategory;
+  final ValueChanged<String> onSearchChanged;
+  final ValueChanged<int> onTabChanged;
+  final ValueChanged<ContentTemplateCategory> onCategoryChanged;
+  final bool showIntro;
+  final bool showCategoryFilter;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        if (showIntro) ...[
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 4, 16, 16),
+            child: RecommendedContentSourceIntro(),
+          ),
+        ],
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: RecommendedContentTemplateSearchField(
+            controller: searchController,
+            onChanged: onSearchChanged,
+          ),
+        ),
+        const SizedBox(height: 8),
+        ContentTemplateTabBar(
+          selectedIndex: selectedTabIndex,
+          onChanged: onTabChanged,
+        ),
+        if (showCategoryFilter) ...[
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ContentTemplateFilterBar(
+              selectedCategory: selectedCategory,
+              onChanged: onCategoryChanged,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class RecommendedContentSourceIntro extends StatelessWidget {
+  const RecommendedContentSourceIntro({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: AppText(
+        '상황에 맞는 템플릿과\n해시태그를 골라 바로 활용해보세요',
+        style: AppTextStyles.h4.copyWith(color: AppColors.black),
+      ),
+    );
+  }
+}
+
+class RecommendedContentTemplateSearchField extends StatelessWidget {
+  const RecommendedContentTemplateSearchField({
+    required this.controller,
+    required this.onChanged,
+    super.key,
+  });
+
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SsossTextField(
+      controller: controller,
+      height: 44,
+      hintText: '템플릿명, 키워드로 검색',
+      showSearchIcon: true,
+      searchIconColor: AppColors.neutral700,
+      hintColor: AppColors.neutral500,
+      textColor: AppColors.neutral800,
+      onChanged: onChanged,
     );
   }
 }
@@ -156,6 +285,34 @@ class ContentTemplateFilterBar extends StatelessWidget {
   }
 }
 
+class RecommendedContentTemplateList extends StatelessWidget {
+  const RecommendedContentTemplateList({
+    required this.items,
+    required this.onSaveTap,
+    required this.onItemTap,
+    super.key,
+  });
+
+  final List<RecommendedContentTemplateItem> items;
+  final ValueChanged<String> onSaveTap;
+  final ValueChanged<RecommendedContentTemplateItem> onItemTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 34),
+      children: [
+        for (final item in items)
+          ContentTemplateCard(
+            item: item,
+            onSaveTap: () => onSaveTap(item.id),
+            onTap: () => onItemTap(item),
+          ),
+      ],
+    );
+  }
+}
+
 class ContentTemplateCard extends StatelessWidget {
   const ContentTemplateCard({
     required this.item,
@@ -172,73 +329,33 @@ class ContentTemplateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.white,
-      borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
         child: Container(
           width: double.infinity,
+          constraints: const BoxConstraints(minHeight: 150),
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            border: Border.all(color: AppColors.neutral200),
-            borderRadius: BorderRadius.circular(12),
+          decoration: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: AppColors.neutral200),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  _ContentTemplateCategoryTag(category: item.category),
-                  const Spacer(),
-                  _ContentTemplateSaveButton(
-                    isSaved: item.isSaved,
-                    onTap: onSaveTap,
-                  ),
-                ],
+              ContentTemplateCardHeader(
+                category: item.category,
+                isSaved: item.isSaved,
+                onSaveTap: onSaveTap,
               ),
               const SizedBox(height: 8),
-              AppText(
-                item.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.h5.copyWith(
-                  color: AppColors.neutral800,
-                ),
-              ),
-              const SizedBox(height: 2),
-              AppText(
-                item.description,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.b5.copyWith(
-                  color: AppColors.black,
-                ),
+              ContentTemplateCardText(
+                title: item.title,
+                description: item.description,
               ),
               const SizedBox(height: 8),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: AppText(
-                      '추천 채널',
-                      style: AppTextStyles.b5.copyWith(
-                        color: AppColors.neutral500,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Wrap(
-                      spacing: 4,
-                      runSpacing: 4,
-                      children: [
-                        for (final channel in item.channels)
-                          _ContentTemplateChannelTag(label: channel),
-                      ],
-                    ),
-                  ),
-                ],
+              ContentTemplateRecommendedChannels(
+                channels: item.channels,
               ),
             ],
           ),
@@ -248,8 +365,110 @@ class ContentTemplateCard extends StatelessWidget {
   }
 }
 
-class _ContentTemplateCategoryTag extends StatelessWidget {
-  const _ContentTemplateCategoryTag({required this.category});
+class ContentTemplateCardHeader extends StatelessWidget {
+  const ContentTemplateCardHeader({
+    required this.category,
+    required this.isSaved,
+    required this.onSaveTap,
+    super.key,
+  });
+
+  final ContentTemplateCategory category;
+  final bool isSaved;
+  final VoidCallback onSaveTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        ContentTemplateCategoryTag(category: category),
+        const Spacer(),
+        ContentTemplateSaveButton(
+          isSaved: isSaved,
+          onTap: onSaveTap,
+        ),
+      ],
+    );
+  }
+}
+
+class ContentTemplateCardText extends StatelessWidget {
+  const ContentTemplateCardText({
+    required this.title,
+    required this.description,
+    super.key,
+  });
+
+  final String title;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppText(
+          title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.h5.copyWith(
+            color: AppColors.neutral800,
+          ),
+        ),
+        const SizedBox(height: 2),
+        AppText(
+          description,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.b5.copyWith(
+            color: AppColors.black,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ContentTemplateRecommendedChannels extends StatelessWidget {
+  const ContentTemplateRecommendedChannels({
+    required this.channels,
+    super.key,
+  });
+
+  final List<String> channels;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppText(
+          '추천 채널',
+          style: AppTextStyles.b5.copyWith(
+            color: AppColors.neutral500,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Wrap(
+            spacing: 4,
+            runSpacing: 4,
+            children: [
+              for (final channel in channels)
+                ContentTemplateChannelTag(label: channel),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ContentTemplateCategoryTag extends StatelessWidget {
+  const ContentTemplateCategoryTag({
+    required this.category,
+    super.key,
+  });
 
   final ContentTemplateCategory category;
 
@@ -271,8 +490,11 @@ class _ContentTemplateCategoryTag extends StatelessWidget {
   }
 }
 
-class _ContentTemplateChannelTag extends StatelessWidget {
-  const _ContentTemplateChannelTag({required this.label});
+class ContentTemplateChannelTag extends StatelessWidget {
+  const ContentTemplateChannelTag({
+    required this.label,
+    super.key,
+  });
 
   final String label;
 
@@ -292,10 +514,11 @@ class _ContentTemplateChannelTag extends StatelessWidget {
   }
 }
 
-class _ContentTemplateSaveButton extends StatelessWidget {
-  const _ContentTemplateSaveButton({
+class ContentTemplateSaveButton extends StatelessWidget {
+  const ContentTemplateSaveButton({
     required this.isSaved,
     required this.onTap,
+    super.key,
   });
 
   final bool isSaved;
@@ -315,6 +538,229 @@ class _ContentTemplateSaveButton extends StatelessWidget {
             isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
             size: 24,
             color: AppColors.neutral700,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class RecommendedHashtagSetList extends StatelessWidget {
+  const RecommendedHashtagSetList({
+    required this.items,
+    required this.onSaveTap,
+    super.key,
+  });
+
+  final List<RecommendedHashtagSetItem> items;
+  final ValueChanged<String> onSaveTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 34),
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return RecommendedHashtagSetCard(
+          item: item,
+          onSaveTap: () => onSaveTap(item.id),
+        );
+      },
+      separatorBuilder: (_, __) => const SizedBox(height: 18),
+      itemCount: items.length,
+    );
+  }
+}
+
+class RecommendedHashtagSetCard extends StatelessWidget {
+  const RecommendedHashtagSetCard({
+    required this.item,
+    required this.onSaveTap,
+    super.key,
+  });
+
+  final RecommendedHashtagSetItem item;
+  final VoidCallback onSaveTap;
+
+  Future<void> _copy(BuildContext context) async {
+    await Clipboard.setData(ClipboardData(text: item.hashtags.join(' ')));
+    if (!context.mounted) {
+      return;
+    }
+    showSsossToast(
+      context,
+      title: '클립보드에 복사되었습니다',
+      margin: const EdgeInsets.only(bottom: 122),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        border: Border.all(color: AppColors.neutral200),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RecommendedHashtagSetHeader(
+                  item: item,
+                  onSaveTap: onSaveTap,
+                ),
+                const SizedBox(height: 16),
+                RecommendedHashtagWrap(hashtags: item.hashtags),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.neutral200),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                RecommendedHashtagCopyButton(
+                  onTap: () => unawaited(_copy(context)),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class RecommendedHashtagSetHeader extends StatelessWidget {
+  const RecommendedHashtagSetHeader({
+    required this.item,
+    required this.onSaveTap,
+    super.key,
+  });
+
+  final RecommendedHashtagSetItem item;
+  final VoidCallback onSaveTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Row(
+            children: [
+              Flexible(
+                child: AppText(
+                  item.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.h5.copyWith(color: AppColors.black),
+                ),
+              ),
+              const SizedBox(width: 6),
+              AppText(
+                '${item.hashtags.length}개',
+                style: AppTextStyles.b5.copyWith(color: AppColors.neutral400),
+              ),
+            ],
+          ),
+        ),
+        ContentTemplateSaveButton(
+          isSaved: item.isSaved,
+          onTap: onSaveTap,
+        ),
+      ],
+    );
+  }
+}
+
+class RecommendedHashtagWrap extends StatelessWidget {
+  const RecommendedHashtagWrap({
+    required this.hashtags,
+    super.key,
+  });
+
+  final List<String> hashtags;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 6,
+      runSpacing: 8,
+      children: [
+        for (final hashtag in hashtags) RecommendedHashtagChip(label: hashtag),
+      ],
+    );
+  }
+}
+
+class RecommendedHashtagChip extends StatelessWidget {
+  const RecommendedHashtagChip({
+    required this.label,
+    super.key,
+  });
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.neutral100,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: AppText(
+        label,
+        style: AppTextStyles.b5.copyWith(color: AppColors.neutral500),
+      ),
+    );
+  }
+}
+
+class RecommendedHashtagCopyButton extends StatelessWidget {
+  const RecommendedHashtagCopyButton({
+    required this.onTap,
+    super.key,
+  });
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        height: 32,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SvgPicture.asset(
+                AppAssets.icCopy,
+                width: 18,
+                height: 18,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.neutral500,
+                  BlendMode.srcIn,
+                ),
+              ),
+              const SizedBox(width: 4),
+              AppText(
+                '복사하기',
+                style: AppTextStyles.h8.copyWith(
+                  color: AppColors.neutral500,
+                ),
+              ),
+            ],
           ),
         ),
       ),

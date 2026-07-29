@@ -45,6 +45,7 @@ flutter:
     - assets/icons/common/
     - assets/icons/navigation/
     - assets/img/
+    - assets/img/onboarding/
   fonts:
     - family: Pretendard
       fonts:

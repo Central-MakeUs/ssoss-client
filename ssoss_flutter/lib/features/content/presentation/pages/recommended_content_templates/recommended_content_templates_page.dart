@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
-import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_detail/recommended_content_template_detail_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
@@ -52,8 +51,57 @@ class _RecommendedContentTemplatesPageState
     ),
   ];
 
+  static const List<RecommendedHashtagSetItem> _initialHashtagSets = [
+    RecommendedHashtagSetItem(
+      id: 'hashtag-1',
+      title: '카공 카페',
+      hashtags: [
+        '#카공',
+        '#카공족',
+        '#작업하기좋은카페',
+        '#작업실',
+        '#00동카공',
+        '#조용한카페',
+        '#스터디',
+        '#카공카페',
+        '#콘센트',
+        '#노트북가능카페',
+      ],
+    ),
+    RecommendedHashtagSetItem(
+      id: 'hashtag-2',
+      title: '이벤트/할인 홍보',
+      hashtags: [
+        '#이벤트',
+        '#카페이벤트',
+        '#할인이벤트',
+        '#오늘의이벤트',
+        '#주말이벤트',
+        '#기간한정',
+        '#특별할인',
+        '#첫방문할인',
+      ],
+    ),
+    RecommendedHashtagSetItem(
+      id: 'hashtag-3',
+      title: '동네 고객 유입 해시태그',
+      hashtags: [
+        '#마포카페',
+        '#합정카페',
+        '#연남동카페',
+        '#홍대카페',
+        '#동네카페',
+        '#숨은카페',
+        '#지역맛집',
+        '#연남동핫한카페',
+        '#마포인기카페',
+      ],
+    ),
+  ];
+
   final TextEditingController _searchController = TextEditingController();
   late List<RecommendedContentTemplateItem> _items;
+  late List<RecommendedHashtagSetItem> _hashtagSets;
   ContentTemplateCategory _selectedCategory = ContentTemplateCategory.all;
   int _selectedTabIndex = 0;
   String _searchKeyword = '';
@@ -62,6 +110,7 @@ class _RecommendedContentTemplatesPageState
   void initState() {
     super.initState();
     _items = List.of(_initialItems);
+    _hashtagSets = List.of(_initialHashtagSets);
   }
 
   @override
@@ -86,9 +135,23 @@ class _RecommendedContentTemplatesPageState
     }).toList();
   }
 
+  List<RecommendedHashtagSetItem> get _visibleHashtagSets {
+    final keyword = _searchKeyword.trim();
+    if (keyword.isEmpty) {
+      return _hashtagSets;
+    }
+
+    return _hashtagSets.where((item) {
+      return item.title.contains(keyword) ||
+          item.hashtags.any((hashtag) => hashtag.contains(keyword));
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final visibleItems = _visibleItems;
+    final visibleHashtagSets = _visibleHashtagSets;
+    final isHashtagTab = _selectedTabIndex == 1;
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -98,53 +161,45 @@ class _RecommendedContentTemplatesPageState
       ),
       body: SafeArea(
         top: false,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(0, 3, 0, 34),
+        child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: SsossTextField(
-                controller: _searchController,
-                height: 44,
-                hintText: '템플릿명, 키워드로 검색',
-                showSearchIcon: true,
-                searchIconColor: AppColors.neutral700,
-                hintColor: AppColors.neutral500,
-                textColor: AppColors.neutral800,
-                onChanged: (value) {
+            ColoredBox(
+              color: AppColors.white,
+              child: RecommendedContentTemplateControls(
+                searchController: _searchController,
+                selectedTabIndex: _selectedTabIndex,
+                selectedCategory: _selectedCategory,
+                showIntro: isHashtagTab,
+                showCategoryFilter: !isHashtagTab,
+                onSearchChanged: (value) {
                   setState(() => _searchKeyword = value);
                 },
-              ),
-            ),
-            const SizedBox(height: 8),
-            ContentTemplateTabBar(
-              selectedIndex: _selectedTabIndex,
-              onChanged: (index) {
-                setState(() => _selectedTabIndex = index);
-              },
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ContentTemplateFilterBar(
-                selectedCategory: _selectedCategory,
-                onChanged: (category) {
+                onTabChanged: (index) {
+                  setState(() {
+                    _selectedTabIndex = index;
+                    if (index == 1) {
+                      _selectedCategory = ContentTemplateCategory.all;
+                    }
+                  });
+                },
+                onCategoryChanged: (category) {
                   setState(() => _selectedCategory = category);
                 },
               ),
             ),
             const SizedBox(height: 16),
-            for (final item in visibleItems) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: ContentTemplateCard(
-                  item: item,
-                  onSaveTap: () => _toggleSaved(item.id),
-                  onTap: () => _openDetail(item),
-                ),
-              ),
-              if (item != visibleItems.last) const SizedBox(height: 12),
-            ],
+            Expanded(
+              child: isHashtagTab
+                  ? RecommendedHashtagSetList(
+                      items: visibleHashtagSets,
+                      onSaveTap: _toggleHashtagSaved,
+                    )
+                  : RecommendedContentTemplateList(
+                      items: visibleItems,
+                      onSaveTap: _toggleSaved,
+                      onItemTap: _openDetail,
+                    ),
+            ),
           ],
         ),
       ),
@@ -155,6 +210,18 @@ class _RecommendedContentTemplatesPageState
     setState(() {
       _items = [
         for (final item in _items)
+          if (item.id == itemId)
+            item.copyWith(isSaved: !item.isSaved)
+          else
+            item,
+      ];
+    });
+  }
+
+  void _toggleHashtagSaved(String itemId) {
+    setState(() {
+      _hashtagSets = [
+        for (final item in _hashtagSets)
           if (item.id == itemId)
             item.copyWith(isSaved: !item.isSaved)
           else

@@ -92,7 +92,7 @@ class MyPageStoreSummaryCard extends StatelessWidget {
             child: Row(
               children: [
                 SvgPicture.asset(
-                  AppAssets.icCredit,
+                  AppAssets.icCoins,
                   width: 20,
                   height: 20,
                   colorFilter: const ColorFilter.mode(
@@ -111,14 +111,17 @@ class MyPageStoreSummaryCard extends StatelessWidget {
                 AppText(
                   '$credit',
                   style: AppTextStyles.h4.copyWith(
-                    color: AppColors.neutral800,
+                    color: AppColors.primary500,
                   ),
                 ),
                 const SizedBox(width: 4),
-                AppText(
-                  'P',
-                  style: AppTextStyles.h4.copyWith(
-                    color: AppColors.neutral400,
+                SvgPicture.asset(
+                  AppAssets.icCredit,
+                  width: 16,
+                  height: 16,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.primary500,
+                    BlendMode.srcIn,
                   ),
                 ),
                 const SizedBox(width: 12),
