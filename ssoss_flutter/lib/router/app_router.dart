@@ -107,8 +107,9 @@ GoRouter createAppRouter(
         return LoginPage.routePath;
       }
 
+      // MVP: 온보딩 비활성화 — 로그인/회원가입 후 바로 홈으로 이동.
       if (isOnLogin || isOnSplash || isOnSignupFlow || isOnWithdrawComplete) {
-        return OnboardingIntroPage.routePath;
+        return HomePage.routePath;
       }
       return null;
     },
