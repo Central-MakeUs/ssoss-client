@@ -3,12 +3,14 @@ import 'dart:io';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'common/widgets/modal/ssoss_modal.dart';
+import 'core/colors/app_colors.dart';
 import 'core/config/app_config.dart';
 import 'core/constants/app_urls.dart';
 import 'core/network/network_providers.dart';
@@ -38,6 +40,17 @@ class SsossApp extends StatefulWidget {
 }
 
 class _SsossAppState extends State<SsossApp> {
+  static const SystemUiOverlayStyle _systemUiOverlayStyle =
+      SystemUiOverlayStyle(
+    statusBarColor: AppColors.white,
+    // iOS: light = 어두운(검정) 상태바 글자, Android: dark 아이콘
+    statusBarBrightness: Brightness.light,
+    statusBarIconBrightness: Brightness.dark,
+    systemNavigationBarColor: AppColors.white,
+    systemNavigationBarIconBrightness: Brightness.dark,
+    systemNavigationBarDividerColor: AppColors.white,
+  );
+
   final GlobalKey<NavigatorState> _rootNavigatorKey =
       GlobalKey<NavigatorState>();
   late final GoRouter _router;
@@ -48,6 +61,7 @@ class _SsossAppState extends State<SsossApp> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setSystemUIOverlayStyle(_systemUiOverlayStyle);
     _router = createAppRouter(
       context.read<LoginBloc>(),
       navigatorKey: _rootNavigatorKey,
@@ -137,32 +151,40 @@ class _SsossAppState extends State<SsossApp> {
       title: config.flavor.displayName,
       routerConfig: _router,
       builder: (context, child) {
-        return MultiBlocListener(
-          listeners: [
-            BlocListener<AppVersionCubit, AppVersionState>(
-              listenWhen: (previous, current) =>
-                  current is AppVersionUpdateRequired ||
-                  current is AppVersionAllowed,
-              listener: (context, state) {
-                if (state is AppVersionUpdateRequired) {
-                  unawaited(_showForceUpdateModal());
-                  return;
-                }
-                if (state is AppVersionAllowed) {
-                  _requestSessionRestoreIfNeeded();
-                }
-              },
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: _systemUiOverlayStyle,
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: TextScaler.noScaling,
             ),
-            BlocListener<LoginBloc, LoginState>(
-              listenWhen: (previous, current) =>
-                  current is LoginSessionExpired &&
-                  previous is! LoginSessionExpired,
-              listener: (context, state) {
-                unawaited(_showSessionExpiredModal());
-              },
+            child: MultiBlocListener(
+              listeners: [
+                BlocListener<AppVersionCubit, AppVersionState>(
+                  listenWhen: (previous, current) =>
+                      current is AppVersionUpdateRequired ||
+                      current is AppVersionAllowed,
+                  listener: (context, state) {
+                    if (state is AppVersionUpdateRequired) {
+                      unawaited(_showForceUpdateModal());
+                      return;
+                    }
+                    if (state is AppVersionAllowed) {
+                      _requestSessionRestoreIfNeeded();
+                    }
+                  },
+                ),
+                BlocListener<LoginBloc, LoginState>(
+                  listenWhen: (previous, current) =>
+                      current is LoginSessionExpired &&
+                      previous is! LoginSessionExpired,
+                  listener: (context, state) {
+                    unawaited(_showSessionExpiredModal());
+                  },
+                ),
+              ],
+              child: child ?? const SizedBox.shrink(),
             ),
-          ],
-          child: child ?? const SizedBox.shrink(),
+          ),
         );
       },
       localizationsDelegates: const [
