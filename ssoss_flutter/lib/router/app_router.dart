@@ -9,6 +9,7 @@ import 'package:ssoss_flutter/features/auth/presentation/pages/login_page.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/signup/signup_complete_page.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/signup/signup_terms_page.dart';
 import 'package:ssoss_flutter/features/auth/presentation/pages/splash_page.dart';
+import 'package:ssoss_flutter/features/auth/presentation/pages/withdraw/withdraw_complete_page.dart';
 import 'package:ssoss_flutter/common/widgets/navigation/ssoss_navigation_bar.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
@@ -53,6 +54,7 @@ GoRouter createAppRouter(
       final isOnLogin = location == LoginPage.routePath;
       final isOnSignupTerms = location == SignupTermsPage.routePath;
       final isOnSignupComplete = location == SignupCompletePage.routePath;
+      final isOnWithdrawComplete = location == WithdrawCompletePage.routePath;
       final isOnOnboarding = location == OnboardingIntroPage.routePath;
       final isOnOnboardingStoreInfo =
           location == OnboardingStoreInfoPage.routePath;
@@ -74,7 +76,7 @@ GoRouter createAppRouter(
         return null;
       }
 
-      // 로그인 진행·실패 중에는 현재 화면 유지.
+      // 로그인 진행·실패(설정 탈퇴 실패 포함) 중에는 현재 화면 유지.
       if (authState is LoginLoading || authState is LoginFailure) {
         return null;
       }
@@ -85,6 +87,10 @@ GoRouter createAppRouter(
 
       if (authState is LoginSignupComplete) {
         return isOnSignupComplete ? null : SignupCompletePage.routePath;
+      }
+
+      if (authState is LoginWithdrawComplete) {
+        return isOnWithdrawComplete ? null : WithdrawCompletePage.routePath;
       }
 
       final isAuthenticated = authState is LoginAuthenticated;
@@ -101,7 +107,7 @@ GoRouter createAppRouter(
         return LoginPage.routePath;
       }
 
-      if (isOnLogin || isOnSplash || isOnSignupFlow) {
+      if (isOnLogin || isOnSplash || isOnSignupFlow || isOnWithdrawComplete) {
         return OnboardingIntroPage.routePath;
       }
       return null;
@@ -126,6 +132,11 @@ GoRouter createAppRouter(
         name: SignupCompletePage.routeName,
         path: SignupCompletePage.routePath,
         builder: (context, state) => const SignupCompletePage(),
+      ),
+      GoRoute(
+        name: WithdrawCompletePage.routeName,
+        path: WithdrawCompletePage.routePath,
+        builder: (context, state) => const WithdrawCompletePage(),
       ),
       GoRoute(
         name: OnboardingIntroPage.routeName,
