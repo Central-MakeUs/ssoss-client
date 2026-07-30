@@ -17,6 +17,9 @@ class SsossTextField extends StatelessWidget {
     this.readOnly = false,
     this.obscureText = false,
     this.multiline = false,
+    this.expands = false,
+    this.minLines = 1,
+    this.maxLines,
     this.keyboardType,
     this.textInputAction,
     this.inputFormatters,
@@ -43,6 +46,9 @@ class SsossTextField extends StatelessWidget {
   final bool readOnly;
   final bool obscureText;
   final bool multiline;
+  final bool expands;
+  final int? minLines;
+  final int? maxLines;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
   final List<TextInputFormatter>? inputFormatters;
@@ -87,14 +93,18 @@ class SsossTextField extends StatelessWidget {
       inputFormatters: inputFormatters,
       onChanged: onChanged,
       onSubmitted: onSubmitted,
-      minLines: multiline ? 1 : null,
-      maxLines: multiline ? null : 1,
+      onTapOutside: (_) {
+        (focusNode ?? FocusManager.instance.primaryFocus)?.unfocus();
+      },
+      minLines: multiline ? minLines : null,
+      maxLines: multiline ? maxLines : 1,
       textAlignVertical:
           multiline ? TextAlignVertical.top : TextAlignVertical.center,
       cursorColor: focusedBorderColor ?? AppColors.primary400,
       style: textStyle.copyWith(
         color: resolvedTextColor,
       ),
+      expands: expands,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: textStyle.copyWith(
