@@ -20,6 +20,9 @@ class AppAssets {
       'assets/icons/common/icons.chevron_right.svg';
   static const String icAdd = 'assets/icons/common/ic_add.svg';
   static const String icBell = 'assets/icons/common/ic_bell.svg';
+  static const String icBookmark = 'assets/icons/common/ic_bookmark.svg';
+  static const String icBookmarkSaved =
+      'assets/icons/common/ic_bookmark_save.svg';
   static const String icSearch = 'assets/icons/common/ic_search.svg';
   static const String icRefresh = 'assets/icons/common/ic_refresh.svg';
   static const String icArrowLeft = 'assets/icons/common/ic_arrow_left.svg';

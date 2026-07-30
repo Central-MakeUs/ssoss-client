@@ -30,7 +30,6 @@ class FrequentPhraseField extends StatelessWidget {
         SsossTextField(
           controller: controller,
           hintText: '입력해주세요',
-          height: 44,
           textColor: AppColors.neutral800,
           hintColor: AppColors.neutral400,
         ),

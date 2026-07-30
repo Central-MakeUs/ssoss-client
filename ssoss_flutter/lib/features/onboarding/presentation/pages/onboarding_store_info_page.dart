@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_address_search_field.dart';
 
 import 'package:ssoss_flutter/common/widgets/input/ssoss_select_field.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
@@ -135,7 +136,6 @@ class _OnboardingStoreInfoPageState extends State<OnboardingStoreInfoPage> {
                     child: SsossSelectField(
                       value: _storeType,
                       placeholder: '선택해주세요',
-                      height: 44,
                       onTap: () => unawaited(_showStoreTypePicker()),
                     ),
                   ),
@@ -143,11 +143,9 @@ class _OnboardingStoreInfoPageState extends State<OnboardingStoreInfoPage> {
                   _OnboardingFormField(
                     label: '주소',
                     required: true,
-                    child: SsossTextField(
+                    child: SsossAddressSearchField(
                       controller: _addressController,
                       hintText: '주소를 입력해주세요',
-                      showSearchIcon: true,
-                      textInputAction: TextInputAction.next,
                     ),
                   ),
                   const SizedBox(height: 32),

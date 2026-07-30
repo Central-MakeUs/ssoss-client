@@ -34,19 +34,24 @@ class _RecommendedContentTemplateDetailPageState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: SsossAppBar.back(
-        title: '템플릿 미리보기',
-        onBack: () => Navigator.of(context).pop(),
-      ),
       body: SafeArea(
-        top: false,
-        child: ContentTemplateDetailBody(
-          item: widget.item,
-          previewText: _previewText,
-          isExampleOpen: _isExampleOpen,
-          onExampleTap: () {
-            setState(() => _isExampleOpen = !_isExampleOpen);
-          },
+        child: Column(
+          children: [
+            SsossAppBar.back(
+              title: '템플릿 미리보기',
+              onBack: () => Navigator.of(context).pop(),
+            ),
+            Expanded(
+              child: ContentTemplateDetailBody(
+                item: widget.item,
+                previewText: _previewText,
+                isExampleOpen: _isExampleOpen,
+                onExampleTap: () {
+                  setState(() => _isExampleOpen = !_isExampleOpen);
+                },
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: ContentTemplateDetailBottomBar(
