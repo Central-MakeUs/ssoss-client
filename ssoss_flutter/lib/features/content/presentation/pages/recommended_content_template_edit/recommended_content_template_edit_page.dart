@@ -99,20 +99,25 @@ class _RecommendedContentTemplateEditPageState
       child: Scaffold(
         backgroundColor: AppColors.white,
         resizeToAvoidBottomInset: true,
-        appBar: SsossAppBar.back(
-          title: '콘텐츠 편집',
-          onBack: () => unawaited(_onBack()),
-        ),
         body: SafeArea(
-          top: false,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 12, 15, 24),
-            child: RecommendedContentTemplateEditBody(
-              document: _document,
-              onDocumentChanged: (document) {
-                setState(() => _document = document);
-              },
-            ),
+          child: Column(
+            children: [
+              SsossAppBar.back(
+                title: '콘텐츠 편집',
+                onBack: () => unawaited(_onBack()),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 15, 24),
+                  child: RecommendedContentTemplateEditBody(
+                    document: _document,
+                    onDocumentChanged: (document) {
+                      setState(() => _document = document);
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         bottomNavigationBar: ContentEditBottomBar(

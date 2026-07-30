@@ -31,25 +31,32 @@ class _FrequentPhrasesPageState extends State<FrequentPhrasesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: SsossAppBar.backWithLabel(
-        title: '자주 쓰는 문구',
-        label: '저장',
-        onBack: () => Navigator.of(context).pop(),
-        onDone: () => Navigator.of(context).pop(),
-      ),
       body: SafeArea(
-        top: false,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 3, 16, 34),
+        child: Column(
           children: [
-            for (var index = 0; index < _controllers.length; index++) ...[
-              FrequentPhraseField(
-                label: '문구 ${index + 1}',
-                controller: _controllers[index],
+            SsossAppBar.backWithLabel(
+              title: '자주 쓰는 문구',
+              label: '저장',
+              onBack: () => Navigator.of(context).pop(),
+              onDone: () => Navigator.of(context).pop(),
+            ),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 3, 16, 34),
+                children: [
+                  for (var index = 0; index < _controllers.length; index++) ...[
+                    FrequentPhraseField(
+                      label: '문구 ${index + 1}',
+                      controller: _controllers[index],
+                    ),
+                    SizedBox(
+                      height: index == _controllers.length - 1 ? 16 : 36,
+                    ),
+                  ],
+                  FrequentPhraseAddButton(onTap: _addPhrase),
+                ],
               ),
-              SizedBox(height: index == _controllers.length - 1 ? 16 : 36),
-            ],
-            FrequentPhraseAddButton(onTap: _addPhrase),
+            ),
           ],
         ),
       ),

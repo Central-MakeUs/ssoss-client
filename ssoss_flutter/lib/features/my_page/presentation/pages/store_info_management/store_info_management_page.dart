@@ -6,6 +6,7 @@ import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_select_dropdown.dart';
+import 'package:ssoss_flutter/common/widgets/picker/ssoss_time_picker_bottom_sheet.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -184,16 +185,8 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
     });
   }
 
-  void _addMenu() {
-    final menu = _menuController.text.trim();
-    if (menu.isEmpty || _menus.contains(menu) || _menus.length >= 10) {
-      return;
-    }
-
-    setState(() {
-      _menus.add(menu);
-      _menuController.clear();
-    });
+  void _addMenu(String menu) {
+    setState(() => _menus.add(menu));
   }
 
   void _removeMenu(String menu) {
@@ -237,13 +230,7 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
   }
 
   Future<void> _showTimePicker({required bool isOpeningTime}) async {
-    final selectedTime = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      barrierColor: AppColors.black.withValues(alpha: 0.3),
-      builder: (context) => const StoreInfoTimePickerBottomSheet(),
-    );
+    final selectedTime = await SsossTimePickerBottomSheet.show(context);
 
     if (!mounted || selectedTime == null) {
       return;
@@ -400,13 +387,10 @@ class _BasicInfoFormState extends State<_BasicInfoForm> {
           },
         ),
         const SizedBox(height: 32),
-        StoreInfoFormField(
+        StoreInfoAddressFormField(
           label: '주소',
           controller: widget.addressController,
           hintText: '주소를 검색해주세요',
-          showSearchIcon: true,
-          readOnly: true,
-          onTap: () {},
         ),
         const SizedBox(height: 32),
         StoreInfoFormField(
@@ -440,7 +424,7 @@ class _OperationInfoForm extends StatelessWidget {
   final List<String> menus;
   final Map<StoreFacilityType, bool> facilities;
   final ValueChanged<String> onDayTap;
-  final VoidCallback onAddMenu;
+  final ValueChanged<String> onAddMenu;
   final ValueChanged<String> onRemoveMenu;
   final String openingTime;
   final String closingTime;
@@ -484,13 +468,10 @@ class _OperationInfoForm extends StatelessWidget {
           helperText: '최대 10개',
         ),
         const SizedBox(height: 8),
-        StoreInfoMenuInputRow(
-          controller: menuController,
+        SsossHashtagInput(
+          hashtags: menus,
+          hintText: 'ex) 크림브륄레 커피',
           onAdd: onAddMenu,
-        ),
-        const SizedBox(height: 12),
-        StoreInfoMenuTagWrap(
-          menus: menus,
           onRemove: onRemoveMenu,
         ),
         const SizedBox(height: 32),

@@ -40,7 +40,6 @@ class SsossSelectField extends StatelessWidget {
   final double? width;
   final double? height;
 
-  static const double defaultHeight = 40;
   static const double _borderRadius = 8;
 
   bool get _hasValue => value != null && value!.isNotEmpty;
@@ -72,7 +71,7 @@ class SsossSelectField extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: Container(
           width: width,
-          height: height ?? SsossSelectField.defaultHeight,
+          height: height,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: resolvedFillColor,
@@ -96,8 +95,6 @@ class SsossSelectField extends StatelessWidget {
                 child: Center(
                   child: SvgPicture.asset(
                     isOpen ? AppAssets.icChevronUp : AppAssets.icChevronDown,
-                    width: 12,
-                    height: 6,
                     colorFilter: ColorFilter.mode(
                       resolvedIconColor,
                       BlendMode.srcIn,

@@ -1,0 +1,249 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
+import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
+
+class SsossTimePickerBottomSheet extends StatefulWidget {
+  const SsossTimePickerBottomSheet({super.key});
+
+  static Future<String?> show(BuildContext context) {
+    return showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: AppColors.black.withValues(alpha: 0.3),
+      builder: (context) => const SsossTimePickerBottomSheet(),
+    );
+  }
+
+  @override
+  State<SsossTimePickerBottomSheet> createState() =>
+      _SsossTimePickerBottomSheetState();
+}
+
+class _SsossTimePickerBottomSheetState
+    extends State<SsossTimePickerBottomSheet> {
+  static const List<String> _periods = ['오전', '오후'];
+  static const List<int> _hours = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+  static const List<int> _minutes = [0, 10, 20, 30, 40, 50];
+
+  int _periodIndex = 0;
+  int _hourIndex = 2;
+  int _minuteIndex = 3;
+
+  String get _selectedTime {
+    final period = _periods[_periodIndex];
+    final hour = _hours[_hourIndex].toString().padLeft(2, '0');
+    final minute = _minutes[_minuteIndex].toString().padLeft(2, '0');
+    return '$period $hour:$minute';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 44,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFDEDEDE),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: _SsossTimePickerWheel(
+                periods: _periods,
+                hours: _hours,
+                minutes: _minutes,
+                periodIndex: _periodIndex,
+                hourIndex: _hourIndex,
+                minuteIndex: _minuteIndex,
+                onPeriodChanged: (index) {
+                  setState(() => _periodIndex = index);
+                },
+                onHourChanged: (index) {
+                  setState(() => _hourIndex = index);
+                },
+                onMinuteChanged: (index) {
+                  setState(() => _minuteIndex = index);
+                },
+              ),
+            ),
+            const SizedBox(height: 36),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: SsossButton(
+                label: '확인',
+                size: SsossButtonSize.large,
+                width: double.infinity,
+                height: 56,
+                onPressed: () => Navigator.of(context).pop(_selectedTime),
+                backgroundColor: AppColors.primary400,
+                foregroundColor: AppColors.white,
+                textStyle: AppTextStyles.h5,
+              ),
+            ),
+            const SizedBox(height: 34),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SsossTimePickerWheel extends StatelessWidget {
+  const _SsossTimePickerWheel({
+    required this.periods,
+    required this.hours,
+    required this.minutes,
+    required this.periodIndex,
+    required this.hourIndex,
+    required this.minuteIndex,
+    required this.onPeriodChanged,
+    required this.onHourChanged,
+    required this.onMinuteChanged,
+  });
+
+  final List<String> periods;
+  final List<int> hours;
+  final List<int> minutes;
+  final int periodIndex;
+  final int hourIndex;
+  final int minuteIndex;
+  final ValueChanged<int> onPeriodChanged;
+  final ValueChanged<int> onHourChanged;
+  final ValueChanged<int> onMinuteChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 162,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            height: 33,
+            decoration: BoxDecoration(
+              color: AppColors.neutral100,
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 58,
+                child: _SsossPickerColumn(
+                  values: periods,
+                  selectedIndex: periodIndex,
+                  onSelectedItemChanged: onPeriodChanged,
+                  textAlign: TextAlign.right,
+                ),
+              ),
+              const SizedBox(width: 44),
+              SizedBox(
+                width: 28,
+                child: _SsossPickerColumn(
+                  values: [for (final hour in hours) '$hour'],
+                  selectedIndex: hourIndex,
+                  onSelectedItemChanged: onHourChanged,
+                  textAlign: TextAlign.right,
+                ),
+              ),
+              SizedBox(
+                width: 24,
+                child: Center(
+                  child: AppText(
+                    ':',
+                    style: AppTextStyles.h4.copyWith(color: AppColors.black),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 32,
+                child: _SsossPickerColumn(
+                  values: [
+                    for (final minute in minutes)
+                      minute.toString().padLeft(2, '0'),
+                  ],
+                  selectedIndex: minuteIndex,
+                  onSelectedItemChanged: onMinuteChanged,
+                  textAlign: TextAlign.left,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SsossPickerColumn extends StatelessWidget {
+  const _SsossPickerColumn({
+    required this.values,
+    required this.selectedIndex,
+    required this.onSelectedItemChanged,
+    required this.textAlign,
+  });
+
+  final List<String> values;
+  final int selectedIndex;
+  final ValueChanged<int> onSelectedItemChanged;
+  final TextAlign textAlign;
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPicker.builder(
+      scrollController: FixedExtentScrollController(
+        initialItem: selectedIndex,
+      ),
+      itemExtent: 33,
+      diameterRatio: 1.4,
+      magnification: 1,
+      squeeze: 1,
+      useMagnifier: false,
+      selectionOverlay: const SizedBox.shrink(),
+      onSelectedItemChanged: onSelectedItemChanged,
+      childCount: values.length,
+      itemBuilder: (context, index) {
+        return Align(
+          alignment: textAlign == TextAlign.right
+              ? Alignment.centerRight
+              : Alignment.centerLeft,
+          child: AppText(
+            values[index],
+            textAlign: textAlign,
+            style: _styleFor(index),
+          ),
+        );
+      },
+    );
+  }
+
+  TextStyle _styleFor(int index) {
+    if (index == selectedIndex) {
+      return AppTextStyles.h4.copyWith(color: AppColors.black);
+    }
+
+    final distance = (index - selectedIndex).abs();
+    return (distance == 1 ? AppTextStyles.h5 : AppTextStyles.h6).copyWith(
+      color: AppColors.neutral300,
+    );
+  }
+}

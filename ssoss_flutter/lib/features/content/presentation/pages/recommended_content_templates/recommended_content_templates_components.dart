@@ -76,27 +76,17 @@ class RecommendedHashtagSetItem {
   }
 }
 
-class RecommendedContentTemplateControls extends StatelessWidget {
-  const RecommendedContentTemplateControls({
+class RecommendedContentTemplateHeader extends StatelessWidget {
+  const RecommendedContentTemplateHeader({
     required this.searchController,
-    required this.selectedTabIndex,
-    required this.selectedCategory,
     required this.onSearchChanged,
-    required this.onTabChanged,
-    required this.onCategoryChanged,
     this.showIntro = false,
-    this.showCategoryFilter = true,
     super.key,
   });
 
   final TextEditingController searchController;
-  final int selectedTabIndex;
-  final ContentTemplateCategory selectedCategory;
   final ValueChanged<String> onSearchChanged;
-  final ValueChanged<int> onTabChanged;
-  final ValueChanged<ContentTemplateCategory> onCategoryChanged;
   final bool showIntro;
-  final bool showCategoryFilter;
 
   @override
   Widget build(BuildContext context) {
@@ -116,20 +106,6 @@ class RecommendedContentTemplateControls extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        ContentTemplateTabBar(
-          selectedIndex: selectedTabIndex,
-          onChanged: onTabChanged,
-        ),
-        if (showCategoryFilter) ...[
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ContentTemplateFilterBar(
-              selectedCategory: selectedCategory,
-              onChanged: onCategoryChanged,
-            ),
-          ),
-        ],
       ],
     );
   }
@@ -164,82 +140,12 @@ class RecommendedContentTemplateSearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     return SsossTextField(
       controller: controller,
-      height: 44,
       hintText: '템플릿명, 키워드로 검색',
       showSearchIcon: true,
       searchIconColor: AppColors.neutral700,
       hintColor: AppColors.neutral500,
       textColor: AppColors.neutral800,
       onChanged: onChanged,
-    );
-  }
-}
-
-class ContentTemplateTabBar extends StatelessWidget {
-  const ContentTemplateTabBar({
-    required this.selectedIndex,
-    required this.onChanged,
-    super.key,
-  });
-
-  final int selectedIndex;
-  final ValueChanged<int> onChanged;
-
-  static const List<String> _tabs = ['템플릿', '해시태그'];
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        for (var index = 0; index < _tabs.length; index++)
-          Expanded(
-            child: _ContentTemplateTab(
-              label: _tabs[index],
-              isSelected: selectedIndex == index,
-              onTap: () => onChanged(index),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _ContentTemplateTab extends StatelessWidget {
-  const _ContentTemplateTab({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.white,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          height: 44,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: isSelected ? AppColors.neutral800 : AppColors.neutral200,
-                width: isSelected ? 2 : 1,
-              ),
-            ),
-          ),
-          child: AppText(
-            label,
-            style: AppTextStyles.h6.copyWith(
-              color: isSelected ? AppColors.black : AppColors.neutral500,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
@@ -288,26 +194,46 @@ class ContentTemplateFilterBar extends StatelessWidget {
 class RecommendedContentTemplateList extends StatelessWidget {
   const RecommendedContentTemplateList({
     required this.items,
+    required this.selectedCategory,
+    required this.onCategoryChanged,
     required this.onSaveTap,
     required this.onItemTap,
     super.key,
   });
 
   final List<RecommendedContentTemplateItem> items;
+  final ContentTemplateCategory selectedCategory;
+  final ValueChanged<ContentTemplateCategory> onCategoryChanged;
   final ValueChanged<String> onSaveTap;
   final ValueChanged<RecommendedContentTemplateItem> onItemTap;
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 34),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final item in items)
-          ContentTemplateCard(
-            item: item,
-            onSaveTap: () => onSaveTap(item.id),
-            onTap: () => onItemTap(item),
+        const SizedBox(height: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: ContentTemplateFilterBar(
+            selectedCategory: selectedCategory,
+            onChanged: onCategoryChanged,
           ),
+        ),
+        const SizedBox(height: 16),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: 34),
+            children: [
+              for (final item in items)
+                ContentTemplateCard(
+                  item: item,
+                  onSaveTap: () => onSaveTap(item.id),
+                  onTap: () => onItemTap(item),
+                ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -329,7 +255,7 @@ class ContentTemplateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.white,
-      child: InkWell(
+      child: GestureDetector(
         onTap: onTap,
         child: Container(
           width: double.infinity,
@@ -529,15 +455,12 @@ class ContentTemplateSaveButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: isSaved ? '저장 해제' : '저장',
-      child: InkWell(
+      child: GestureDetector(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
         child: SizedBox.square(
           dimension: 24,
-          child: Icon(
-            isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-            size: 24,
-            color: AppColors.neutral700,
+          child: SvgPicture.asset(
+            isSaved ? AppAssets.icBookmarkSaved : AppAssets.icBookmark,
           ),
         ),
       ),
@@ -558,7 +481,7 @@ class RecommendedHashtagSetList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 34),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 34),
       itemBuilder: (context, index) {
         final item = items[index];
         return RecommendedHashtagSetCard(

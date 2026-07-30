@@ -41,17 +41,22 @@ class RecommendedContentTemplateSaveCompletePage extends StatelessWidget {
       },
       child: Scaffold(
         backgroundColor: AppColors.white,
-        appBar: SsossAppBar.backWithLabel(
-          title: '저장 완료',
-          label: '나가기',
-          onBack: () => _goHome(context),
-          onDone: () => _goHome(context),
-        ),
         body: SafeArea(
-          top: false,
-          child: RecommendedContentTemplateSaveCompleteBody(
-            onViewHistory: () => _goHistory(context),
-            onViewTemplates: () => _goTemplates(context),
+          child: Column(
+            children: [
+              SsossAppBar.backWithLabel(
+                title: '저장 완료',
+                label: '나가기',
+                onBack: () => _goHome(context),
+                onDone: () => _goHome(context),
+              ),
+              Expanded(
+                child: RecommendedContentTemplateSaveCompleteBody(
+                  onViewHistory: () => _goHistory(context),
+                  onViewTemplates: () => _goTemplates(context),
+                ),
+              ),
+            ],
           ),
         ),
       ),

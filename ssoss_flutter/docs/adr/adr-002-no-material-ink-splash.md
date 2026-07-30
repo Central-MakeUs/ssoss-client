@@ -8,7 +8,7 @@
 |------|------|
 | ADR 번호 | 002 |
 | 제목 | 탭 가능한 UI에 Android Material Ink Splash(리플)를 표시하지 않는다 |
-| 상태 | Accepted |
+| 상태 | Superseded by [ADR-008](adr-008-no-inkwell-use-gesture-detector.md) |
 | 작성자 | 프로젝트 팀 |
 | 작성일 | 2026-07-15 |
 | 영향 범위 | 전체 프로젝트 (`presentation`, `common` 레이어의 인터랙티브 위젯) |
