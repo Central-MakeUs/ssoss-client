@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_checkbox.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
@@ -215,29 +216,14 @@ class _MultilineInput extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 80,
-      child: TextField(
-        controller: controller,
-        onChanged: onChanged,
+      child: SsossTextField(
+        multiline: true,
+        minLines: null,
         maxLines: null,
         expands: true,
-        textAlignVertical: TextAlignVertical.top,
-        style: AppTextStyles.b4.copyWith(color: AppColors.neutral800),
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: AppTextStyles.b4.copyWith(color: AppColors.neutral400),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: 10,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: AppColors.neutral200),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: AppColors.primary400),
-          ),
-        ),
+        controller: controller,
+        hintText: hintText,
+        onChanged: onChanged,
       ),
     );
   }
