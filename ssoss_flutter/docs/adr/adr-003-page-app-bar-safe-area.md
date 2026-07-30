@@ -101,7 +101,7 @@ preferredSize 보정 없이 inset을 한곳에서 처리하면 레이아웃 버�
 
 - [x] `SsossAppBar`에서 SafeArea 제거
 - [x] 콘텐츠 생성·생성 중 페이지를 body SafeArea 패턴으로 전환
-- [ ] 이후 신규/기존 페이지가 `Scaffold.appBar` + SafeArea 앱바 패턴을 쓰면 이 ADR에 맞게 수정
+- [x] 이후 신규/기존 페이지가 `Scaffold.appBar` + SafeArea 앱바 패턴을 쓰면 이 ADR에 맞게 수정
 
 ---
 

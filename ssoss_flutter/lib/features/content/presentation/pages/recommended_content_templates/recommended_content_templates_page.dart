@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
+import 'package:ssoss_flutter/common/widgets/tab/ssoss_tab_bar.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_detail/recommended_content_template_detail_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
@@ -99,7 +100,13 @@ class _RecommendedContentTemplatesPageState
     ),
   ];
 
+  static const List<SsossTabItem> _tabItems = [
+    SsossTabItem(label: '템플릿'),
+    SsossTabItem(label: '해시태그'),
+  ];
+
   final TextEditingController _searchController = TextEditingController();
+  late final PageController _pageController;
   late List<RecommendedContentTemplateItem> _items;
   late List<RecommendedHashtagSetItem> _hashtagSets;
   ContentTemplateCategory _selectedCategory = ContentTemplateCategory.all;
@@ -111,10 +118,12 @@ class _RecommendedContentTemplatesPageState
     super.initState();
     _items = List.of(_initialItems);
     _hashtagSets = List.of(_initialHashtagSets);
+    _pageController = PageController(initialPage: _selectedTabIndex);
   }
 
   @override
   void dispose() {
+    _pageController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -147,6 +156,37 @@ class _RecommendedContentTemplatesPageState
     }).toList();
   }
 
+  void _onTabTap(int index) {
+    if (index == _selectedTabIndex) {
+      return;
+    }
+    setState(() {
+      _selectedTabIndex = index;
+      if (index == 1) {
+        _selectedCategory = ContentTemplateCategory.all;
+      }
+    });
+    unawaited(
+      _pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      ),
+    );
+  }
+
+  void _onPageChanged(int index) {
+    if (index == _selectedTabIndex) {
+      return;
+    }
+    setState(() {
+      _selectedTabIndex = index;
+      if (index == 1) {
+        _selectedCategory = ContentTemplateCategory.all;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final visibleItems = _visibleItems;
@@ -155,50 +195,53 @@ class _RecommendedContentTemplatesPageState
 
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: SsossAppBar.back(
-        title: '추천 콘텐츠 소스',
-        onBack: () => Navigator.of(context).pop(),
-      ),
       body: SafeArea(
-        top: false,
         child: Column(
           children: [
-            ColoredBox(
-              color: AppColors.white,
-              child: RecommendedContentTemplateControls(
-                searchController: _searchController,
-                selectedTabIndex: _selectedTabIndex,
-                selectedCategory: _selectedCategory,
-                showIntro: isHashtagTab,
-                showCategoryFilter: !isHashtagTab,
-                onSearchChanged: (value) {
-                  setState(() => _searchKeyword = value);
-                },
-                onTabChanged: (index) {
-                  setState(() {
-                    _selectedTabIndex = index;
-                    if (index == 1) {
-                      _selectedCategory = ContentTemplateCategory.all;
-                    }
-                  });
-                },
-                onCategoryChanged: (category) {
-                  setState(() => _selectedCategory = category);
+            SsossAppBar.back(
+              title: '추천 콘텐츠 소스',
+              onBack: () => Navigator.of(context).pop(),
+            ),
+            RecommendedContentTemplateHeader(
+              searchController: _searchController,
+              showIntro: isHashtagTab,
+              onSearchChanged: (value) {
+                setState(() => _searchKeyword = value);
+              },
+            ),
+            SsossTabBar(
+              width: double.infinity,
+              selectedIndex: _selectedTabIndex,
+              items: _tabItems,
+              onTap: _onTabTap,
+            ),
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: _tabItems.length,
+                onPageChanged: _onPageChanged,
+                itemBuilder: (context, index) {
+                  switch (index) {
+                    case 0:
+                      return RecommendedContentTemplateList(
+                        items: visibleItems,
+                        selectedCategory: _selectedCategory,
+                        onCategoryChanged: (category) {
+                          setState(() => _selectedCategory = category);
+                        },
+                        onSaveTap: _toggleSaved,
+                        onItemTap: _openDetail,
+                      );
+                    case 1:
+                      return RecommendedHashtagSetList(
+                        items: visibleHashtagSets,
+                        onSaveTap: _toggleHashtagSaved,
+                      );
+                    default:
+                      return const SizedBox.shrink();
+                  }
                 },
               ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: isHashtagTab
-                  ? RecommendedHashtagSetList(
-                      items: visibleHashtagSets,
-                      onSaveTap: _toggleHashtagSaved,
-                    )
-                  : RecommendedContentTemplateList(
-                      items: visibleItems,
-                      onSaveTap: _toggleSaved,
-                      onItemTap: _openDetail,
-                    ),
             ),
           ],
         ),

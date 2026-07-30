@@ -49,20 +49,25 @@ class _RecommendedContentTemplateApplyPageState
     return Scaffold(
       backgroundColor: AppColors.white,
       resizeToAvoidBottomInset: true,
-      appBar: SsossAppBar.backWithLabel(
-        title: '템플릿 적용',
-        label: '닫기',
-        onBack: () => context.pop(),
-        onDone: () => context.pop(),
-      ),
       body: SafeArea(
-        top: false,
-        child: RecommendedContentTemplateApplyBody(
-          document: _document,
-          onDocumentChanged: (document) {
-            setState(() => _document = document);
-          },
-          onEditTap: () => unawaited(_openEdit()),
+        child: Column(
+          children: [
+            SsossAppBar.backWithLabel(
+              title: '템플릿 적용',
+              label: '닫기',
+              onBack: () => context.pop(),
+              onDone: () => context.pop(),
+            ),
+            Expanded(
+              child: RecommendedContentTemplateApplyBody(
+                document: _document,
+                onDocumentChanged: (document) {
+                  setState(() => _document = document);
+                },
+                onEditTap: () => unawaited(_openEdit()),
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: RecommendedContentTemplateApplyBottomBar(

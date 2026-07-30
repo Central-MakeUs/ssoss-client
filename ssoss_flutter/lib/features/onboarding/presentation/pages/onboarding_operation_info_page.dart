@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:ssoss_flutter/common/widgets/picker/ssoss_time_picker_bottom_sheet.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_toggle.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -50,50 +51,19 @@ class _OnboardingOperationInfoPageState
   }
 
   Future<void> _showTimePicker({required bool isOpeningTime}) async {
-    final selected = await showModalBottomSheet<String>(
-      context: context,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppText(
-                  isOpeningTime ? '시작 시간' : '종료 시간',
-                  style: AppTextStyles.h5.copyWith(
-                    color: AppColors.neutral800,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                for (final time in _timeOptions)
-                  _TimeOption(
-                    label: time,
-                    isSelected:
-                        time == (isOpeningTime ? _openingTime : _closingTime),
-                    onTap: () => Navigator.of(context).pop(time),
-                  ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    final selected = await SsossTimePickerBottomSheet.show(context);
 
-    if (selected != null) {
-      setState(() {
-        if (isOpeningTime) {
-          _openingTime = selected;
-          return;
-        }
-        _closingTime = selected;
-      });
+    if (!mounted || selected == null) {
+      return;
     }
+
+    setState(() {
+      if (isOpeningTime) {
+        _openingTime = selected;
+        return;
+      }
+      _closingTime = selected;
+    });
   }
 
   @override
@@ -208,17 +178,6 @@ class _OnboardingOperationInfoPageState
 }
 
 const _weekdays = ['월', '화', '수', '목', '금', '토', '일'];
-const _timeOptions = [
-  '00:00',
-  '06:00',
-  '09:00',
-  '10:00',
-  '11:00',
-  '18:00',
-  '20:00',
-  '22:00',
-  '24:00',
-];
 
 class _OperationInfoTitle extends StatelessWidget {
   const _OperationInfoTitle();
@@ -398,36 +357,6 @@ class _FacilityRow extends StatelessWidget {
             onChanged: onChanged,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _TimeOption extends StatelessWidget {
-  const _TimeOption({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        height: 48,
-        alignment: Alignment.centerLeft,
-        child: AppText(
-          label,
-          style: AppTextStyles.b4.copyWith(
-            color: isSelected ? AppColors.primary500 : AppColors.neutral800,
-          ),
-        ),
       ),
     );
   }
