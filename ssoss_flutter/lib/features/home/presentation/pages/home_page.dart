@@ -55,15 +55,14 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: AppColors.white,
         body: Column(
           children: [
-            if (_currentItem != SsossNavigationItem.myPage)
-              SafeArea(
-                bottom: false,
-                child: IndexedStack(
-                  index: _currentItem.index,
-                  sizing: StackFit.passthrough,
-                  children: _buildAppBars(context),
-                ),
+            SafeArea(
+              bottom: false,
+              child: IndexedStack(
+                index: _currentItem.index,
+                sizing: StackFit.passthrough,
+                children: _buildAppBars(context),
               ),
+            ),
             Expanded(
               child: IndexedStack(
                 index: _currentItem.index,
@@ -84,8 +83,10 @@ class _HomePageState extends State<HomePage> {
     return [
       ContentCreationTab.buildAppBar(context),
       DashboardTab.buildAppBar(context),
-      PlaceDiagnosisTab.buildAppBar(context),
-      MyPageTab.buildAppBar(context),
+      // 배포 최소 기능: 임시 비활성
+      // PlaceDiagnosisTab.buildAppBar(context),
+      // MyPageTab.buildAppBar(context),
+      SettingsTab.buildAppBar(context),
     ];
   }
 
@@ -97,8 +98,10 @@ class _HomePageState extends State<HomePage> {
       DashboardTab(
         isActive: _currentItem == SsossNavigationItem.dashboard,
       ),
-      const PlaceDiagnosisTab(),
-      const MyPageTab(),
+      // 배포 최소 기능: 임시 비활성
+      // const PlaceDiagnosisTab(),
+      // const MyPageTab(),
+      const SettingsTab(),
     ];
   }
 }
