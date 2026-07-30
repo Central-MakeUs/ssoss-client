@@ -95,15 +95,7 @@ class ContentCreateStepContent extends StatelessWidget {
                   type: selectedPurpose == _purposes[i].value
                       ? SsossSquareSelectionButtonType.primarySelected
                       : SsossSquareSelectionButtonType.normal,
-                  icon: SvgPicture.asset(
-                    _purposes[i].icon,
-                    width: 28,
-                    height: 28,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.neutral400,
-                      BlendMode.srcIn,
-                    ),
-                  ),
+                  iconAsset: _purposes[i].icon,
                   onTap: () => onSelectPurpose(_purposes[i].value),
                 ),
               ),
