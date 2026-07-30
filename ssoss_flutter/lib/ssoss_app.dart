@@ -15,6 +15,7 @@ import 'core/config/app_config.dart';
 import 'core/constants/app_urls.dart';
 import 'core/network/network_providers.dart';
 import 'core/network/session_expired_notifier.dart';
+import 'core/theme/app_theme.dart';
 import 'features/app_version/domain/usecases/check_app_version_usecase.dart';
 import 'features/app_version/presentation/app_version_providers.dart';
 import 'features/app_version/presentation/cubit/app_version_cubit.dart';
@@ -149,6 +150,7 @@ class _SsossAppState extends State<SsossApp> {
 
     return MaterialApp.router(
       title: config.flavor.displayName,
+      theme: AppTheme.light,
       routerConfig: _router,
       builder: (context, child) {
         return AnnotatedRegion<SystemUiOverlayStyle>(
