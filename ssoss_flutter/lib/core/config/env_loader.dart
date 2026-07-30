@@ -6,6 +6,7 @@ class EnvLoader {
   EnvLoader._();
 
   static const apiBaseUrlKey = 'API_BASE_URL';
+  static const kakaoRestApiKeyKey = 'KAKAO_REST_API_KEY';
 
   /// Flavor에 맞는 env 파일을 로드합니다.
   static Future<void> load(AppFlavor flavor) async {
