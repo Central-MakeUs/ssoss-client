@@ -18,15 +18,15 @@ class ContentGeneratingView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // TODO: 추후 GIF 에셋으로 교체
-              Container(
-                width: 117,
-                height: 102,
-                decoration: BoxDecoration(
-                  color: AppColors.primary50,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              const SizedBox(height: 24),
+              // Container(
+              //   width: 117,
+              //   height: 102,
+              //   decoration: BoxDecoration(
+              //     color: AppColors.primary50,
+              //     borderRadius: BorderRadius.circular(16),
+              //   ),
+              // ),
+              // const SizedBox(height: 24),
               AppText(
                 '콘텐츠 발행 중이에요',
                 textAlign: TextAlign.center,

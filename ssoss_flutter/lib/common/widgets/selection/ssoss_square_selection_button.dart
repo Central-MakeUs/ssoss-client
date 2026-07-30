@@ -99,8 +99,6 @@ class SsossSquareSelectionButton extends StatelessWidget {
                   child: icon ??
                       SvgPicture.asset(
                         iconAsset,
-                        width: 27,
-                        height: 16,
                         colorFilter: ColorFilter.mode(
                           resolvedForegroundColor,
                           BlendMode.srcIn,
