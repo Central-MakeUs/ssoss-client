@@ -150,3 +150,4 @@ SsossButton(
 
 - 공식 문서: https://api.flutter.dev/flutter/widgets/SizedBox-class.html
 - 참고 자료: N/A
+- 관련 ADR: [ADR-010](adr-010-ssoss-button-type-styling.md) — 버튼 스타일은 type으로 선택, 색·textStyle 오버라이드 금지

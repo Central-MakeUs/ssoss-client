@@ -59,6 +59,8 @@
 
 페이지 레이아웃(앱바·SafeArea)은 반드시 [docs/adr/adr-003-page-app-bar-safe-area.md](docs/adr/adr-003-page-app-bar-safe-area.md)를 따른다. `SsossAppBar`는 `Scaffold.appBar`에 두지 않고, `body`의 `SafeArea` 안 Column에 배치한다.
 
+`SsossButton` 스타일은 반드시 [docs/adr/adr-010-ssoss-button-type-styling.md](docs/adr/adr-010-ssoss-button-type-styling.md)를 따른다. `SsossButtonType`으로만 룩을 고르고, `backgroundColor`·`foregroundColor`·`borderColor`·`textStyle`로 타입 스타일을 덮어쓰지 않는다.
+
 해시태그·키워드·대표 메뉴 등 「입력 + 추가하기 + 삭제 가능 칩」 UI는 반드시 [docs/adr/adr-006-ssoss-hashtag-input.md](docs/adr/adr-006-ssoss-hashtag-input.md)를 따른다. Figma MCP·레이아웃에 동일 패턴이 보이면 `SsossHashtagInput`을 사용하고, `TextField`+버튼+칩을 새로 조립하지 않는다.
 
 ADR은 프레임워크·라이브러리·아키텍처 패턴 등 **프로젝트 전역 결정**만 다룬다.
