@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -86,8 +88,12 @@ class SsossButton extends StatefulWidget {
   State<SsossButton> createState() => _SsossButtonState();
 }
 
-class _SsossButtonState extends State<SsossButton> {
-  bool _isPressed = false;
+class _SsossButtonState extends State<SsossButton>
+    with SingleTickerProviderStateMixin {
+  static const _pressDuration = Duration(milliseconds: 160);
+
+  late final AnimationController _pressController;
+  late final Animation<double> _pressAnimation;
 
   /// `enabled`·`isLoading`으로 시각적 활성 상태를 결정한다.
   /// 로딩 중에는 disabled 컬러를 적용한다.
@@ -97,61 +103,95 @@ class _SsossButtonState extends State<SsossButton> {
   bool get _isInteractive =>
       widget.enabled && !widget.isLoading && widget.onPressed != null;
 
-  bool get _usePressedStyle => _isPressed && _isInteractive;
+  @override
+  void initState() {
+    super.initState();
+    _pressController = AnimationController(
+      vsync: this,
+      duration: _pressDuration,
+    );
+    _pressAnimation = CurvedAnimation(
+      parent: _pressController,
+      curve: Curves.easeOut,
+      reverseCurve: Curves.easeIn,
+    );
+  }
 
-  void _setPressed(bool value) {
-    if (_isPressed != value) {
-      setState(() => _isPressed = value);
+  @override
+  void didUpdateWidget(covariant SsossButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_isInteractive && _pressController.value != 0) {
+      unawaited(_pressController.reverse());
     }
   }
 
-  Color _resolveBackgroundColor(_ButtonStyle style) {
+  @override
+  void dispose() {
+    _pressController.dispose();
+    super.dispose();
+  }
+
+  void _setPressed(bool value) {
+    if (!_isInteractive) {
+      unawaited(_pressController.reverse());
+      return;
+    }
+    if (value) {
+      unawaited(_pressController.forward());
+    } else {
+      unawaited(_pressController.reverse());
+    }
+  }
+
+  Color _idleBackgroundColor(_ButtonStyle style) {
     if (!_isVisuallyEnabled) {
       return widget.disabledBackgroundColor ??
           style.disabledBackgroundColor ??
           AppColors.neutral100;
     }
-    if (_usePressedStyle) {
-      if (widget.backgroundColor != null) {
-        return Color.alphaBlend(
-          const Color(0x1F000000),
-          widget.backgroundColor!,
-        );
-      }
-      return style.pressedBackgroundColor ?? style.backgroundColor;
-    }
     return widget.backgroundColor ?? style.backgroundColor;
   }
 
-  Color _resolveForegroundColor(_ButtonStyle style) {
+  Color _pressedBackgroundColor(_ButtonStyle style) {
+    if (!_isVisuallyEnabled) return _idleBackgroundColor(style);
+    return style.pressedBackgroundColor ??
+        widget.backgroundColor ??
+        style.backgroundColor;
+  }
+
+  Color _idleForegroundColor(_ButtonStyle style) {
     if (!_isVisuallyEnabled) {
       return widget.disabledForegroundColor ??
           style.disabledForegroundColor ??
           AppColors.neutral400;
     }
-    if (_usePressedStyle) {
-      if (widget.foregroundColor != null) {
-        return widget.foregroundColor!;
-      }
-      return style.pressedForegroundColor ?? style.foregroundColor;
-    }
     return widget.foregroundColor ?? style.foregroundColor;
   }
 
-  Color? _resolveBorderColor(_ButtonStyle style) {
+  Color _pressedForegroundColor(_ButtonStyle style) {
+    if (!_isVisuallyEnabled) return _idleForegroundColor(style);
+    return style.pressedForegroundColor ??
+        widget.foregroundColor ??
+        style.foregroundColor;
+  }
+
+  Color? _idleBorderColor(_ButtonStyle style) {
     if (!_isVisuallyEnabled) {
       return widget.disabledBorderColor ?? style.disabledBorderColor;
     }
-    if (_usePressedStyle) {
-      if (widget.borderColor != null) {
-        return Color.alphaBlend(
-          const Color(0x1F000000),
-          widget.borderColor!,
-        );
-      }
-      return style.pressedBorderColor ?? style.borderColor;
-    }
     return widget.borderColor ?? style.borderColor;
+  }
+
+  Color? _pressedBorderColor(_ButtonStyle style) {
+    if (!_isVisuallyEnabled) return _idleBorderColor(style);
+    return style.pressedBorderColor ?? widget.borderColor ?? style.borderColor;
+  }
+
+  Color? _lerpBorderColor(Color? idle, Color? pressed, double t) {
+    if (idle == null && pressed == null) return null;
+    final from = idle ?? pressed!.withValues(alpha: 0);
+    final to = pressed ?? idle!.withValues(alpha: 0);
+    return Color.lerp(from, to, t);
   }
 
   @override
@@ -161,9 +201,12 @@ class _SsossButtonState extends State<SsossButton> {
       widget.type,
       widget.isIconOnly,
     );
-    final resolvedForegroundColor = _resolveForegroundColor(style);
-    final resolvedBackgroundColor = _resolveBackgroundColor(style);
-    final resolvedBorderColor = _resolveBorderColor(style);
+    final idleBackground = _idleBackgroundColor(style);
+    final pressedBackground = _pressedBackgroundColor(style);
+    final idleForeground = _idleForegroundColor(style);
+    final pressedForeground = _pressedForegroundColor(style);
+    final idleBorder = _idleBorderColor(style);
+    final pressedBorder = _pressedBorderColor(style);
     final resolvedBorderRadius =
         widget.borderRadius ?? BorderRadius.circular(8);
     final resolvedHeight = widget.height ?? style.height;
@@ -174,66 +217,68 @@ class _SsossButtonState extends State<SsossButton> {
       onPointerDown: _isInteractive ? (_) => _setPressed(true) : null,
       onPointerUp: (_) => _setPressed(false),
       onPointerCancel: (_) => _setPressed(false),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: _isInteractive ? widget.onPressed : null,
-          splashFactory: NoSplash.splashFactory,
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-          customBorder: RoundedRectangleBorder(
-            borderRadius: resolvedBorderRadius,
-          ),
-          child: Ink(
-            width: resolvedWidth == double.infinity
-                ? double.infinity
-                : (widget.isIconOnly ? resolvedHeight : resolvedWidth),
-            height: widget.isIconOnly ? resolvedHeight : null,
-            decoration: BoxDecoration(
-              color: resolvedBackgroundColor,
-              borderRadius: resolvedBorderRadius,
-              border: resolvedBorderColor == null
-                  ? null
-                  : Border.all(color: resolvedBorderColor),
-            ),
-            child: SizedBox(
-              height: widget.isIconOnly ? null : resolvedHeight,
-              child: Padding(
-                padding: widget.isIconOnly ? EdgeInsets.zero : resolvedPadding,
-                child: Center(
-                  child: widget.isIconOnly
-                      ? _ButtonIcon(
-                          icon: widget.icon,
-                          assetPath: widget.iconAssetPath,
-                          size: style.iconSize,
-                          color: widget.iconColor ?? resolvedForegroundColor,
-                        )
-                      : _ButtonContent(
-                          label: widget.label,
-                          icon: widget.icon,
-                          iconAssetPath: widget.iconAssetPath,
-                          isLoading: widget.isLoading,
-                          showLeftIcon:
-                              widget.isLoading ? false : widget.showLeftIcon,
-                          showRightIcon: widget.showRightIcon,
-                          iconSize: style.iconSize,
-                          gap: style.gap,
-                          iconColor:
-                              widget.iconColor ?? resolvedForegroundColor,
-                          loadingIndicatorColor: widget.loadingIndicatorColor ??
-                              resolvedForegroundColor,
-                          textStyle:
-                              (widget.textStyle ?? style.textStyle).copyWith(
-                            color: resolvedForegroundColor,
+      child: AnimatedBuilder(
+        animation: _pressAnimation,
+        builder: (context, _) {
+          final t = _pressAnimation.value;
+          final backgroundColor =
+              Color.lerp(idleBackground, pressedBackground, t)!;
+          final foregroundColor =
+              Color.lerp(idleForeground, pressedForeground, t)!;
+          final borderColor = _lerpBorderColor(idleBorder, pressedBorder, t);
+          final contentColor = widget.iconColor ?? foregroundColor;
+
+          return GestureDetector(
+            onTap: _isInteractive ? widget.onPressed : null,
+            behavior: HitTestBehavior.opaque,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: resolvedBorderRadius,
+                border:
+                    borderColor == null ? null : Border.all(color: borderColor),
+              ),
+              child: SizedBox(
+                width: resolvedWidth == double.infinity
+                    ? double.infinity
+                    : (widget.isIconOnly ? resolvedHeight : resolvedWidth),
+                height: resolvedHeight,
+                child: Padding(
+                  padding:
+                      widget.isIconOnly ? EdgeInsets.zero : resolvedPadding,
+                  child: Center(
+                    child: widget.isIconOnly
+                        ? _ButtonIcon(
+                            icon: widget.icon,
+                            assetPath: widget.iconAssetPath,
+                            size: style.iconSize,
+                            color: contentColor,
+                          )
+                        : _ButtonContent(
+                            label: widget.label,
+                            icon: widget.icon,
+                            iconAssetPath: widget.iconAssetPath,
+                            isLoading: widget.isLoading,
+                            showLeftIcon:
+                                widget.isLoading ? false : widget.showLeftIcon,
+                            showRightIcon: widget.showRightIcon,
+                            iconSize: style.iconSize,
+                            gap: style.gap,
+                            iconColor: contentColor,
+                            loadingIndicatorColor:
+                                widget.loadingIndicatorColor ?? foregroundColor,
+                            textStyle:
+                                (widget.textStyle ?? style.textStyle).copyWith(
+                              color: foregroundColor,
+                            ),
+                            child: widget.child,
                           ),
-                          child: widget.child,
-                        ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
 
@@ -294,6 +339,7 @@ class _ButtonContent extends StatelessWidget {
       child: child ??
           AppText(
             label,
+            style: textStyle,
             textHeightBehavior: _buttonTextHeightBehavior,
           ),
     );

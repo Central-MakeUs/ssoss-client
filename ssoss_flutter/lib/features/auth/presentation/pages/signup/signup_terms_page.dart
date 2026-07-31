@@ -188,6 +188,7 @@ class _SignupTermsView extends StatelessWidget {
                   child: SsossButton(
                     label: '다음',
                     width: double.infinity,
+                    type: SsossButtonType.primary,
                     enabled: state.canSubmit,
                     isLoading: state.isSubmitting,
                     onPressed: () => unawaited(_onSubmit(context)),

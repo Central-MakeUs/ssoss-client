@@ -21,7 +21,6 @@ class SsossSquareSelectionButton extends StatelessWidget {
     this.enabled = true,
     this.onTap,
     this.showIcon = true,
-    this.icon,
     this.iconAsset = AppAssets.icArrowLeft,
     this.width,
     this.height = 99,
@@ -42,7 +41,6 @@ class SsossSquareSelectionButton extends StatelessWidget {
   final bool enabled;
   final VoidCallback? onTap;
   final bool showIcon;
-  final Widget? icon;
   final String iconAsset;
   final double? width;
   final double height;
@@ -96,14 +94,13 @@ class SsossSquareSelectionButton extends StatelessWidget {
               SizedBox.square(
                 dimension: 40,
                 child: Center(
-                  child: icon ??
-                      SvgPicture.asset(
-                        iconAsset,
-                        colorFilter: ColorFilter.mode(
-                          resolvedForegroundColor,
-                          BlendMode.srcIn,
-                        ),
-                      ),
+                  child: SvgPicture.asset(
+                    iconAsset,
+                    colorFilter: ColorFilter.mode(
+                      resolvedForegroundColor,
+                      BlendMode.srcIn,
+                    ),
+                  ),
                 ),
               ),
               SizedBox(height: gap),
