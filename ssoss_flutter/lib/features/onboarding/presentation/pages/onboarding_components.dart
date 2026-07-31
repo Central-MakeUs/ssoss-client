@@ -561,9 +561,6 @@ class OnboardingBottomBar extends StatelessWidget {
                 size: SsossButtonSize.large,
                 type: SsossButtonType.primary,
                 width: double.infinity,
-                backgroundColor: AppColors.primary400,
-                foregroundColor: AppColors.white,
-                textStyle: AppTextStyles.h5,
                 onPressed: onPrimaryTap,
               ),
               AnimatedSize(
@@ -576,8 +573,6 @@ class OnboardingBottomBar extends StatelessWidget {
                         size: SsossButtonSize.large,
                         type: SsossButtonType.ghost,
                         width: double.infinity,
-                        foregroundColor: AppColors.neutral500,
-                        textStyle: AppTextStyles.h5,
                         onPressed: onSkipTap,
                       )
                     : const SizedBox.shrink(),
@@ -620,9 +615,6 @@ class OnboardingActionBar extends StatelessWidget {
                 size: SsossButtonSize.large,
                 type: SsossButtonType.primary,
                 width: double.infinity,
-                backgroundColor: AppColors.primary400,
-                foregroundColor: AppColors.white,
-                textStyle: AppTextStyles.h5,
                 onPressed: onPrimaryTap,
               ),
               AnimatedSize(
@@ -635,8 +627,6 @@ class OnboardingActionBar extends StatelessWidget {
                         size: SsossButtonSize.large,
                         type: SsossButtonType.ghost,
                         width: double.infinity,
-                        foregroundColor: AppColors.neutral500,
-                        textStyle: AppTextStyles.h5,
                         onPressed: onSkipTap,
                       )
                     : const SizedBox.shrink(),

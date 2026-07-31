@@ -39,6 +39,7 @@ class ContentEditBottomBar extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: SsossButton(
+              type: SsossButtonType.primary,
               label: '수정하기',
               width: double.infinity,
               enabled: canSubmit && !isLoading,
@@ -78,9 +79,7 @@ class _ResetButton extends StatelessWidget {
               width: 22,
               height: 22,
               colorFilter: ColorFilter.mode(
-                onPressed == null
-                    ? AppColors.neutral300
-                    : AppColors.neutral600,
+                onPressed == null ? AppColors.neutral300 : AppColors.neutral600,
                 BlendMode.srcIn,
               ),
             ),

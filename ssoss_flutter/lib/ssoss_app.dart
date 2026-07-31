@@ -5,6 +5,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -78,7 +79,15 @@ class _SsossAppState extends State<SsossApp> {
   Future<void> _showSessionExpiredModal() async {
     if (_isSessionExpiredModalVisible) return;
     final dialogContext = _navigatorContext;
-    if (dialogContext == null || !dialogContext.mounted) return;
+    if (dialogContext == null || !dialogContext.mounted) {
+      // Navigator 준비 전이면 다음 프레임에 재시도한다.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          unawaited(_showSessionExpiredModal());
+        }
+      });
+      return;
+    }
 
     _isSessionExpiredModalVisible = true;
 
@@ -189,10 +198,19 @@ class _SsossAppState extends State<SsossApp> {
           ),
         );
       },
+      // 선택 툴바(잘라내기/복사 등) 라벨은 Material/Cupertino 로컬라이제이션을
+      // 사용한다. AppFlowy 로케일만 두면 한국어가 빠져 영어로 표시된다.
+      locale: const Locale('ko'),
       localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
         AppFlowyEditorLocalizations.delegate,
       ],
-      supportedLocales: AppFlowyEditorLocalizations.delegate.supportedLocales,
+      supportedLocales: const [
+        Locale('ko'),
+        Locale('en'),
+      ],
     );
   }
 }

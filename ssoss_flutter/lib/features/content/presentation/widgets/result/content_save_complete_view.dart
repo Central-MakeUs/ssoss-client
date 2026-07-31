@@ -96,6 +96,7 @@ class _ContinueAvailableActions extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         SsossButton(
+          type: SsossButtonType.primary,
           label: '다른 채널용으로 만들기',
           width: double.infinity,
           onPressed: onCreateForOtherChannel,
@@ -120,6 +121,7 @@ class _FinalSaveActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SsossButton(
+      type: SsossButtonType.primary,
       label: '저장 내역 보기',
       width: double.infinity,
       onPressed: onViewHistory,

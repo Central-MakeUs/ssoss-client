@@ -121,6 +121,7 @@ class _ContentOtherChannelCreateView extends StatelessWidget {
                     child: SsossButton(
                       label: '선택한 채널로 만들기',
                       width: double.infinity,
+                      type: SsossButtonType.primary,
                       enabled: state.canSubmit,
                       onPressed: state.canSubmit
                           ? () {

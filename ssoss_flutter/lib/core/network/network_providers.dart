@@ -5,6 +5,7 @@ import 'package:provider/single_child_widget.dart';
 import '../config/app_config.dart';
 import 'api_environment.dart';
 import 'dio_factory.dart';
+import 'unauthenticated_dio.dart';
 
 class NetworkProviders {
   NetworkProviders._();
@@ -17,6 +18,11 @@ class NetworkProviders {
       Provider<ApiEnvironment>.value(value: environment),
       Provider<Dio>(
         create: (_) => DioFactory.create(environment),
+        dispose: (_, dio) => dio.close(),
+      ),
+      Provider<UnauthenticatedDio>(
+        create: (_) =>
+            UnauthenticatedDio(DioFactory.createUnauthenticated(environment)),
         dispose: (_, dio) => dio.close(),
       ),
     ];

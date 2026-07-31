@@ -285,6 +285,7 @@ class _ContentResultPageState extends State<ContentResultPage> {
                     Expanded(
                       child: SsossButton(
                         label: '저장하기',
+                        type: SsossButtonType.primary,
                         width: double.infinity,
                         isLoading: _isSaving,
                         enabled: !_isSaving,

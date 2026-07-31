@@ -7,6 +7,10 @@ import 'package:ssoss_flutter/features/auth/data/datasources/auth_local_datasour
 import 'package:ssoss_flutter/features/auth/data/datasources/auth_remote_datasource.dart';
 
 /// Bearer 주입 + 401 시 refresh 단일 flight 후 원요청 재시도.
+///
+/// refresh 는 [AuthRemoteDatasource] 가 AuthInterceptor 없는 Dio 로
+/// 호출해야 한다. 같은 Dio 로 refresh 하면 QueuedInterceptor 에러 큐 데드락으로
+/// 세션 만료 처리가 영원히 실행되지 않는다.
 class AuthInterceptor extends QueuedInterceptor {
   AuthInterceptor({
     required Dio dio,
