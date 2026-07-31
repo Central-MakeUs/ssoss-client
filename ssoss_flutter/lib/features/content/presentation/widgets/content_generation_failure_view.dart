@@ -90,6 +90,7 @@ class ContentGenerationFailureView extends StatelessWidget {
           child: SsossButton(
             label: '다시 시도하기',
             width: double.infinity,
+            type: SsossButtonType.primary,
             onPressed: onRetry,
           ),
         ),

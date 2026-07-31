@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 
-import 'package:ssoss_flutter/core/network/auth_request_extra.dart';
 import 'package:ssoss_flutter/core/network/dio_error_mapper.dart';
 
 import '../models/auth_token_model.dart';
@@ -10,9 +9,17 @@ import '../models/social_login_response_model.dart';
 import 'auth_remote_datasource.dart';
 
 class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
-  AuthRemoteDatasourceImpl(this._dio);
+  AuthRemoteDatasourceImpl({
+    required Dio dio,
+    required Dio unauthenticatedDio,
+  })  : _dio = dio,
+        _unauthenticatedDio = unauthenticatedDio;
 
   final Dio _dio;
+
+  /// AuthInterceptor(QueuedInterceptor) 를 타지 않는 Dio.
+  /// refresh 가 메인 Dio 에러 큐와 데드락 나지 않도록 분리한다.
+  final Dio _unauthenticatedDio;
 
   static const _socialLoginPath = '/v1/social-logins';
   static const _tokensPath = '/v1/tokens';
@@ -27,12 +34,9 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
     required SocialLoginRequest request,
   }) async {
     try {
-      final response = await _dio.post<Map<String, dynamic>>(
+      final response = await _unauthenticatedDio.post<Map<String, dynamic>>(
         '$_socialLoginPath/${provider.toLowerCase()}',
         data: request.toJson(),
-        options: Options(
-          extra: const {AuthRequestExtra.skipAuth: true},
-        ),
       );
       return SocialLoginResponseModel.fromJson(response.data!);
     } on DioException catch (e) {
@@ -43,12 +47,9 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   @override
   Future<AuthTokenModel> refresh(String refreshToken) async {
     try {
-      final response = await _dio.post<Map<String, dynamic>>(
+      final response = await _unauthenticatedDio.post<Map<String, dynamic>>(
         _tokensPath,
         data: {'refreshToken': refreshToken},
-        options: Options(
-          extra: const {AuthRequestExtra.skipAuth: true},
-        ),
       );
       return AuthTokenModel.fromJson(response.data!);
     } on DioException catch (e) {
@@ -59,11 +60,10 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   @override
   Future<void> logout(String refreshToken) async {
     try {
-      await _dio.post<void>(
+      await _unauthenticatedDio.post<void>(
         _logoutPath,
         data: {'refreshToken': refreshToken},
         options: Options(
-          extra: const {AuthRequestExtra.skipAuth: true},
           validateStatus: (status) =>
               status != null && status >= 200 && status < 300,
         ),

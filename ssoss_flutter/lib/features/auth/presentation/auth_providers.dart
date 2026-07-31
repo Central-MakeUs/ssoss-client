@@ -5,6 +5,7 @@ import 'package:provider/single_child_widget.dart';
 
 import 'package:ssoss_flutter/core/network/interceptors/auth_interceptor.dart';
 import 'package:ssoss_flutter/core/network/session_expired_notifier.dart';
+import 'package:ssoss_flutter/core/network/unauthenticated_dio.dart';
 import 'package:ssoss_flutter/core/service/secure_storage_service.dart';
 
 import '../data/datasources/apple_auth_datasource.dart';
@@ -36,15 +37,14 @@ class AuthProviders {
         Provider<AuthLocalDatasource>(
           create: (_) => AuthLocalDatasourceImpl(SecureStorageService()),
         ),
-        ProxyProvider<Dio, AuthRemoteDatasource>(
-          update: (_, dio, __) => AuthRemoteDatasourceImpl(dio),
+        ProxyProvider2<Dio, UnauthenticatedDio, AuthRemoteDatasource>(
+          update: (_, dio, unauthenticatedDio, __) => AuthRemoteDatasourceImpl(
+            dio: dio,
+            unauthenticatedDio: unauthenticatedDio.client,
+          ),
         ),
-        ProxyProvider4<
-            NaverAuthDatasource,
-            AppleAuthDatasource,
-            AuthRemoteDatasource,
-            AuthLocalDatasource,
-            AuthRepository>(
+        ProxyProvider4<NaverAuthDatasource, AppleAuthDatasource,
+            AuthRemoteDatasource, AuthLocalDatasource, AuthRepository>(
           update: (context, naver, apple, remote, local, previous) {
             _ensureAuthInterceptor(context);
             return AuthRepositoryImpl(

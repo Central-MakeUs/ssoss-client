@@ -123,12 +123,10 @@ class _ContentCreateView extends StatelessWidget {
                             forbidden: state.forbidden,
                             keywords: state.keywords,
                             photoGuideEnabled: state.photoGuideEnabled,
-                            onHighlightChanged: context
-                                .read<ContentCreateCubit>()
-                                .setHighlight,
-                            onForbiddenChanged: context
-                                .read<ContentCreateCubit>()
-                                .setForbidden,
+                            onHighlightChanged:
+                                context.read<ContentCreateCubit>().setHighlight,
+                            onForbiddenChanged:
+                                context.read<ContentCreateCubit>().setForbidden,
                             onAddKeyword:
                                 context.read<ContentCreateCubit>().addKeyword,
                             onRemoveKeyword: context
@@ -148,11 +146,10 @@ class _ContentCreateView extends StatelessWidget {
                           ? '콘텐츠 생성하기'
                           : '다음',
                       width: double.infinity,
+                      type: SsossButtonType.primary,
                       enabled: switch (state.step) {
-                        ContentCreateStep.channel =>
-                          state.canGoNextFromChannel,
-                        ContentCreateStep.content =>
-                          state.canGoNextFromContent,
+                        ContentCreateStep.channel => state.canGoNextFromChannel,
+                        ContentCreateStep.content => state.canGoNextFromContent,
                         ContentCreateStep.detail => state.canSubmit,
                       },
                       onPressed: () {
