@@ -362,9 +362,7 @@ class ContentTemplateDetailBottomBar extends StatelessWidget {
                 child: SsossButton(
                   label: '템플릿 적용하기',
                   height: 56,
-                  backgroundColor: AppColors.primary400,
-                  foregroundColor: AppColors.white,
-                  textStyle: AppTextStyles.h5,
+                  type: SsossButtonType.primary,
                   onPressed: onApplyTap,
                 ),
               ),

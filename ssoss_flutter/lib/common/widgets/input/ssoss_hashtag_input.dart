@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -132,12 +133,10 @@ class SsossHashtagInput extends StatefulWidget {
 
 class _SsossHashtagInputState extends State<SsossHashtagInput> {
   final TextEditingController _controller = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
 
   @override
   void dispose() {
     _controller.dispose();
-    _focusNode.dispose();
     super.dispose();
   }
 
@@ -176,75 +175,36 @@ class _SsossHashtagInputState extends State<SsossHashtagInput> {
           ),
           const SizedBox(height: 8),
         ],
-        SizedBox(
-          height: SsossHashtagInput.inputRowHeight,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: AnimatedBuilder(
-                  animation: _focusNode,
-                  builder: (context, _) {
-                    return DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: _focusNode.hasFocus
-                              ? AppColors.primary400
-                              : AppColors.neutral200,
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                        child: Center(
-                          child: TextField(
-                            controller: _controller,
-                            focusNode: _focusNode,
-                            style: AppTextStyles.b4.copyWith(
-                              color: AppColors.neutral800,
-                            ),
-                            cursorColor: AppColors.primary400,
-                            inputFormatters: [
-                              LengthLimitingTextInputFormatter(
-                                SsossHashtagLimits.maxLength,
-                              ),
-                            ],
-                            decoration: InputDecoration(
-                              isDense: true,
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              hintText: widget.hintText,
-                              hintStyle: AppTextStyles.b4.copyWith(
-                                color: AppColors.neutral400,
-                              ),
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (_) => _submit(),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              SsossButton(
-                label: '추가하기',
-                size: SsossButtonSize.small,
+        Row(
+          children: [
+            Expanded(
+              child: SsossTextField(
+                controller: _controller,
+                hintText: widget.hintText,
                 height: SsossHashtagInput.inputRowHeight,
-                enabled: canAdd,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                textStyle: AppTextStyles.h8,
-                onPressed: canAdd ? _submit : null,
+                textInputAction: TextInputAction.done,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(
+                    SsossHashtagLimits.maxLength,
+                  ),
+                ],
+                onSubmitted: (_) => _submit(),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 8),
+            SsossButton(
+              label: '추가하기',
+              size: SsossButtonSize.small,
+              height: SsossHashtagInput.inputRowHeight,
+              enabled: canAdd,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
+              textStyle: AppTextStyles.h8,
+              onPressed: canAdd ? _submit : null,
+            ),
+          ],
         ),
         if (widget.hashtags.isNotEmpty) ...[
           const SizedBox(height: 12),

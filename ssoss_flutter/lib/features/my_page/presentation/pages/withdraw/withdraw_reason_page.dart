@@ -105,6 +105,7 @@ class _WithdrawReasonPageState extends State<WithdrawReasonPage> {
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: SsossButton(
                     label: '계정 탈퇴하기',
+                    type: SsossButtonType.primary,
                     width: double.infinity,
                     isLoading: _isSubmitting,
                     enabled: _selectedIndex != null,

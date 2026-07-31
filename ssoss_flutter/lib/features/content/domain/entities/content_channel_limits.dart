@@ -5,8 +5,14 @@ import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.da
 /// 채널별 콘텐츠 글자 수 상한.
 ///
 /// [`docs/specs/content/generation-api/prd.md`](../../../../docs/specs/content/generation-api/prd.md) §4
+///
+/// 본문 길이는 `<photo-guide />` 태그를 제외한 화면 표시용 텍스트만 센다.
 class ContentChannelLimits {
   const ContentChannelLimits._();
+
+  static final _photoGuideTagPattern = RegExp(
+    r'<photo-guide\s+title="([^"]*)"\s+description="([^"]*)"\s*/>',
+  );
 
   static int? titleMaxLength(UploadChannel channel) =>
       channel == UploadChannel.blog ? 40 : null;
@@ -17,6 +23,10 @@ class ContentChannelLimits {
         UploadChannel.carrot => 400,
         UploadChannel.thread => 500,
       };
+
+  /// 추천 사진 가이드 태그를 제외한 본문 글자 수.
+  static int plainBodyLength(String body) =>
+      body.replaceAll(_photoGuideTagPattern, '').length;
 
   static void validateChannelResult(GenerationChannelResult result) {
     final titleMax = titleMaxLength(result.channel);
@@ -33,7 +43,7 @@ class ContentChannelLimits {
     }
 
     final bodyMax = bodyMaxLength(result.channel);
-    if (result.body.length > bodyMax) {
+    if (plainBodyLength(result.body) > bodyMax) {
       throw ValidationException('본문은 $bodyMax자 이내로 입력해 주세요.');
     }
   }

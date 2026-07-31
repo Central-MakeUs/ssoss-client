@@ -216,9 +216,11 @@ class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
     final textStyle = _resolveEditorTextStyle();
     final lineHeight = _resolveLineHeight(textStyle);
 
+    final cursorColor = widget.focusedBorderColor ?? AppColors.primary400;
     return EditorStyle.mobile(
       padding: EdgeInsets.zero,
-      cursorColor: widget.focusedBorderColor ?? AppColors.primary400,
+      cursorColor: cursorColor,
+      dragHandleColor: cursorColor,
       selectionColor: AppColors.primary200.withValues(alpha: 0.45),
       textStyleConfiguration: TextStyleConfiguration(
         text: textStyle,
@@ -507,26 +509,60 @@ class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
           SingleChildScrollView(
             physics: const NeverScrollableScrollPhysics(),
             child: IntrinsicHeight(
-              child: AppFlowyEditor(
-                key: ValueKey(_editorState),
+              // 모바일 드래그 핸들 선택 후 자르기/복사/붙여넣기를 보여주기 위해 MobileFloatingToolbar 사용
+              child: MobileFloatingToolbar(
                 editorState: _editorState,
                 editorScrollController: _editorScrollController,
-                editorStyle: _editorStyle,
-                focusNode: _editorFocusNode,
-                editable: widget.enabled && !widget.readOnly,
-                autoFocus: false,
-                shrinkWrap: true,
-                blockComponentBuilders: _buildBlockComponentBuilders(),
-                // ssoss 핸들러를 standard 이벤트보다 앞에 둔다.
-                commandShortcutEvents: [
-                  CommandShortcutEvent(
-                    key: 'ssoss recommendation backspace',
-                    command: 'backspace',
-                    getDescription: () => 'ssoss recommendation backspace',
-                    handler: _handleRecommendationBackspace,
-                  ),
-                  ...standardCommandShortcutEvents,
-                ],
+                floatingToolbarHeight: 32,
+                toolbarBuilder: (context, anchor, closeToolbar) {
+                  return AdaptiveTextSelectionToolbar.editable(
+                    clipboardStatus: ClipboardStatus.pasteable,
+                    onCopy: () {
+                      copyCommand.execute(_editorState);
+                      closeToolbar();
+                    },
+                    onCut: () {
+                      cutCommand.execute(_editorState);
+                      closeToolbar();
+                    },
+                    onPaste: () {
+                      pasteCommand.execute(_editorState);
+                      closeToolbar();
+                    },
+                    onSelectAll: () {
+                      selectAllCommand.execute(_editorState);
+                      closeToolbar();
+                    },
+                    onLiveTextInput: null,
+                    onLookUp: null,
+                    onSearchWeb: null,
+                    onShare: null,
+                    anchors: TextSelectionToolbarAnchors(
+                      primaryAnchor: anchor,
+                    ),
+                  );
+                },
+                child: AppFlowyEditor(
+                  key: ValueKey(_editorState),
+                  editorState: _editorState,
+                  editorScrollController: _editorScrollController,
+                  editorStyle: _editorStyle,
+                  focusNode: _editorFocusNode,
+                  editable: widget.enabled && !widget.readOnly,
+                  autoFocus: false,
+                  shrinkWrap: true,
+                  blockComponentBuilders: _buildBlockComponentBuilders(),
+                  // ssoss 핸들러를 standard 이벤트보다 앞에 둔다.
+                  commandShortcutEvents: [
+                    CommandShortcutEvent(
+                      key: 'ssoss recommendation backspace',
+                      command: 'backspace',
+                      getDescription: () => 'ssoss recommendation backspace',
+                      handler: _handleRecommendationBackspace,
+                    ),
+                    ...standardCommandShortcutEvents,
+                  ],
+                ),
               ),
             ),
           ),
