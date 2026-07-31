@@ -126,6 +126,8 @@ class SsossToast extends StatelessWidget {
   }
 }
 
+bool _isSsossToastVisible = false;
+
 void showSsossToast(
   BuildContext context, {
   required String title,
@@ -136,8 +138,15 @@ void showSsossToast(
   EdgeInsetsGeometry margin = const EdgeInsets.only(bottom: 88),
   double maxWidth = 320,
 }) {
+  // 토스트가 이미 표시되고 있으면 중복 표시를 방지
+  if (_isSsossToastVisible) {
+    return;
+  }
+
   final overlay = Overlay.of(context, rootOverlay: true);
   late final OverlayEntry entry;
+
+  _isSsossToastVisible = true;
 
   entry = OverlayEntry(
     builder: (context) {
@@ -146,7 +155,10 @@ void showSsossToast(
         alignment: alignment,
         margin: margin,
         slideFromBottom: alignment.y >= 0,
-        onDismissed: () => entry.remove(),
+        onDismissed: () {
+          entry.remove();
+          _isSsossToastVisible = false;
+        },
         child: SsossToast(
           title: title,
           type: type,
@@ -231,6 +243,7 @@ class _SsossToastOverlayState extends State<_SsossToastOverlay>
   @override
   void dispose() {
     _controller.dispose();
+    _isSsossToastVisible = false;
     super.dispose();
   }
 
