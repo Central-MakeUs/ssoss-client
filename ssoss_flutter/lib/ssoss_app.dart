@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -205,7 +204,6 @@ class _SsossAppState extends State<SsossApp> {
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
-        AppFlowyEditorLocalizations.delegate,
       ],
       supportedLocales: const [
         Locale('ko'),
