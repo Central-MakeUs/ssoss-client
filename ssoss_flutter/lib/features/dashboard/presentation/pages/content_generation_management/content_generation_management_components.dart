@@ -120,22 +120,27 @@ class ContentManagementSummaryRow extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SvgPicture.asset(
-                AppAssets.icSort,
+              SizedBox(
                 width: 18,
                 height: 18,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.neutral500,
-                  BlendMode.srcIn,
-                ),
-              ),
-              const SizedBox(width: 6),
-              AppText(
-                sortLabel,
-                style: AppTextStyles.h6.copyWith(
-                  color: AppColors.neutral500,
-                ),
-              ),
+              )
+              // TODO: 정렬 라벨 최소기능 제거
+              // SvgPicture.asset(
+              //   AppAssets.icSort,
+              //   width: 18,
+              //   height: 18,
+              //   colorFilter: const ColorFilter.mode(
+              //     AppColors.neutral500,
+              //     BlendMode.srcIn,
+              //   ),
+              // ),
+              // const SizedBox(width: 6),
+              // AppText(
+              //   sortLabel,
+              //   style: AppTextStyles.h6.copyWith(
+              //     color: AppColors.neutral500,
+              //   ),
+              // ),
             ],
           ),
         ),
