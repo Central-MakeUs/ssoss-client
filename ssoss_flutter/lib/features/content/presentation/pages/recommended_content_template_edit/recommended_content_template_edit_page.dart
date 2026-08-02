@@ -98,7 +98,6 @@ class _RecommendedContentTemplateEditPageState
       },
       child: Scaffold(
         backgroundColor: AppColors.white,
-        resizeToAvoidBottomInset: true,
         body: SafeArea(
           child: Column(
             children: [
@@ -108,7 +107,7 @@ class _RecommendedContentTemplateEditPageState
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 15, 24),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                   child: RecommendedContentTemplateEditBody(
                     document: _document,
                     onDocumentChanged: (document) {
@@ -117,13 +116,13 @@ class _RecommendedContentTemplateEditPageState
                   ),
                 ),
               ),
+              ContentEditBottomBar(
+                canSubmit: _canSubmit,
+                onReset: () => unawaited(_onReset()),
+                onSubmit: _onSubmit,
+              ),
             ],
           ),
-        ),
-        bottomNavigationBar: ContentEditBottomBar(
-          canSubmit: _canSubmit,
-          onReset: () => unawaited(_onReset()),
-          onSubmit: _onSubmit,
         ),
       ),
     );
@@ -153,8 +152,7 @@ class RecommendedContentTemplateEditBody extends StatelessWidget {
         SsossTemplateContentsEditCard(
           document: document,
           width: double.infinity,
-          minHeight: 421,
-          maxLength: 5000,
+          maxLength: 1000,
           onDocumentChanged: onDocumentChanged,
           emptySlotColor: AppColors.primary300,
         ),

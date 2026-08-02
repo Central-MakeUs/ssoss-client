@@ -222,16 +222,18 @@ class RecommendedContentTemplateList extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.only(bottom: 34),
-            children: [
-              for (final item in items)
-                ContentTemplateCard(
-                  item: item,
-                  onSaveTap: () => onSaveTap(item.id),
-                  onTap: () => onItemTap(item),
-                ),
-            ],
+          child: ListView.separated(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 34),
+            itemCount: items.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return ContentTemplateCard(
+                item: item,
+                onSaveTap: () => onSaveTap(item.id),
+                onTap: () => onItemTap(item),
+              );
+            },
           ),
         ),
       ],
@@ -253,38 +255,35 @@ class ContentTemplateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.white,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: double.infinity,
-          constraints: const BoxConstraints(minHeight: 150),
-          padding: const EdgeInsets.all(16),
-          decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: AppColors.neutral200),
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.neutral200),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ContentTemplateCardHeader(
+              category: item.category,
+              isSaved: item.isSaved,
+              onSaveTap: onSaveTap,
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ContentTemplateCardHeader(
-                category: item.category,
-                isSaved: item.isSaved,
-                onSaveTap: onSaveTap,
-              ),
-              const SizedBox(height: 8),
-              ContentTemplateCardText(
-                title: item.title,
-                description: item.description,
-              ),
-              const SizedBox(height: 8),
-              ContentTemplateRecommendedChannels(
-                channels: item.channels,
-              ),
-            ],
-          ),
+            const SizedBox(height: 8),
+            ContentTemplateCardText(
+              title: item.title,
+              description: item.description,
+            ),
+            const SizedBox(height: 8),
+            ContentTemplateRecommendedChannels(
+              channels: item.channels,
+            ),
+          ],
         ),
       ),
     );
@@ -366,7 +365,7 @@ class ContentTemplateRecommendedChannels extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         AppText(
           '추천 채널',

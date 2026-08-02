@@ -98,7 +98,7 @@ class RecommendedContentTemplateSaveCompleteActions extends StatelessWidget {
               label: '다른 템플릿 보기',
               width: double.infinity,
               height: 56,
-              type: SsossButtonType.outline,
+              type: SsossButtonType.secondary,
               onPressed: onViewTemplates,
             ),
           ],

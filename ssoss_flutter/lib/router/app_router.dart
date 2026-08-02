@@ -251,7 +251,15 @@ GoRouter createAppRouter(
       GoRoute(
         name: RecommendedContentTemplatesPage.routeName,
         path: RecommendedContentTemplatesPage.routePath,
-        builder: (context, state) => const RecommendedContentTemplatesPage(),
+        builder: (context, state) {
+          final extra = state.extra;
+          final initialCategory = extra is ContentTemplateCategory
+              ? extra
+              : ContentTemplateCategory.all;
+          return RecommendedContentTemplatesPage(
+            initialCategory: initialCategory,
+          );
+        },
       ),
       GoRoute(
         name: RecommendedContentTemplateDetailPage.routeName,

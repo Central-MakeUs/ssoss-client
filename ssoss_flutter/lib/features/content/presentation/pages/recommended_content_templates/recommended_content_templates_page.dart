@@ -1,18 +1,25 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/tab/ssoss_tab_bar.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_detail/recommended_content_template_detail_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
+import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 
 class RecommendedContentTemplatesPage extends StatefulWidget {
-  const RecommendedContentTemplatesPage({super.key});
+  const RecommendedContentTemplatesPage({
+    super.key,
+    this.initialCategory = ContentTemplateCategory.all,
+  });
 
   static const String routeName = 'recommended-content-templates';
   static const String routePath = '/recommended-content-templates';
+
+  final ContentTemplateCategory initialCategory;
 
   @override
   State<RecommendedContentTemplatesPage> createState() =>
@@ -109,7 +116,7 @@ class _RecommendedContentTemplatesPageState
   late final PageController _pageController;
   late List<RecommendedContentTemplateItem> _items;
   late List<RecommendedHashtagSetItem> _hashtagSets;
-  ContentTemplateCategory _selectedCategory = ContentTemplateCategory.all;
+  late ContentTemplateCategory _selectedCategory;
   int _selectedTabIndex = 0;
   String _searchKeyword = '';
 
@@ -118,6 +125,7 @@ class _RecommendedContentTemplatesPageState
     super.initState();
     _items = List.of(_initialItems);
     _hashtagSets = List.of(_initialHashtagSets);
+    _selectedCategory = widget.initialCategory;
     _pageController = PageController(initialPage: _selectedTabIndex);
   }
 
@@ -187,63 +195,80 @@ class _RecommendedContentTemplatesPageState
     });
   }
 
+  void _handleBack(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+    context.go(HomePage.routePath);
+  }
+
   @override
   Widget build(BuildContext context) {
     final visibleItems = _visibleItems;
     final visibleHashtagSets = _visibleHashtagSets;
     final isHashtagTab = _selectedTabIndex == 1;
 
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            SsossAppBar.back(
-              title: '추천 콘텐츠 소스',
-              onBack: () => Navigator.of(context).pop(),
-            ),
-            RecommendedContentTemplateHeader(
-              searchController: _searchController,
-              showIntro: isHashtagTab,
-              onSearchChanged: (value) {
-                setState(() => _searchKeyword = value);
-              },
-            ),
-            SsossTabBar(
-              width: double.infinity,
-              selectedIndex: _selectedTabIndex,
-              items: _tabItems,
-              onTap: _onTabTap,
-            ),
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: _tabItems.length,
-                onPageChanged: _onPageChanged,
-                itemBuilder: (context, index) {
-                  switch (index) {
-                    case 0:
-                      return RecommendedContentTemplateList(
-                        items: visibleItems,
-                        selectedCategory: _selectedCategory,
-                        onCategoryChanged: (category) {
-                          setState(() => _selectedCategory = category);
-                        },
-                        onSaveTap: _toggleSaved,
-                        onItemTap: _openDetail,
-                      );
-                    case 1:
-                      return RecommendedHashtagSetList(
-                        items: visibleHashtagSets,
-                        onSaveTap: _toggleHashtagSaved,
-                      );
-                    default:
-                      return const SizedBox.shrink();
-                  }
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) {
+          return;
+        }
+        _handleBack(context);
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        body: SafeArea(
+          child: Column(
+            children: [
+              SsossAppBar.back(
+                title: '추천 콘텐츠 소스',
+                onBack: () => _handleBack(context),
+              ),
+              RecommendedContentTemplateHeader(
+                searchController: _searchController,
+                showIntro: isHashtagTab,
+                onSearchChanged: (value) {
+                  setState(() => _searchKeyword = value);
                 },
               ),
-            ),
-          ],
+              SsossTabBar(
+                width: double.infinity,
+                selectedIndex: _selectedTabIndex,
+                items: _tabItems,
+                onTap: _onTabTap,
+              ),
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: _tabItems.length,
+                  onPageChanged: _onPageChanged,
+                  itemBuilder: (context, index) {
+                    switch (index) {
+                      case 0:
+                        return RecommendedContentTemplateList(
+                          items: visibleItems,
+                          selectedCategory: _selectedCategory,
+                          onCategoryChanged: (category) {
+                            setState(() => _selectedCategory = category);
+                          },
+                          onSaveTap: _toggleSaved,
+                          onItemTap: _openDetail,
+                        );
+                      case 1:
+                        return RecommendedHashtagSetList(
+                          items: visibleHashtagSets,
+                          onSaveTap: _toggleHashtagSaved,
+                        );
+                      default:
+                        return const SizedBox.shrink();
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

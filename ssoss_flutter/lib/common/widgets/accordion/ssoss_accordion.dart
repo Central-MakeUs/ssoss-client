@@ -32,7 +32,6 @@ class SsossAccordion extends StatelessWidget {
   final Color? backgroundColor;
   final double? width;
 
-  static const double height = 47;
   static const double _trailingIconSize = 20;
 
   @override
@@ -47,9 +46,9 @@ class SsossAccordion extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: SizedBox(
+      child: Container(
         width: width,
-        height: height,
+        padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
             if (showLeadingIcon || leading != null) ...[

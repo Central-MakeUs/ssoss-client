@@ -33,22 +33,14 @@ class RecommendedContentTemplateSaveCompletePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop) {
-          return;
-        }
-        _goHome(context);
-      },
       child: Scaffold(
         backgroundColor: AppColors.white,
         body: SafeArea(
           child: Column(
             children: [
-              SsossAppBar.backWithLabel(
+              SsossAppBar.exitOnly(
                 title: '저장 완료',
-                label: '나가기',
-                onBack: () => _goHome(context),
-                onDone: () => _goHome(context),
+                onExit: () => _goHome(context),
               ),
               Expanded(
                 child: RecommendedContentTemplateSaveCompleteBody(
