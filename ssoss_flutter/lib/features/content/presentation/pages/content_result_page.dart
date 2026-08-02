@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/modal/ssoss_modal.dart';
@@ -23,7 +23,10 @@ import 'package:ssoss_flutter/features/content/presentation/models/content_save_
 import 'package:ssoss_flutter/features/content/presentation/pages/content_edit_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_generating_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_save_complete_page.dart';
+import 'package:ssoss_flutter/features/content/presentation/widgets/result/content_remake_credit_summary.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/result/content_result_body.dart';
+import 'package:ssoss_flutter/features/credit/presentation/cubit/credit_balance_cubit.dart';
+import 'package:ssoss_flutter/features/credit/presentation/cubit/credit_balance_state.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 
 /// 콘텐츠 생성 결과 화면.
@@ -155,14 +158,30 @@ class _ContentResultPageState extends State<ContentResultPage> {
     }
   }
 
+  static const int _creditPerChannel = 5;
+
   Future<void> _remake(BuildContext context) async {
+    final deductAmount = args.input.channels.length * _creditPerChannel;
+    final balanceCubit = context.read<CreditBalanceCubit>();
+    unawaited(balanceCubit.refresh());
+
     final result = await showSsossModal(
       context,
       title: '콘텐츠를 다시 생성할까요?',
-      message: '기존 생성 결과는 저장 되지 않아요',
+      message: '재생성하면 크레딧이 추가로 차감돼요',
       primaryButtonLabel: '다시 생성하기',
-      secondaryButtonLabel: '취소하기',
+      secondaryButtonLabel: '취소',
       showButtonIcons: false,
+      content: BlocBuilder<CreditBalanceCubit, CreditBalanceState>(
+        bloc: balanceCubit,
+        builder: (context, state) {
+          return ContentRemakeCreditSummary(
+            deductAmount: deductAmount,
+            balance: state.balance,
+            isBalanceLoading: state.isLoading && state.balance == null,
+          );
+        },
+      ),
     );
 
     if (result != SsossModalResult.primary || !context.mounted) {

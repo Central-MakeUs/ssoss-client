@@ -12,19 +12,21 @@ class MyPageStoreSummaryCard extends StatelessWidget {
   const MyPageStoreSummaryCard({
     required this.storeName,
     required this.storeType,
-    required this.credit,
     super.key,
+    this.credit,
+    this.isCreditLoading = false,
     this.description,
     this.onStoreTap,
-    this.onChargeTap,
+    this.onDetailTap,
   });
 
   final String storeName;
   final String storeType;
   final String? description;
-  final int credit;
+  final int? credit;
+  final bool isCreditLoading;
   final VoidCallback? onStoreTap;
-  final VoidCallback? onChargeTap;
+  final VoidCallback? onDetailTap;
 
   @override
   Widget build(BuildContext context) {
@@ -108,28 +110,39 @@ class MyPageStoreSummaryCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                AppText(
-                  '$credit',
-                  style: AppTextStyles.h4.copyWith(
-                    color: AppColors.primary500,
+                if (isCreditLoading)
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primary400,
+                    ),
+                  )
+                else ...[
+                  AppText(
+                    '${credit ?? 0}',
+                    style: AppTextStyles.h4.copyWith(
+                      color: AppColors.primary500,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 4),
-                SvgPicture.asset(
-                  AppAssets.icCredit,
-                  width: 16,
-                  height: 16,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.primary500,
-                    BlendMode.srcIn,
+                  const SizedBox(width: 4),
+                  SvgPicture.asset(
+                    AppAssets.icCredit,
+                    width: 16,
+                    height: 16,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.primary500,
+                      BlendMode.srcIn,
+                    ),
                   ),
-                ),
+                ],
                 const SizedBox(width: 12),
                 SsossButton(
-                  label: '충전하기',
+                  label: '상세 보기',
                   size: SsossButtonSize.small,
                   type: SsossButtonType.outline,
-                  onPressed: onChargeTap,
+                  onPressed: onDetailTap,
                 ),
               ],
             ),
