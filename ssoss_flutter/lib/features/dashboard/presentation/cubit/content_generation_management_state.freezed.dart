@@ -16,6 +16,7 @@ T _$identity<T>(T value) => value;
 mixin _$ContentGenerationManagementState {
   List<ContentManagementItem> get items;
   String get selectedFilter;
+  ContentSort get sort;
   int get totalCount;
   int get page;
   bool get hasNext;
@@ -42,6 +43,7 @@ mixin _$ContentGenerationManagementState {
             const DeepCollectionEquality().equals(other.items, items) &&
             (identical(other.selectedFilter, selectedFilter) ||
                 other.selectedFilter == selectedFilter) &&
+            (identical(other.sort, sort) || other.sort == sort) &&
             (identical(other.totalCount, totalCount) ||
                 other.totalCount == totalCount) &&
             (identical(other.page, page) || other.page == page) &&
@@ -63,6 +65,7 @@ mixin _$ContentGenerationManagementState {
       runtimeType,
       const DeepCollectionEquality().hash(items),
       selectedFilter,
+      sort,
       totalCount,
       page,
       hasNext,
@@ -74,7 +77,7 @@ mixin _$ContentGenerationManagementState {
 
   @override
   String toString() {
-    return 'ContentGenerationManagementState(items: $items, selectedFilter: $selectedFilter, totalCount: $totalCount, page: $page, hasNext: $hasNext, openedMenuItemId: $openedMenuItemId, isLoading: $isLoading, isLoadingMore: $isLoadingMore, isRefreshing: $isRefreshing, errorMessage: $errorMessage)';
+    return 'ContentGenerationManagementState(items: $items, selectedFilter: $selectedFilter, sort: $sort, totalCount: $totalCount, page: $page, hasNext: $hasNext, openedMenuItemId: $openedMenuItemId, isLoading: $isLoading, isLoadingMore: $isLoadingMore, isRefreshing: $isRefreshing, errorMessage: $errorMessage)';
   }
 }
 
@@ -88,6 +91,7 @@ abstract mixin class $ContentGenerationManagementStateCopyWith<$Res> {
   $Res call(
       {List<ContentManagementItem> items,
       String selectedFilter,
+      ContentSort sort,
       int totalCount,
       int page,
       bool hasNext,
@@ -113,6 +117,7 @@ class _$ContentGenerationManagementStateCopyWithImpl<$Res>
   $Res call({
     Object? items = null,
     Object? selectedFilter = null,
+    Object? sort = null,
     Object? totalCount = null,
     Object? page = null,
     Object? hasNext = null,
@@ -131,6 +136,10 @@ class _$ContentGenerationManagementStateCopyWithImpl<$Res>
           ? _self.selectedFilter
           : selectedFilter // ignore: cast_nullable_to_non_nullable
               as String,
+      sort: null == sort
+          ? _self.sort
+          : sort // ignore: cast_nullable_to_non_nullable
+              as ContentSort,
       totalCount: null == totalCount
           ? _self.totalCount
           : totalCount // ignore: cast_nullable_to_non_nullable
@@ -264,6 +273,7 @@ extension ContentGenerationManagementStatePatterns
     TResult Function(
             List<ContentManagementItem> items,
             String selectedFilter,
+            ContentSort sort,
             int totalCount,
             int page,
             bool hasNext,
@@ -281,6 +291,7 @@ extension ContentGenerationManagementStatePatterns
         return $default(
             _that.items,
             _that.selectedFilter,
+            _that.sort,
             _that.totalCount,
             _that.page,
             _that.hasNext,
@@ -312,6 +323,7 @@ extension ContentGenerationManagementStatePatterns
     TResult Function(
             List<ContentManagementItem> items,
             String selectedFilter,
+            ContentSort sort,
             int totalCount,
             int page,
             bool hasNext,
@@ -328,6 +340,7 @@ extension ContentGenerationManagementStatePatterns
         return $default(
             _that.items,
             _that.selectedFilter,
+            _that.sort,
             _that.totalCount,
             _that.page,
             _that.hasNext,
@@ -358,6 +371,7 @@ extension ContentGenerationManagementStatePatterns
     TResult? Function(
             List<ContentManagementItem> items,
             String selectedFilter,
+            ContentSort sort,
             int totalCount,
             int page,
             bool hasNext,
@@ -374,6 +388,7 @@ extension ContentGenerationManagementStatePatterns
         return $default(
             _that.items,
             _that.selectedFilter,
+            _that.sort,
             _that.totalCount,
             _that.page,
             _that.hasNext,
@@ -396,6 +411,7 @@ class _ContentGenerationManagementState
       {final List<ContentManagementItem> items =
           const <ContentManagementItem>[],
       this.selectedFilter = '전체',
+      this.sort = ContentSort.latest,
       this.totalCount = 0,
       this.page = 0,
       this.hasNext = false,
@@ -419,6 +435,9 @@ class _ContentGenerationManagementState
   @override
   @JsonKey()
   final String selectedFilter;
+  @override
+  @JsonKey()
+  final ContentSort sort;
   @override
   @JsonKey()
   final int totalCount;
@@ -459,6 +478,7 @@ class _ContentGenerationManagementState
             const DeepCollectionEquality().equals(other._items, _items) &&
             (identical(other.selectedFilter, selectedFilter) ||
                 other.selectedFilter == selectedFilter) &&
+            (identical(other.sort, sort) || other.sort == sort) &&
             (identical(other.totalCount, totalCount) ||
                 other.totalCount == totalCount) &&
             (identical(other.page, page) || other.page == page) &&
@@ -480,6 +500,7 @@ class _ContentGenerationManagementState
       runtimeType,
       const DeepCollectionEquality().hash(_items),
       selectedFilter,
+      sort,
       totalCount,
       page,
       hasNext,
@@ -491,7 +512,7 @@ class _ContentGenerationManagementState
 
   @override
   String toString() {
-    return 'ContentGenerationManagementState(items: $items, selectedFilter: $selectedFilter, totalCount: $totalCount, page: $page, hasNext: $hasNext, openedMenuItemId: $openedMenuItemId, isLoading: $isLoading, isLoadingMore: $isLoadingMore, isRefreshing: $isRefreshing, errorMessage: $errorMessage)';
+    return 'ContentGenerationManagementState(items: $items, selectedFilter: $selectedFilter, sort: $sort, totalCount: $totalCount, page: $page, hasNext: $hasNext, openedMenuItemId: $openedMenuItemId, isLoading: $isLoading, isLoadingMore: $isLoadingMore, isRefreshing: $isRefreshing, errorMessage: $errorMessage)';
   }
 }
 
@@ -507,6 +528,7 @@ abstract mixin class _$ContentGenerationManagementStateCopyWith<$Res>
   $Res call(
       {List<ContentManagementItem> items,
       String selectedFilter,
+      ContentSort sort,
       int totalCount,
       int page,
       bool hasNext,
@@ -532,6 +554,7 @@ class __$ContentGenerationManagementStateCopyWithImpl<$Res>
   $Res call({
     Object? items = null,
     Object? selectedFilter = null,
+    Object? sort = null,
     Object? totalCount = null,
     Object? page = null,
     Object? hasNext = null,
@@ -550,6 +573,10 @@ class __$ContentGenerationManagementStateCopyWithImpl<$Res>
           ? _self.selectedFilter
           : selectedFilter // ignore: cast_nullable_to_non_nullable
               as String,
+      sort: null == sort
+          ? _self.sort
+          : sort // ignore: cast_nullable_to_non_nullable
+              as ContentSort,
       totalCount: null == totalCount
           ? _self.totalCount
           : totalCount // ignore: cast_nullable_to_non_nullable

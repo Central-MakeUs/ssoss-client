@@ -92,6 +92,7 @@ class ContentRemoteDatasourceImpl implements ContentRemoteDatasource {
   @override
   Future<ContentListResponseModel> listContents({
     String? channel,
+    String sort = 'LATEST',
     int page = 0,
     int size = 20,
     CancelToken? cancelToken,
@@ -101,6 +102,7 @@ class ContentRemoteDatasourceImpl implements ContentRemoteDatasource {
         _contentsPath,
         queryParameters: <String, dynamic>{
           if (channel != null) 'channel': channel,
+          'sort': sort,
           'page': page,
           'size': size,
         },

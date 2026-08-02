@@ -100,11 +100,13 @@ class ContentManagementSummaryRow extends StatelessWidget {
   const ContentManagementSummaryRow({
     required this.count,
     this.sortLabel = '최신순',
+    this.onSortTap,
     super.key,
   });
 
   final int count;
   final String sortLabel;
+  final VoidCallback? onSortTap;
 
   @override
   Widget build(BuildContext context) {
@@ -115,28 +117,32 @@ class ContentManagementSummaryRow extends StatelessWidget {
           '$count건',
           style: AppTextStyles.h7.copyWith(color: AppColors.neutral400),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SvgPicture.asset(
-                AppAssets.icSort,
-                width: 18,
-                height: 18,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.neutral500,
-                  BlendMode.srcIn,
+        GestureDetector(
+          onTap: onSortTap,
+          behavior: HitTestBehavior.opaque,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SvgPicture.asset(
+                  AppAssets.icSort,
+                  width: 18,
+                  height: 18,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.neutral500,
+                    BlendMode.srcIn,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 6),
-              AppText(
-                sortLabel,
-                style: AppTextStyles.h6.copyWith(
-                  color: AppColors.neutral500,
+                const SizedBox(width: 6),
+                AppText(
+                  sortLabel,
+                  style: AppTextStyles.h6.copyWith(
+                    color: AppColors.neutral500,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],

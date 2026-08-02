@@ -203,6 +203,10 @@ class _ContentGenerationManagementViewState
                             const SizedBox(height: 12),
                             ContentManagementSummaryRow(
                               count: state.totalCount,
+                              sortLabel: state.sortLabel,
+                              onSortTap: state.isLoading
+                                  ? null
+                                  : () => unawaited(cubit.toggleSort()),
                             ),
                           ],
                         ),
@@ -211,18 +215,21 @@ class _ContentGenerationManagementViewState
                     Expanded(
                       child: CustomScrollView(
                         controller: _scrollController,
-                        physics: const BouncingScrollPhysics(
-                          parent: AlwaysScrollableScrollPhysics(),
-                        ),
+                        physics: state.isLoading
+                            ? const NeverScrollableScrollPhysics()
+                            : const BouncingScrollPhysics(
+                                parent: AlwaysScrollableScrollPhysics(),
+                              ),
                         slivers: [
-                          // 당김 인디케이터가 슬라버 공간을 차지 → 카드는 항상 그 아래
-                          CupertinoSliverRefreshControl(
-                            refreshTriggerPullDistance: 100,
-                            refreshIndicatorExtent: 60,
-                            onRefresh: cubit.refresh,
-                            builder: _buildPullRefreshIndicator,
-                          ),
-                          if (state.isLoading && state.items.isEmpty)
+                          if (!state.isLoading)
+                            // 당김 인디케이터가 슬라버 공간을 차지 → 카드는 항상 그 아래
+                            CupertinoSliverRefreshControl(
+                              refreshTriggerPullDistance: 100,
+                              refreshIndicatorExtent: 60,
+                              onRefresh: cubit.refresh,
+                              builder: _buildPullRefreshIndicator,
+                            ),
+                          if (state.isLoading)
                             const SliverFillRemaining(
                               hasScrollBody: false,
                               child: Center(
