@@ -28,6 +28,7 @@ class RecommendedContentTemplateEditPage extends StatefulWidget {
 
   static const String routeName = 'recommended-content-template-edit';
   static const String routePath = '/recommended-content-template-edit';
+  static const int maxBodyLength = 1000;
 
   final RecommendedContentTemplateEditArgs args;
 
@@ -42,7 +43,9 @@ class _RecommendedContentTemplateEditPageState
   late SsossTemplateDocument _document = widget.args.document;
 
   bool get _isDirty => _document != _originalDocument;
-  bool get _canSubmit => _document.plainText.trim().isNotEmpty;
+  bool get _canSubmit =>
+      _document.plainText.trim().isNotEmpty &&
+      _document.textLength <= RecommendedContentTemplateEditPage.maxBodyLength;
 
   Future<void> _onBack() async {
     if (!_isDirty) {
@@ -152,7 +155,7 @@ class RecommendedContentTemplateEditBody extends StatelessWidget {
         SsossTemplateContentsEditCard(
           document: document,
           width: double.infinity,
-          maxLength: 1000,
+          maxLength: RecommendedContentTemplateEditPage.maxBodyLength,
           onDocumentChanged: onDocumentChanged,
           emptySlotColor: AppColors.primary300,
         ),
