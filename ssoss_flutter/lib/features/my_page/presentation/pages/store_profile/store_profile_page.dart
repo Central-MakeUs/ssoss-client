@@ -1,12 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_info_management/store_info_management_components.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_info_management/store_info_management_page.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_profile/store_profile_components.dart';
+import 'package:ssoss_flutter/features/store/domain/entities/store_info.dart';
+import 'package:ssoss_flutter/features/store/presentation/cubit/store_cubit.dart';
 
 class StoreProfilePage extends StatelessWidget {
   const StoreProfilePage({
@@ -21,6 +24,8 @@ class StoreProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final storeInfo = context.watch<StoreCubit>().state.info;
+
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
@@ -35,6 +40,7 @@ class StoreProfilePage extends StatelessWidget {
                     )
                   : _StoreProfileInfoBody(
                       status: status,
+                      storeInfo: storeInfo,
                       onBasicEditTap: () =>
                           _openStoreInfo(context, StoreInfoTab.basic),
                       onOperationEditTap: () =>
@@ -97,12 +103,14 @@ class _StoreProfileEmptyBody extends StatelessWidget {
 class _StoreProfileInfoBody extends StatelessWidget {
   const _StoreProfileInfoBody({
     required this.status,
+    required this.storeInfo,
     required this.onBasicEditTap,
     required this.onOperationEditTap,
     required this.onContentEditTap,
   });
 
   final StoreProfileStatus status;
+  final StoreInfo storeInfo;
   final VoidCallback onBasicEditTap;
   final VoidCallback onOperationEditTap;
   final VoidCallback onContentEditTap;
@@ -121,7 +129,12 @@ class _StoreProfileInfoBody extends StatelessWidget {
         StoreProfileSection(
           title: '기본 정보',
           onEditTap: onBasicEditTap,
-          children: [StoreBasicInfoBlock(status: status)],
+          children: [
+            StoreBasicInfoBlock(
+              status: status,
+              info: storeInfo.basic,
+            ),
+          ],
         ),
         const SizedBox(height: 32),
         const StoreProfileDivider(),
@@ -129,7 +142,12 @@ class _StoreProfileInfoBody extends StatelessWidget {
         StoreProfileSection(
           title: '운영 정보',
           onEditTap: onOperationEditTap,
-          children: [StoreOperationInfoBlock(status: status)],
+          children: [
+            StoreOperationInfoBlock(
+              status: status,
+              info: storeInfo.operation,
+            ),
+          ],
         ),
         const SizedBox(height: 36),
         const StoreProfileDivider(),
@@ -137,7 +155,12 @@ class _StoreProfileInfoBody extends StatelessWidget {
         StoreProfileSection(
           title: '콘텐츠 정보',
           onEditTap: onContentEditTap,
-          children: [StoreContentInfoBlock(status: status)],
+          children: [
+            StoreContentInfoBlock(
+              status: status,
+              info: storeInfo.content,
+            ),
+          ],
         ),
       ],
     );

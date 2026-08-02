@@ -34,6 +34,14 @@ import 'features/content/presentation/content_providers.dart';
 import 'features/credit/domain/usecases/get_credit_balance_usecase.dart';
 import 'features/credit/presentation/credit_providers.dart';
 import 'features/credit/presentation/cubit/credit_balance_cubit.dart';
+import 'features/store/domain/usecases/check_store_onboarding_usecase.dart';
+import 'features/store/domain/usecases/complete_store_onboarding_usecase.dart';
+import 'features/store/domain/usecases/get_my_store_usecase.dart';
+import 'features/store/domain/usecases/save_store_basic_info_usecase.dart';
+import 'features/store/domain/usecases/save_store_content_info_usecase.dart';
+import 'features/store/domain/usecases/save_store_operation_info_usecase.dart';
+import 'features/store/presentation/cubit/store_cubit.dart';
+import 'features/store/presentation/store_providers.dart';
 import 'router/app_router.dart';
 
 class SsossApp extends StatefulWidget {
@@ -68,6 +76,7 @@ class _SsossAppState extends State<SsossApp> {
     SystemChrome.setSystemUIOverlayStyle(_systemUiOverlayStyle);
     _router = createAppRouter(
       context.read<LoginBloc>(),
+      storeCubit: context.read<StoreCubit>(),
       navigatorKey: _rootNavigatorKey,
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -188,10 +197,22 @@ class _SsossAppState extends State<SsossApp> {
                 ),
                 BlocListener<LoginBloc, LoginState>(
                   listenWhen: (previous, current) =>
-                      current is LoginSessionExpired &&
-                      previous is! LoginSessionExpired,
+                      current is LoginAuthenticated ||
+                      current is LoginUnauthenticated ||
+                      current is LoginSessionExpired,
                   listener: (context, state) {
-                    unawaited(_showSessionExpiredModal());
+                    if (state is LoginAuthenticated) {
+                      unawaited(
+                        context.read<StoreCubit>().bootstrap().catchError(
+                              (_) {},
+                            ),
+                      );
+                      return;
+                    }
+                    context.read<StoreCubit>().reset();
+                    if (state is LoginSessionExpired) {
+                      unawaited(_showSessionExpiredModal());
+                    }
                   },
                 ),
               ],
@@ -227,6 +248,7 @@ class SsossAppScope extends StatelessWidget {
         ...AuthProviders.build(),
         ...ContentProviders.build(),
         ...CreditProviders.build(),
+        ...StoreProviders.build(),
         ...AppVersionProviders.build(),
       ],
       child: BlocProvider<LoginBloc>(
@@ -249,7 +271,19 @@ class SsossAppScope extends StatelessWidget {
             create: (context) => CreditBalanceCubit(
               getCreditBalance: context.read<GetCreditBalanceUseCase>(),
             ),
-            child: const SsossApp(),
+            child: BlocProvider<StoreCubit>(
+              create: (context) => StoreCubit(
+                getMyStore: context.read<GetMyStoreUseCase>(),
+                saveBasicInfo: context.read<SaveStoreBasicInfoUseCase>(),
+                saveOperationInfo:
+                    context.read<SaveStoreOperationInfoUseCase>(),
+                saveContentInfo: context.read<SaveStoreContentInfoUseCase>(),
+                checkOnboarding: context.read<CheckStoreOnboardingUseCase>(),
+                completeOnboarding:
+                    context.read<CompleteStoreOnboardingUseCase>(),
+              ),
+              child: const SsossApp(),
+            ),
           ),
         ),
       ),

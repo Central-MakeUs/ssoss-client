@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,12 +11,19 @@ import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_components.dart';
+import 'package:ssoss_flutter/features/store/presentation/cubit/store_cubit.dart';
 
 class OnboardingStoreInfoCompletePage extends StatelessWidget {
   const OnboardingStoreInfoCompletePage({super.key});
 
   static const String routeName = 'onboarding-store-info-complete';
   static const String routePath = '/onboarding/store-info-complete';
+
+  Future<void> _start(BuildContext context) async {
+    await context.read<StoreCubit>().completeOnboarding();
+    if (!context.mounted) return;
+    context.go(HomePage.routePath);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +54,8 @@ class OnboardingStoreInfoCompletePage extends StatelessWidget {
             OnboardingActionBar(
               primaryLabel: '시작하기',
               showSkipButton: false,
-              onPrimaryTap: () => context.go(HomePage.routePath),
-              onSkipTap: () => context.go(HomePage.routePath),
+              onPrimaryTap: () => unawaited(_start(context)),
+              onSkipTap: () => unawaited(_start(context)),
             ),
           ],
         ),

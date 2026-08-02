@@ -6,6 +6,7 @@ import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
+import 'package:ssoss_flutter/features/store/domain/entities/store_info.dart';
 
 enum StoreProfileStatus {
   empty,
@@ -162,31 +163,31 @@ class StoreProfileSection extends StatelessWidget {
 class StoreBasicInfoBlock extends StatelessWidget {
   const StoreBasicInfoBlock({
     required this.status,
+    required this.info,
     super.key,
   });
 
   final StoreProfileStatus status;
+  final StoreBasicInfo info;
 
   @override
   Widget build(BuildContext context) {
-    final isCompleted = status == StoreProfileStatus.completed;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppText(
-          '보니스 커피',
+          info.name ?? '매장 정보 입력 전',
           style: AppTextStyles.h3.copyWith(color: AppColors.black),
         ),
         const SizedBox(height: 12),
-        const _IconTextRow(
+        _IconTextRow(
           iconPath: AppAssets.icStore,
-          text: '베이커리',
+          text: info.type?.label ?? '입력 전',
         ),
         const SizedBox(height: 4),
         _IconTextRow(
           iconPath: AppAssets.icLocation,
-          text: isCompleted ? '서울 마포구 동교로16길 21' : '',
+          text: info.address ?? '',
         ),
         const SizedBox(height: 16),
         Container(
@@ -207,10 +208,13 @@ class StoreBasicInfoBlock extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               AppText(
-                isCompleted ? '을지로 베이커리 보니스 커피입니다 :)' : '입력된 소개가 없습니다',
+                info.introduction?.isNotEmpty == true
+                    ? info.introduction!
+                    : '입력된 소개가 없습니다',
                 style: AppTextStyles.b4.copyWith(
-                  color:
-                      isCompleted ? AppColors.neutral800 : AppColors.neutral400,
+                  color: info.introduction?.isNotEmpty == true
+                      ? AppColors.neutral800
+                      : AppColors.neutral400,
                 ),
               ),
             ],
@@ -224,45 +228,52 @@ class StoreBasicInfoBlock extends StatelessWidget {
 class StoreOperationInfoBlock extends StatelessWidget {
   const StoreOperationInfoBlock({
     required this.status,
+    required this.info,
     super.key,
   });
 
   final StoreProfileStatus status;
+  final StoreOperationInfo info;
 
   @override
   Widget build(BuildContext context) {
-    final isCompleted = status == StoreProfileStatus.completed;
+    final days = info.businessDays.map((day) => day.label).join(', ');
+    final time = info.openTime != null && info.closeTime != null
+        ? '${info.openTime} - ${info.closeTime}'
+        : '';
+    final businessHours = [
+      if (days.isNotEmpty) days,
+      if (time.isNotEmpty) time,
+    ].join('\n');
 
     return Column(
       children: [
-        const StoreProfileInfoRow(
+        StoreProfileInfoRow(
           label: '영업 시간',
-          value: '수, 목, 금, 토, 일\n오전 9:00 - 오후 20:00',
+          value: businessHours,
         ),
         const SizedBox(height: 16),
         StoreProfileInfoRow(
           label: '대표 메뉴',
-          value: isCompleted
-              ? '크림브륄레 커피, 아이스 아메리카노,\n프렌치토스트, 크루아상, 벌꿀아이스크림,\n카페 라떼, 아이스티'
-              : '',
+          value: info.signatureMenus.join(', '),
         ),
         const SizedBox(height: 16),
         StoreProfileFacilityRow(
           iconPath: AppAssets.icBag,
           label: '포장',
-          value: isCompleted ? '가능' : '불가',
+          value: info.takeoutAvailable ? '가능' : '불가',
         ),
         const SizedBox(height: 8),
         StoreProfileFacilityRow(
           iconPath: AppAssets.icCalendar,
           label: '예약',
-          value: isCompleted ? '가능' : '불가',
+          value: info.reservationAvailable ? '가능' : '불가',
         ),
         const SizedBox(height: 8),
-        const StoreProfileFacilityRow(
+        StoreProfileFacilityRow(
           iconPath: AppAssets.icParking,
           label: '주차',
-          value: '불가',
+          value: info.parkingAvailable ? '가능' : '불가',
         ),
       ],
     );
@@ -272,48 +283,38 @@ class StoreOperationInfoBlock extends StatelessWidget {
 class StoreContentInfoBlock extends StatelessWidget {
   const StoreContentInfoBlock({
     required this.status,
+    required this.info,
     super.key,
   });
 
   final StoreProfileStatus status;
+  final StoreContentInfo info;
 
   @override
   Widget build(BuildContext context) {
-    final isCompleted = status == StoreProfileStatus.completed;
-
     return Column(
       children: [
         StoreProfileInfoRow(
           label: '매장 강점',
-          value: isCompleted
-              ? '혼자 방문해도 편한 좌석과 차분한 공간,\n조용히 머물기 좋은 아늑한 매장 분위기'
-              : '',
+          value: info.strength ?? '',
         ),
         const SizedBox(height: 29),
-        if (isCompleted)
-          const StoreProfileTagRow(
+        if (info.keywords.isNotEmpty)
+          StoreProfileTagRow(
             label: '매장 키워드',
-            tags: [
-              '크림브륄레 커피',
-              '아이스 아메리카노',
-              '프렌치토스트',
-              '크루아상',
-              '벌꿀아이스크림',
-              '카페 라떼',
-              '아이스티',
-            ],
+            tags: info.keywords,
           )
         else
           const StoreProfileInfoRow(label: '매장 키워드', value: ''),
         const SizedBox(height: 29),
-        const StoreProfileInfoRow(
+        StoreProfileInfoRow(
           label: '금지 표현',
-          value: '과장된 맛 표현 사용 금지,\n가격 중심의 홍보 문구 지양,\n지나치게 가벼운 유행어',
+          value: info.forbidden ?? '',
         ),
         const SizedBox(height: 29),
-        const StoreProfileInfoRow(
+        StoreProfileInfoRow(
           label: '콘텐츠\n작성 톤',
-          value: '일상형\n자연스럽고 편안한 말투',
+          value: info.tone?.label ?? '',
           emphasizeFirstLine: true,
         ),
       ],

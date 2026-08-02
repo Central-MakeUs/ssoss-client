@@ -518,6 +518,7 @@ class OnboardingBottomBar extends StatelessWidget {
     required this.onPrimaryTap,
     required this.onSkipTap,
     super.key,
+    this.isLoading = false,
   });
 
   final int currentIndex;
@@ -526,6 +527,7 @@ class OnboardingBottomBar extends StatelessWidget {
   final bool showSkipButton;
   final VoidCallback onPrimaryTap;
   final VoidCallback onSkipTap;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -561,6 +563,7 @@ class OnboardingBottomBar extends StatelessWidget {
                 size: SsossButtonSize.large,
                 type: SsossButtonType.primary,
                 width: double.infinity,
+                isLoading: isLoading,
                 onPressed: onPrimaryTap,
               ),
               AnimatedSize(
@@ -592,12 +595,14 @@ class OnboardingActionBar extends StatelessWidget {
     required this.onPrimaryTap,
     required this.onSkipTap,
     super.key,
+    this.isLoading = false,
   });
 
   final String primaryLabel;
   final bool showSkipButton;
   final VoidCallback onPrimaryTap;
   final VoidCallback onSkipTap;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -615,6 +620,7 @@ class OnboardingActionBar extends StatelessWidget {
                 size: SsossButtonSize.large,
                 type: SsossButtonType.primary,
                 width: double.infinity,
+                isLoading: isLoading,
                 onPressed: onPrimaryTap,
               ),
               AnimatedSize(

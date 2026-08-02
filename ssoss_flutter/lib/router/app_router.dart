@@ -35,18 +35,23 @@ import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_operation_info_page.dart';
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_store_info_complete_page.dart';
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_store_info_page.dart';
+import 'package:ssoss_flutter/features/store/presentation/cubit/store_cubit.dart';
 
 /// [LoginBloc] 의 인증 상태에 따라 스플래시/로그인/홈으로 분기하는 라우터를 생성한다.
 ///
 /// 새 화면 추가 시 이 파일의 `routes` 에 라우트를 등록한다.
 GoRouter createAppRouter(
   LoginBloc loginBloc, {
+  required StoreCubit storeCubit,
   GlobalKey<NavigatorState>? navigatorKey,
 }) {
   return GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: SplashPage.routePath,
-    refreshListenable: _GoRouterRefreshStream(loginBloc.stream),
+    refreshListenable: _GoRouterRefreshStream([
+      loginBloc.stream,
+      storeCubit.stream,
+    ]),
     redirect: (context, state) {
       final authState = loginBloc.state;
       final location = state.matchedLocation;
@@ -63,6 +68,10 @@ GoRouter createAppRouter(
       final isOnOnboardingStoreInfoComplete =
           location == OnboardingStoreInfoCompletePage.routePath;
       final isOnSignupFlow = isOnSignupTerms || isOnSignupComplete;
+      final isOnOnboardingFlow = isOnOnboarding ||
+          isOnOnboardingStoreInfo ||
+          isOnOnboardingOperationInfo ||
+          isOnOnboardingStoreInfoComplete;
 
       // 세션 복원 중에는 스플래시에 머문다 (로그인 화면 플래시 방지).
       final isResolvingAuth =
@@ -97,18 +106,28 @@ GoRouter createAppRouter(
 
       if (!isAuthenticated) {
         if (isOnLogin) return null;
-        if (isOnSignupFlow ||
-            isOnOnboarding ||
-            isOnOnboardingStoreInfo ||
-            isOnOnboardingOperationInfo ||
-            isOnOnboardingStoreInfoComplete) {
+        if (isOnSignupFlow || isOnOnboardingFlow) {
           return LoginPage.routePath;
         }
         return LoginPage.routePath;
       }
 
-      if (isOnLogin || isOnSplash || isOnSignupFlow || isOnWithdrawComplete) {
+      final storeState = storeCubit.state;
+      if (!storeState.isBootstrapped) {
+        return isOnSplash ? null : SplashPage.routePath;
+      }
+
+      if (storeState.shouldShowOnboarding) {
+        if (isOnOnboardingFlow) return null;
         return OnboardingIntroPage.routePath;
+      }
+
+      if (isOnLogin ||
+          isOnSplash ||
+          isOnSignupFlow ||
+          isOnWithdrawComplete ||
+          isOnOnboardingFlow) {
+        return HomePage.routePath;
       }
       return null;
     },
@@ -306,18 +325,21 @@ GoRouter createAppRouter(
 
 /// Bloc/Stream 의 변경을 go_router 의 `refreshListenable` 로 연결하는 어댑터.
 class _GoRouterRefreshStream extends ChangeNotifier {
-  _GoRouterRefreshStream(Stream<dynamic> stream) {
+  _GoRouterRefreshStream(List<Stream<dynamic>> streams) {
     notifyListeners();
-    _subscription = stream.asBroadcastStream().listen(
-          (_) => notifyListeners(),
-        );
+    _subscriptions = [
+      for (final stream in streams)
+        stream.asBroadcastStream().listen((_) => notifyListeners()),
+    ];
   }
 
-  late final StreamSubscription<dynamic> _subscription;
+  late final List<StreamSubscription<dynamic>> _subscriptions;
 
   @override
   void dispose() {
-    unawaited(_subscription.cancel());
+    for (final subscription in _subscriptions) {
+      unawaited(subscription.cancel());
+    }
     super.dispose();
   }
 }

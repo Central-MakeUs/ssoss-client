@@ -16,6 +16,8 @@ import 'package:ssoss_flutter/features/my_page/presentation/pages/store_info_man
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_info_management/store_info_management_page.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_profile/store_profile_components.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_profile/store_profile_page.dart';
+import 'package:ssoss_flutter/features/store/domain/entities/store_info.dart';
+import 'package:ssoss_flutter/features/store/presentation/cubit/store_cubit.dart';
 
 class MyPagePage extends StatefulWidget {
   const MyPagePage({super.key});
@@ -40,6 +42,7 @@ class _MyPagePageState extends State<MyPagePage> {
 
   @override
   Widget build(BuildContext context) {
+    final storeInfo = context.watch<StoreCubit>().state.info;
     final menuItems = [
       const MyPageMenuItem(label: '공지사항'),
       MyPageMenuItem(
@@ -52,18 +55,24 @@ class _MyPagePageState extends State<MyPagePage> {
         title: '기본 정보',
         description: '매장명, 매장 유형, 주소, 매장 한 줄 소개',
         iconPath: AppAssets.icStore,
+        statusLabel: storeInfo.basic.status.label,
+        isCompleted: storeInfo.basic.status.isCompleted,
         onTap: () => _openStoreInfo(context, StoreInfoTab.basic),
       ),
       StoreInfoManagementItem(
         title: '운영 정보',
         description: '영업 시간, 대표 메뉴, 편의 시설',
         iconPath: AppAssets.icTimeSquare,
+        statusLabel: storeInfo.operation.status.label,
+        isCompleted: storeInfo.operation.status.isCompleted,
         onTap: () => _openStoreInfo(context, StoreInfoTab.operation),
       ),
       StoreInfoManagementItem(
         title: '콘텐츠 정보',
         description: '매장 강점, 자주 쓰는 키워드, 금지 내용 등',
         iconPath: AppAssets.icDocument,
+        statusLabel: storeInfo.content.status.label,
+        isCompleted: storeInfo.content.status.isCompleted,
         onTap: () => _openStoreInfo(context, StoreInfoTab.content),
       ),
     ];
@@ -85,13 +94,14 @@ class _MyPagePageState extends State<MyPagePage> {
                   BlocBuilder<CreditBalanceCubit, CreditBalanceState>(
                     builder: (context, creditState) {
                       return MyPageStoreSummaryCard(
-                        storeName: '보니스커피',
-                        storeType: '카페',
+                        storeName: storeInfo.basic.name ?? '매장 정보 입력 전',
+                        storeType: storeInfo.basic.type?.label ?? '입력 전',
+                        description: storeInfo.basic.introduction,
                         credit: creditState.balance,
                         isCreditLoading: creditState.isLoading,
                         onStoreTap: () => _openStoreProfile(
                           context,
-                          StoreProfileStatus.partial,
+                          _profileStatus(storeInfo),
                         ),
                         onDetailTap: () => _openCreditHistory(context),
                       );
@@ -108,6 +118,18 @@ class _MyPagePageState extends State<MyPagePage> {
         ],
       ),
     );
+  }
+
+  StoreProfileStatus _profileStatus(StoreInfo info) {
+    if (!info.hasAnyWrittenInfo) {
+      return StoreProfileStatus.empty;
+    }
+    final completed = info.basic.status.isCompleted &&
+        info.operation.status.isCompleted &&
+        info.content.status.isCompleted;
+    return completed
+        ? StoreProfileStatus.completed
+        : StoreProfileStatus.partial;
   }
 
   void _openCreditHistory(BuildContext context) {

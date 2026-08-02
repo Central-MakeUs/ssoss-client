@@ -1,17 +1,22 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_address_search_field.dart';
 
 import 'package:ssoss_flutter/common/widgets/input/ssoss_select_field.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
+import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
+import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_components.dart';
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_operation_info_page.dart';
+import 'package:ssoss_flutter/features/store/domain/entities/store_info.dart';
+import 'package:ssoss_flutter/features/store/presentation/cubit/store_cubit.dart';
 
 class OnboardingStoreInfoPage extends StatefulWidget {
   const OnboardingStoreInfoPage({super.key});
@@ -25,19 +30,10 @@ class OnboardingStoreInfoPage extends StatefulWidget {
 }
 
 class _OnboardingStoreInfoPageState extends State<OnboardingStoreInfoPage> {
-  static const _storeTypes = [
-    '카페',
-    '음식점',
-    '술집',
-    '베이커리',
-    '미용/뷰티',
-    '기타',
-  ];
-
   late final TextEditingController _storeNameController;
   late final TextEditingController _addressController;
   late final TextEditingController _introController;
-  String? _storeType;
+  StoreType? _storeType;
 
   @override
   void initState() {
@@ -56,7 +52,7 @@ class _OnboardingStoreInfoPageState extends State<OnboardingStoreInfoPage> {
   }
 
   Future<void> _showStoreTypePicker() async {
-    final selected = await showModalBottomSheet<String>(
+    final selected = await showModalBottomSheet<StoreType>(
       context: context,
       backgroundColor: AppColors.white,
       shape: const RoundedRectangleBorder(
@@ -77,9 +73,9 @@ class _OnboardingStoreInfoPageState extends State<OnboardingStoreInfoPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                ..._storeTypes.map(
+                ...StoreType.values.map(
                   (type) => _StoreTypeOption(
-                    label: type,
+                    label: type.label,
                     isSelected: type == _storeType,
                     onTap: () => Navigator.of(context).pop(type),
                   ),
@@ -96,8 +92,55 @@ class _OnboardingStoreInfoPageState extends State<OnboardingStoreInfoPage> {
     }
   }
 
+  Future<void> _saveBasicInfo() async {
+    final storeType = _storeType;
+    if (storeType == null) {
+      showSsossToast(
+        context,
+        title: '매장 유형을 선택해 주세요',
+        type: SsossToastType.warning,
+      );
+      return;
+    }
+
+    try {
+      await context.read<StoreCubit>().saveBasic(
+            StoreBasicInfoInput(
+              name: _storeNameController.text,
+              type: storeType,
+              address: _addressController.text,
+              introduction: _introController.text,
+            ),
+          );
+      if (!mounted) return;
+      unawaited(context.push(OnboardingOperationInfoPage.routePath));
+    } on AppException catch (e) {
+      if (!mounted) return;
+      showSsossToast(
+        context,
+        title: e.message,
+        type: SsossToastType.warning,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      showSsossToast(
+        context,
+        title: '매장 기본 정보를 저장하지 못했습니다.',
+        type: SsossToastType.warning,
+      );
+    }
+  }
+
+  Future<void> _skipOnboarding() async {
+    await context.read<StoreCubit>().completeOnboarding();
+    if (!mounted) return;
+    context.go(HomePage.routePath);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final storeState = context.watch<StoreCubit>().state;
+
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
@@ -134,7 +177,7 @@ class _OnboardingStoreInfoPageState extends State<OnboardingStoreInfoPage> {
                     label: '매장 유형',
                     required: true,
                     child: SsossSelectField(
-                      value: _storeType,
+                      value: _storeType?.label,
                       placeholder: '선택해주세요',
                       onTap: () => unawaited(_showStoreTypePicker()),
                     ),
@@ -164,9 +207,9 @@ class _OnboardingStoreInfoPageState extends State<OnboardingStoreInfoPage> {
             OnboardingActionBar(
               primaryLabel: '다음',
               showSkipButton: true,
-              onPrimaryTap: () =>
-                  context.push(OnboardingOperationInfoPage.routePath),
-              onSkipTap: () => context.go(HomePage.routePath),
+              isLoading: storeState.isSavingBasic,
+              onPrimaryTap: () => unawaited(_saveBasicInfo()),
+              onSkipTap: () => unawaited(_skipOnboarding()),
             ),
           ],
         ),

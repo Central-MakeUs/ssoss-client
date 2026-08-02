@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
@@ -10,8 +11,11 @@ import 'package:ssoss_flutter/common/widgets/picker/ssoss_time_picker_bottom_she
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_info_management/store_info_management_components.dart';
+import 'package:ssoss_flutter/features/store/domain/entities/store_info.dart';
+import 'package:ssoss_flutter/features/store/presentation/cubit/store_cubit.dart';
 
 class StoreInfoManagementPage extends StatefulWidget {
   const StoreInfoManagementPage({
@@ -42,26 +46,8 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
   String _closingTime = '00:00';
   StoreContentTone _selectedTone = StoreContentTone.daily;
   final Set<String> _selectedDays = {};
-  final List<String> _menus = [
-    '크림브륄레 커피',
-    '아이스 아메리카노',
-    '프렌치토스트',
-    '크루아상',
-    '벌꿀아이스크림',
-    '카페 라떼',
-    '아이스티',
-  ];
-  final List<String> _keywords = SsossHashtagNormalizer.stripAll([
-    '#을지로카페',
-    '#을지로크루아상',
-    '#을지로베이커리',
-    '#크루아상맛집',
-    '#을지로맛집',
-    '#보니스커피',
-    '#을지로디저트',
-    '#서울카페',
-    '#베이커리추천',
-  ]);
+  final List<String> _menus = [];
+  final List<String> _keywords = [];
   final Map<StoreFacilityType, bool> _facilities = {
     StoreFacilityType.takeout: true,
     StoreFacilityType.reservation: true,
@@ -72,12 +58,28 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
   void initState() {
     super.initState();
     _selectedTab = widget.initialTab;
-    _storeNameController = TextEditingController(text: '보니스 커피');
-    _addressController = TextEditingController(text: '서울 마포구 동교로16길 21');
-    _introController = TextEditingController();
+    final info = context.read<StoreCubit>().state.info;
+    _storeNameController = TextEditingController(text: info.basic.name ?? '');
+    _addressController = TextEditingController(text: info.basic.address ?? '');
+    _introController =
+        TextEditingController(text: info.basic.introduction ?? '');
     _menuController = TextEditingController();
-    _storeStrengthController = TextEditingController();
-    _prohibitedContentController = TextEditingController();
+    _storeStrengthController =
+        TextEditingController(text: info.content.strength ?? '');
+    _prohibitedContentController =
+        TextEditingController(text: info.content.forbidden ?? '');
+    _storeType = info.basic.type?.label;
+    _openingTime = info.operation.openTime ?? '00:00';
+    _closingTime = info.operation.closeTime ?? '00:00';
+    _selectedDays.addAll(info.operation.businessDays.map((day) => day.label));
+    _menus.addAll(info.operation.signatureMenus);
+    _keywords.addAll(info.content.keywords);
+    _facilities[StoreFacilityType.takeout] = info.operation.takeoutAvailable;
+    _facilities[StoreFacilityType.reservation] =
+        info.operation.reservationAvailable;
+    _facilities[StoreFacilityType.parking] = info.operation.parkingAvailable;
+    _selectedTone =
+        info.content.tone?.toPresentationTone() ?? StoreContentTone.daily;
   }
 
   @override
@@ -93,6 +95,13 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
 
   @override
   Widget build(BuildContext context) {
+    final storeState = context.watch<StoreCubit>().state;
+    final isSaving = switch (_selectedTab) {
+      StoreInfoTab.basic => storeState.isSavingBasic,
+      StoreInfoTab.operation => storeState.isSavingOperation,
+      StoreInfoTab.content => storeState.isSavingContent,
+    };
+
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
@@ -116,9 +125,9 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
                 label: '저장하기',
                 size: SsossButtonSize.large,
                 width: double.infinity,
-                height: 56,
                 type: SsossButtonType.primary,
-                onPressed: () => Navigator.of(context).pop(),
+                isLoading: isSaving,
+                onPressed: () => unawaited(_saveSelectedTab()),
               ),
             ),
           ],
@@ -148,8 +157,8 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
           onDayTap: _toggleDay,
           onAddMenu: _addMenu,
           onRemoveMenu: _removeMenu,
-          openingTime: _openingTime,
-          closingTime: _closingTime,
+          openingTime: _timeToDisplay(_openingTime),
+          closingTime: _timeToDisplay(_closingTime),
           onOpeningTimeTap: () {
             unawaited(_showTimePicker(isOpeningTime: true));
           },
@@ -234,14 +243,125 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
       return;
     }
 
+    final apiTime = _timeToApi(selectedTime);
     setState(() {
       if (isOpeningTime) {
-        _openingTime = selectedTime;
+        _openingTime = apiTime;
       } else {
-        _closingTime = selectedTime;
+        _closingTime = apiTime;
       }
     });
   }
+
+  Future<void> _saveSelectedTab() async {
+    try {
+      switch (_selectedTab) {
+        case StoreInfoTab.basic:
+          final type = StoreType.fromLabel(_storeType);
+          if (type == null) {
+            showSsossToast(
+              context,
+              title: '매장 유형을 선택해 주세요',
+              type: SsossToastType.warning,
+            );
+            return;
+          }
+          await context.read<StoreCubit>().saveBasic(
+                StoreBasicInfoInput(
+                  name: _storeNameController.text,
+                  type: type,
+                  address: _addressController.text,
+                  introduction: _introController.text,
+                ),
+              );
+          break;
+        case StoreInfoTab.operation:
+          await context.read<StoreCubit>().saveOperation(
+                StoreOperationInfoInput(
+                  businessDays: [
+                    for (final day in _selectedDays)
+                      if (BusinessDay.fromLabel(day) != null)
+                        BusinessDay.fromLabel(day)!,
+                  ],
+                  openTime: _openingTime == '00:00' ? null : _openingTime,
+                  closeTime: _closingTime == '00:00' ? null : _closingTime,
+                  signatureMenus: _menus,
+                  takeoutAvailable:
+                      _facilities[StoreFacilityType.takeout] ?? false,
+                  reservationAvailable:
+                      _facilities[StoreFacilityType.reservation] ?? false,
+                  parkingAvailable:
+                      _facilities[StoreFacilityType.parking] ?? false,
+                ),
+              );
+          break;
+        case StoreInfoTab.content:
+          await context.read<StoreCubit>().saveContent(
+                StoreContentInfoInput(
+                  strength: _storeStrengthController.text,
+                  keywords: _keywords,
+                  forbidden: _prohibitedContentController.text,
+                  tone: _selectedTone.toDomainTone(),
+                ),
+              );
+          break;
+      }
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } on AppException catch (e) {
+      if (!mounted) return;
+      showSsossToast(
+        context,
+        title: e.message,
+        type: SsossToastType.warning,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      showSsossToast(
+        context,
+        title: '매장 정보를 저장하지 못했습니다.',
+        type: SsossToastType.warning,
+      );
+    }
+  }
+}
+
+String _timeToApi(String value) {
+  final trimmed = value.trim();
+  final apiMatch = RegExp(r'^([01]?\d|2[0-3]):([0-5]\d)$').firstMatch(trimmed);
+  if (apiMatch != null) {
+    final hour = int.parse(apiMatch.group(1)!);
+    final minute = apiMatch.group(2)!;
+    return '${hour.toString().padLeft(2, '0')}:$minute';
+  }
+
+  final koreanMatch =
+      RegExp(r'^(오전|오후)\s*(\d{1,2}):([0-5]\d)$').firstMatch(trimmed);
+  if (koreanMatch == null) return trimmed;
+
+  final period = koreanMatch.group(1)!;
+  var hour = int.parse(koreanMatch.group(2)!);
+  final minute = koreanMatch.group(3)!;
+
+  if (period == '오전' && hour == 12) {
+    hour = 0;
+  } else if (period == '오후' && hour != 12) {
+    hour += 12;
+  }
+
+  return '${hour.toString().padLeft(2, '0')}:$minute';
+}
+
+String _timeToDisplay(String value) {
+  final apiTime = _timeToApi(value);
+  final match = RegExp(r'^([01]\d|2[0-3]):([0-5]\d)$').firstMatch(apiTime);
+  if (match == null || apiTime == '00:00') return apiTime;
+
+  final hour24 = int.parse(match.group(1)!);
+  final minute = match.group(2)!;
+  final period = hour24 < 12 ? '오전' : '오후';
+  final hour12 = hour24 % 12 == 0 ? 12 : hour24 % 12;
+  return '$period ${hour12.toString().padLeft(2, '0')}:$minute';
 }
 
 extension on StoreInfoTab {
@@ -254,6 +374,28 @@ extension on StoreInfoTab {
       case StoreInfoTab.content:
         return '콘텐츠 정보 관리';
     }
+  }
+}
+
+extension StoreContentToneMapper on StoreContentTone {
+  StoreTone toDomainTone() {
+    return switch (this) {
+      StoreContentTone.daily => StoreTone.casual,
+      StoreContentTone.emotional => StoreTone.emotional,
+      StoreContentTone.informative => StoreTone.informative,
+      StoreContentTone.promotional => StoreTone.promotional,
+    };
+  }
+}
+
+extension StoreToneMapper on StoreTone {
+  StoreContentTone toPresentationTone() {
+    return switch (this) {
+      StoreTone.casual => StoreContentTone.daily,
+      StoreTone.emotional => StoreContentTone.emotional,
+      StoreTone.informative => StoreContentTone.informative,
+      StoreTone.promotional => StoreContentTone.promotional,
+    };
   }
 }
 

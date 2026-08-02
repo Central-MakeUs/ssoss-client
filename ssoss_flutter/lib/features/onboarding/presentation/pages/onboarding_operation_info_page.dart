@@ -1,18 +1,23 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:ssoss_flutter/common/widgets/picker/ssoss_time_picker_bottom_sheet.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_toggle.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
+import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_components.dart';
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_store_info_complete_page.dart';
+import 'package:ssoss_flutter/features/store/domain/entities/store_info.dart';
+import 'package:ssoss_flutter/features/store/presentation/cubit/store_cubit.dart';
 
 class OnboardingOperationInfoPage extends StatefulWidget {
   const OnboardingOperationInfoPage({super.key});
@@ -36,8 +41,50 @@ class _OnboardingOperationInfoPageState
     _OnboardingFacilityType.parking: false,
   };
 
-  void _finishOnboarding() {
+  Future<void> _finishOnboarding() async {
+    await context.read<StoreCubit>().completeOnboarding();
+    if (!mounted) return;
     context.go(HomePage.routePath);
+  }
+
+  Future<void> _saveOperationInfo() async {
+    try {
+      final openTime = _openingTime == '00:00' ? null : _openingTime;
+      final closeTime = _closingTime == '00:00' ? null : _closingTime;
+      await context.read<StoreCubit>().saveOperation(
+            StoreOperationInfoInput(
+              businessDays: [
+                for (final day in _selectedDays)
+                  if (BusinessDay.fromLabel(day) != null)
+                    BusinessDay.fromLabel(day)!,
+              ],
+              openTime: openTime,
+              closeTime: closeTime,
+              takeoutAvailable:
+                  _facilities[_OnboardingFacilityType.takeout] ?? false,
+              reservationAvailable:
+                  _facilities[_OnboardingFacilityType.reservation] ?? false,
+              parkingAvailable:
+                  _facilities[_OnboardingFacilityType.parking] ?? false,
+            ),
+          );
+      if (!mounted) return;
+      unawaited(context.push(OnboardingStoreInfoCompletePage.routePath));
+    } on AppException catch (e) {
+      if (!mounted) return;
+      showSsossToast(
+        context,
+        title: e.message,
+        type: SsossToastType.warning,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      showSsossToast(
+        context,
+        title: '매장 운영 정보를 저장하지 못했습니다.',
+        type: SsossToastType.warning,
+      );
+    }
   }
 
   void _toggleDay(String day) {
@@ -57,17 +104,20 @@ class _OnboardingOperationInfoPageState
       return;
     }
 
+    final apiTime = _timeToApi(selected);
     setState(() {
       if (isOpeningTime) {
-        _openingTime = selected;
+        _openingTime = apiTime;
         return;
       }
-      _closingTime = selected;
+      _closingTime = apiTime;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final storeState = context.watch<StoreCubit>().state;
+
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
@@ -111,7 +161,7 @@ class _OnboardingOperationInfoPageState
                           children: [
                             Expanded(
                               child: _TimeBox(
-                                label: _openingTime,
+                                label: _timeToDisplay(_openingTime),
                                 onTap: () => _showTimePicker(
                                   isOpeningTime: true,
                                 ),
@@ -127,7 +177,7 @@ class _OnboardingOperationInfoPageState
                             const SizedBox(width: 8),
                             Expanded(
                               child: _TimeBox(
-                                label: _closingTime,
+                                label: _timeToDisplay(_closingTime),
                                 onTap: () => _showTimePicker(
                                   isOpeningTime: false,
                                 ),
@@ -163,12 +213,9 @@ class _OnboardingOperationInfoPageState
             OnboardingActionBar(
               primaryLabel: '다음',
               showSkipButton: true,
-              onPrimaryTap: () {
-                unawaited(
-                  context.push(OnboardingStoreInfoCompletePage.routePath),
-                );
-              },
-              onSkipTap: _finishOnboarding,
+              isLoading: storeState.isSavingOperation,
+              onPrimaryTap: () => unawaited(_saveOperationInfo()),
+              onSkipTap: () => unawaited(_finishOnboarding()),
             ),
           ],
         ),
@@ -178,6 +225,44 @@ class _OnboardingOperationInfoPageState
 }
 
 const _weekdays = ['월', '화', '수', '목', '금', '토', '일'];
+
+String _timeToApi(String value) {
+  final trimmed = value.trim();
+  final apiMatch = RegExp(r'^([01]?\d|2[0-3]):([0-5]\d)$').firstMatch(trimmed);
+  if (apiMatch != null) {
+    final hour = int.parse(apiMatch.group(1)!);
+    final minute = apiMatch.group(2)!;
+    return '${hour.toString().padLeft(2, '0')}:$minute';
+  }
+
+  final koreanMatch =
+      RegExp(r'^(오전|오후)\s*(\d{1,2}):([0-5]\d)$').firstMatch(trimmed);
+  if (koreanMatch == null) return trimmed;
+
+  final period = koreanMatch.group(1)!;
+  var hour = int.parse(koreanMatch.group(2)!);
+  final minute = koreanMatch.group(3)!;
+
+  if (period == '오전' && hour == 12) {
+    hour = 0;
+  } else if (period == '오후' && hour != 12) {
+    hour += 12;
+  }
+
+  return '${hour.toString().padLeft(2, '0')}:$minute';
+}
+
+String _timeToDisplay(String value) {
+  final apiTime = _timeToApi(value);
+  final match = RegExp(r'^([01]\d|2[0-3]):([0-5]\d)$').firstMatch(apiTime);
+  if (match == null || apiTime == '00:00') return apiTime;
+
+  final hour24 = int.parse(match.group(1)!);
+  final minute = match.group(2)!;
+  final period = hour24 < 12 ? '오전' : '오후';
+  final hour12 = hour24 % 12 == 0 ? 12 : hour24 % 12;
+  return '$period ${hour12.toString().padLeft(2, '0')}:$minute';
+}
 
 class _OperationInfoTitle extends StatelessWidget {
   const _OperationInfoTitle();
