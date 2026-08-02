@@ -81,14 +81,16 @@ class _ContentGeneratingPageState extends State<ContentGeneratingPage> {
                   _goBackToCreate(context);
                   return;
                 }
-                unawaited(_onExitPressed());
+                unawaited(
+                  _onExitPressed(context.read<ContentGeneratingCubit>()),
+                );
               },
               child: Scaffold(
                 backgroundColor: AppColors.white,
                 body: SafeArea(
                   child: state.when(
-                    loading: () => _buildLoading(),
-                    success: (_) => _buildLoading(),
+                    loading: () => _buildLoading(context),
+                    success: (_) => _buildLoading(context),
                     failure: (message) => ContentGenerationFailureView(
                       onBack: () => _goBackToCreate(context),
                       onClose: () => context.go(HomePage.routePath),
@@ -129,11 +131,13 @@ class _ContentGeneratingPageState extends State<ContentGeneratingPage> {
     );
   }
 
-  Widget _buildLoading() {
+  Widget _buildLoading(BuildContext blocContext) {
     return Column(
       children: [
         SsossAppBar.exitOnly(
-          onExit: () => unawaited(_onExitPressed()),
+          onExit: () => unawaited(
+            _onExitPressed(blocContext.read<ContentGeneratingCubit>()),
+          ),
         ),
         const Expanded(child: ContentGeneratingView()),
       ],
@@ -147,12 +151,12 @@ class _ContentGeneratingPageState extends State<ContentGeneratingPage> {
     );
   }
 
-  Future<void> _onExitPressed() async {
+  /// [cubit]은 BlocProvider 하위 context에서 미리 읽어 전달한다.
+  Future<void> _onExitPressed(ContentGeneratingCubit cubit) async {
     if (_isExitModalVisible) {
       return;
     }
 
-    final cubit = context.read<ContentGeneratingCubit>();
     _isExitModalVisible = true;
     final result = await showSsossModal(
       context,
@@ -170,7 +174,9 @@ class _ContentGeneratingPageState extends State<ContentGeneratingPage> {
     _isExitModalVisible = false;
 
     if (result == SsossModalResult.secondary) {
-      cubit.cancel();
+      if (!cubit.isClosed) {
+        cubit.cancel();
+      }
       context.go(HomePage.routePath);
       return;
     }
