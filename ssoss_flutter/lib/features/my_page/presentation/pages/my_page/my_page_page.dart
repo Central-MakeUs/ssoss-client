@@ -2,10 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
+import 'package:ssoss_flutter/features/credit/presentation/cubit/credit_balance_cubit.dart';
+import 'package:ssoss_flutter/features/credit/presentation/cubit/credit_balance_state.dart';
+import 'package:ssoss_flutter/features/credit/presentation/pages/credit_history/credit_history_page.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/my_page/my_page_components.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/settings/settings_page.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_info_management/store_info_management_components.dart';
@@ -13,7 +17,7 @@ import 'package:ssoss_flutter/features/my_page/presentation/pages/store_info_man
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_profile/store_profile_components.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_profile/store_profile_page.dart';
 
-class MyPagePage extends StatelessWidget {
+class MyPagePage extends StatefulWidget {
   const MyPagePage({super.key});
 
   static const String routeName = 'my-page';
@@ -21,6 +25,17 @@ class MyPagePage extends StatelessWidget {
 
   static Widget buildAppBar(BuildContext context) {
     return const SsossAppBar.defaultTitle(title: '마이페이지');
+  }
+
+  @override
+  State<MyPagePage> createState() => _MyPagePageState();
+}
+
+class _MyPagePageState extends State<MyPagePage> {
+  @override
+  void initState() {
+    super.initState();
+    unawaited(context.read<CreditBalanceCubit>().load());
   }
 
   @override
@@ -59,7 +74,7 @@ class MyPagePage extends StatelessWidget {
         children: [
           SafeArea(
             bottom: false,
-            child: buildAppBar(context),
+            child: MyPagePage.buildAppBar(context),
           ),
           Expanded(
             child: SafeArea(
@@ -67,14 +82,20 @@ class MyPagePage extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 3, 16, 32),
                 children: [
-                  MyPageStoreSummaryCard(
-                    storeName: '보니스커피',
-                    storeType: '카페',
-                    credit: 1000,
-                    onStoreTap: () => _openStoreProfile(
-                      context,
-                      StoreProfileStatus.partial,
-                    ),
+                  BlocBuilder<CreditBalanceCubit, CreditBalanceState>(
+                    builder: (context, creditState) {
+                      return MyPageStoreSummaryCard(
+                        storeName: '보니스커피',
+                        storeType: '카페',
+                        credit: creditState.balance,
+                        isCreditLoading: creditState.isLoading,
+                        onStoreTap: () => _openStoreProfile(
+                          context,
+                          StoreProfileStatus.partial,
+                        ),
+                        onDetailTap: () => _openCreditHistory(context),
+                      );
+                    },
                   ),
                   const SizedBox(height: 32),
                   StoreInfoManagementSection(items: storeInfoItems),
@@ -85,6 +106,16 @@ class MyPagePage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _openCreditHistory(BuildContext context) {
+    unawaited(
+      Navigator.of(context).push(
+        CupertinoPageRoute<void>(
+          builder: (_) => const CreditHistoryPage(),
+        ),
       ),
     );
   }

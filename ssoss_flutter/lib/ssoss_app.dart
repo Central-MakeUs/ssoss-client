@@ -31,6 +31,9 @@ import 'features/auth/presentation/bloc/login_bloc.dart';
 import 'features/auth/presentation/bloc/login_event.dart';
 import 'features/auth/presentation/bloc/login_state.dart';
 import 'features/content/presentation/content_providers.dart';
+import 'features/credit/domain/usecases/get_credit_balance_usecase.dart';
+import 'features/credit/presentation/credit_providers.dart';
+import 'features/credit/presentation/cubit/credit_balance_cubit.dart';
 import 'router/app_router.dart';
 
 class SsossApp extends StatefulWidget {
@@ -223,6 +226,7 @@ class SsossAppScope extends StatelessWidget {
         ...NetworkProviders.build(),
         ...AuthProviders.build(),
         ...ContentProviders.build(),
+        ...CreditProviders.build(),
         ...AppVersionProviders.build(),
       ],
       child: BlocProvider<LoginBloc>(
@@ -241,7 +245,12 @@ class SsossAppScope extends StatelessWidget {
           create: (context) => AppVersionCubit(
             checkAppVersion: context.read<CheckAppVersionUseCase>(),
           ),
-          child: const SsossApp(),
+          child: BlocProvider<CreditBalanceCubit>(
+            create: (context) => CreditBalanceCubit(
+              getCreditBalance: context.read<GetCreditBalanceUseCase>(),
+            ),
+            child: const SsossApp(),
+          ),
         ),
       ),
     );

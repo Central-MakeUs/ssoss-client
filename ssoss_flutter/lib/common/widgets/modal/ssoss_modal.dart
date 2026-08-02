@@ -17,6 +17,7 @@ class SsossModal extends StatelessWidget {
     required this.title,
     super.key,
     this.message,
+    this.content,
     this.onClose,
     this.primaryButtonLabel = 'Button',
     this.primaryButtonColor = AppColors.primary400,
@@ -43,6 +44,7 @@ class SsossModal extends StatelessWidget {
     this.gap = 24,
     this.headerGap = 2,
     this.messageGap = 7,
+    this.contentGap = 20,
     this.actionGap = 8,
     this.titleStyle,
     this.messageStyle,
@@ -50,6 +52,8 @@ class SsossModal extends StatelessWidget {
 
   final String title;
   final String? message;
+  /// 타이틀·메시지와 액션 버튼 사이에 들어가는 커스텀 본문.
+  final Widget? content;
   final VoidCallback? onClose;
   final String primaryButtonLabel;
   final Color primaryButtonColor;
@@ -76,6 +80,7 @@ class SsossModal extends StatelessWidget {
   final double gap;
   final double headerGap;
   final double messageGap;
+  final double contentGap;
   final double actionGap;
   final TextStyle? titleStyle;
   final TextStyle? messageStyle;
@@ -117,6 +122,10 @@ class SsossModal extends StatelessWidget {
             titleStyle: titleStyle,
             messageStyle: messageStyle,
           ),
+          if (content != null) ...[
+            SizedBox(height: contentGap),
+            content!,
+          ],
           SizedBox(height: gap),
           actions ?? _buildDefaultActions(),
         ],
@@ -172,6 +181,7 @@ Future<SsossModalResult?> showSsossModal(
   BuildContext context, {
   required String title,
   String? message,
+  Widget? content,
   String primaryButtonLabel = 'Button',
   Color primaryButtonColor = AppColors.primary400,
   Color primaryButtonTextColor = AppColors.white,
@@ -199,6 +209,7 @@ Future<SsossModalResult?> showSsossModal(
   double gap = 24,
   double headerGap = 2,
   double messageGap = 7,
+  double contentGap = 20,
   double actionGap = 8,
   TextStyle? titleStyle,
   TextStyle? messageStyle,
@@ -231,6 +242,7 @@ Future<SsossModalResult?> showSsossModal(
         return SsossModal(
           title: title,
           message: message,
+          content: content,
           primaryButtonLabel: primaryButtonLabel,
           primaryButtonColor: primaryButtonColor,
           primaryButtonTextColor: primaryButtonTextColor,
@@ -254,6 +266,7 @@ Future<SsossModalResult?> showSsossModal(
           gap: gap,
           headerGap: headerGap,
           messageGap: messageGap,
+          contentGap: contentGap,
           actionGap: actionGap,
           titleStyle: titleStyle,
           messageStyle: messageStyle,
