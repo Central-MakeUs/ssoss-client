@@ -22,7 +22,7 @@ import 'package:ssoss_flutter/features/content/presentation/widgets/home/content
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_detail/content_detail_page.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 
-/// 콘텐츠 생성 탭의 첫 화면 본문. 상단 AppBar·하단 네비게이션은 [HomePage]에서 제공한다.
+/// 콘텐츠 생성 탭의 첫 화면 본문. 상단 헤더·하단 네비게이션은 [HomePage]에서 제공한다.
 class ContentPage extends StatefulWidget {
   const ContentPage({
     super.key,
