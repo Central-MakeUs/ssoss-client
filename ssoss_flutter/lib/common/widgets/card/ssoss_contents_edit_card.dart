@@ -46,7 +46,6 @@ class SsossContentsEditCard extends StatefulWidget {
     this.enabled = true,
     this.readOnly = false,
     this.width,
-    this.minHeight = 129,
     this.padding,
     this.borderRadius,
     this.backgroundColor,
@@ -74,7 +73,6 @@ class SsossContentsEditCard extends StatefulWidget {
   final bool enabled;
   final bool readOnly;
   final double? width;
-  final double minHeight;
   final EdgeInsetsGeometry? padding;
   final BorderRadiusGeometry? borderRadius;
   final Color? backgroundColor;
@@ -487,7 +485,6 @@ class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
     return Container(
       key: _editorKey,
       width: widget.width,
-      constraints: BoxConstraints(minHeight: widget.minHeight),
       padding: widget.padding ?? const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: widget.backgroundColor ?? AppColors.white,
