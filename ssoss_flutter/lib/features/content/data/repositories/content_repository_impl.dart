@@ -16,6 +16,7 @@ import 'package:ssoss_flutter/features/content/domain/entities/content_channel_c
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_detail.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_list_page.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/content_sort.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/generation_channel_result.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/generation_detail.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/saved_content.dart';
@@ -90,11 +91,13 @@ class ContentRepositoryImpl implements ContentRepository {
   @override
   Future<ContentListPage> listContents({
     UploadChannel? channel,
+    ContentSort sort = ContentSort.latest,
     int page = 0,
     int size = 20,
   }) async {
     final model = await _remote.listContents(
       channel: channel == null ? null : ContentCreateApiMapper.channel(channel),
+      sort: ContentCreateApiMapper.sort(sort),
       page: page,
       size: size,
     );

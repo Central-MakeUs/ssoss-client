@@ -1,3 +1,4 @@
+import 'package:ssoss_flutter/features/content/domain/entities/content_sort.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/generation_status.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
@@ -8,6 +9,7 @@ import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.da
 /// 서버 스펙: channels BLOG / INSTAGRAM / DAANGN_BIZ / THREADS
 /// purpose INFORMATION / EVENT_DISCOUNT / NEW_MENU_PROMOTION
 /// tone CASUAL / EMOTIONAL / INFORMATIVE / PROMOTIONAL
+/// sort LATEST / OLDEST
 class ContentCreateApiMapper {
   const ContentCreateApiMapper._();
 
@@ -16,6 +18,11 @@ class ContentCreateApiMapper {
         UploadChannel.instagram => 'INSTAGRAM',
         UploadChannel.carrot => 'DAANGN_BIZ',
         UploadChannel.thread => 'THREADS',
+      };
+
+  static String sort(ContentSort value) => switch (value) {
+        ContentSort.latest => 'LATEST',
+        ContentSort.oldest => 'OLDEST',
       };
 
   static UploadChannel channelFromApi(String value) => switch (value) {

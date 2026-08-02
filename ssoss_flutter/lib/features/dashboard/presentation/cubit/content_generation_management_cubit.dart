@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ssoss_flutter/features/content/domain/entities/content_list_item.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/content_sort.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/delete_content_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/list_contents_usecase.dart';
@@ -37,12 +38,28 @@ class ContentGenerationManagementCubit
   }
 
   Future<void> selectFilter(String filter) async {
-    if (filter == state.selectedFilter) {
+    if (filter == state.selectedFilter || state.isLoading) {
       return;
     }
     emit(
       state.copyWith(
         selectedFilter: filter,
+        openedMenuItemId: null,
+      ),
+    );
+    await _load(page: 0, replace: true);
+  }
+
+  Future<void> toggleSort() async {
+    if (state.isLoading) {
+      return;
+    }
+    final nextSort = state.sort == ContentSort.latest
+        ? ContentSort.oldest
+        : ContentSort.latest;
+    emit(
+      state.copyWith(
+        sort: nextSort,
         openedMenuItemId: null,
       ),
     );
@@ -106,6 +123,7 @@ class ContentGenerationManagementCubit
     try {
       final result = await _listContents(
         channel: state.filterChannel,
+        sort: state.sort,
         page: page,
         size: pageSize,
       );

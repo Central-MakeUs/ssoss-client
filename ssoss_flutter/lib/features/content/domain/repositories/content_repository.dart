@@ -2,6 +2,7 @@ import 'package:ssoss_flutter/features/content/domain/entities/content_channel_c
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_detail.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_list_page.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/content_sort.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/generation_channel_result.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/generation_detail.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/saved_content.dart';
@@ -28,9 +29,12 @@ abstract class ContentRepository {
     required GenerationChannelResult channel,
   });
 
-  /// 저장 콘텐츠 목록을 조회한다. 정렬은 저장 시각 최신순 고정.
+  /// 저장 콘텐츠 목록을 조회한다.
+  ///
+  /// [sort] 기본값은 [ContentSort.latest](저장 시각 최신순).
   Future<ContentListPage> listContents({
     UploadChannel? channel,
+    ContentSort sort = ContentSort.latest,
     int page = 0,
     int size = 20,
   });

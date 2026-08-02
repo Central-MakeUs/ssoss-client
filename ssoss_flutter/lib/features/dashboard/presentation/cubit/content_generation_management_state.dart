@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:ssoss_flutter/features/content/domain/entities/content_sort.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/content_generation_management_components.dart';
 
@@ -13,6 +14,7 @@ abstract class ContentGenerationManagementState
   const factory ContentGenerationManagementState({
     @Default(<ContentManagementItem>[]) List<ContentManagementItem> items,
     @Default('전체') String selectedFilter,
+    @Default(ContentSort.latest) ContentSort sort,
     @Default(0) int totalCount,
     @Default(0) int page,
     @Default(false) bool hasNext,
@@ -29,5 +31,10 @@ abstract class ContentGenerationManagementState
         '당근' => UploadChannel.carrot,
         '스레드' => UploadChannel.thread,
         _ => null,
+      };
+
+  String get sortLabel => switch (sort) {
+        ContentSort.latest => '최신순',
+        ContentSort.oldest => '오래된순',
       };
 }
