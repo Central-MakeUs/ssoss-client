@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
+import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_page.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/content_generation_management_page.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/my_page/my_page_page.dart';
@@ -17,7 +19,7 @@ class ContentCreationTab extends StatelessWidget {
   final bool isActive;
 
   static Widget buildAppBar(BuildContext context) {
-    return SsossAppBar.withBell(title: '', onBellTap: () {});
+    return const _HomeLogoHeader();
   }
 
   @override
@@ -41,6 +43,34 @@ class DashboardTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ContentGenerationManagementPage(isActive: isActive);
+  }
+}
+
+class _HomeLogoHeader extends StatelessWidget {
+  const _HomeLogoHeader();
+
+  static const double _logoSize = 36;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.white,
+      child: SizedBox(
+        height: SsossAppBar.height,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Image.asset(
+              AppAssets.appIcon,
+              width: _logoSize,
+              height: _logoSize,
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
