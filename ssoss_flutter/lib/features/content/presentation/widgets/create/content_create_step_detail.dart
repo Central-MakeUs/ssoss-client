@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_checkbox.dart';
@@ -10,6 +11,9 @@ import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_create_cubit.dart';
 
 class ContentCreateStepDetail extends StatefulWidget {
+  static const int maxHighlightLength = 1000;
+  static const int maxForbiddenLength = 800;
+
   const ContentCreateStepDetail({
     required this.highlight,
     required this.forbidden,
@@ -107,6 +111,7 @@ class _ContentCreateStepDetailState extends State<ContentCreateStepDetail> {
         _MultilineInput(
           controller: _highlightController,
           hintText: '콘텐츠에 들어갈 내용을 작성해주세요.',
+          maxLength: ContentCreateStepDetail.maxHighlightLength,
           onChanged: widget.onHighlightChanged,
         ),
         const SizedBox(height: 36),
@@ -127,6 +132,7 @@ class _ContentCreateStepDetailState extends State<ContentCreateStepDetail> {
         _MultilineInput(
           controller: _forbiddenController,
           hintText: '콘텐츠에 들어가면 안되는 내용을 작성해주세요.',
+          maxLength: ContentCreateStepDetail.maxForbiddenLength,
           onChanged: widget.onForbiddenChanged,
         ),
         const SizedBox(height: 36),
@@ -205,11 +211,13 @@ class _MultilineInput extends StatelessWidget {
   const _MultilineInput({
     required this.controller,
     required this.hintText,
+    required this.maxLength,
     required this.onChanged,
   });
 
   final TextEditingController controller;
   final String hintText;
+  final int maxLength;
   final ValueChanged<String> onChanged;
 
   @override
@@ -223,6 +231,7 @@ class _MultilineInput extends StatelessWidget {
         expands: true,
         controller: controller,
         hintText: hintText,
+        inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
         onChanged: onChanged,
       ),
     );
