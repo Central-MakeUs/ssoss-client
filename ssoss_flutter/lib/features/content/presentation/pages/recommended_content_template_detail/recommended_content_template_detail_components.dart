@@ -155,8 +155,8 @@ class ContentTemplatePreviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final padding = isExampleOpen
-        ? const EdgeInsets.all(16)
-        : const EdgeInsets.fromLTRB(16, 20, 16, 8);
+        ? const EdgeInsets.fromLTRB(16, 20, 16, 20)
+        : const EdgeInsets.fromLTRB(16, 20, 16, 0);
 
     return Container(
       width: double.infinity,
@@ -170,6 +170,7 @@ class ContentTemplatePreviewCard extends StatelessWidget {
         children: [
           ContentTemplatePreviewText(text: previewText),
           const ContentTemplateDetailDivider(),
+          const SizedBox(height: 8),
           ContentTemplateExampleAccordion(
             isOpen: isExampleOpen,
             onTap: onExampleTap,
@@ -223,6 +224,8 @@ class ContentTemplateExampleAccordion extends StatelessWidget {
         if (isOpen) ...[
           const SizedBox(height: 12),
           const ContentTemplateExampleContent(),
+        ] else ...[
+          const SizedBox(height: 8),
         ],
       ],
     );
