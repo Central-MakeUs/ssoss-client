@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:ssoss_flutter/core/constants/writing_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
-import 'package:ssoss_flutter/features/content/domain/entities/content_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.dart';
 
@@ -105,7 +105,7 @@ class ContentOtherChannelCreateCubit
     return ContentCreateInput(
       channels: List<UploadChannel>.unmodifiable(state.selected),
       purpose: UploadPurpose.informative,
-      tone: ContentTone.daily,
+      tone: WritingTone.daily,
       highlight: 'source-content',
       sourceContentId: _sourceContentId,
     );

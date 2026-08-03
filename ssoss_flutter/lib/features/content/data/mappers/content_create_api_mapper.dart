@@ -1,5 +1,5 @@
+import 'package:ssoss_flutter/core/constants/writing_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_sort.dart';
-import 'package:ssoss_flutter/features/content/domain/entities/content_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/generation_status.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.dart';
@@ -49,20 +49,15 @@ class ContentCreateApiMapper {
         _ => throw ArgumentError('Unknown purpose: $value'),
       };
 
-  static String tone(ContentTone value) => switch (value) {
-        ContentTone.daily => 'CASUAL',
-        ContentTone.emotional => 'EMOTIONAL',
-        ContentTone.informational => 'INFORMATIVE',
-        ContentTone.promotional => 'PROMOTIONAL',
-      };
+  static String tone(WritingTone value) => value.code;
 
-  static ContentTone toneFromApi(String value) => switch (value) {
-        'CASUAL' || 'DAILY' => ContentTone.daily,
-        'EMOTIONAL' => ContentTone.emotional,
-        'INFORMATIVE' || 'INFORMATIONAL' => ContentTone.informational,
-        'PROMOTIONAL' => ContentTone.promotional,
-        _ => throw ArgumentError('Unknown tone: $value'),
-      };
+  static WritingTone toneFromApi(String value) {
+    final tone = WritingTone.fromCode(value);
+    if (tone == null) {
+      throw ArgumentError('Unknown tone: $value');
+    }
+    return tone;
+  }
 
   static GenerationStatus statusFromApi(String value) => switch (value) {
         'IN_PROGRESS' => GenerationStatus.inProgress,

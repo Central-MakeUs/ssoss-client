@@ -175,6 +175,47 @@ void main() {
     expect(find.byType(SsossSelectOption), findsNothing);
   });
 
+  testWidgets('keeps search results and shows them again on refocus',
+      (tester) async {
+    final focusNode = FocusNode();
+    addTearDown(focusNode.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SsossAddressSearchField(
+            focusNode: focusNode,
+            searchService: _MockKakaoLocalSearchService(
+              (query, {cancelToken}) async {
+                return const ['서울 마포구 동교로16길 21'];
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(find.byType(TextField), '동교로');
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump();
+
+    expect(find.byType(SsossSelectOption), findsOneWidget);
+    expect(focusNode.hasFocus, isTrue);
+
+    focusNode.unfocus();
+    await tester.pump();
+
+    expect(focusNode.hasFocus, isFalse);
+    expect(find.byType(SsossSelectOption), findsNothing);
+
+    focusNode.requestFocus();
+    await tester.pump();
+    await tester.pump();
+
+    expect(focusNode.hasFocus, isTrue);
+    expect(find.byType(SsossSelectOption), findsOneWidget);
+  });
+
   testWidgets('hides dropdown when query is cleared', (tester) async {
     await pumpAddressSearchField(
       tester,

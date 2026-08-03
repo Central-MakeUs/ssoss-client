@@ -3,14 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:ssoss_flutter/common/widgets/input/ssoss_address_search_field.dart';
 
-import 'package:ssoss_flutter/common/widgets/input/ssoss_select_field.dart';
-import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
-import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
+import 'package:ssoss_flutter/common/widgets/store_info/store_basic_info_form.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
-import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_components.dart';
@@ -33,7 +30,7 @@ class _OnboardingStoreInfoPageState extends State<OnboardingStoreInfoPage> {
   late final TextEditingController _storeNameController;
   late final TextEditingController _addressController;
   late final TextEditingController _introController;
-  StoreType? _storeType;
+  String? _storeType;
 
   @override
   void initState() {
@@ -51,50 +48,9 @@ class _OnboardingStoreInfoPageState extends State<OnboardingStoreInfoPage> {
     super.dispose();
   }
 
-  Future<void> _showStoreTypePicker() async {
-    final selected = await showModalBottomSheet<StoreType>(
-      context: context,
-      backgroundColor: AppColors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppText(
-                  '매장 유형',
-                  style: AppTextStyles.h5.copyWith(
-                    color: AppColors.neutral800,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ...StoreType.values.map(
-                  (type) => _StoreTypeOption(
-                    label: type.label,
-                    isSelected: type == _storeType,
-                    onTap: () => Navigator.of(context).pop(type),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-
-    if (selected != null) {
-      setState(() => _storeType = selected);
-    }
-  }
-
   Future<void> _saveBasicInfo() async {
-    final storeType = _storeType;
-    if (storeType == null) {
+    final type = StoreType.fromLabel(_storeType);
+    if (type == null) {
       showSsossToast(
         context,
         title: '매장 유형을 선택해 주세요',
@@ -107,7 +63,7 @@ class _OnboardingStoreInfoPageState extends State<OnboardingStoreInfoPage> {
       await context.read<StoreCubit>().saveBasic(
             StoreBasicInfoInput(
               name: _storeNameController.text,
-              type: storeType,
+              type: type,
               address: _addressController.text,
               introduction: _introController.text,
             ),
@@ -163,43 +119,15 @@ class _OnboardingStoreInfoPageState extends State<OnboardingStoreInfoPage> {
                 children: [
                   const _StoreInfoTitle(),
                   const SizedBox(height: 28),
-                  _OnboardingFormField(
-                    label: '매장명',
-                    required: true,
-                    child: SsossTextField(
-                      controller: _storeNameController,
-                      hintText: '매장명을 입력해주세요',
-                      textInputAction: TextInputAction.next,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  _OnboardingFormField(
-                    label: '매장 유형',
-                    required: true,
-                    child: SsossSelectField(
-                      value: _storeType?.label,
-                      placeholder: '선택해주세요',
-                      onTap: () => unawaited(_showStoreTypePicker()),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  _OnboardingFormField(
-                    label: '주소',
-                    required: true,
-                    child: SsossAddressSearchField(
-                      controller: _addressController,
-                      hintText: '주소를 입력해주세요',
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  _OnboardingFormField(
-                    label: '매장 한 줄 소개',
-                    optional: true,
-                    child: SsossTextField(
-                      controller: _introController,
-                      hintText: '입력해주세요',
-                      textInputAction: TextInputAction.done,
-                    ),
+                  StoreBasicInfoForm(
+                    storeNameController: _storeNameController,
+                    addressController: _addressController,
+                    introController: _introController,
+                    storeType: _storeType,
+                    markRequiredFields: true,
+                    onStoreTypeSelected: (value) {
+                      setState(() => _storeType = value);
+                    },
                   ),
                 ],
               ),
@@ -236,88 +164,6 @@ class _StoreInfoTitle extends StatelessWidget {
           ),
           const TextSpan(text: '를 입력해주세요'),
         ],
-      ),
-    );
-  }
-}
-
-class _OnboardingFormField extends StatelessWidget {
-  const _OnboardingFormField({
-    required this.label,
-    required this.child,
-    this.required = false,
-    this.optional = false,
-  });
-
-  final String label;
-  final Widget child;
-  final bool required;
-  final bool optional;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppText(
-              label,
-              style: AppTextStyles.h5.copyWith(color: const Color(0xFF151515)),
-            ),
-            if (required) ...[
-              const SizedBox(width: 2),
-              AppText(
-                '*',
-                style: AppTextStyles.h5.copyWith(
-                  color: AppColors.primary600,
-                ),
-              ),
-            ],
-            if (optional) ...[
-              const SizedBox(width: 8),
-              AppText(
-                '선택',
-                style: AppTextStyles.b6.copyWith(
-                  color: AppColors.neutral400,
-                ),
-              ),
-            ],
-          ],
-        ),
-        const SizedBox(height: 8),
-        child,
-      ],
-    );
-  }
-}
-
-class _StoreTypeOption extends StatelessWidget {
-  const _StoreTypeOption({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        height: 48,
-        alignment: Alignment.centerLeft,
-        child: AppText(
-          label,
-          style: AppTextStyles.b4.copyWith(
-            color: isSelected ? AppColors.primary500 : AppColors.neutral800,
-          ),
-        ),
       ),
     );
   }

@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:ssoss_flutter/common/widgets/input/ssoss_select_field.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_select_option.dart';
-import 'package:ssoss_flutter/core/colors/app_colors.dart';
 
-class SsossSelectDropdown extends StatelessWidget {
+class SsossSelectDropdown extends StatefulWidget {
   const SsossSelectDropdown({
     required this.options,
     super.key,
@@ -54,77 +53,113 @@ class SsossSelectDropdown extends StatelessWidget {
   final Color? pressedOptionBackgroundColor;
   final Color? selectedOptionTextColor;
 
+  static const double optionsGap = SsossSelectOptionsPanel.gap;
+
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SsossSelectField(
-          value: value,
-          placeholder: placeholder,
-          isOpen: isOpen,
-          enabled: enabled,
-          onTap: onFieldTap,
-          width: width,
-          borderColor: fieldBorderColor,
-          fillColor: fieldFillColor,
-          valueColor: fieldValueColor,
-          placeholderColor: fieldPlaceholderColor,
-          iconColor: fieldIconColor,
-        ),
-        if (isOpen) ...[
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: optionBorderColor ?? AppColors.neutral200,
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: _buildOptions(),
+  State<SsossSelectDropdown> createState() => _SsossSelectDropdownState();
+}
+
+class _SsossSelectDropdownState extends State<SsossSelectDropdown> {
+  final LayerLink _layerLink = LayerLink();
+  final GlobalKey _fieldKey = GlobalKey();
+  OverlayEntry? _overlayEntry;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncOverlay());
+  }
+
+  @override
+  void didUpdateWidget(covariant SsossSelectDropdown oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncOverlay());
+  }
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    super.dispose();
+  }
+
+  void _syncOverlay() {
+    if (!mounted) {
+      return;
+    }
+
+    if (widget.isOpen && widget.enabled) {
+      if (_overlayEntry == null) {
+        _overlayEntry = OverlayEntry(builder: _buildOverlay);
+        Overlay.of(context).insert(_overlayEntry!);
+      } else {
+        _overlayEntry!.markNeedsBuild();
+      }
+      return;
+    }
+
+    _removeOverlay();
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  Widget _buildOverlay(BuildContext context) {
+    final fieldBox = _fieldKey.currentContext?.findRenderObject() as RenderBox?;
+    final fieldSize = fieldBox?.size;
+    final width = widget.width ?? fieldSize?.width;
+    final fieldHeight = fieldSize?.height ?? 44;
+
+    return CompositedTransformFollower(
+      link: _layerLink,
+      showWhenUnlinked: false,
+      offset: Offset(0, fieldHeight + SsossSelectOptionsPanel.gap),
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: Material(
+          color: Colors.transparent,
+          child: SizedBox(
+            width: width,
+            child: SsossSelectOptionsPanel(
+              options: widget.options,
+              selectedIndex: widget.selectedIndex,
+              highlightedIndex: widget.highlightedIndex,
+              width: widget.width,
+              onOptionSelected: widget.onOptionSelected,
+              optionBorderColor: widget.optionBorderColor,
+              optionBackgroundColor: widget.optionBackgroundColor,
+              optionTextColor: widget.optionTextColor,
+              selectedOptionBackgroundColor:
+                  widget.selectedOptionBackgroundColor,
+              hoverOptionBackgroundColor: widget.hoverOptionBackgroundColor,
+              pressedOptionBackgroundColor: widget.pressedOptionBackgroundColor,
+              selectedOptionTextColor: widget.selectedOptionTextColor,
             ),
           ),
-        ],
-      ],
+        ),
+      ),
     );
   }
 
-  List<Widget> _buildOptions() {
-    return List<Widget>.generate(options.length, (index) {
-      return Padding(
-        padding: EdgeInsets.only(top: index == 0 ? 0 : 8),
-        child: SsossSelectOption(
-          value: options[index],
-          state: _optionState(index),
-          width: width,
-          onTap: onOptionSelected == null
-              ? null
-              : () => onOptionSelected?.call(index),
-          backgroundColor: optionBackgroundColor,
-          textColor: optionTextColor,
-          selectedBackgroundColor: selectedOptionBackgroundColor,
-          hoverBackgroundColor: hoverOptionBackgroundColor,
-          pressedBackgroundColor: pressedOptionBackgroundColor,
-          selectedTextColor: selectedOptionTextColor,
-        ),
-      );
-    });
-  }
-
-  SsossSelectOptionState _optionState(int index) {
-    if (index == selectedIndex) {
-      return SsossSelectOptionState.selected;
-    }
-
-    if (index == highlightedIndex) {
-      return SsossSelectOptionState.hover;
-    }
-
-    return SsossSelectOptionState.normal;
+  @override
+  Widget build(BuildContext context) {
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: SsossSelectField(
+        key: _fieldKey,
+        value: widget.value,
+        placeholder: widget.placeholder,
+        isOpen: widget.isOpen,
+        enabled: widget.enabled,
+        onTap: widget.onFieldTap,
+        width: widget.width,
+        borderColor: widget.fieldBorderColor,
+        fillColor: widget.fieldFillColor,
+        valueColor: widget.fieldValueColor,
+        placeholderColor: widget.fieldPlaceholderColor,
+        iconColor: widget.fieldIconColor,
+      ),
+    );
   }
 }

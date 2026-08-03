@@ -1,4 +1,4 @@
-import 'package:ssoss_flutter/features/content/domain/entities/content_tone.dart';
+import 'package:ssoss_flutter/core/constants/writing_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.dart';
 
@@ -17,7 +17,7 @@ class ContentCreateInput {
 
   final List<UploadChannel> channels;
   final UploadPurpose purpose;
-  final ContentTone tone;
+  final WritingTone tone;
   final String highlight;
   final String? forbidden;
   final List<String> keywords;

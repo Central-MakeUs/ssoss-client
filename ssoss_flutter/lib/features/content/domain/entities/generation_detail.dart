@@ -1,4 +1,4 @@
-import 'package:ssoss_flutter/features/content/domain/entities/content_tone.dart';
+import 'package:ssoss_flutter/core/constants/writing_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/generation_channel_result.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/generation_status.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.dart';
@@ -17,7 +17,7 @@ class GenerationDetail {
   final int generationId;
   final GenerationStatus status;
   final UploadPurpose purpose;
-  final ContentTone tone;
+  final WritingTone tone;
   final List<String> keywords;
   final List<GenerationChannelResult> results;
 }

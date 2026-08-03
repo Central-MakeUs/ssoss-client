@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_text_button.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_square_selection_button.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
+import 'package:ssoss_flutter/core/constants/writing_tone.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
-import 'package:ssoss_flutter/features/content/domain/entities/content_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.dart';
 
 class ContentCreateStepContent extends StatelessWidget {
@@ -20,9 +19,9 @@ class ContentCreateStepContent extends StatelessWidget {
   });
 
   final UploadPurpose? selectedPurpose;
-  final ContentTone? selectedTone;
+  final WritingTone? selectedTone;
   final ValueChanged<UploadPurpose> onSelectPurpose;
-  final ValueChanged<ContentTone> onSelectTone;
+  final ValueChanged<WritingTone> onSelectTone;
 
   static const _purposes = <({UploadPurpose value, String label, String icon})>[
     (
@@ -39,30 +38,6 @@ class ContentCreateStepContent extends StatelessWidget {
       value: UploadPurpose.newMenuPromo,
       label: '신메뉴/홍보',
       icon: AppAssets.icCoffee,
-    ),
-  ];
-
-  static const _tones =
-      <({ContentTone value, String label, String description})>[
-    (
-      value: ContentTone.daily,
-      label: '일상형',
-      description: '자연스럽고 편안한 말투',
-    ),
-    (
-      value: ContentTone.emotional,
-      label: '감성형',
-      description: '분위기와 감정을 살린 말투',
-    ),
-    (
-      value: ContentTone.informational,
-      label: '정보형',
-      description: '메뉴, 재료, 특징을 중심으로 설명하는 말투',
-    ),
-    (
-      value: ContentTone.promotional,
-      label: '홍보형',
-      description: '장점과 방문 유도를 강조하는 말투',
     ),
   ];
 
@@ -117,17 +92,17 @@ class ContentCreateStepContent extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        for (var i = 0; i < _tones.length; i++) ...[
+        for (var i = 0; i < WritingTone.values.length; i++) ...[
           if (i > 0) const SizedBox(height: 12),
           SsossTextButton(
-            title: _tones[i].label,
-            subtitle: _tones[i].description,
+            title: WritingTone.values[i].label,
+            subtitle: WritingTone.values[i].description,
             width: double.infinity,
             height: 56,
-            type: selectedTone == _tones[i].value
+            type: selectedTone == WritingTone.values[i]
                 ? SsossTextButtonType.selected
                 : SsossTextButtonType.normal,
-            onTap: () => onSelectTone(_tones[i].value),
+            onTap: () => onSelectTone(WritingTone.values[i]),
           ),
         ],
       ],

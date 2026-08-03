@@ -1,3 +1,5 @@
+import 'package:ssoss_flutter/core/constants/writing_tone.dart';
+
 enum StoreInfoStatus {
   notWritten,
   completed;
@@ -77,24 +79,7 @@ enum BusinessDay {
   }
 }
 
-enum StoreTone {
-  casual('CASUAL', '일상형'),
-  emotional('EMOTIONAL', '감성형'),
-  informative('INFORMATIVE', '정보형'),
-  promotional('PROMOTIONAL', '홍보형');
 
-  const StoreTone(this.code, this.label);
-
-  final String code;
-  final String label;
-
-  static StoreTone? fromCode(String? code) {
-    for (final tone in StoreTone.values) {
-      if (tone.code == code) return tone;
-    }
-    return null;
-  }
-}
 
 class StoreInfo {
   const StoreInfo({
@@ -169,7 +154,7 @@ class StoreContentInfo {
   final String? strength;
   final List<String> keywords;
   final String? forbidden;
-  final StoreTone? tone;
+  final WritingTone? tone;
   final StoreInfoStatus status;
 }
 
@@ -218,5 +203,5 @@ class StoreContentInfoInput {
   final String? strength;
   final List<String> keywords;
   final String? forbidden;
-  final StoreTone? tone;
+  final WritingTone? tone;
 }

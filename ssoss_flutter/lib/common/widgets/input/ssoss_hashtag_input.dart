@@ -45,8 +45,16 @@ class SsossHashtagNormalizer {
     ];
   }
 
-  static String display(String value) =>
-      value.startsWith('#') ? value : '#$value';
+  /// [showHashPrefix]가 false면 `#` 없이 원문만 반환한다.
+  static String display(
+    String value, {
+    bool showHashPrefix = true,
+  }) {
+    if (!showHashPrefix) {
+      return value.startsWith('#') ? value.substring(1) : value;
+    }
+    return value.startsWith('#') ? value : '#$value';
+  }
 }
 
 /// 삭제 가능한 해시태그 칩.
@@ -54,12 +62,14 @@ class SsossHashtagChip extends StatelessWidget {
   const SsossHashtagChip({
     required this.keyword,
     required this.onRemove,
+    this.showHashPrefix = true,
     super.key,
   });
 
   /// `#` 없는 키워드.
   final String keyword;
   final VoidCallback onRemove;
+  final bool showHashPrefix;
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +84,10 @@ class SsossHashtagChip extends StatelessWidget {
         children: [
           Flexible(
             child: Text(
-              SsossHashtagNormalizer.display(keyword),
+              SsossHashtagNormalizer.display(
+                keyword,
+                showHashPrefix: showHashPrefix,
+              ),
               style: AppTextStyles.b5.copyWith(color: AppColors.neutral500),
               softWrap: true,
             ),
@@ -111,6 +124,7 @@ class SsossHashtagInput extends StatefulWidget {
     this.title,
     this.limitHint,
     this.showHeader = false,
+    this.showHashPrefix = true,
     super.key,
   });
 
@@ -121,6 +135,9 @@ class SsossHashtagInput extends StatefulWidget {
   final String? title;
   final String? limitHint;
   final bool showHeader;
+
+  /// 칩에 `#` 접두사를 표시할지 여부. 기본값 true.
+  final bool showHashPrefix;
 
   static const double inputRowHeight = 44;
 
@@ -221,6 +238,7 @@ class _SsossHashtagInputState extends State<SsossHashtagInput> {
                       ),
                       child: SsossHashtagChip(
                         keyword: tag,
+                        showHashPrefix: widget.showHashPrefix,
                         onRemove: () => widget.onRemove(tag),
                       ),
                     ),

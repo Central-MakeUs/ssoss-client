@@ -44,11 +44,12 @@ class _SsossAddressSearchFieldState extends State<SsossAddressSearchField> {
   late final bool _ownsController;
   late final bool _ownsFocusNode;
 
-  final GlobalKey _dropdownKey = GlobalKey();
+  final LayerLink _layerLink = LayerLink();
+  final GlobalKey _fieldKey = GlobalKey();
+  OverlayEntry? _overlayEntry;
 
   CancelToken? _cancelToken;
   List<String> _addresses = const [];
-  bool _hasFocus = false;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -58,15 +59,19 @@ class _SsossAddressSearchFieldState extends State<SsossAddressSearchField> {
     _ownsController = widget.controller == null;
     _ownsFocusNode = widget.focusNode == null;
     _controller = widget.controller ?? TextEditingController();
+    if (widget.initialValue != null && _controller.text.isEmpty) {
+      _controller.text = widget.initialValue!;
+    }
     _focusNode = widget.focusNode ?? FocusNode();
     _searchService = widget.searchService ?? KakaoLocalSearchService();
     _debouncer = Debouncer();
-    _hasFocus = _focusNode.hasFocus;
     _focusNode.addListener(_handleFocusChange);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncOverlay());
   }
 
   @override
   void dispose() {
+    _removeOverlay();
     _debouncer.dispose();
     _cancelToken?.cancel();
     _focusNode.removeListener(_handleFocusChange);
@@ -80,13 +85,80 @@ class _SsossAddressSearchFieldState extends State<SsossAddressSearchField> {
   }
 
   void _handleFocusChange() {
-    if (_hasFocus == _focusNode.hasFocus) {
+    if (!_focusNode.hasFocus) {
+      _removeOverlay();
+      if (mounted) {
+        setState(() {});
+      }
       return;
     }
 
-    setState(() {
-      _hasFocus = _focusNode.hasFocus;
-    });
+    if (mounted) {
+      setState(() {});
+    }
+    _syncOverlay();
+  }
+
+  void _scheduleSyncOverlay() {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncOverlay());
+  }
+
+  void _syncOverlay() {
+    if (!mounted) {
+      return;
+    }
+
+    if (_showDropdown) {
+      if (_overlayEntry == null) {
+        _overlayEntry = OverlayEntry(builder: _buildOverlay);
+        Overlay.of(context).insert(_overlayEntry!);
+      } else {
+        _overlayEntry!.markNeedsBuild();
+      }
+      return;
+    }
+
+    _removeOverlay();
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  Widget _buildOverlay(BuildContext context) {
+    final fieldBox = _fieldKey.currentContext?.findRenderObject() as RenderBox?;
+    final fieldSize = fieldBox?.size;
+    final width = widget.width ?? fieldSize?.width;
+    final fieldHeight = fieldSize?.height ?? SsossTextField.defaultHeight;
+
+    return CompositedTransformFollower(
+      link: _layerLink,
+      showWhenUnlinked: false,
+      offset: Offset(0, fieldHeight + SsossSelectOptionsPanel.gap),
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: TextFieldTapRegion(
+          child: Material(
+            color: Colors.transparent,
+            child: SizedBox(
+              width: width,
+              child: SsossSelectOptionsPanel(
+                options: List<String>.of(_addresses),
+                width: widget.width,
+                onOptionSelected: (index) {
+                  final addresses = List<String>.of(_addresses);
+                  if (index < 0 || index >= addresses.length) {
+                    return;
+                  }
+                  _handleOptionSelected(addresses[index]);
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _handleChanged(String value) {
@@ -108,6 +180,7 @@ class _SsossAddressSearchFieldState extends State<SsossAddressSearchField> {
         _isLoading = false;
         _errorMessage = null;
       });
+      _scheduleSyncOverlay();
       return;
     }
 
@@ -120,6 +193,7 @@ class _SsossAddressSearchFieldState extends State<SsossAddressSearchField> {
       _errorMessage = null;
       _addresses = const [];
     });
+    _scheduleSyncOverlay();
 
     try {
       final results = await _searchService.searchAddresses(
@@ -136,10 +210,7 @@ class _SsossAddressSearchFieldState extends State<SsossAddressSearchField> {
         _isLoading = false;
         _errorMessage = null;
       });
-
-      if (results.isNotEmpty) {
-        _ensureDropdownVisible();
-      }
+      _scheduleSyncOverlay();
     } on DioException catch (e) {
       if (CancelToken.isCancel(e) ||
           !mounted ||
@@ -152,6 +223,7 @@ class _SsossAddressSearchFieldState extends State<SsossAddressSearchField> {
         _isLoading = false;
         _errorMessage = SsossAddressSearchField.searchErrorMessage;
       });
+      _scheduleSyncOverlay();
     } catch (_) {
       if (!mounted || !identical(_cancelToken, cancelToken)) {
         return;
@@ -162,104 +234,69 @@ class _SsossAddressSearchFieldState extends State<SsossAddressSearchField> {
         _isLoading = false;
         _errorMessage = SsossAddressSearchField.searchErrorMessage;
       });
+      _scheduleSyncOverlay();
     }
   }
 
   void _handleOptionSelected(String address) {
-    _controller.text = address;
-    _controller.selection = TextSelection.collapsed(offset: address.length);
+    _debouncer.cancel();
+    _cancelToken?.cancel();
+    _cancelToken = null;
+
+    _controller.value = TextEditingValue(
+      text: address,
+      selection: TextSelection.collapsed(offset: address.length),
+    );
 
     setState(() {
       _addresses = const [];
       _isLoading = false;
       _errorMessage = null;
     });
-  }
-
-  void _ensureDropdownVisible() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!mounted || !_showDropdown) {
-        return;
-      }
-
-      final dropdownContext = _dropdownKey.currentContext;
-      if (dropdownContext == null) {
-        return;
-      }
-
-      await Scrollable.ensureVisible(
-        dropdownContext,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
-      );
-    });
+    _removeOverlay();
+    _focusNode.unfocus();
   }
 
   bool get _showDropdown {
-    return _hasFocus && _addresses.isNotEmpty && _errorMessage == null;
+    return widget.enabled &&
+        _focusNode.hasFocus &&
+        _addresses.isNotEmpty &&
+        _errorMessage == null;
   }
 
   @override
   Widget build(BuildContext context) {
     final hasError = _errorMessage != null;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SsossTextField(
-          controller: _controller,
-          focusNode: _focusNode,
-          hintText: widget.hintText,
-          showSearchIcon: true,
-          showLoadingIndicator: _isLoading,
-          hasError: hasError,
-          enabled: widget.enabled,
-          width: widget.width,
-          onChanged: _handleChanged,
-        ),
-        if (hasError) ...[
-          const SizedBox(height: 6),
-          AppText(
-            _errorMessage!,
-            style: AppTextStyles.b6.copyWith(
-              color: AppColors.error500,
-            ),
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SsossTextField(
+            key: _fieldKey,
+            controller: _controller,
+            focusNode: _focusNode,
+            hintText: widget.hintText,
+            showSearchIcon: true,
+            showLoadingIndicator: _isLoading,
+            hasError: hasError,
+            enabled: widget.enabled,
+            width: widget.width,
+            onChanged: _handleChanged,
           ),
-        ],
-        if (_showDropdown) ...[
-          Container(
-            key: _dropdownKey,
-            margin: const EdgeInsets.only(top: 6, bottom: 6),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: AppColors.neutral200,
+          if (hasError) ...[
+            const SizedBox(height: 6),
+            AppText(
+              _errorMessage!,
+              style: AppTextStyles.b6.copyWith(
+                color: AppColors.error500,
               ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: _buildOptions(),
-            ),
-          ),
+          ],
         ],
-      ],
+      ),
     );
-  }
-
-  List<Widget> _buildOptions() {
-    return List<Widget>.generate(_addresses.length, (index) {
-      return Padding(
-        padding: EdgeInsets.only(top: index == 0 ? 0 : 8),
-        child: SsossSelectOption(
-          value: _addresses[index],
-          width: widget.width,
-          onTap: () => _handleOptionSelected(_addresses[index]),
-        ),
-      );
-    });
   }
 }
