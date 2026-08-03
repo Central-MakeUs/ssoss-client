@@ -444,17 +444,15 @@ class _StoreInfoTimeInput extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
         child: SizedBox(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              child: AppText(
-                text,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.b4.copyWith(
-                  color: isPlaceholder
-                      ? AppColors.neutral400
-                      : AppColors.neutral800,
-                ),
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            child: AppText(
+              text,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.b4.copyWith(
+                color:
+                    isPlaceholder ? AppColors.neutral400 : AppColors.neutral800,
               ),
             ),
           ),
