@@ -55,9 +55,52 @@ class _SsossTimePickerBottomSheetState
   static const List<int> _hours = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
   static const List<int> _minutes = [0, 10, 20, 30, 40, 50];
 
-  int _periodIndex = 0;
-  int _hourIndex = 2;
-  int _minuteIndex = 3;
+  late int _periodIndex;
+  late int _hourIndex;
+  late int _minuteIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    final source =
+        widget.isOpeningTime ? widget.openingTime : widget.closingTime;
+    _setIndicesFromTime(source);
+  }
+
+  void _setIndicesFromTime(String? raw) {
+    if (raw == null || StoreTimeFormat.isUnset(raw)) {
+      // 미선택 시 오픈/마감 각각 일반적인 기본값.
+      if (widget.isOpeningTime) {
+        _periodIndex = 0; // 오전
+        _hourIndex = _hours.indexOf(9); // 09:00
+        _minuteIndex = 0;
+      } else {
+        _periodIndex = 1; // 오후
+        _hourIndex = _hours.indexOf(6); // 18:00
+        _minuteIndex = 0;
+      }
+      return;
+    }
+
+    final api = StoreTimeFormat.toApi(raw);
+    final parts = api.split(':');
+    if (parts.length != 2) {
+      _setIndicesFromTime(null);
+      return;
+    }
+
+    final hour24 = int.tryParse(parts[0]) ?? 0;
+    final minute = int.tryParse(parts[1]) ?? 0;
+
+    _periodIndex = hour24 < 12 ? 0 : 1;
+    final hour12 = hour24 % 12 == 0 ? 12 : hour24 % 12;
+    final hourIdx = _hours.indexOf(hour12);
+    _hourIndex = hourIdx >= 0 ? hourIdx : 0;
+
+    final snapped = ((minute + 5) ~/ 10 * 10) % 60;
+    final minuteIdx = _minutes.indexOf(snapped);
+    _minuteIndex = minuteIdx >= 0 ? minuteIdx : 0;
+  }
 
   String get _selectedTime {
     final period = _periods[_periodIndex];
@@ -236,7 +279,7 @@ class _SsossTimePickerWheel extends StatelessWidget {
   }
 }
 
-class _SsossPickerColumn extends StatelessWidget {
+class _SsossPickerColumn extends StatefulWidget {
   const _SsossPickerColumn({
     required this.values,
     required this.selectedIndex,
@@ -250,27 +293,46 @@ class _SsossPickerColumn extends StatelessWidget {
   final TextAlign textAlign;
 
   @override
+  State<_SsossPickerColumn> createState() => _SsossPickerColumnState();
+}
+
+class _SsossPickerColumnState extends State<_SsossPickerColumn> {
+  late final FixedExtentScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = FixedExtentScrollController(
+      initialItem: widget.selectedIndex,
+    );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return CupertinoPicker.builder(
-      scrollController: FixedExtentScrollController(
-        initialItem: selectedIndex,
-      ),
+      scrollController: _scrollController,
       itemExtent: 33,
       diameterRatio: 1.4,
       magnification: 1,
       squeeze: 1,
       useMagnifier: false,
       selectionOverlay: const SizedBox.shrink(),
-      onSelectedItemChanged: onSelectedItemChanged,
-      childCount: values.length,
+      onSelectedItemChanged: widget.onSelectedItemChanged,
+      childCount: widget.values.length,
       itemBuilder: (context, index) {
         return Align(
-          alignment: textAlign == TextAlign.right
+          alignment: widget.textAlign == TextAlign.right
               ? Alignment.centerRight
               : Alignment.centerLeft,
           child: AppText(
-            values[index],
-            textAlign: textAlign,
+            widget.values[index],
+            textAlign: widget.textAlign,
             style: _styleFor(index),
           ),
         );
@@ -279,11 +341,11 @@ class _SsossPickerColumn extends StatelessWidget {
   }
 
   TextStyle _styleFor(int index) {
-    if (index == selectedIndex) {
+    if (index == widget.selectedIndex) {
       return AppTextStyles.h4.copyWith(color: AppColors.black);
     }
 
-    final distance = (index - selectedIndex).abs();
+    final distance = (index - widget.selectedIndex).abs();
     return (distance == 1 ? AppTextStyles.h5 : AppTextStyles.h6).copyWith(
       color: AppColors.neutral300,
     );
