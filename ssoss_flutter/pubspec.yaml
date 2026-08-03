@@ -1,7 +1,7 @@
 name: ssoss_flutter
 description: "쏘쓰 서비스 플러터 모바일 어플리케이션"
 publish_to: 'none'
-version: 1.0.0+4
+version: 1.0.0+5
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
