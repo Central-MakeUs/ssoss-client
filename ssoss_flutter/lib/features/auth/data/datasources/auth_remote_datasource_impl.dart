@@ -6,6 +6,7 @@ import '../models/auth_token_model.dart';
 import '../models/signup_request_model.dart';
 import '../models/social_login_request.dart';
 import '../models/social_login_response_model.dart';
+import '../models/withdrawal_request_model.dart';
 import 'auth_remote_datasource.dart';
 
 class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
@@ -86,10 +87,11 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   }
 
   @override
-  Future<void> withdraw() async {
+  Future<void> withdraw({WithdrawalRequestModel? request}) async {
     try {
       await _dio.delete<void>(
         _membersMePath,
+        data: request?.toJson(),
         options: Options(
           validateStatus: (status) =>
               status != null && status >= 200 && status < 300,

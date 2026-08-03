@@ -9,6 +9,7 @@ import '../../domain/entities/auth_session.dart';
 import '../../domain/entities/member_status.dart';
 import '../../domain/entities/social_provider.dart';
 import '../../domain/entities/user.dart';
+import '../../domain/entities/withdrawal_reason.dart';
 import '../../domain/usecases/login_with_apple_usecase.dart';
 import '../../domain/usecases/login_with_naver_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
@@ -190,7 +191,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     return completer.future;
   }
 
-  Future<void> performWithdraw() {
+  Future<void> performWithdraw({WithdrawalReason? reason}) {
     final pending = _pendingWithdraw;
     if (pending != null && !pending.isCompleted) {
       return pending.future;
@@ -198,7 +199,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
     final completer = Completer<void>();
     _pendingWithdraw = completer;
-    add(const LoginEvent.withdrawRequested());
+    add(LoginEvent.withdrawRequested(reason: reason));
     return completer.future;
   }
 
@@ -215,7 +216,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     }
 
     try {
-      await _withdraw();
+      await _withdraw(reason: event.reason);
       _lastAuthenticatedUser = null;
       emit(const LoginState.withdrawComplete());
       completer?.complete();

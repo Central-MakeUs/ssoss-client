@@ -1,12 +1,16 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../domain/entities/withdrawal_reason.dart';
+
 part 'login_event.freezed.dart';
 
 @freezed
 sealed class LoginEvent with _$LoginEvent {
   const factory LoginEvent.naverLoginRequested() = NaverLoginRequested;
   const factory LoginEvent.appleLoginRequested() = AppleLoginRequested;
-  const factory LoginEvent.withdrawRequested() = WithdrawRequested;
+  const factory LoginEvent.withdrawRequested({
+    WithdrawalReason? reason,
+  }) = WithdrawRequested;
   const factory LoginEvent.sessionRestoreRequested() = SessionRestoreRequested;
   const factory LoginEvent.logoutRequested() = LogoutRequested;
 

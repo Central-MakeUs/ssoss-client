@@ -202,7 +202,7 @@
 - [x] **F-1** 탈퇴 사유 페이지 (`WithdrawReasonPage`)
 - [x] **F-2** 설정 모달 → 사유 페이지 → 완료 화면 → 로그인
 - [x] **F-3** 모달에서 직접 `performWithdraw` 제거
-- [ ] **F-4~F-7** 탈퇴 사유 저장 API 연동 (서버 스펙 대기) — 상세는 naver-login Follow-up
+- [x] **F-4~F-7** 탈퇴 사유 저장 API 연동 — 상세는 naver-login Follow-up
 
 ---
 

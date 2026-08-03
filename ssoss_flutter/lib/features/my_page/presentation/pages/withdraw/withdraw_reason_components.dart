@@ -1,23 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_radio.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
+import 'package:ssoss_flutter/features/auth/domain/entities/withdrawal_reason.dart';
 
 class WithdrawReasonOption {
-  const WithdrawReasonOption(this.label);
+  const WithdrawReasonOption(this.label, this.reasonCode);
 
   final String label;
+  final WithdrawalReasonCode reasonCode;
 }
 
 const List<WithdrawReasonOption> kWithdrawReasonOptions = [
-  WithdrawReasonOption('원하는 기능이 없어요'),
-  WithdrawReasonOption('콘텐츠 품질이 기대와 달랐어요'),
-  WithdrawReasonOption('사용 방법이 어려웠어요'),
-  WithdrawReasonOption('자주 사용하지 않게 되었어요'),
-  WithdrawReasonOption('기타'),
+  WithdrawReasonOption('원하는 기능이 없어요', WithdrawalReasonCode.noFeature),
+  WithdrawReasonOption(
+    '콘텐츠 품질이 기대와 달랐어요',
+    WithdrawalReasonCode.contentQuality,
+  ),
+  WithdrawReasonOption('사용 방법이 어려웠어요', WithdrawalReasonCode.hardToUse),
+  WithdrawReasonOption('자주 사용하지 않게 되었어요', WithdrawalReasonCode.lowUsage),
+  WithdrawReasonOption('기타', WithdrawalReasonCode.other),
 ];
 
 const int kWithdrawReasonOtherIndex = 4;
@@ -88,6 +94,11 @@ class WithdrawReasonOptionList extends StatelessWidget {
                 hintText: '의견을 자유롭게 작성해주세요.',
                 hintColor: AppColors.neutral500,
                 height: 68,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(
+                    WithdrawalReason.detailMaxLength,
+                  ),
+                ],
               ),
             ),
           ],

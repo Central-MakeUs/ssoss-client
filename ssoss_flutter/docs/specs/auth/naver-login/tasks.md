@@ -229,10 +229,10 @@
 - [x] **F-1** 탈퇴 사유 페이지 추가 (`WithdrawReasonPage` — `SsossRadio` + 기타 `SsossTextField`)
 - [x] **F-2** 설정 모달 「탈퇴하기」→ 사유 페이지 → `performWithdraw` → `/withdraw/complete` → 2초 후 로그인
 - [x] **F-3** 모달에서 직접 `performWithdraw` 호출 제거 (사유 페이지로 이동만)
-- [ ] **F-4** 탈퇴 사유 저장 API 서버 스펙 확정 (`reasonCode` / `reasonDetail`, `tdd.md` 6장 초안)
-- [ ] **F-5** `WithdrawRequestModel`(가칭) + `AuthRemoteDatasource.withdraw(reason…)` 시그니처 확장
-- [ ] **F-6** `AuthRepository` / `WithdrawUseCase` / `LoginEvent.withdrawRequested` 에 사유 전달
-- [ ] **F-7** `WithdrawReasonPage` 선택값 → API 매핑 후 전송 (로딩·실패 UX 기존 유지)
+- [x] **F-4** 탈퇴 사유 저장 API 서버 스펙 확정 (`reasonCode` / `reasonDetail`, `DELETE /v1/members/me` body)
+- [x] **F-5** `WithdrawalRequestModel` + `AuthRemoteDatasource.withdraw(request…)` 시그니처 확장
+- [x] **F-6** `AuthRepository` / `WithdrawUseCase` / `LoginEvent.withdrawRequested` 에 사유 전달
+- [x] **F-7** `WithdrawReasonPage` 선택값 → API 매핑 후 전송 (`reasonDetail` 최대 500자, 로딩·실패 UX 기존 유지)
 
 ---
 
@@ -284,4 +284,5 @@
 | 2026-07-15 | OpenAPI 확정: `/v1/social-logins/{provider}`, `/v1/tokens`, `/v1/logout`. 탈퇴는 Phase 8 분리 | Resolved |
 | 2026-07-22 | Phase 10: PENDING signup 플로우, Apple 이메일 SharedPreferences | Superseded |
 | 2026-07-27 | 소셜 로그인 body에 `refreshToken` 필수 추가 (naver refresh / apple authorizationCode). Apple 이메일 SharedPreferences 저장·복원 제거 | Resolved |
-| 2026-07-27 | 탈퇴 사유·완료 UI 반영. 사유 저장 API는 서버 스펙 대기 (Follow-up F-4~F-7) | Open |
+| 2026-07-27 | 탈퇴 사유·완료 UI 반영. 사유 저장 API는 서버 스펙 대기 (Follow-up F-4~F-7) | Superseded |
+| 2026-08-03 | 탈퇴 사유 API 연동 (`reasonCode` / `reasonDetail`, 기타 입력 최대 500자) | Resolved |

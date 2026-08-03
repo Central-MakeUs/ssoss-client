@@ -7,6 +7,7 @@ import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/features/auth/domain/entities/withdrawal_reason.dart';
 import 'package:ssoss_flutter/features/auth/presentation/bloc/login_bloc.dart';
 import 'package:ssoss_flutter/features/auth/presentation/bloc/login_event.dart';
 import 'package:ssoss_flutter/features/auth/presentation/bloc/login_state.dart';
@@ -36,14 +37,37 @@ class _WithdrawReasonPageState extends State<WithdrawReasonPage> {
     super.dispose();
   }
 
+  WithdrawalReason? _buildReason() {
+    final index = _selectedIndex;
+    if (index == null) {
+      return null;
+    }
+
+    final option = kWithdrawReasonOptions[index];
+    if (option.reasonCode != WithdrawalReasonCode.other) {
+      return WithdrawalReason(code: option.reasonCode);
+    }
+
+    final detail = _otherController.text.trim();
+    return WithdrawalReason(
+      code: option.reasonCode,
+      detail: detail.isEmpty ? null : detail,
+    );
+  }
+
   Future<void> _onWithdraw() async {
     if (_isSubmitting || _selectedIndex == null) {
       return;
     }
 
+    final reason = _buildReason();
+    if (reason == null) {
+      return;
+    }
+
     setState(() => _isSubmitting = true);
     try {
-      await context.read<LoginBloc>().performWithdraw();
+      await context.read<LoginBloc>().performWithdraw(reason: reason);
     } catch (_) {
       if (mounted) {
         setState(() => _isSubmitting = false);
