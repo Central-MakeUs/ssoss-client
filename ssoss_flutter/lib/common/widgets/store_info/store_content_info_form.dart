@@ -44,7 +44,6 @@ class StoreContentInfoForm extends StatelessWidget {
         SsossHashtagInput(
           hashtags: keywords,
           hintText: 'ex) 디저트맛집',
-          showHashPrefix: false,
           onAdd: onAddKeyword,
           onRemove: onRemoveKeyword,
         ),
