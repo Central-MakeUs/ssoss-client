@@ -5,33 +5,29 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
-import 'package:ssoss_flutter/features/my_page/presentation/pages/store_info_management/store_info_management_components.dart';
+import 'package:ssoss_flutter/common/widgets/store_info/store_info_components.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_info_management/store_info_management_page.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_profile/store_profile_components.dart';
 import 'package:ssoss_flutter/features/store/domain/entities/store_info.dart';
 import 'package:ssoss_flutter/features/store/presentation/cubit/store_cubit.dart';
 
 class StoreProfilePage extends StatelessWidget {
-  const StoreProfilePage({
-    super.key,
-    this.status = StoreProfileStatus.partial,
-  });
+  const StoreProfilePage({super.key});
 
   static const String routeName = 'store-profile';
   static const String routePath = '/store-profile';
 
-  final StoreProfileStatus status;
-
   @override
   Widget build(BuildContext context) {
     final storeInfo = context.watch<StoreCubit>().state.info;
+    final status = StoreProfileStatus.fromStoreInfo(storeInfo);
 
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
         child: Column(
           children: [
-            _StoreProfileAppBar(status: status),
+            const _StoreProfileAppBar(),
             Expanded(
               child: status == StoreProfileStatus.empty
                   ? _StoreProfileEmptyBody(
@@ -67,11 +63,7 @@ class StoreProfilePage extends StatelessWidget {
 }
 
 class _StoreProfileAppBar extends StatelessWidget {
-  const _StoreProfileAppBar({
-    required this.status,
-  });
-
-  final StoreProfileStatus status;
+  const _StoreProfileAppBar();
 
   @override
   Widget build(BuildContext context) {

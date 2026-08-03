@@ -1,4 +1,4 @@
-import 'package:ssoss_flutter/features/content/domain/entities/content_tone.dart';
+import 'package:ssoss_flutter/core/constants/writing_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.dart';
 
@@ -19,12 +19,7 @@ class ContentLabelMapper {
         UploadPurpose.newMenuPromo => '신메뉴/홍보',
       };
 
-  static String tone(ContentTone value) => switch (value) {
-        ContentTone.daily => '일상형',
-        ContentTone.emotional => '감성형',
-        ContentTone.informational => '정보형',
-        ContentTone.promotional => '홍보형',
-      };
+  static String tone(WritingTone value) => value.label;
 
   /// enum 고정 순서로 정렬한 채널 목록.
   static List<UploadChannel> orderedChannels(List<UploadChannel> channels) {

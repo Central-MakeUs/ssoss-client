@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'package:ssoss_flutter/features/content/domain/entities/content_tone.dart';
+import 'package:ssoss_flutter/core/constants/writing_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.dart';
 
@@ -20,7 +20,7 @@ abstract class ContentCreateState with _$ContentCreateState {
     @Default(ContentCreateStep.channel) ContentCreateStep step,
     @Default(<UploadChannel>[]) List<UploadChannel> channels,
     UploadPurpose? purpose,
-    ContentTone? tone,
+    WritingTone? tone,
     @Default('') String highlight,
     @Default('') String forbidden,
     @Default(<String>[]) List<String> keywords,

@@ -1,5 +1,5 @@
 import 'package:ssoss_flutter/features/content/domain/entities/content_channel_content.dart';
-import 'package:ssoss_flutter/features/content/domain/entities/content_tone.dart';
+import 'package:ssoss_flutter/core/constants/writing_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.dart';
 
 /// 저장 콘텐츠 상세.
@@ -14,7 +14,7 @@ class ContentDetail {
 
   final int contentId;
   final UploadPurpose purpose;
-  final ContentTone tone;
+  final WritingTone tone;
   final List<String> keywords;
   final List<ContentChannelContent> contents;
 }

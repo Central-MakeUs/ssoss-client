@@ -1,3 +1,4 @@
+import 'package:ssoss_flutter/core/constants/writing_tone.dart';
 import 'package:ssoss_flutter/features/store/domain/entities/store_info.dart';
 
 class StoreInfoResponseModel {
@@ -153,7 +154,7 @@ class StoreContentInfoResponseModel {
         strength: strength,
         keywords: keywords,
         forbidden: forbidden,
-        tone: StoreTone.fromCode(tone),
+        tone: WritingTone.fromCode(tone),
         status: StoreInfoStatus.fromCode(status),
       );
 }

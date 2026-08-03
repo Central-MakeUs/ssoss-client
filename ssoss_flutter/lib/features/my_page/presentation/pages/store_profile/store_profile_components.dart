@@ -11,7 +11,19 @@ import 'package:ssoss_flutter/features/store/domain/entities/store_info.dart';
 enum StoreProfileStatus {
   empty,
   partial,
-  completed,
+  completed;
+
+  static StoreProfileStatus fromStoreInfo(StoreInfo info) {
+    if (!info.hasAnyWrittenInfo) {
+      return StoreProfileStatus.empty;
+    }
+    final completed = info.basic.status.isCompleted &&
+        info.operation.status.isCompleted &&
+        info.content.status.isCompleted;
+    return completed
+        ? StoreProfileStatus.completed
+        : StoreProfileStatus.partial;
+  }
 }
 
 class StoreProfileEmptyCard extends StatelessWidget {
@@ -312,15 +324,21 @@ class StoreContentInfoBlock extends StatelessWidget {
           value: info.forbidden ?? '',
         ),
         const SizedBox(height: 29),
-        StoreProfileInfoRow(
+        StoreProfileToneRow(
           label: '콘텐츠\n작성 톤',
-          value: info.tone?.label ?? '',
-          emphasizeFirstLine: true,
+          title: info.tone?.label ?? '',
+          description: info.tone?.description ?? '',
         ),
       ],
     );
   }
 }
+
+/// 라벨 길이와 무관하게 시작 x를 맞추기 위한 고정 컬럼 폭
+const double _kStoreProfileLabelColumnWidth = 80;
+
+/// 라벨과 값 사이의 간격
+const double _kStoreProfileLabelValueGap = 16;
 
 class StoreProfileTagRow extends StatelessWidget {
   const StoreProfileTagRow({
@@ -338,12 +356,13 @@ class StoreProfileTagRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 76,
+          width: _kStoreProfileLabelColumnWidth,
           child: AppText(
             label,
             style: AppTextStyles.h6.copyWith(color: AppColors.neutral400),
           ),
         ),
+        const SizedBox(width: _kStoreProfileLabelValueGap),
         Expanded(
           child: Wrap(
             spacing: 8,
@@ -362,7 +381,7 @@ class StoreProfileTagRow extends StatelessWidget {
                   child: AppText(
                     tag,
                     style: AppTextStyles.b5.copyWith(
-                      color: AppColors.neutral600,
+                      color: AppColors.neutral500,
                     ),
                   ),
                 ),
@@ -379,12 +398,10 @@ class StoreProfileInfoRow extends StatelessWidget {
     required this.label,
     required this.value,
     super.key,
-    this.emphasizeFirstLine = false,
   });
 
   final String label;
   final String value;
-  final bool emphasizeFirstLine;
 
   @override
   Widget build(BuildContext context) {
@@ -394,28 +411,75 @@ class StoreProfileInfoRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 76,
+          width: _kStoreProfileLabelColumnWidth,
           child: AppText(
             label,
             style: AppTextStyles.h6.copyWith(color: AppColors.neutral400),
           ),
         ),
+        const SizedBox(width: _kStoreProfileLabelValueGap),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (var index = 0; index < lines.length; index++)
+              for (final line in lines)
                 AppText(
-                  lines[index],
-                  style: (emphasizeFirstLine && index == 0
-                          ? AppTextStyles.h6
-                          : index == 1 && emphasizeFirstLine
-                              ? AppTextStyles.b5
-                              : AppTextStyles.b4)
-                      .copyWith(
-                    color: index == 1 && emphasizeFirstLine
-                        ? AppColors.neutral600
-                        : AppColors.neutral800,
+                  line,
+                  style: AppTextStyles.b4.copyWith(
+                    color: AppColors.neutral800,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class StoreProfileToneRow extends StatelessWidget {
+  const StoreProfileToneRow({
+    required this.label,
+    required this.title,
+    required this.description,
+    super.key,
+  });
+
+  final String label;
+  final String title;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: _kStoreProfileLabelColumnWidth,
+          child: AppText(
+            label,
+            style: AppTextStyles.h6.copyWith(color: AppColors.neutral400),
+          ),
+        ),
+        const SizedBox(width: _kStoreProfileLabelValueGap),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (title.isNotEmpty)
+                AppText(
+                  title,
+                  style: AppTextStyles.h6.copyWith(
+                    color: AppColors.neutral800,
+                  ),
+                ),
+              if (title.isNotEmpty && description.isNotEmpty)
+                const SizedBox(height: 4),
+              if (description.isNotEmpty)
+                AppText(
+                  description,
+                  style: AppTextStyles.b5.copyWith(
+                    color: AppColors.neutral600,
                   ),
                 ),
             ],
@@ -443,7 +507,7 @@ class StoreProfileFacilityRow extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width: 76,
+          width: _kStoreProfileLabelColumnWidth,
           child: Row(
             children: [
               SvgPicture.asset(
@@ -465,6 +529,7 @@ class StoreProfileFacilityRow extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(width: _kStoreProfileLabelValueGap),
         AppText(
           value,
           style: AppTextStyles.b4.copyWith(color: AppColors.neutral800),

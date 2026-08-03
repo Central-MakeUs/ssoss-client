@@ -3,19 +3,44 @@ import 'package:flutter/material.dart';
 
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
+import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
+import 'package:ssoss_flutter/utils/store_time_format.dart';
 
 class SsossTimePickerBottomSheet extends StatefulWidget {
-  const SsossTimePickerBottomSheet({super.key});
+  const SsossTimePickerBottomSheet({
+    required this.isOpeningTime,
+    this.openingTime,
+    this.closingTime,
+    super.key,
+  });
 
-  static Future<String?> show(BuildContext context) {
+  /// 오픈 시간 선택 여부. false면 마감 시간 선택.
+  final bool isOpeningTime;
+
+  /// 현재 저장된 오픈 시간 (`HH:mm` 또는 `오전/오후 hh:mm`).
+  final String? openingTime;
+
+  /// 현재 저장된 마감 시간 (`HH:mm` 또는 `오전/오후 hh:mm`).
+  final String? closingTime;
+
+  static Future<String?> show(
+    BuildContext context, {
+    required bool isOpeningTime,
+    String? openingTime,
+    String? closingTime,
+  }) {
     return showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: AppColors.black.withValues(alpha: 0.3),
-      builder: (context) => const SsossTimePickerBottomSheet(),
+      builder: (context) => SsossTimePickerBottomSheet(
+        isOpeningTime: isOpeningTime,
+        openingTime: openingTime,
+        closingTime: closingTime,
+      ),
     );
   }
 
@@ -39,6 +64,23 @@ class _SsossTimePickerBottomSheetState
     final hour = _hours[_hourIndex].toString().padLeft(2, '0');
     final minute = _minutes[_minuteIndex].toString().padLeft(2, '0');
     return '$period $hour:$minute';
+  }
+
+  void _onConfirm() {
+    final selected = _selectedTime;
+    final opening = widget.isOpeningTime ? selected : widget.openingTime;
+    final closing = widget.isOpeningTime ? widget.closingTime : selected;
+
+    if (!StoreTimeFormat.isValidRange(opening, closing)) {
+      showSsossToast(
+        context,
+        title: '유효하지 않은 영업 시간입니다.',
+        type: SsossToastType.warning,
+      );
+      return;
+    }
+
+    Navigator.of(context).pop(selected);
   }
 
   @override
@@ -92,7 +134,7 @@ class _SsossTimePickerBottomSheetState
                 size: SsossButtonSize.large,
                 width: double.infinity,
                 height: 56,
-                onPressed: () => Navigator.of(context).pop(_selectedTime),
+                onPressed: _onConfirm,
                 backgroundColor: AppColors.primary400,
                 foregroundColor: AppColors.white,
                 textStyle: AppTextStyles.h5,

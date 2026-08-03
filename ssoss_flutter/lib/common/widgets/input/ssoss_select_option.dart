@@ -88,3 +88,89 @@ class SsossSelectOption extends StatelessWidget {
     }
   }
 }
+
+/// 선택 드롭다운 / 주소 검색 공통 옵션 패널.
+class SsossSelectOptionsPanel extends StatelessWidget {
+  const SsossSelectOptionsPanel({
+    required this.options,
+    super.key,
+    this.selectedIndex,
+    this.highlightedIndex,
+    this.width,
+    this.onOptionSelected,
+    this.optionBorderColor,
+    this.optionBackgroundColor,
+    this.optionTextColor,
+    this.selectedOptionBackgroundColor,
+    this.hoverOptionBackgroundColor,
+    this.pressedOptionBackgroundColor,
+    this.selectedOptionTextColor,
+  });
+
+  final List<String> options;
+  final int? selectedIndex;
+  final int? highlightedIndex;
+  final double? width;
+  final ValueChanged<int>? onOptionSelected;
+  final Color? optionBorderColor;
+  final Color? optionBackgroundColor;
+  final Color? optionTextColor;
+  final Color? selectedOptionBackgroundColor;
+  final Color? hoverOptionBackgroundColor;
+  final Color? pressedOptionBackgroundColor;
+  final Color? selectedOptionTextColor;
+
+  static const double gap = 6;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: optionBorderColor ?? AppColors.neutral200,
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var index = 0; index < options.length; index++)
+            Padding(
+              padding: EdgeInsets.only(top: index == 0 ? 0 : 8),
+              child: Listener(
+                behavior: HitTestBehavior.opaque,
+                onPointerDown: onOptionSelected == null
+                    ? null
+                    : (_) => onOptionSelected!(index),
+                child: SsossSelectOption(
+                  value: options[index],
+                  state: _optionState(index),
+                  width: width,
+                  backgroundColor: optionBackgroundColor,
+                  textColor: optionTextColor,
+                  selectedBackgroundColor: selectedOptionBackgroundColor,
+                  hoverBackgroundColor: hoverOptionBackgroundColor,
+                  pressedBackgroundColor: pressedOptionBackgroundColor,
+                  selectedTextColor: selectedOptionTextColor,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  SsossSelectOptionState _optionState(int index) {
+    if (index == selectedIndex) {
+      return SsossSelectOptionState.selected;
+    }
+
+    if (index == highlightedIndex) {
+      return SsossSelectOptionState.hover;
+    }
+
+    return SsossSelectOptionState.normal;
+  }
+}

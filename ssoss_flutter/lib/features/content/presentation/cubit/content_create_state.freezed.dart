@@ -17,7 +17,7 @@ mixin _$ContentCreateState {
   ContentCreateStep get step;
   List<UploadChannel> get channels;
   UploadPurpose? get purpose;
-  ContentTone? get tone;
+  WritingTone? get tone;
   String get highlight;
   String get forbidden;
   List<String> get keywords;
@@ -81,7 +81,7 @@ abstract mixin class $ContentCreateStateCopyWith<$Res> {
       {ContentCreateStep step,
       List<UploadChannel> channels,
       UploadPurpose? purpose,
-      ContentTone? tone,
+      WritingTone? tone,
       String highlight,
       String forbidden,
       List<String> keywords,
@@ -128,7 +128,7 @@ class _$ContentCreateStateCopyWithImpl<$Res>
       tone: freezed == tone
           ? _self.tone
           : tone // ignore: cast_nullable_to_non_nullable
-              as ContentTone?,
+              as WritingTone?,
       highlight: null == highlight
           ? _self.highlight
           : highlight // ignore: cast_nullable_to_non_nullable
@@ -250,7 +250,7 @@ extension ContentCreateStatePatterns on ContentCreateState {
             ContentCreateStep step,
             List<UploadChannel> channels,
             UploadPurpose? purpose,
-            ContentTone? tone,
+            WritingTone? tone,
             String highlight,
             String forbidden,
             List<String> keywords,
@@ -296,7 +296,7 @@ extension ContentCreateStatePatterns on ContentCreateState {
             ContentCreateStep step,
             List<UploadChannel> channels,
             UploadPurpose? purpose,
-            ContentTone? tone,
+            WritingTone? tone,
             String highlight,
             String forbidden,
             List<String> keywords,
@@ -340,7 +340,7 @@ extension ContentCreateStatePatterns on ContentCreateState {
             ContentCreateStep step,
             List<UploadChannel> channels,
             UploadPurpose? purpose,
-            ContentTone? tone,
+            WritingTone? tone,
             String highlight,
             String forbidden,
             List<String> keywords,
@@ -399,7 +399,7 @@ class _ContentCreateState extends ContentCreateState {
   @override
   final UploadPurpose? purpose;
   @override
-  final ContentTone? tone;
+  final WritingTone? tone;
   @override
   @JsonKey()
   final String highlight;
@@ -480,7 +480,7 @@ abstract mixin class _$ContentCreateStateCopyWith<$Res>
       {ContentCreateStep step,
       List<UploadChannel> channels,
       UploadPurpose? purpose,
-      ContentTone? tone,
+      WritingTone? tone,
       String highlight,
       String forbidden,
       List<String> keywords,
@@ -527,7 +527,7 @@ class __$ContentCreateStateCopyWithImpl<$Res>
       tone: freezed == tone
           ? _self.tone
           : tone // ignore: cast_nullable_to_non_nullable
-              as ContentTone?,
+              as WritingTone?,
       highlight: null == highlight
           ? _self.highlight
           : highlight // ignore: cast_nullable_to_non_nullable

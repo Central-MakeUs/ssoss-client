@@ -12,11 +12,9 @@ import 'package:ssoss_flutter/features/credit/presentation/cubit/credit_balance_
 import 'package:ssoss_flutter/features/credit/presentation/pages/credit_history/credit_history_page.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/my_page/my_page_components.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/settings/settings_page.dart';
-import 'package:ssoss_flutter/features/my_page/presentation/pages/store_info_management/store_info_management_components.dart';
+import 'package:ssoss_flutter/common/widgets/store_info/store_info_components.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_info_management/store_info_management_page.dart';
-import 'package:ssoss_flutter/features/my_page/presentation/pages/store_profile/store_profile_components.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_profile/store_profile_page.dart';
-import 'package:ssoss_flutter/features/store/domain/entities/store_info.dart';
 import 'package:ssoss_flutter/features/store/presentation/cubit/store_cubit.dart';
 
 class MyPagePage extends StatefulWidget {
@@ -44,7 +42,8 @@ class _MyPagePageState extends State<MyPagePage> {
   Widget build(BuildContext context) {
     final storeInfo = context.watch<StoreCubit>().state.info;
     final menuItems = [
-      const MyPageMenuItem(label: '공지사항'),
+      // TODO: 공지사항 기능 추가 시 주석 해제
+      // const MyPageMenuItem(label: '공지사항'),
       MyPageMenuItem(
         label: '설정',
         onTap: () => _openSettings(context),
@@ -99,10 +98,7 @@ class _MyPagePageState extends State<MyPagePage> {
                         description: storeInfo.basic.introduction,
                         credit: creditState.balance,
                         isCreditLoading: creditState.isLoading,
-                        onStoreTap: () => _openStoreProfile(
-                          context,
-                          _profileStatus(storeInfo),
-                        ),
+                        onStoreTap: () => _openStoreProfile(context),
                         onDetailTap: () => _openCreditHistory(context),
                       );
                     },
@@ -118,18 +114,6 @@ class _MyPagePageState extends State<MyPagePage> {
         ],
       ),
     );
-  }
-
-  StoreProfileStatus _profileStatus(StoreInfo info) {
-    if (!info.hasAnyWrittenInfo) {
-      return StoreProfileStatus.empty;
-    }
-    final completed = info.basic.status.isCompleted &&
-        info.operation.status.isCompleted &&
-        info.content.status.isCompleted;
-    return completed
-        ? StoreProfileStatus.completed
-        : StoreProfileStatus.partial;
   }
 
   void _openCreditHistory(BuildContext context) {
@@ -152,11 +136,11 @@ class _MyPagePageState extends State<MyPagePage> {
     );
   }
 
-  void _openStoreProfile(BuildContext context, StoreProfileStatus status) {
+  void _openStoreProfile(BuildContext context) {
     unawaited(
       Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute<void>(
-          builder: (_) => StoreProfilePage(status: status),
+          builder: (_) => const StoreProfilePage(),
         ),
       ),
     );

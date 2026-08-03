@@ -1,8 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
-
+import 'package:ssoss_flutter/core/constants/writing_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
-import 'package:ssoss_flutter/features/content/domain/entities/content_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_create_state.dart';
@@ -59,7 +58,7 @@ class ContentCreateCubit extends Cubit<ContentCreateState> {
     emit(state.copyWith(purpose: purpose, errorMessage: null));
   }
 
-  void selectTone(ContentTone tone) {
+  void selectTone(WritingTone tone) {
     emit(state.copyWith(tone: tone, errorMessage: null));
   }
 

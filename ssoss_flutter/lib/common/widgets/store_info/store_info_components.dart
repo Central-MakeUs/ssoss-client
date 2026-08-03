@@ -10,6 +10,7 @@ import 'package:ssoss_flutter/common/widgets/tag/ssoss_tag.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
+import 'package:ssoss_flutter/core/constants/writing_tone.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
 enum StoreInfoTab {
@@ -54,6 +55,9 @@ class StoreInfoFormField extends StatelessWidget {
     this.initialValue,
     this.readOnly = false,
     this.multiline = false,
+    this.isRequired = false,
+    this.helperText,
+    this.textInputAction,
     this.onTap,
   });
 
@@ -63,6 +67,9 @@ class StoreInfoFormField extends StatelessWidget {
   final String? initialValue;
   final bool readOnly;
   final bool multiline;
+  final bool isRequired;
+  final String? helperText;
+  final TextInputAction? textInputAction;
   final VoidCallback? onTap;
 
   @override
@@ -70,9 +77,10 @@ class StoreInfoFormField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppText(
-          label,
-          style: AppTextStyles.h5.copyWith(color: AppColors.black),
+        StoreInfoSectionTitle(
+          title: label,
+          isRequired: isRequired,
+          helperText: helperText,
         ),
         const SizedBox(height: 8),
         GestureDetector(
@@ -84,6 +92,7 @@ class StoreInfoFormField extends StatelessWidget {
               hintText: hintText,
               readOnly: readOnly,
               multiline: multiline,
+              textInputAction: textInputAction,
               textColor: AppColors.neutral800,
               hintColor: AppColors.neutral400,
             ),
@@ -100,6 +109,8 @@ class StoreInfoAddressFormField extends StatelessWidget {
     required this.controller,
     this.hintText = '입력해주세요.',
     this.initialValue,
+    this.isRequired = false,
+    this.helperText,
     this.onTap,
     super.key,
   });
@@ -108,6 +119,8 @@ class StoreInfoAddressFormField extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
   final String? initialValue;
+  final bool isRequired;
+  final String? helperText;
   final VoidCallback? onTap;
 
   @override
@@ -115,8 +128,11 @@ class StoreInfoAddressFormField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppText(label,
-            style: AppTextStyles.h5.copyWith(color: AppColors.black)),
+        StoreInfoSectionTitle(
+          title: label,
+          isRequired: isRequired,
+          helperText: helperText,
+        ),
         const SizedBox(height: 8),
         GestureDetector(
           onTap: onTap,
@@ -175,10 +191,12 @@ class StoreInfoSectionTitle extends StatelessWidget {
   const StoreInfoSectionTitle({
     required this.title,
     super.key,
+    this.isRequired = false,
     this.helperText,
   });
 
   final String title;
+  final bool isRequired;
   final String? helperText;
 
   @override
@@ -190,6 +208,13 @@ class StoreInfoSectionTitle extends StatelessWidget {
           title,
           style: AppTextStyles.h5.copyWith(color: AppColors.black),
         ),
+        if (isRequired) ...[
+          const SizedBox(width: 2),
+          AppText(
+            '*',
+            style: AppTextStyles.h5.copyWith(color: AppColors.primary600),
+          ),
+        ],
         if (helperText != null) ...[
           const SizedBox(width: 4),
           AppText(
@@ -439,18 +464,6 @@ class _StoreInfoTimeInput extends StatelessWidget {
   }
 }
 
-enum StoreContentTone {
-  daily('일상형', '자연스럽고 편안한 말투'),
-  emotional('감성형', '분위기와 감정을 살린 말투'),
-  informative('정보형', '메뉴, 재료, 특징을 중심으로 설명하는 말투'),
-  promotional('홍보형', '장점과 방문 유도를 강조하는 말투');
-
-  const StoreContentTone(this.label, this.description);
-
-  final String label;
-  final String description;
-}
-
 class StoreContentToneList extends StatelessWidget {
   const StoreContentToneList({
     required this.selectedTone,
@@ -458,20 +471,20 @@ class StoreContentToneList extends StatelessWidget {
     super.key,
   });
 
-  final StoreContentTone selectedTone;
-  final ValueChanged<StoreContentTone> onChanged;
+  final WritingTone selectedTone;
+  final ValueChanged<WritingTone> onChanged;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        for (final tone in StoreContentTone.values) ...[
+        for (final tone in WritingTone.values) ...[
           StoreContentToneButton(
             tone: tone,
             isSelected: tone == selectedTone,
             onTap: () => onChanged(tone),
           ),
-          if (tone != StoreContentTone.values.last) const SizedBox(height: 12),
+          if (tone != WritingTone.values.last) const SizedBox(height: 12),
         ],
       ],
     );
@@ -486,7 +499,7 @@ class StoreContentToneButton extends StatelessWidget {
     super.key,
   });
 
-  final StoreContentTone tone;
+  final WritingTone tone;
   final bool isSelected;
   final VoidCallback onTap;
 

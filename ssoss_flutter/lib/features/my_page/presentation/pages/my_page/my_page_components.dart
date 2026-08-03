@@ -61,17 +61,6 @@ class MyPageStoreSummaryCard extends StatelessWidget {
                           color: AppColors.neutral400,
                         ),
                       ),
-                      if (description != null) ...[
-                        const SizedBox(height: 4),
-                        AppText(
-                          description!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.b5.copyWith(
-                            color: AppColors.neutral500,
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),
@@ -268,20 +257,19 @@ class StoreInfoManagementTile extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      SsossTag(
-                        label: item.statusLabel,
-                        type: SsossTagType.gray,
-                        showLeftIcon: false,
-                        showRightIcon: false,
-                        backgroundColor: item.isCompleted
-                            ? AppColors.primary50
-                            : AppColors.neutral100,
-                        foregroundColor: item.isCompleted
-                            ? AppColors.primary500
-                            : AppColors.neutral500,
-                        textStyle: AppTextStyles.h9,
-                      ),
+                      // 입력 전인 경우에만 표시
+                      if (!item.isCompleted) ...[
+                        const SizedBox(width: 8),
+                        SsossTag(
+                          label: item.statusLabel,
+                          type: SsossTagType.gray,
+                          showLeftIcon: false,
+                          showRightIcon: false,
+                          backgroundColor: AppColors.neutral100,
+                          foregroundColor: AppColors.neutral500,
+                          textStyle: AppTextStyles.h9,
+                        ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 4),
