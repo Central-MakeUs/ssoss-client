@@ -10,12 +10,9 @@
 -keep class com.it_nomads.fluttersecurestorage.** { *; }
 
 # flutter_naver_login / Naver SDK
--keep class com.navercorp.** { *; }
--keep interface com.navercorp.** { *; }
--dontwarn com.navercorp.**
-
-# Sign in with Apple / related
--dontwarn com.aboutyou.dart_packages.sign_in_with_apple.**
+-keep public class com.navercorp.nid.** {
+public *;
+}
 
 # Play Core (Flutter deferred components — optional, not used)
 -dontwarn com.google.android.play.core.splitcompat.SplitCompatApplication
