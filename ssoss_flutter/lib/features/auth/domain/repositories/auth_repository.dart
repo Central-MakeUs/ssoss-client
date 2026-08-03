@@ -1,6 +1,7 @@
 import '../entities/auth_session.dart';
 import '../entities/auth_tokens.dart';
 import '../entities/signup_agreement.dart';
+import '../entities/withdrawal_reason.dart';
 
 abstract class AuthRepository {
   /// 네이버 인증 → (백엔드) JWT 발급 → 토큰 저장 후 세션 반환.
@@ -14,8 +15,9 @@ abstract class AuthRepository {
 
   /// 회원 탈퇴: `DELETE /v1/members/me` 후 로컬 세션 정리.
   ///
+  /// [reason]이 있으면 요청 본문에 `reasonCode` / `reasonDetail`을 실어 보낸다.
   /// 소셜 연동 revoke는 서버에서 처리한다.
-  Future<void> withdraw();
+  Future<void> withdraw({WithdrawalReason? reason});
 
   /// 가입 대기(PENDING) 회원의 약관 동의 후 회원가입.
   Future<AuthSession> signup(SignupAgreement agreement);

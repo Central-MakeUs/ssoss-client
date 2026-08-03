@@ -2,6 +2,7 @@ import '../models/auth_token_model.dart';
 import '../models/signup_request_model.dart';
 import '../models/social_login_request.dart';
 import '../models/social_login_response_model.dart';
+import '../models/withdrawal_request_model.dart';
 
 /// 백엔드 인증 API 인터페이스.
 abstract class AuthRemoteDatasource {
@@ -21,7 +22,9 @@ abstract class AuthRemoteDatasource {
   Future<SocialLoginResponseModel> recover();
 
   /// `DELETE /v1/members/me` — ACTIVE 전용.
-  Future<void> withdraw();
+  ///
+  /// [request]가 있으면 탈퇴 사유를 본문에 실어 보낸다.
+  Future<void> withdraw({WithdrawalRequestModel? request});
 
   /// `POST /v1/signup` — PENDING 전용.
   Future<SocialLoginResponseModel> signup(SignupRequestModel request);

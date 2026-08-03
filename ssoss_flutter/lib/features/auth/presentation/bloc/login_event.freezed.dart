@@ -229,7 +229,7 @@ extension LoginEventPatterns on LoginEvent {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? naverLoginRequested,
     TResult Function()? appleLoginRequested,
-    TResult Function()? withdrawRequested,
+    TResult Function(WithdrawalReason? reason)? withdrawRequested,
     TResult Function()? sessionRestoreRequested,
     TResult Function()? logoutRequested,
     TResult Function()? sessionExpired,
@@ -247,7 +247,7 @@ extension LoginEventPatterns on LoginEvent {
       case AppleLoginRequested() when appleLoginRequested != null:
         return appleLoginRequested();
       case WithdrawRequested() when withdrawRequested != null:
-        return withdrawRequested();
+        return withdrawRequested(_that.reason);
       case SessionRestoreRequested() when sessionRestoreRequested != null:
         return sessionRestoreRequested();
       case LogoutRequested() when logoutRequested != null:
@@ -287,7 +287,7 @@ extension LoginEventPatterns on LoginEvent {
   TResult when<TResult extends Object?>({
     required TResult Function() naverLoginRequested,
     required TResult Function() appleLoginRequested,
-    required TResult Function() withdrawRequested,
+    required TResult Function(WithdrawalReason? reason) withdrawRequested,
     required TResult Function() sessionRestoreRequested,
     required TResult Function() logoutRequested,
     required TResult Function() sessionExpired,
@@ -304,7 +304,7 @@ extension LoginEventPatterns on LoginEvent {
       case AppleLoginRequested():
         return appleLoginRequested();
       case WithdrawRequested():
-        return withdrawRequested();
+        return withdrawRequested(_that.reason);
       case SessionRestoreRequested():
         return sessionRestoreRequested();
       case LogoutRequested():
@@ -340,7 +340,7 @@ extension LoginEventPatterns on LoginEvent {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? naverLoginRequested,
     TResult? Function()? appleLoginRequested,
-    TResult? Function()? withdrawRequested,
+    TResult? Function(WithdrawalReason? reason)? withdrawRequested,
     TResult? Function()? sessionRestoreRequested,
     TResult? Function()? logoutRequested,
     TResult? Function()? sessionExpired,
@@ -357,7 +357,7 @@ extension LoginEventPatterns on LoginEvent {
       case AppleLoginRequested() when appleLoginRequested != null:
         return appleLoginRequested();
       case WithdrawRequested() when withdrawRequested != null:
-        return withdrawRequested();
+        return withdrawRequested(_that.reason);
       case SessionRestoreRequested() when sessionRestoreRequested != null:
         return sessionRestoreRequested();
       case LogoutRequested() when logoutRequested != null:
@@ -424,20 +424,64 @@ class AppleLoginRequested implements LoginEvent {
 /// @nodoc
 
 class WithdrawRequested implements LoginEvent {
-  const WithdrawRequested();
+  const WithdrawRequested({this.reason});
+
+  final WithdrawalReason? reason;
+
+  /// Create a copy of LoginEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $WithdrawRequestedCopyWith<WithdrawRequested> get copyWith =>
+      _$WithdrawRequestedCopyWithImpl<WithdrawRequested>(this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is WithdrawRequested);
+        (other.runtimeType == runtimeType &&
+            other is WithdrawRequested &&
+            (identical(other.reason, reason) || other.reason == reason));
   }
 
   @override
-  int get hashCode => runtimeType.hashCode;
+  int get hashCode => Object.hash(runtimeType, reason);
 
   @override
   String toString() {
-    return 'LoginEvent.withdrawRequested()';
+    return 'LoginEvent.withdrawRequested(reason: $reason)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $WithdrawRequestedCopyWith<$Res>
+    implements $LoginEventCopyWith<$Res> {
+  factory $WithdrawRequestedCopyWith(
+          WithdrawRequested value, $Res Function(WithdrawRequested) _then) =
+      _$WithdrawRequestedCopyWithImpl;
+  @useResult
+  $Res call({WithdrawalReason? reason});
+}
+
+/// @nodoc
+class _$WithdrawRequestedCopyWithImpl<$Res>
+    implements $WithdrawRequestedCopyWith<$Res> {
+  _$WithdrawRequestedCopyWithImpl(this._self, this._then);
+
+  final WithdrawRequested _self;
+  final $Res Function(WithdrawRequested) _then;
+
+  /// Create a copy of LoginEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? reason = freezed,
+  }) {
+    return _then(WithdrawRequested(
+      reason: freezed == reason
+          ? _self.reason
+          : reason // ignore: cast_nullable_to_non_nullable
+              as WithdrawalReason?,
+    ));
   }
 }
 

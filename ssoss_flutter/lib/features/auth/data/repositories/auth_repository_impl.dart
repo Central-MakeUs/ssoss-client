@@ -6,6 +6,7 @@ import '../../domain/entities/member_status.dart';
 import '../../domain/entities/signup_agreement.dart';
 import '../../domain/entities/social_provider.dart';
 import '../../domain/entities/user.dart';
+import '../../domain/entities/withdrawal_reason.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/apple_auth_datasource.dart';
 import '../datasources/auth_local_datasource.dart';
@@ -16,6 +17,7 @@ import '../models/signup_request_model.dart';
 import '../models/social_login_request.dart';
 import '../models/social_login_response_model.dart';
 import '../models/stored_auth_cache_model.dart';
+import '../models/withdrawal_request_model.dart';
 
 /// [AuthRepository] 실서버 연동 구현체.
 class AuthRepositoryImpl implements AuthRepository {
@@ -136,8 +138,15 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> withdraw() async {
-    await _remoteDatasource.withdraw();
+  Future<void> withdraw({WithdrawalReason? reason}) async {
+    await _remoteDatasource.withdraw(
+      request: reason == null
+          ? null
+          : WithdrawalRequestModel(
+              reasonCode: reason.code.toApi(),
+              reasonDetail: reason.detail,
+            ),
+    );
     final cache = await _localDatasource.readSession();
     await _localDatasource.clear();
     if (cache?.provider == 'naver') {
