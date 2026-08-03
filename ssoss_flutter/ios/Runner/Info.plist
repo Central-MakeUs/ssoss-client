@@ -41,7 +41,7 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>콘텐츠 작성에 사용할 사진을 선택하기 위해 사진 보관함 접근 권한이 필요합니다.</string>
+	<string>콘텐츠 편집 라이브러리의 호환성을 위해 포함된 권한입니다. 앱에서 사진 선택 또는 첨부 기능은 제공하지 않습니다.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
