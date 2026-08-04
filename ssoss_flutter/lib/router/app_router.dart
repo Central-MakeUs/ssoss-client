@@ -12,6 +12,7 @@ import 'package:ssoss_flutter/features/auth/presentation/pages/splash_page.dart'
 import 'package:ssoss_flutter/features/auth/presentation/pages/withdraw/withdraw_complete_page.dart';
 import 'package:ssoss_flutter/common/widgets/navigation/ssoss_navigation_bar.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/content_create_prefill.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_generation_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_other_channel_args.dart';
@@ -36,6 +37,8 @@ import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_store_info_complete_page.dart';
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_store_info_page.dart';
 import 'package:ssoss_flutter/features/store/presentation/cubit/store_cubit.dart';
+
+const bool _forceOnboardingForDebug = false;
 
 /// [LoginBloc] 의 인증 상태에 따라 스플래시/로그인/홈으로 분기하는 라우터를 생성한다.
 ///
@@ -117,7 +120,7 @@ GoRouter createAppRouter(
         return isOnSplash ? null : SplashPage.routePath;
       }
 
-      if (storeState.shouldShowOnboarding) {
+      if (_forceOnboardingForDebug || storeState.shouldShowOnboarding) {
         if (isOnOnboardingFlow) return null;
         return OnboardingIntroPage.routePath;
       }
@@ -200,7 +203,10 @@ GoRouter createAppRouter(
             return ContentCreatePage(restoredInput: extra);
           }
           final channel = extra is UploadChannel ? extra : null;
-          return ContentCreatePage(initialChannel: channel);
+          return ContentCreatePage(
+            initialChannel: channel,
+            prefill: _contentCreatePrefill(storeCubit),
+          );
         },
       ),
       GoRoute(
@@ -321,6 +327,16 @@ GoRouter createAppRouter(
       ),
     ],
   );
+}
+
+ContentCreatePrefill? _contentCreatePrefill(StoreCubit storeCubit) {
+  final content = storeCubit.state.info.content;
+  final prefill = ContentCreatePrefill(
+    tone: content.tone,
+    forbidden: content.forbidden,
+    keywords: List<String>.of(content.keywords),
+  );
+  return prefill.isEmpty ? null : prefill;
 }
 
 /// Bloc/Stream 의 변경을 go_router 의 `refreshListenable` 로 연결하는 어댑터.

@@ -6,6 +6,7 @@ import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/content_create_prefill.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_create_cubit.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_create_state.dart';
@@ -23,6 +24,7 @@ class ContentCreatePage extends StatelessWidget {
     super.key,
     this.initialChannel,
     this.restoredInput,
+    this.prefill,
   });
 
   static const String routeName = 'content-create';
@@ -33,12 +35,16 @@ class ContentCreatePage extends StatelessWidget {
   /// 생성 실패 후 복귀 시 이전 입력값.
   final ContentCreateInput? restoredInput;
 
+  /// 매장 정보 등에서 가져온 신규 생성용 초기 입력값.
+  final ContentCreatePrefill? prefill;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ContentCreateCubit(
         initialChannel: initialChannel,
         restoredInput: restoredInput,
+        prefill: prefill,
       ),
       child: const _ContentCreateView(),
     );
