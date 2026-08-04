@@ -8,8 +8,10 @@ import 'package:ssoss_flutter/common/widgets/tag/ssoss_tag.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
+import 'package:ssoss_flutter/core/constants/writing_tone.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.dart';
 
 class ContentManagementItem {
   const ContentManagementItem({
@@ -18,6 +20,8 @@ class ContentManagementItem {
     required this.channel,
     required this.category,
     required this.tone,
+    required this.purpose,
+    required this.writingTone,
     required this.title,
     required this.tags,
     this.initialChannel,
@@ -34,6 +38,12 @@ class ContentManagementItem {
   final UploadChannel? initialChannel;
   final String category;
   final String tone;
+
+  /// 원본 목적 (이 스타일로 새로 만들기 등).
+  final UploadPurpose purpose;
+
+  /// 원본 톤 (이 스타일로 새로 만들기 등).
+  final WritingTone writingTone;
 
   /// 카드 미리보기 제목(서버 말줄임 그대로).
   final String title;
