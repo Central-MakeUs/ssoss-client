@@ -184,17 +184,21 @@ class StoreBasicInfoBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final storeName =
+        info.name?.trim().isNotEmpty == true ? info.name! : '[매장명]';
+    final storeType = info.type?.label ?? '[매장유형]';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppText(
-          info.name ?? '매장 정보 입력 전',
+          storeName,
           style: AppTextStyles.h3.copyWith(color: AppColors.black),
         ),
         const SizedBox(height: 12),
         _IconTextRow(
           iconPath: AppAssets.icStore,
-          text: info.type?.label ?? '입력 전',
+          text: storeType,
         ),
         const SizedBox(height: 4),
         _IconTextRow(

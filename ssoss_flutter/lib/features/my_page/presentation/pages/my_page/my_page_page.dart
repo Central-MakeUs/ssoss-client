@@ -41,6 +41,10 @@ class _MyPagePageState extends State<MyPagePage> {
   @override
   Widget build(BuildContext context) {
     final storeInfo = context.watch<StoreCubit>().state.info;
+    final storeName = storeInfo.basic.name?.trim().isNotEmpty == true
+        ? storeInfo.basic.name!
+        : '[매장명]';
+    final storeType = storeInfo.basic.type?.label ?? '[매장유형]';
     final menuItems = [
       // TODO: 공지사항 기능 추가 시 주석 해제
       // const MyPageMenuItem(label: '공지사항'),
@@ -93,8 +97,8 @@ class _MyPagePageState extends State<MyPagePage> {
                   BlocBuilder<CreditBalanceCubit, CreditBalanceState>(
                     builder: (context, creditState) {
                       return MyPageStoreSummaryCard(
-                        storeName: storeInfo.basic.name ?? '매장 정보 입력 전',
-                        storeType: storeInfo.basic.type?.label ?? '입력 전',
+                        storeName: storeName,
+                        storeType: storeType,
                         description: storeInfo.basic.introduction,
                         credit: creditState.balance,
                         isCreditLoading: creditState.isLoading,

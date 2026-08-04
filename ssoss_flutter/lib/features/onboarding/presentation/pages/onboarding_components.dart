@@ -73,6 +73,7 @@ class OnboardingPages {
       backgroundColor: AppColors.neutral50,
       imageBorderColor: AppColors.neutral100,
       imageTop: 170,
+      imageHeightRatio: 0.84,
       imageSequencePaths: [
         AppAssets.imgOnboardingContentInput,
         AppAssets.imgOnboardingContentInputFilled,
@@ -238,70 +239,15 @@ class OnboardingAnimatedPage extends StatefulWidget {
   State<OnboardingAnimatedPage> createState() => _OnboardingAnimatedPageState();
 }
 
-class _OnboardingAnimatedPageState extends State<OnboardingAnimatedPage>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _fadeAnimation;
-  late final Animation<Offset> _copySlideAnimation;
-  late final Animation<Offset> _imageSlideAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 520),
-    );
-    final curve = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    );
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(curve);
-    _copySlideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.08),
-      end: Offset.zero,
-    ).animate(curve);
-    _imageSlideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.05),
-      end: Offset.zero,
-    ).animate(curve);
-    if (widget.isActive) {
-      unawaited(_controller.forward());
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant OnboardingAnimatedPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.isActive && !oldWidget.isActive) {
-      _controller.reset();
-      unawaited(_controller.forward());
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
+class _OnboardingAnimatedPageState extends State<OnboardingAnimatedPage> {
   @override
   Widget build(BuildContext context) {
     return OnboardingPageLayout(
       data: widget.data,
-      copy: FadeTransition(
-        opacity: _fadeAnimation,
-        child: SlideTransition(
-          position: _copySlideAnimation,
-          child: OnboardingCopy(data: widget.data),
-        ),
-      ),
-      preview: FadeTransition(
-        opacity: _fadeAnimation,
-        child: SlideTransition(
-          position: _imageSlideAnimation,
-          child: OnboardingPreviewImage(data: widget.data),
-        ),
+      copy: OnboardingCopy(data: widget.data),
+      preview: OnboardingPreviewImage(
+        data: widget.data,
+        isActive: widget.isActive,
       ),
     );
   }
@@ -372,13 +318,25 @@ class OnboardingCopy extends StatelessWidget {
 class OnboardingPreviewImage extends StatelessWidget {
   const OnboardingPreviewImage({
     required this.data,
+    required this.isActive,
     super.key,
   });
 
   final OnboardingPageData data;
+  final bool isActive;
 
   @override
   Widget build(BuildContext context) {
+    if (data.imagePath == AppAssets.imgOnboardingResultEmpty) {
+      return OnboardingResultPreview(isActive: isActive);
+    }
+    if (data.imagePath == AppAssets.imgOnboardingEditStart) {
+      return OnboardingEditPreview(isActive: isActive);
+    }
+    if (data.imagePath == AppAssets.imgOnboardingCopyReady) {
+      return OnboardingCopyPreview(isActive: isActive);
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final imageHeight =
@@ -397,14 +355,24 @@ class OnboardingPreviewImage extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(18),
-                  child: OnboardingImageSequence(
-                    imagePaths: data.previewImagePaths,
-                    width: imageHeight * 211 / 457,
-                    height: imageHeight,
-                  ),
+                  child: data.imagePath == AppAssets.imgOnboardingContentInput
+                      ? Image.asset(
+                          data.imagePath,
+                          width: imageHeight * 211 / 457,
+                          height: imageHeight,
+                          fit: BoxFit.cover,
+                        )
+                      : OnboardingImageSequence(
+                          imagePaths: data.previewImagePaths,
+                          width: imageHeight * 211 / 457,
+                          height: imageHeight,
+                          isActive: isActive,
+                        ),
                 ),
               ),
             ),
+            if (data.imagePath == AppAssets.imgOnboardingContentInput)
+              OnboardingContentInputOverlay(isActive: isActive),
             Positioned(
               left: 0,
               right: 0,
@@ -430,17 +398,688 @@ class OnboardingPreviewImage extends StatelessWidget {
   }
 }
 
+class OnboardingResultPreview extends StatefulWidget {
+  const OnboardingResultPreview({
+    required this.isActive,
+    super.key,
+  });
+
+  final bool isActive;
+
+  @override
+  State<OnboardingResultPreview> createState() =>
+      _OnboardingResultPreviewState();
+}
+
+class _OnboardingResultPreviewState extends State<OnboardingResultPreview> {
+  static const Duration _frameDuration = Duration(milliseconds: 1100);
+  static const Duration _transitionDuration = Duration(milliseconds: 520);
+  static const List<_OnboardingResultFrame> _frames = [
+    _OnboardingResultFrame(
+      imagePath: AppAssets.imgOnboardingResultEmpty,
+      top: 170,
+    ),
+    _OnboardingResultFrame(
+      imagePath: AppAssets.imgOnboardingResultWriting,
+      top: 38,
+    ),
+    _OnboardingResultFrame(
+      imagePath: AppAssets.imgOnboardingResultBody,
+      top: 170,
+    ),
+    _OnboardingResultFrame(
+      imagePath: AppAssets.imgOnboardingResultComplete,
+      top: 19,
+    ),
+  ];
+
+  Timer? _timer;
+  int _frameIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isActive) {
+      _startTimer();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant OnboardingResultPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.isActive && widget.isActive) {
+      _frameIndex = 0;
+      _startTimer();
+      return;
+    }
+    if (oldWidget.isActive && !widget.isActive) {
+      _timer?.cancel();
+      _frameIndex = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(_frameDuration, (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => _frameIndex = (_frameIndex + 1) % _frames.length);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final frame = _frames[_frameIndex];
+
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        Positioned(
+          top: 170,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: ClipRect(
+            child: Stack(
+              alignment: Alignment.topCenter,
+              clipBehavior: Clip.none,
+              children: [
+                AnimatedPositioned(
+                  duration: _transitionDuration,
+                  curve: Curves.easeInOutCubic,
+                  top: frame.top - 170,
+                  child: Container(
+                    width: 211,
+                    height: 510,
+                    decoration: BoxDecoration(
+                      color: AppColors.neutral100,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(24),
+                      ),
+                      border: Border.all(
+                        color: AppColors.neutral100,
+                        width: 6,
+                      ),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 260),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeOutCubic,
+                      child: Image.asset(
+                        frame.imagePath,
+                        key: ValueKey(frame.imagePath),
+                        width: 211,
+                        height: 510,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          top: 170,
+          height: 36,
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.neutral50,
+                    AppColors.neutral50.withValues(alpha: 0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 112,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppColors.neutral50.withValues(alpha: 0),
+                  AppColors.neutral50,
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _OnboardingResultFrame {
+  const _OnboardingResultFrame({
+    required this.imagePath,
+    required this.top,
+  });
+
+  final String imagePath;
+  final double top;
+}
+
+class OnboardingEditPreview extends StatefulWidget {
+  const OnboardingEditPreview({
+    required this.isActive,
+    super.key,
+  });
+
+  final bool isActive;
+
+  @override
+  State<OnboardingEditPreview> createState() => _OnboardingEditPreviewState();
+}
+
+class _OnboardingEditPreviewState extends State<OnboardingEditPreview> {
+  static const Duration _frameDuration = Duration(milliseconds: 1000);
+  static const Duration _transitionDuration = Duration(milliseconds: 260);
+  static const List<String> _imagePaths = [
+    AppAssets.imgOnboardingEditStart,
+    AppAssets.imgOnboardingEditTitle,
+    AppAssets.imgOnboardingEditBody,
+    AppAssets.imgOnboardingEditComplete,
+  ];
+
+  Timer? _timer;
+  int _frameIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isActive) {
+      _startTimer();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant OnboardingEditPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.isActive && widget.isActive) {
+      _frameIndex = 0;
+      _startTimer();
+      return;
+    }
+    if (oldWidget.isActive && !widget.isActive) {
+      _timer?.cancel();
+      _frameIndex = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(_frameDuration, (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => _frameIndex = (_frameIndex + 1) % _imagePaths.length);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final imagePath = _imagePaths[_frameIndex];
+    final showTouchPoint = _frameIndex == 1;
+
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        Positioned(
+          top: 170,
+          child: Container(
+            width: 211,
+            height: 457,
+            decoration: BoxDecoration(
+              color: AppColors.neutral100,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24),
+              ),
+              border: Border.all(color: AppColors.neutral100, width: 6),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: AnimatedSwitcher(
+              duration: _transitionDuration,
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeOutCubic,
+              child: Image.asset(
+                imagePath,
+                key: ValueKey(imagePath),
+                width: 211,
+                height: 457,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          left: 258,
+          top: 293,
+          child: AnimatedOpacity(
+            duration: _transitionDuration,
+            curve: Curves.easeOutCubic,
+            opacity: showTouchPoint ? 1 : 0,
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: const BoxDecoration(
+                color: Color(0x7FFFE1D3),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 112,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppColors.neutral50.withValues(alpha: 0),
+                  AppColors.neutral50,
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class OnboardingCopyPreview extends StatefulWidget {
+  const OnboardingCopyPreview({
+    required this.isActive,
+    super.key,
+  });
+
+  final bool isActive;
+
+  @override
+  State<OnboardingCopyPreview> createState() => _OnboardingCopyPreviewState();
+}
+
+class _OnboardingCopyPreviewState extends State<OnboardingCopyPreview> {
+  static const Duration _frameDuration = Duration(milliseconds: 1100);
+  static const Duration _transitionDuration = Duration(milliseconds: 260);
+
+  Timer? _timer;
+  bool _showCopiedBadge = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isActive) {
+      _startTimer();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant OnboardingCopyPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.isActive && widget.isActive) {
+      _showCopiedBadge = false;
+      _startTimer();
+      return;
+    }
+    if (oldWidget.isActive && !widget.isActive) {
+      _timer?.cancel();
+      _showCopiedBadge = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(_frameDuration, (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => _showCopiedBadge = !_showCopiedBadge);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        Positioned(
+          top: 171,
+          child: Container(
+            width: 211,
+            height: 457,
+            decoration: BoxDecoration(
+              color: AppColors.neutral100,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppColors.neutral100, width: 6),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.asset(
+                  AppAssets.imgOnboardingCopyReady,
+                  width: 211,
+                  height: 457,
+                  fit: BoxFit.cover,
+                ),
+                Positioned(
+                  left: 134,
+                  top: 201,
+                  child: AnimatedOpacity(
+                    duration: _transitionDuration,
+                    curve: Curves.easeOutCubic,
+                    opacity: _showCopiedBadge ? 1 : 0,
+                    child: Container(
+                      width: 67,
+                      height: 24,
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(right: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.check,
+                            size: 11.25,
+                            color: AppColors.neutral500,
+                          ),
+                          SizedBox(width: 2.5),
+                          Text(
+                            '복사됨',
+                            style: TextStyle(
+                              color: AppColors.neutral500,
+                              fontSize: 8.75,
+                              fontFamily: AppTextStyles.fontFamily,
+                              fontWeight: FontWeight.w600,
+                              height: 1.4,
+                              letterSpacing: -0.09,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 112,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppColors.neutral50.withValues(alpha: 0),
+                  AppColors.neutral50,
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class OnboardingContentInputOverlay extends StatefulWidget {
+  const OnboardingContentInputOverlay({
+    required this.isActive,
+    super.key,
+  });
+
+  final bool isActive;
+
+  @override
+  State<OnboardingContentInputOverlay> createState() =>
+      _OnboardingContentInputOverlayState();
+}
+
+class _OnboardingContentInputOverlayState
+    extends State<OnboardingContentInputOverlay> {
+  static const Duration _frameDuration = Duration(milliseconds: 1200);
+  static const Duration _transitionDuration = Duration(milliseconds: 360);
+
+  Timer? _timer;
+  int _frameIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isActive) {
+      _startTimer();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant OnboardingContentInputOverlay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.isActive && widget.isActive) {
+      _frameIndex = 0;
+      _startTimer();
+      return;
+    }
+    if (oldWidget.isActive && !widget.isActive) {
+      _timer?.cancel();
+      _frameIndex = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(_frameDuration, (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => _frameIndex = (_frameIndex + 1) % 3);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasHighlight = _frameIndex >= 1;
+    final hasForbidden = _frameIndex >= 2;
+
+    return Positioned(
+      top: 226,
+      left: 0,
+      right: 0,
+      child: Center(
+        child: AnimatedContainer(
+          duration: _transitionDuration,
+          curve: Curves.easeOutCubic,
+          width: hasHighlight ? 255 : 249,
+          padding: EdgeInsets.all(hasHighlight ? 11 : 10.5),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(hasHighlight ? 16.4 : 16),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.black.withValues(alpha: 0.2),
+                blurRadius: hasHighlight ? 13 : 12.5,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _OnboardingOverlayField(
+                label: '강조 내용',
+                isRequired: true,
+                text: hasHighlight
+                    ? '신메뉴 수박주스를 소개하고 당도 높은 수박을 사용했다는 점을 강조해줘'
+                    : null,
+              ),
+              AnimatedContainer(
+                duration: _transitionDuration,
+                curve: Curves.easeOutCubic,
+                height: hasHighlight ? 24.5 : 24,
+              ),
+              _OnboardingOverlayField(
+                label: '금지 내용',
+                optionalLabel: '선택',
+                text: hasForbidden ? '이모티콘은 사용하지 말고 과장된 표현은 사용하지 말아줘' : null,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OnboardingOverlayField extends StatelessWidget {
+  const _OnboardingOverlayField({
+    required this.label,
+    this.isRequired = false,
+    this.optionalLabel,
+    this.text,
+  });
+
+  final String label;
+  final bool isRequired;
+  final String? optionalLabel;
+  final String? text;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasText = text != null && text!.isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppText(
+              label,
+              style: AppTextStyles.h8.copyWith(
+                color: AppColors.black.withValues(alpha: 0.2),
+                fontSize: 12,
+              ),
+            ),
+            if (isRequired)
+              AppText(
+                '*',
+                style: AppTextStyles.h8.copyWith(
+                  color: AppColors.primary600,
+                  fontSize: 12,
+                ),
+              ),
+            if (optionalLabel != null) ...[
+              const SizedBox(width: 5),
+              AppText(
+                optionalLabel!,
+                style: AppTextStyles.b5.copyWith(
+                  color: AppColors.neutral400,
+                  fontSize: 8,
+                ),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 5),
+        Container(
+          width: double.infinity,
+          height: 54,
+          padding: const EdgeInsets.symmetric(horizontal: 9.5, vertical: 6.8),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(5.4),
+            border: Border.all(color: AppColors.neutral200, width: 0.7),
+          ),
+          alignment: Alignment.topLeft,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 240),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeOutCubic,
+            child: hasText
+                ? AppText(
+                    key: ValueKey(text),
+                    text!,
+                    style: AppTextStyles.b5.copyWith(
+                      color: AppColors.neutral800,
+                      fontSize: 11,
+                    ),
+                  )
+                : const SizedBox(
+                    key: ValueKey('empty'),
+                    width: double.infinity,
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class OnboardingImageSequence extends StatefulWidget {
   const OnboardingImageSequence({
     required this.imagePaths,
     required this.width,
     required this.height,
+    required this.isActive,
     super.key,
   });
 
   final List<String> imagePaths;
   final double width;
   final double height;
+  final bool isActive;
 
   @override
   State<OnboardingImageSequence> createState() =>
@@ -457,7 +1096,9 @@ class _OnboardingImageSequenceState extends State<OnboardingImageSequence> {
   @override
   void initState() {
     super.initState();
-    _startTimer();
+    if (widget.isActive) {
+      _startTimer();
+    }
   }
 
   @override
@@ -465,7 +1106,15 @@ class _OnboardingImageSequenceState extends State<OnboardingImageSequence> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.imagePaths != widget.imagePaths) {
       _frameIndex = 0;
+    }
+    if (!oldWidget.isActive && widget.isActive) {
+      _frameIndex = 0;
       _startTimer();
+      return;
+    }
+    if (oldWidget.isActive && !widget.isActive) {
+      _timer?.cancel();
+      _frameIndex = 0;
     }
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
 import 'package:ssoss_flutter/core/constants/writing_tone.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/content_create_prefill.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_create_state.dart';
@@ -10,16 +11,19 @@ class ContentCreateCubit extends Cubit<ContentCreateState> {
   ContentCreateCubit({
     UploadChannel? initialChannel,
     ContentCreateInput? restoredInput,
+    ContentCreatePrefill? prefill,
   }) : super(
           _initialState(
             initialChannel: initialChannel,
             restoredInput: restoredInput,
+            prefill: prefill,
           ),
         );
 
   static ContentCreateState _initialState({
     UploadChannel? initialChannel,
     ContentCreateInput? restoredInput,
+    ContentCreatePrefill? prefill,
   }) {
     if (restoredInput != null) {
       return ContentCreateState(
@@ -37,6 +41,9 @@ class ContentCreateCubit extends Cubit<ContentCreateState> {
       channels: initialChannel != null
           ? <UploadChannel>[initialChannel]
           : const <UploadChannel>[],
+      tone: prefill?.tone,
+      forbidden: prefill?.forbidden ?? '',
+      keywords: List<String>.of(prefill?.keywords ?? const <String>[]),
       // 채널 바로가기 진입 시 콘텐츠 설정(2단계)부터 시작
       step: initialChannel != null
           ? ContentCreateStep.content
