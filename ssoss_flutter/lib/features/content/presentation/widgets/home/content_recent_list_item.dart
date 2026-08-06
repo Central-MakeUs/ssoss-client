@@ -37,7 +37,7 @@ class ContentRecentListItem extends StatelessWidget {
                   children: [
                     AppText(
                       item.title,
-                      style: AppTextStyles.h5.copyWith(
+                      style: AppTextStyles.h6.copyWith(
                         color: AppColors.neutral800,
                       ),
                       maxLines: 1,
