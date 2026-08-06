@@ -467,29 +467,132 @@ class ContentTemplateSaveButton extends StatelessWidget {
   }
 }
 
-class RecommendedHashtagSetList extends StatelessWidget {
+class RecommendedHashtagSetList extends StatefulWidget {
   const RecommendedHashtagSetList({
     required this.items,
     required this.onSaveTap,
+    required this.onLoadMore,
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.errorMessage,
+    this.onRetry,
     super.key,
   });
 
   final List<RecommendedHashtagSetItem> items;
   final ValueChanged<String> onSaveTap;
+  final VoidCallback onLoadMore;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final String? errorMessage;
+  final VoidCallback? onRetry;
+
+  @override
+  State<RecommendedHashtagSetList> createState() =>
+      _RecommendedHashtagSetListState();
+}
+
+class _RecommendedHashtagSetListState extends State<RecommendedHashtagSetList> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) {
+      return;
+    }
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 200) {
+      widget.onLoadMore();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primary400),
+      );
+    }
+
+    if (widget.errorMessage != null && widget.items.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppText(
+                widget.errorMessage!,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.b3.copyWith(color: AppColors.neutral500),
+              ),
+              if (widget.onRetry != null) ...[
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: widget.onRetry,
+                  child: AppText(
+                    '다시 시도',
+                    style:
+                        AppTextStyles.b3.copyWith(color: AppColors.primary400),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (widget.items.isEmpty) {
+      return Center(
+        child: AppText(
+          '해시태그 묶음이 없습니다',
+          style: AppTextStyles.b3.copyWith(color: AppColors.neutral500),
+        ),
+      );
+    }
+
+    final itemCount = widget.items.length + (widget.isLoadingMore ? 1 : 0);
+
     return ListView.separated(
+      controller: _scrollController,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 34),
       itemBuilder: (context, index) {
-        final item = items[index];
+        if (index >= widget.items.length) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: CircularProgressIndicator(color: AppColors.primary400),
+            ),
+          );
+        }
+
+        final item = widget.items[index];
         return RecommendedHashtagSetCard(
           item: item,
-          onSaveTap: () => onSaveTap(item.id),
+          onSaveTap: () => widget.onSaveTap(item.id),
         );
       },
-      separatorBuilder: (_, __) => const SizedBox(height: 18),
-      itemCount: items.length,
+      separatorBuilder: (_, index) {
+        if (index >= widget.items.length - 1 && widget.isLoadingMore) {
+          return const SizedBox.shrink();
+        }
+        return const SizedBox(height: 18);
+      },
+      itemCount: itemCount,
     );
   }
 }
