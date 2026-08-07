@@ -11,6 +11,7 @@ import 'package:ssoss_flutter/features/credit/presentation/cubit/credit_balance_
 import 'package:ssoss_flutter/features/credit/presentation/cubit/credit_balance_state.dart';
 import 'package:ssoss_flutter/features/credit/presentation/pages/credit_history/credit_history_page.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/my_page/my_page_components.dart';
+import 'package:ssoss_flutter/features/my_page/presentation/pages/saved_content_sources/saved_content_sources_page.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/settings/settings_page.dart';
 import 'package:ssoss_flutter/common/widgets/store_info/store_info_components.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/store_info_management/store_info_management_page.dart';
@@ -46,6 +47,10 @@ class _MyPagePageState extends State<MyPagePage> {
         : '[매장명]';
     final storeType = storeInfo.basic.type?.label ?? '[매장유형]';
     final menuItems = [
+      MyPageMenuItem(
+        label: '저장한 콘텐츠 소스',
+        onTap: () => _openSavedContentSources(context),
+      ),
       // TODO: 공지사항 기능 추가 시 주석 해제
       // const MyPageMenuItem(label: '공지사항'),
       MyPageMenuItem(
@@ -155,6 +160,16 @@ class _MyPagePageState extends State<MyPagePage> {
       Navigator.of(context).push(
         CupertinoPageRoute<void>(
           builder: (_) => const SettingsPage(),
+        ),
+      ),
+    );
+  }
+
+  void _openSavedContentSources(BuildContext context) {
+    unawaited(
+      Navigator.of(context).push(
+        CupertinoPageRoute<void>(
+          builder: (_) => const SavedContentSourcesPage(),
         ),
       ),
     );

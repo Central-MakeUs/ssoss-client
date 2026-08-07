@@ -1,5 +1,7 @@
 import 'package:ssoss_flutter/features/hashtag/data/datasources/hashtag_remote_datasource.dart';
+import 'package:ssoss_flutter/features/hashtag/data/models/bookmarked_hashtag_bundle_list_response_model.dart';
 import 'package:ssoss_flutter/features/hashtag/data/models/hashtag_bundle_list_response_model.dart';
+import 'package:ssoss_flutter/features/hashtag/domain/entities/hashtag_bundle.dart';
 import 'package:ssoss_flutter/features/hashtag/domain/entities/hashtag_bundle_list_page.dart';
 import 'package:ssoss_flutter/features/hashtag/domain/repositories/hashtag_repository.dart';
 
@@ -22,6 +24,12 @@ class HashtagRepositoryImpl implements HashtagRepository {
       size: size,
     );
     return model.toEntity();
+  }
+
+  @override
+  Future<List<HashtagBundle>> listBookmarkedBundles() async {
+    final model = await _remote.listBookmarkedBundles();
+    return model.toEntities();
   }
 
   @override

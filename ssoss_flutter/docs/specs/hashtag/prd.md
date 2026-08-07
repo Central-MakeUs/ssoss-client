@@ -71,7 +71,7 @@
 
 ### Out of Scope (이번 구현에서 제외)
 
-- 북마크 전용 목록 화면 (이유: 추후. usecase는 재사용 가능하도록 준비)
+- 북마크 전용 목록 화면 → [`../my_page/saved-content-sources/`](../my_page/saved-content-sources/) 에서 구현
 - 템플릿 탭 API 연동
 - 해시태그 카드 UI 리디자인
 

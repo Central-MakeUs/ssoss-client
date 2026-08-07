@@ -335,11 +335,23 @@ class _RecommendedContentTemplatesViewState
     });
   }
 
+  void _setSaved(String itemId, bool isSaved) {
+    setState(() {
+      _items = [
+        for (final item in _items)
+          if (item.id == itemId) item.copyWith(isSaved: isSaved) else item,
+      ];
+    });
+  }
+
   void _openDetail(RecommendedContentTemplateItem item) {
     unawaited(
       Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (_) => RecommendedContentTemplateDetailPage(item: item),
+          builder: (_) => RecommendedContentTemplateDetailPage(
+            item: item,
+            onSavedChanged: (isSaved) => _setSaved(item.id, isSaved),
+          ),
         ),
       ),
     );
