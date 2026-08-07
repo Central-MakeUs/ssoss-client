@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
-import 'package:ssoss_flutter/common/widgets/tag/ssoss_tag.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
@@ -680,8 +679,8 @@ class _OnboardingEditPreviewState extends State<OnboardingEditPreview> {
           ),
         ),
         Positioned(
-          left: 258,
-          top: 293,
+          left: 264,
+          top: 298,
           child: AnimatedOpacity(
             duration: _transitionDuration,
             curve: Curves.easeOutCubic,
@@ -785,13 +784,20 @@ class _OnboardingCopyPreviewState extends State<OnboardingCopyPreview> {
           child: Container(
             width: 211,
             height: 457,
-            decoration: BoxDecoration(
+            padding: const EdgeInsets.all(6),
+            decoration: const BoxDecoration(
               color: AppColors.neutral100,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.neutral100, width: 6),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(24),
+              ),
             ),
             clipBehavior: Clip.antiAlias,
-            child: _OnboardingCopyScreenMockup(isCopied: _showCopiedBadge),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(18),
+              ),
+              child: _OnboardingCopyScreenMockup(isCopied: _showCopiedBadge),
+            ),
           ),
         ),
         Positioned(
@@ -822,146 +828,98 @@ class _OnboardingCopyScreenMockup extends StatelessWidget {
     required this.isCopied,
   });
 
-  static const double _sourceWidth = 375;
-  static const double _sourceHeight = 812;
-  static const double _mockupWidth = 211;
-  static const double _mockupHeight = 457;
-  static const double _scale = _mockupWidth / _sourceWidth;
-
   final bool isCopied;
 
   @override
   Widget build(BuildContext context) {
     return ClipRect(
       child: SizedBox(
-        width: _mockupWidth,
-        height: _mockupHeight,
-        child: Transform.scale(
-          scale: _scale,
-          alignment: Alignment.topLeft,
-          child: SizedBox(
-            width: _sourceWidth,
-            height: _sourceHeight,
-            child: Stack(
-              children: [
-                const ColoredBox(color: AppColors.white),
-                const _OnboardingMockStatusBar(),
-                const _OnboardingMockAppBar(),
-                Positioned(
-                  left: 16,
-                  right: 16,
-                  top: 109,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const _OnboardingMockSummaryCard(),
-                      const SizedBox(height: 32),
-                      _OnboardingMockContentSection(
-                        title: '제목',
-                        content: '을지로 크루아상 맛집 | 겹겹이 살아있는 결, 보니스커피',
-                        isCopied: isCopied,
-                      ),
-                      const SizedBox(height: 32),
-                      _OnboardingMockContentSection(
-                        title: '본문',
-                        content: _OnboardingCopyMockData.body,
-                        isCopied: isCopied,
-                      ),
-                      const SizedBox(height: 32),
-                      _OnboardingMockHashtagSection(isCopied: isCopied),
-                    ],
-                  ),
-                ),
-                const _OnboardingMockBottomBar(),
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 260),
-                  curve: Curves.easeOutCubic,
-                  left: 75,
-                  bottom: isCopied ? 122 : 104,
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 220),
-                    curve: Curves.easeOutCubic,
-                    opacity: isCopied ? 1 : 0,
-                    child: const _OnboardingMockToast(),
-                  ),
-                ),
-              ],
+        width: 211,
+        height: 457,
+        child: Stack(
+          children: [
+            const Positioned.fill(
+              child: ColoredBox(color: AppColors.white),
             ),
-          ),
+            const _OnboardingMiniStatusBar(),
+            const _OnboardingMiniAppBar(),
+            const Positioned(
+              left: 9,
+              right: 9,
+              top: 61,
+              child: _OnboardingMiniSummaryCard(),
+            ),
+            Positioned(
+              left: 9,
+              right: 9,
+              top: 132,
+              child: _OnboardingMiniContentSection(
+                title: '제목',
+                content: '무더위를 식혀줄 시원한 여름 시즌 메뉴, 고당도\n수박주스 출시!',
+                isCopied: isCopied,
+              ),
+            ),
+            const Positioned(
+              left: 9,
+              right: 9,
+              top: 246,
+              child: _OnboardingMiniContentSection(
+                title: '본문',
+                content:
+                    '무더운 날씨가 이어지는 요즘, 시원한 음료 한 잔이\n더욱 생각나는 계절이죠. 이번에 새롭게 선보이는\n신메뉴 수박주스는 잘 익은 고당도 수박만 엄선해\n더욱 진하고 달콤한 맛을 담았습니다.',
+                isCopied: false,
+              ),
+            ),
+            const Positioned(
+              left: 0,
+              right: 0,
+              top: 390,
+              child: _OnboardingMiniDots(),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _OnboardingCopyMockData {
-  const _OnboardingCopyMockData._();
-
-  static const body = '''
-을지로에서 크루아상 하나를 제대로 먹고 싶다면, 보니스커피를 추천드려요.
-
-매일 아침 6시부터 직접 반죽을 밀고, 버터를 켜켜이 발라 구워내는 크루아상은 겉은 바삭, 속은 결결이 살아있는 식감이 특징이에요. 프랑스산 에쉬레 버터를 사용해서 고소함이 남다릅니다.
-
-【 보니스커피 정보 】
-위치: 서울 중구 을지로
-영업시간: 월-금 08:00~20:00 / 주말 09:00~19:00
-포장 가능 | 예약 가능
-
-【 시그니처 메뉴 】
-• 버터 크루아상 (3,800원)
-• 아몬드 크루아상 (4,500원)
-• 크루아상 샌드위치 (7,500원)
-''';
-
-  static const hashtags = [
-    '#을지로카페',
-    '#을지로크루아상',
-    '#을지로베이커리',
-    '#크루아상맛집',
-    '#을지로맛집',
-    '#보니스커피',
-    '#을지로디저트',
-    '#서울카페',
-    '#베이커리추천',
-  ];
-}
-
-class _OnboardingMockStatusBar extends StatelessWidget {
-  const _OnboardingMockStatusBar();
+class _OnboardingMiniStatusBar extends StatelessWidget {
+  const _OnboardingMiniStatusBar();
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
+    return const Positioned(
       left: 0,
+      right: 0,
       top: 0,
-      width: 375,
-      height: 48,
+      height: 27,
       child: Stack(
         children: [
           Positioned(
-            left: 33,
-            top: 21,
+            left: 19,
+            top: 12,
             child: Text(
               '09:41',
-              style: AppTextStyles.h5.copyWith(
+              style: TextStyle(
                 color: Colors.black,
                 fontFamily: 'SF Pro Text',
-                fontSize: 17,
+                fontSize: 9.6,
+                fontWeight: FontWeight.w600,
                 height: 1,
-                letterSpacing: -0.5,
+                letterSpacing: -0.28,
               ),
             ),
           ),
-          const Positioned(
-            right: 18,
-            top: 22,
+          Positioned(
+            right: 10,
+            top: 11,
             child: Row(
               children: [
-                Icon(Icons.signal_cellular_alt, size: 18, color: Colors.black),
-                SizedBox(width: 5),
-                Icon(Icons.wifi, size: 18, color: Colors.black),
-                SizedBox(width: 5),
-                Icon(Icons.battery_full, size: 24, color: Colors.black),
+                Icon(Icons.signal_cellular_alt, size: 10, color: Colors.black),
+                SizedBox(width: 3),
+                Icon(Icons.wifi, size: 10, color: Colors.black),
+                SizedBox(width: 3),
+                Icon(Icons.battery_full, size: 13, color: Colors.black),
               ],
             ),
           ),
@@ -971,84 +929,96 @@ class _OnboardingMockStatusBar extends StatelessWidget {
   }
 }
 
-class _OnboardingMockAppBar extends StatelessWidget {
-  const _OnboardingMockAppBar();
+class _OnboardingMiniAppBar extends StatelessWidget {
+  const _OnboardingMiniAppBar();
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
       left: 0,
-      top: 48,
-      width: 375,
-      height: 58,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 32,
-              height: 32,
-              child: Center(
-                child: SvgPicture.asset(
-                  AppAssets.icChevronLeft,
-                  width: 24,
-                  height: 24,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.neutral400,
-                    BlendMode.srcIn,
-                  ),
+      right: 0,
+      top: 27,
+      height: 33,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 32,
+            child: Center(
+              child: SvgPicture.asset(
+                AppAssets.icChevronLeft,
+                width: 14,
+                height: 14,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.neutral400,
+                  BlendMode.srcIn,
                 ),
               ),
             ),
-            Expanded(
-              child: AppText(
-                '콘텐츠 생성 결과',
-                textAlign: TextAlign.center,
-                style: AppTextStyles.h4.copyWith(color: AppColors.neutral800),
+          ),
+          Expanded(
+            child: Text(
+              '콘텐츠 생성 결과',
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              style: AppTextStyles.h9.copyWith(
+                color: AppColors.neutral800,
+                fontSize: 10.2,
+                decoration: TextDecoration.none,
               ),
             ),
-            const SizedBox(width: 32, height: 32),
-          ],
-        ),
+          ),
+          const SizedBox(width: 32),
+        ],
       ),
     );
   }
 }
 
-class _OnboardingMockSummaryCard extends StatelessWidget {
-  const _OnboardingMockSummaryCard();
+class _OnboardingMiniSummaryCard extends StatelessWidget {
+  const _OnboardingMiniSummaryCard();
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(9),
       decoration: BoxDecoration(
         color: AppColors.neutral50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(7),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppText(
+          Text(
             '블로그 · 정보성 · 일상형',
-            style: AppTextStyles.h5.copyWith(color: AppColors.black),
+            maxLines: 1,
+            style: AppTextStyles.h9.copyWith(
+              color: AppColors.black,
+              fontSize: 7.9,
+              decoration: TextDecoration.none,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 5),
           Row(
             children: [
-              AppText(
+              Text(
                 '활용 키워드',
-                style: AppTextStyles.h6.copyWith(color: AppColors.neutral500),
+                style: AppTextStyles.h9.copyWith(
+                  color: AppColors.neutral500,
+                  fontSize: 6.8,
+                  decoration: TextDecoration.none,
+                ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 6),
               Expanded(
-                child: AppText(
+                child: Text(
                   '디저트, 크루아상, 을지로베이커리',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.b4.copyWith(
+                  style: AppTextStyles.b7.copyWith(
                     color: AppColors.neutral500,
+                    fontSize: 6.8,
+                    decoration: TextDecoration.none,
                   ),
                 ),
               ),
@@ -1060,8 +1030,8 @@ class _OnboardingMockSummaryCard extends StatelessWidget {
   }
 }
 
-class _OnboardingMockContentSection extends StatelessWidget {
-  const _OnboardingMockContentSection({
+class _OnboardingMiniContentSection extends StatelessWidget {
+  const _OnboardingMiniContentSection({
     required this.title,
     required this.content,
     required this.isCopied,
@@ -1070,46 +1040,6 @@ class _OnboardingMockContentSection extends StatelessWidget {
   final String title;
   final String content;
   final bool isCopied;
-
-  @override
-  Widget build(BuildContext context) {
-    return _OnboardingMockSectionShell(
-      title: title,
-      showEdit: true,
-      child: _OnboardingMockContentCard(
-        content: content,
-        isCopied: isCopied,
-      ),
-    );
-  }
-}
-
-class _OnboardingMockHashtagSection extends StatelessWidget {
-  const _OnboardingMockHashtagSection({
-    required this.isCopied,
-  });
-
-  final bool isCopied;
-
-  @override
-  Widget build(BuildContext context) {
-    return _OnboardingMockSectionShell(
-      title: '해시태그',
-      child: _OnboardingMockHashtagCard(isCopied: isCopied),
-    );
-  }
-}
-
-class _OnboardingMockSectionShell extends StatelessWidget {
-  const _OnboardingMockSectionShell({
-    required this.title,
-    required this.child,
-    this.showEdit = false,
-  });
-
-  final String title;
-  final Widget child;
-  final bool showEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -1118,37 +1048,38 @@ class _OnboardingMockSectionShell extends StatelessWidget {
       children: [
         Row(
           children: [
-            AppText(
+            Text(
               title,
-              style: AppTextStyles.h5.copyWith(color: AppColors.black),
+              style: AppTextStyles.h9.copyWith(
+                color: AppColors.black,
+                fontSize: 7.9,
+                decoration: TextDecoration.none,
+              ),
             ),
             const Spacer(),
-            if (showEdit)
-              SizedBox.square(
-                dimension: 32,
-                child: Center(
-                  child: SvgPicture.asset(
-                    AppAssets.icEdit2,
-                    width: 24,
-                    height: 24,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.neutral500,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                ),
+            SvgPicture.asset(
+              AppAssets.icEdit2,
+              width: 13.5,
+              height: 13.5,
+              colorFilter: const ColorFilter.mode(
+                AppColors.neutral500,
+                BlendMode.srcIn,
               ),
+            ),
           ],
         ),
-        const SizedBox(height: 8),
-        child,
+        const SizedBox(height: 5),
+        _OnboardingMiniContentCard(
+          content: content,
+          isCopied: isCopied,
+        ),
       ],
     );
   }
 }
 
-class _OnboardingMockContentCard extends StatelessWidget {
-  const _OnboardingMockContentCard({
+class _OnboardingMiniContentCard extends StatelessWidget {
+  const _OnboardingMiniContentCard({
     required this.content,
     required this.isCopied,
   });
@@ -1158,81 +1089,37 @@ class _OnboardingMockContentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _OnboardingMockCardFrame(
-      top: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        child: AppText(
-          content,
-          maxLines: 12,
-          overflow: TextOverflow.fade,
-          style: AppTextStyles.b4.copyWith(color: AppColors.black),
-        ),
-      ),
-      bottom: _OnboardingMockCopyAction(isCopied: isCopied),
-    );
-  }
-}
-
-class _OnboardingMockHashtagCard extends StatelessWidget {
-  const _OnboardingMockHashtagCard({
-    required this.isCopied,
-  });
-
-  final bool isCopied;
-
-  @override
-  Widget build(BuildContext context) {
-    return _OnboardingMockCardFrame(
-      top: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
-        child: Wrap(
-          spacing: 6,
-          runSpacing: 8,
-          children: [
-            for (final tag in _OnboardingCopyMockData.hashtags)
-              SsossTag(
-                label: tag,
-                type: SsossTagType.gray,
-                showLeftIcon: false,
-                showRightIcon: false,
-              ),
-          ],
-        ),
-      ),
-      bottom: _OnboardingMockCopyAction(isCopied: isCopied),
-    );
-  }
-}
-
-class _OnboardingMockCardFrame extends StatelessWidget {
-  const _OnboardingMockCardFrame({
-    required this.top,
-    required this.bottom,
-  });
-
-  final Widget top;
-  final Widget bottom;
-
-  @override
-  Widget build(BuildContext context) {
     return Container(
-      width: 343,
+      width: double.infinity,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.neutral200),
+        borderRadius: BorderRadius.circular(7),
+        border: Border.all(color: AppColors.neutral200, width: 0.6),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          top,
-          const Divider(height: 1, thickness: 1, color: AppColors.neutral200),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: const EdgeInsets.fromLTRB(9, 8, 9, 8),
+            child: Text(
+              content,
+              maxLines: 5,
+              overflow: TextOverflow.fade,
+              style: AppTextStyles.b7.copyWith(
+                color: AppColors.black,
+                fontSize: 6.8,
+                height: 1.5,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ),
+          const Divider(height: 1, thickness: 0.6, color: AppColors.neutral200),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             child: Align(
               alignment: Alignment.centerRight,
-              child: bottom,
+              child: _OnboardingMiniCopyAction(isCopied: isCopied),
             ),
           ),
         ],
@@ -1241,8 +1128,8 @@ class _OnboardingMockCardFrame extends StatelessWidget {
   }
 }
 
-class _OnboardingMockCopyAction extends StatelessWidget {
-  const _OnboardingMockCopyAction({
+class _OnboardingMiniCopyAction extends StatelessWidget {
+  const _OnboardingMiniCopyAction({
     required this.isCopied,
   });
 
@@ -1257,130 +1144,67 @@ class _OnboardingMockCopyAction extends StatelessWidget {
       duration: const Duration(milliseconds: 220),
       switchInCurve: Curves.easeOutCubic,
       switchOutCurve: Curves.easeOutCubic,
-      child: Container(
-        key: ValueKey(label),
-        height: 32,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SvgPicture.asset(
-              iconAsset,
-              width: 18,
-              height: 18,
-              colorFilter: const ColorFilter.mode(
-                AppColors.neutral500,
-                BlendMode.srcIn,
-              ),
-            ),
-            const SizedBox(width: 4),
-            AppText(
-              label,
-              style: AppTextStyles.h8.copyWith(color: AppColors.neutral500),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _OnboardingMockBottomBar extends StatelessWidget {
-  const _OnboardingMockBottomBar();
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 0,
-      child: Container(
-        width: 375,
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 42),
-        decoration: const BoxDecoration(
-          color: AppColors.white,
-          border: Border(
-            top: BorderSide(color: AppColors.neutral200),
-          ),
-        ),
-        child: const Row(
-          children: [
-            Expanded(
-              child: _OnboardingMockBottomButton(
-                label: '다시 생성하기',
-                isPrimary: false,
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: _OnboardingMockBottomButton(
-                label: '저장하기',
-                isPrimary: true,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _OnboardingMockBottomButton extends StatelessWidget {
-  const _OnboardingMockBottomButton({
-    required this.label,
-    required this.isPrimary,
-  });
-
-  final String label;
-  final bool isPrimary;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 56,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: isPrimary ? const Color(0xFFFF7638) : AppColors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: isPrimary ? null : Border.all(color: AppColors.neutral200),
-      ),
-      child: AppText(
-        label,
-        style: AppTextStyles.h5.copyWith(
-          color: isPrimary ? AppColors.white : AppColors.black,
-        ),
-      ),
-    );
-  }
-}
-
-class _OnboardingMockToast extends StatelessWidget {
-  const _OnboardingMockToast();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.success50,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.success500),
-      ),
       child: Row(
+        key: ValueKey(label),
         mainAxisSize: MainAxisSize.min,
         children: [
           SvgPicture.asset(
-            AppAssets.icToastSuccess,
-            width: 20,
-            height: 20,
+            iconAsset,
+            width: 10,
+            height: 10,
+            colorFilter: const ColorFilter.mode(
+              AppColors.neutral500,
+              BlendMode.srcIn,
+            ),
           ),
-          const SizedBox(width: 9),
-          AppText(
-            '클립보드에 복사되었습니다',
-            style: AppTextStyles.h8.copyWith(color: AppColors.success700),
+          const SizedBox(width: 2),
+          Text(
+            label,
+            style: AppTextStyles.h9.copyWith(
+              color: AppColors.neutral500,
+              fontSize: 6.8,
+              decoration: TextDecoration.none,
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _OnboardingMiniDots extends StatelessWidget {
+  const _OnboardingMiniDots();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _dot(AppColors.neutral200),
+        const SizedBox(width: 5),
+        _dot(AppColors.neutral200),
+        const SizedBox(width: 5),
+        _dot(AppColors.neutral200),
+        const SizedBox(width: 5),
+        Container(
+          width: 12,
+          height: 8,
+          decoration: BoxDecoration(
+            color: AppColors.primary400,
+            borderRadius: BorderRadius.circular(50),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _dot(Color color) {
+    return Container(
+      width: 8,
+      height: 8,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
       ),
     );
   }
