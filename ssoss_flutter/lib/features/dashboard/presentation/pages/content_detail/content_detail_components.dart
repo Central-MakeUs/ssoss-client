@@ -167,9 +167,25 @@ class _DetailMetaText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppText(
-      '$channelsLabel · $purpose · $tone',
-      style: AppTextStyles.h5.copyWith(color: AppColors.black),
+    return Text.rich(
+      TextSpan(
+        style: AppTextStyles.h5.copyWith(color: AppColors.black),
+        children: [
+          TextSpan(text: channelsLabel),
+          TextSpan(
+            text: ' · ',
+            style: AppTextStyles.h5.copyWith(color: AppColors.neutral400),
+          ),
+          TextSpan(text: purpose),
+          TextSpan(
+            text: ' · ',
+            style: AppTextStyles.h5.copyWith(color: AppColors.neutral400),
+          ),
+          TextSpan(text: tone),
+        ],
+      ),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }

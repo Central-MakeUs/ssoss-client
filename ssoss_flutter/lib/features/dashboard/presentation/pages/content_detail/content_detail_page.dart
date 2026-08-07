@@ -390,6 +390,7 @@ class _ChannelDetailSections extends StatelessWidget {
             onEditTap: () => onEdit(ContentEditTarget.title),
             child: SsossContentsCard(
               width: double.infinity,
+              contentColor: AppColors.black,
               blocks: [SsossContentsCardTextBlock(title)],
             ),
           ),
@@ -400,6 +401,7 @@ class _ChannelDetailSections extends StatelessWidget {
           onEditTap: () => onEdit(ContentEditTarget.body),
           child: SsossContentsCard(
             width: double.infinity,
+            contentColor: AppColors.black,
             blocks: bodyBlocks,
           ),
         ),

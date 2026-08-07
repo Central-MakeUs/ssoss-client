@@ -100,6 +100,8 @@ class AppAssets {
   static const String imgNotice = 'assets/img/notice.png';
   static const String imgComplete = 'assets/img/complete.png';
   static const String imgFail = 'assets/img/fail.png';
+  static const String imgContentGenerating =
+      'assets/img/content_generating.png';
   static const String imgOnboardingIntroHome =
       'assets/img/onboarding/onboarding_intro_home.png';
   static const String imgOnboardingContentInput =

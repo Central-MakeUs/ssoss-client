@@ -74,7 +74,7 @@ class ContentGenerationPreview {
     final yy = (createdAt.year % 100).toString().padLeft(2, '0');
     final mm = createdAt.month.toString().padLeft(2, '0');
     final dd = createdAt.day.toString().padLeft(2, '0');
-    return '$yy.$mm.$dd';
+    return '$yy.$mm.$dd.';
   }
 
   String managementItemId(UploadChannel channel) => '$id-${channel.name}';

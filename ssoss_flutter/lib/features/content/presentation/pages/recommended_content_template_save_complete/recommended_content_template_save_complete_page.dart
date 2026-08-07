@@ -40,6 +40,7 @@ class RecommendedContentTemplateSaveCompletePage extends StatelessWidget {
             children: [
               SsossAppBar.exitOnly(
                 title: '저장 완료',
+                label: '닫기',
                 onExit: () => _goHome(context),
               ),
               Expanded(

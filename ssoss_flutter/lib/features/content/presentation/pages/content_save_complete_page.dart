@@ -68,17 +68,18 @@ class ContentSaveCompletePage extends StatelessWidget {
             children: [
               SsossAppBar.exitOnly(
                 title: '저장 완료',
+                label: '닫기',
                 onExit: () => _goHome(context),
               ),
               Expanded(
                 child: ContentSaveCompleteView(
                   mode: args.mode,
                   onViewHistory: () => _goHistory(context),
-                  onCreateForOtherChannel: args.mode ==
-                              ContentSaveCompleteMode.continueAvailable &&
-                          args.sourceContentId != null
-                      ? () => _goOtherChannel(context)
-                      : null,
+                  onCreateForOtherChannel:
+                      args.mode == ContentSaveCompleteMode.continueAvailable &&
+                              args.sourceContentId != null
+                          ? () => _goOtherChannel(context)
+                          : null,
                 ),
               ),
             ],

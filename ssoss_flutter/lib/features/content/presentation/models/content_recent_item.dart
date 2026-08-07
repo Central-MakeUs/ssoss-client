@@ -23,7 +23,7 @@ class ContentRecentItem {
   String get formattedDate {
     final month = createdAt.month.toString().padLeft(2, '0');
     final day = createdAt.day.toString().padLeft(2, '0');
-    return '${createdAt.year}.$month.$day';
+    return '${createdAt.year}.$month.$day.';
   }
 
   String get channelsLabel => channels.join(', ');
