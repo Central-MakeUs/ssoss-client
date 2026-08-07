@@ -10,10 +10,12 @@ import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/delete_content_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/list_contents_usecase.dart';
+import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/cubit/content_generation_management_cubit.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/cubit/content_generation_management_state.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_detail/content_detail_page.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/content_generation_management_components.dart';
+import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/saved_content_template_detail_page.dart';
 import 'package:ssoss_flutter/features/new_style/presentation/models/new_style_args.dart';
 import 'package:ssoss_flutter/features/new_style/presentation/util/open_new_style_flow.dart';
 
@@ -75,6 +77,82 @@ class _ContentGenerationManagementPageState
   }
 }
 
+const String _newMenuSavedTemplateBody = '''
+보니스 커피에 새 메뉴가 출시되었습니다!
+
+✨ 신메뉴: 크림브륄레 커피
+💰 가격: 6,800원
+
+바삭하게 토치로 마무리한 크림브륄레 크림과 깊은 풍미의 커피가 어우러진 시즌 한정 메뉴입니다.
+
+신선한 재료로 정성껏 만들었습니다. 많은 사랑 부탁드립니다 🙏
+
+📍 서울 마포구 동교로16길 21
+⏰ 영업시간: 수, 목, 금, 토, 일 오전 9:00 ~ 오후 8:00
+📞 02-1234-5678''';
+
+const String _eventSavedTemplateBody = '''
+보니스 커피에서 특별 이벤트를 진행합니다!
+
+🎁 이벤트: 주말 한정 디저트 세트 할인
+📅 기간: 9월 1일 ~ 9월 7일
+
+매장에서 인기 있는 디저트와 음료를 함께 즐길 수 있는 주말 한정 이벤트입니다.
+
+많은 관심과 참여 부탁드립니다.
+
+📍 서울 마포구 동교로16길 21
+⏰ 영업시간: 수, 목, 금, 토, 일 오전 9:00 ~ 오후 8:00
+📞 02-1234-5678''';
+
+const String _noticeSavedTemplateBody = '''
+보니스 커피에서 안내드립니다.
+
+📢 공지: 임시 휴무 안내
+
+매장 내부 정비로 인해 하루 쉬어갑니다.
+
+이용에 참고 부탁드립니다.
+
+📍 서울 마포구 동교로16길 21
+⏰ 영업시간: 수, 목, 금, 토, 일 오전 9:00 ~ 오후 8:00
+📞 02-1234-5678''';
+
+class _SavedTemplateList extends StatelessWidget {
+  const _SavedTemplateList({
+    required this.items,
+    required this.scrollController,
+  });
+
+  final List<SavedContentTemplateManagementItem> items;
+  final ScrollController scrollController;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      controller: scrollController,
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 34),
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return SavedContentTemplateManagementCard(
+          item: item,
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => SavedContentTemplateDetailPage(item: item),
+            ),
+          ),
+          onMoreTap: () {},
+        );
+      },
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemCount: items.length,
+    );
+  }
+}
+
 class _ContentGenerationManagementView extends StatefulWidget {
   const _ContentGenerationManagementView();
 
@@ -93,7 +171,40 @@ class _ContentGenerationManagementViewState
     '스레드',
   ];
 
+  static const List<SavedContentTemplateManagementItem> _templateItems = [
+    SavedContentTemplateManagementItem(
+      id: 'saved-template-1',
+      category: ContentTemplateCategory.newMenu,
+      title: '신메뉴 출시 안내',
+      description: '새로 나온 메뉴의 특징과 매력을 소개하는 글',
+      channels: ['당근', '인스타그램', '스레드'],
+      body: _newMenuSavedTemplateBody,
+      date: '26.09.02.',
+    ),
+    SavedContentTemplateManagementItem(
+      id: 'saved-template-2',
+      category: ContentTemplateCategory.event,
+      title: '주말 한정 이벤트 안내',
+      description: '기간, 혜택, 참여 방법을 명확하게 전달하는 글',
+      channels: ['당근', '인스타그램', '스레드'],
+      body: _eventSavedTemplateBody,
+      date: '26.09.01.',
+    ),
+    SavedContentTemplateManagementItem(
+      id: 'saved-template-3',
+      category: ContentTemplateCategory.notice,
+      title: '임시 휴무 안내',
+      description: '운영 일정 변경을 고객에게 전달하는 글',
+      channels: ['블로그', '인스타그램'],
+      body: _noticeSavedTemplateBody,
+      date: '26.08.30.',
+    ),
+  ];
+
   final ScrollController _scrollController = ScrollController();
+  int _selectedTabIndex = 0;
+
+  bool get _isTemplateTab => _selectedTabIndex == 1;
 
   @override
   void initState() {
@@ -117,6 +228,9 @@ class _ContentGenerationManagementViewState
     if (cubit.state.openedMenuItemId != null) {
       cubit.closeDeleteMenu();
     }
+    if (_isTemplateTab) {
+      return;
+    }
     final position = _scrollController.position;
     if (position.pixels >= position.maxScrollExtent - 200) {
       unawaited(cubit.loadMore());
@@ -134,6 +248,17 @@ class _ContentGenerationManagementViewState
       return;
     }
     await cubit.deleteItem(item);
+  }
+
+  Future<void> _openTitleEditDialog(
+    BuildContext context,
+    ContentManagementItem item,
+  ) async {
+    context.read<ContentGenerationManagementCubit>().closeDeleteMenu();
+    await showContentTitleEditDialog(
+      context,
+      initialTitle: item.title,
+    );
   }
 
   Future<void> _openDetail(
@@ -155,6 +280,14 @@ class _ContentGenerationManagementViewState
     if (didMutate == true) {
       unawaited(context.read<ContentGenerationManagementCubit>().refresh());
     }
+  }
+
+  void _onTabSelected(int index) {
+    if (index == _selectedTabIndex) {
+      return;
+    }
+    context.read<ContentGenerationManagementCubit>().closeDeleteMenu();
+    setState(() => _selectedTabIndex = index);
   }
 
   Future<void> _openNewStyle(
@@ -208,21 +341,30 @@ class _ContentGenerationManagementViewState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    ContentManagementTabBar(
+                      selectedIndex: _selectedTabIndex,
+                      onTabSelected: _onTabSelected,
+                    ),
+                    const SizedBox(height: 16),
                     ColoredBox(
                       color: AppColors.white,
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 3, 16, 0),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            ContentManagementFilterBar(
-                              filters: _filters,
-                              selectedFilter: state.selectedFilter,
-                              onFilterSelected: cubit.selectFilter,
-                            ),
-                            const SizedBox(height: 12),
+                            if (!_isTemplateTab) ...[
+                              ContentManagementFilterBar(
+                                filters: _filters,
+                                selectedFilter: state.selectedFilter,
+                                onFilterSelected: cubit.selectFilter,
+                              ),
+                              const SizedBox(height: 12),
+                            ],
                             ContentManagementSummaryRow(
-                              count: state.totalCount,
+                              count: _isTemplateTab
+                                  ? _templateItems.length
+                                  : state.totalCount,
                               sortLabel: state.sortLabel,
                               onSortTap: state.isLoading
                                   ? null
@@ -233,85 +375,105 @@ class _ContentGenerationManagementViewState
                       ),
                     ),
                     Expanded(
-                      child: CustomScrollView(
-                        controller: _scrollController,
-                        physics: state.isLoading
-                            ? const NeverScrollableScrollPhysics()
-                            : const BouncingScrollPhysics(
-                                parent: AlwaysScrollableScrollPhysics(),
-                              ),
-                        slivers: [
-                          if (!state.isLoading)
-                            // 당김 인디케이터가 슬라버 공간을 차지 → 카드는 항상 그 아래
-                            CupertinoSliverRefreshControl(
-                              refreshTriggerPullDistance: 100,
-                              refreshIndicatorExtent: 60,
-                              onRefresh: cubit.refresh,
-                              builder: _buildPullRefreshIndicator,
-                            ),
-                          if (state.isLoading)
-                            const SliverFillRemaining(
-                              hasScrollBody: false,
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  color: AppColors.primary400,
-                                ),
-                              ),
+                      child: _isTemplateTab
+                          ? _SavedTemplateList(
+                              items: _templateItems,
+                              scrollController: _scrollController,
                             )
-                          else ...[
-                            SliverPadding(
-                              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-                              sliver: SliverList(
-                                delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                    final item = state.items[index];
-                                    return Padding(
-                                      padding: EdgeInsets.only(
-                                        bottom: index == state.items.length - 1
-                                            ? 0
-                                            : 12,
+                          : CustomScrollView(
+                              controller: _scrollController,
+                              physics: state.isLoading
+                                  ? const NeverScrollableScrollPhysics()
+                                  : const BouncingScrollPhysics(
+                                      parent: AlwaysScrollableScrollPhysics(),
+                                    ),
+                              slivers: [
+                                if (!state.isLoading)
+                                  // 당김 인디케이터가 슬라버 공간을 차지 → 카드는 항상 그 아래
+                                  CupertinoSliverRefreshControl(
+                                    refreshTriggerPullDistance: 100,
+                                    refreshIndicatorExtent: 60,
+                                    onRefresh: cubit.refresh,
+                                    builder: _buildPullRefreshIndicator,
+                                  ),
+                                if (state.isLoading)
+                                  const SliverFillRemaining(
+                                    hasScrollBody: false,
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.primary400,
                                       ),
-                                      child: ContentManagementCard(
-                                        item: item,
-                                        showDeleteMenu:
-                                            state.openedMenuItemId ==
+                                    ),
+                                  )
+                                else ...[
+                                  SliverPadding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      16,
+                                      4,
+                                      16,
+                                      0,
+                                    ),
+                                    sliver: SliverList(
+                                      delegate: SliverChildBuilderDelegate(
+                                        (context, index) {
+                                          final item = state.items[index];
+                                          return Padding(
+                                            padding: EdgeInsets.only(
+                                              bottom: index ==
+                                                      state.items.length - 1
+                                                  ? 0
+                                                  : 12,
+                                            ),
+                                            child: ContentManagementCard(
+                                              item: item,
+                                              showDeleteMenu:
+                                                  state.openedMenuItemId ==
+                                                      item.menuId,
+                                              onTap: () => unawaited(
+                                                _openDetail(context, item),
+                                              ),
+                                              onMoreTap: () =>
+                                                  cubit.toggleDeleteMenu(
                                                 item.menuId,
-                                        onTap: () => unawaited(
-                                          _openDetail(context, item),
-                                        ),
-                                        onMoreTap: () =>
-                                            cubit.toggleDeleteMenu(item.menuId),
-                                        onDeleteTap: () => unawaited(
-                                          _confirmDelete(context, item),
-                                        ),
-                                        onReuseTap: () => unawaited(
-                                          _openNewStyle(context, item),
-                                        ),
+                                              ),
+                                              onTitleEditTap: () => unawaited(
+                                                _openTitleEditDialog(
+                                                  context,
+                                                  item,
+                                                ),
+                                              ),
+                                              onDeleteTap: () => unawaited(
+                                                _confirmDelete(context, item),
+                                              ),
+                                              onReuseTap: () => unawaited(
+                                                _openNewStyle(context, item),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        childCount: state.items.length,
                                       ),
-                                    );
-                                  },
-                                  childCount: state.items.length,
-                                ),
-                              ),
-                            ),
-                            if (state.isLoadingMore)
-                              const SliverToBoxAdapter(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 24),
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: AppColors.primary400,
                                     ),
                                   ),
-                                ),
-                              )
-                            else
-                              const SliverToBoxAdapter(
-                                child: SizedBox(height: 34),
-                              ),
-                          ],
-                        ],
-                      ),
+                                  if (state.isLoadingMore)
+                                    const SliverToBoxAdapter(
+                                      child: Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 24),
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            color: AppColors.primary400,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  else
+                                    const SliverToBoxAdapter(
+                                      child: SizedBox(height: 34),
+                                    ),
+                                ],
+                              ],
+                            ),
                     ),
                   ],
                 ),

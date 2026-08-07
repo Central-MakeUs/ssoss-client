@@ -71,17 +71,18 @@ class SsossAppBar extends StatelessWidget implements PreferredSizeWidget {
         onBellTap = null,
         actionLabel = label;
 
-  /// 뒤로가기 없이 우측 `나가기`만 표시한다. [title]이 있으면 중앙에 표시한다.
+  /// 뒤로가기 없이 우측 텍스트 액션만 표시한다. [title]이 있으면 중앙에 표시한다.
   const SsossAppBar.exitOnly({
     required this.onExit,
     this.title = '',
+    String label = '나가기',
     super.key,
   })  : showBackButton = false,
         action = SsossAppBarAction.exit,
         onBack = null,
         onDone = null,
         onBellTap = null,
-        actionLabel = '나가기';
+        actionLabel = label;
 
   const SsossAppBar.withBell({
     required this.title,

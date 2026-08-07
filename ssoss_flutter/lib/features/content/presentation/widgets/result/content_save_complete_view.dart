@@ -97,7 +97,7 @@ class _ContinueAvailableActions extends StatelessWidget {
         const SizedBox(height: 8),
         SsossButton(
           type: SsossButtonType.primary,
-          label: '다른 채널용으로 만들기',
+          label: '이 콘텐츠를 다른 채널용으로 만들기',
           width: double.infinity,
           onPressed: onCreateForOtherChannel,
         ),

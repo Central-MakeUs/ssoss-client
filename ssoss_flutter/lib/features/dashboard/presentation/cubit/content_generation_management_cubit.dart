@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ssoss_flutter/features/content/domain/entities/content_list_item.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_sort.dart';
-import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/delete_content_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/list_contents_usecase.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_label_mapper.dart';
@@ -163,7 +162,6 @@ class ContentGenerationManagementCubit
 
   static ContentManagementItem _toManagementItem(ContentListItem listItem) {
     final ordered = ContentLabelMapper.orderedChannels(listItem.channels);
-    final includesInstagram = ordered.contains(UploadChannel.instagram);
     return ContentManagementItem(
       contentId: listItem.contentId,
       date: _formatDate(listItem.savedAt),
@@ -174,14 +172,14 @@ class ContentGenerationManagementCubit
       purpose: listItem.purpose,
       writingTone: listItem.tone,
       title: listItem.title,
-      tags: includesInstagram ? listItem.hashtags : const [],
-      includesInstagram: includesInstagram,
+      tags: listItem.hashtags,
     );
   }
 
   static String _formatDate(DateTime date) {
+    final year = (date.year % 100).toString().padLeft(2, '0');
     final month = date.month.toString().padLeft(2, '0');
     final day = date.day.toString().padLeft(2, '0');
-    return '${date.year}.$month.$day';
+    return '$year.$month.$day.';
   }
 }

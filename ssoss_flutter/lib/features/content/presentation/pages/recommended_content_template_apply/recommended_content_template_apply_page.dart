@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
@@ -10,6 +11,8 @@ import 'package:ssoss_flutter/features/content/presentation/pages/recommended_co
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_edit/recommended_content_template_edit_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_save_complete/recommended_content_template_save_complete_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
+import 'package:ssoss_flutter/features/store/domain/entities/store_info.dart';
+import 'package:ssoss_flutter/features/store/presentation/cubit/store_cubit.dart';
 
 class RecommendedContentTemplateApplyPage extends StatefulWidget {
   const RecommendedContentTemplateApplyPage({
@@ -29,9 +32,18 @@ class RecommendedContentTemplateApplyPage extends StatefulWidget {
 
 class _RecommendedContentTemplateApplyPageState
     extends State<RecommendedContentTemplateApplyPage> {
-  late SsossTemplateDocument _document = SsossTemplateDocument.fromTemplate(
-    _templateTextFor(widget.item),
-  );
+  late SsossTemplateDocument _document;
+  late bool _hasStoreInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    final storeInfo = context.read<StoreCubit>().state.info;
+    _hasStoreInfo = storeInfo.basic.status.isCompleted;
+    _document = SsossTemplateDocument.fromTemplate(
+      _templateTextFor(widget.item, storeInfo),
+    );
+  }
 
   Future<void> _openEdit() async {
     final result = await context.push<SsossTemplateDocument>(
@@ -61,6 +73,7 @@ class _RecommendedContentTemplateApplyPageState
             Expanded(
               child: RecommendedContentTemplateApplyBody(
                 document: _document,
+                hasStoreInfo: _hasStoreInfo,
                 onDocumentChanged: (document) {
                   setState(() => _document = document);
                 },
@@ -79,37 +92,98 @@ class _RecommendedContentTemplateApplyPageState
   }
 }
 
-String _templateTextFor(RecommendedContentTemplateItem item) {
+String _templateTextFor(RecommendedContentTemplateItem item, StoreInfo info) {
+  final storeName = _nonEmptyOr(info.basic.name, '[매장명]');
+  final address = _nonEmptyOr(info.basic.address, '[주소]');
+  final hours = _businessHoursLabel(info.operation);
+  final menuName = info.operation.signatureMenus
+          .where((menu) => menu.trim().isNotEmpty)
+          .map((menu) => menu.trim())
+          .firstOrNull ??
+      '[메뉴명]';
+
   switch (item.category) {
     case ContentTemplateCategory.newMenu:
-      return _newMenuTemplate;
+      return _newMenuTemplate(
+        storeName: storeName,
+        menuName: menuName,
+        address: address,
+        hours: hours,
+      );
     case ContentTemplateCategory.event:
-      return _eventTemplate;
+      return _eventTemplate(
+        storeName: storeName,
+        address: address,
+        hours: hours,
+      );
     case ContentTemplateCategory.storeIntro:
-      return _storeIntroTemplate;
+      return _storeIntroTemplate(
+        storeName: storeName,
+        address: address,
+        hours: hours,
+      );
     case ContentTemplateCategory.notice:
-      return _noticeTemplate;
+      return _noticeTemplate(
+        storeName: storeName,
+        address: address,
+        hours: hours,
+      );
     case ContentTemplateCategory.all:
-      return _newMenuTemplate;
+      return _newMenuTemplate(
+        storeName: storeName,
+        menuName: menuName,
+        address: address,
+        hours: hours,
+      );
   }
 }
 
-const String _newMenuTemplate = '''
-보니스 커피에 새 메뉴가 출시되었습니다!
+String _nonEmptyOr(String? value, String fallback) {
+  final trimmed = value?.trim();
+  return trimmed == null || trimmed.isEmpty ? fallback : trimmed;
+}
 
-✨ 신메뉴: 크림브륄레 커피
+String _businessHoursLabel(StoreOperationInfo info) {
+  final days = info.businessDays.map((day) => day.label).join(', ');
+  final openTime = info.openTime?.trim();
+  final closeTime = info.closeTime?.trim();
+  if (days.isEmpty ||
+      openTime == null ||
+      openTime.isEmpty ||
+      closeTime == null ||
+      closeTime.isEmpty) {
+    return '[영업시간]';
+  }
+  return '$days $openTime ~ $closeTime';
+}
+
+String _newMenuTemplate({
+  required String storeName,
+  required String menuName,
+  required String address,
+  required String hours,
+}) =>
+    '''
+$storeName에 새 메뉴가 출시되었습니다!
+
+✨ 신메뉴: $menuName
 💰 가격: [가격]원
 
 [메뉴 설명을 입력해주세요]
 
 신선한 재료로 정성껏 만들었습니다. 많은 사랑 부탁드립니다 🙏
 
-📍 서울 마포구 동교로16길 21
-⏰ 영업시간: 수, 목, 금, 토, 일 오전 9:00 ~ 오후 8:00
+📍 $address
+⏰ 영업시간: $hours
 📞 [전화 번호]''';
 
-const String _eventTemplate = '''
-보니스 커피에서 특별 이벤트를 진행합니다!
+String _eventTemplate({
+  required String storeName,
+  required String address,
+  required String hours,
+}) =>
+    '''
+$storeName에서 특별 이벤트를 진행합니다!
 
 🎁 이벤트: [이벤트명]
 📅 기간: [이벤트 기간]
@@ -118,23 +192,33 @@ const String _eventTemplate = '''
 
 많은 관심과 참여 부탁드립니다.
 
-📍 서울 마포구 동교로16길 21
-⏰ 영업시간: 수, 목, 금, 토, 일 오전 9:00 ~ 오후 8:00
+📍 $address
+⏰ 영업시간: $hours
 📞 [전화 번호]''';
 
-const String _storeIntroTemplate = '''
-보니스 커피를 소개합니다!
+String _storeIntroTemplate({
+  required String storeName,
+  required String address,
+  required String hours,
+}) =>
+    '''
+$storeName을 소개합니다!
 
 [매장 분위기와 장점을 입력해주세요]
 
 편안한 공간에서 좋은 시간을 보내실 수 있도록 정성껏 준비하고 있어요.
 
-📍 서울 마포구 동교로16길 21
-⏰ 영업시간: 수, 목, 금, 토, 일 오전 9:00 ~ 오후 8:00
+📍 $address
+⏰ 영업시간: $hours
 📞 [전화 번호]''';
 
-const String _noticeTemplate = '''
-보니스 커피에서 안내드립니다.
+String _noticeTemplate({
+  required String storeName,
+  required String address,
+  required String hours,
+}) =>
+    '''
+$storeName에서 안내드립니다.
 
 📢 공지: [공지 제목]
 
@@ -142,6 +226,6 @@ const String _noticeTemplate = '''
 
 이용에 참고 부탁드립니다.
 
-📍 서울 마포구 동교로16길 21
-⏰ 영업시간: 수, 목, 금, 토, 일 오전 9:00 ~ 오후 8:00
+📍 $address
+⏰ 영업시간: $hours
 📞 [전화 번호]''';

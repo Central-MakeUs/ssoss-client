@@ -16,12 +16,14 @@ import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 class RecommendedContentTemplateApplyBody extends StatelessWidget {
   const RecommendedContentTemplateApplyBody({
     required this.document,
+    required this.hasStoreInfo,
     required this.onDocumentChanged,
     required this.onEditTap,
     super.key,
   });
 
   final SsossTemplateDocument document;
+  final bool hasStoreInfo;
   final ValueChanged<SsossTemplateDocument> onDocumentChanged;
   final VoidCallback onEditTap;
 
@@ -30,7 +32,7 @@ class RecommendedContentTemplateApplyBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(15, 12, 16, 24),
       children: [
-        const RecommendedContentTemplateApplyIntro(),
+        RecommendedContentTemplateApplyIntro(hasStoreInfo: hasStoreInfo),
         const SizedBox(height: 32),
         RecommendedContentTemplateApplyEditor(
           document: document,
@@ -45,10 +47,19 @@ class RecommendedContentTemplateApplyBody extends StatelessWidget {
 }
 
 class RecommendedContentTemplateApplyIntro extends StatelessWidget {
-  const RecommendedContentTemplateApplyIntro({super.key});
+  const RecommendedContentTemplateApplyIntro({
+    required this.hasStoreInfo,
+    super.key,
+  });
+
+  final bool hasStoreInfo;
 
   @override
   Widget build(BuildContext context) {
+    if (!hasStoreInfo) {
+      return const RecommendedContentTemplateApplyStoreInfoWarning();
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -62,6 +73,53 @@ class RecommendedContentTemplateApplyIntro extends StatelessWidget {
           style: AppTextStyles.b4.copyWith(color: AppColors.neutral500),
         ),
       ],
+    );
+  }
+}
+
+class RecommendedContentTemplateApplyStoreInfoWarning extends StatelessWidget {
+  const RecommendedContentTemplateApplyStoreInfoWarning({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.warning50,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.info_outline_rounded,
+            size: 20,
+            color: AppColors.warning700,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppText(
+                  '매장 정보가 아직 입력되지 않았어요',
+                  style: AppTextStyles.h8.copyWith(
+                    color: AppColors.warning700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                AppText(
+                  '[매장명]처럼 표시된 내용을 직접 입력하거나 수정해 주세요.',
+                  style: AppTextStyles.b5.copyWith(
+                    color: AppColors.warning700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
