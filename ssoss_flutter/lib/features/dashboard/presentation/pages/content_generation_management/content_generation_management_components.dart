@@ -9,10 +9,8 @@ import 'package:ssoss_flutter/common/widgets/tag/ssoss_tag.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
-import 'package:ssoss_flutter/core/constants/writing_tone.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
-import 'package:ssoss_flutter/features/content/domain/entities/upload_purpose.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
 
 class ContentManagementItem {
@@ -22,8 +20,6 @@ class ContentManagementItem {
     required this.channel,
     required this.category,
     required this.tone,
-    required this.purpose,
-    required this.writingTone,
     required this.title,
     required this.tags,
     this.initialChannel,
@@ -39,12 +35,6 @@ class ContentManagementItem {
   final UploadChannel? initialChannel;
   final String category;
   final String tone;
-
-  /// 원본 목적 (이 스타일로 새로 만들기 등).
-  final UploadPurpose purpose;
-
-  /// 원본 톤 (이 스타일로 새로 만들기 등).
-  final WritingTone writingTone;
 
   /// 카드 미리보기 제목(서버 말줄임 그대로).
   final String title;
@@ -238,7 +228,6 @@ class ContentManagementCard extends StatelessWidget {
     this.onMoreTap,
     this.onTitleEditTap,
     this.onDeleteTap,
-    this.onReuseTap,
   });
 
   final ContentManagementItem item;
@@ -247,7 +236,6 @@ class ContentManagementCard extends StatelessWidget {
   final VoidCallback? onMoreTap;
   final VoidCallback? onTitleEditTap;
   final VoidCallback? onDeleteTap;
-  final VoidCallback? onReuseTap;
 
   @override
   Widget build(BuildContext context) {
@@ -317,28 +305,6 @@ class ContentManagementCard extends StatelessWidget {
                     style: AppTextStyles.b5.copyWith(
                       color: AppColors.neutral400,
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  SsossButton(
-                    label: '이 스타일로 새로 만들기',
-                    size: SsossButtonSize.small,
-                    type: SsossButtonType.outline,
-                    width: double.infinity,
-                    onPressed: onReuseTap,
-                    showRightIcon: true,
-                    icon: SvgPicture.asset(
-                      AppAssets.icChange,
-                      width: 14,
-                      height: 14,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.black,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                    textStyle: AppTextStyles.h8,
-                    foregroundColor: AppColors.black,
-                    borderColor: AppColors.neutral200,
-                    backgroundColor: AppColors.white,
                   ),
                 ],
               ),

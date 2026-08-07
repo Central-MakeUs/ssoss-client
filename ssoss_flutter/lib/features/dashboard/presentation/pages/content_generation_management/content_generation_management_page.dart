@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
-import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/delete_content_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/list_contents_usecase.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
@@ -16,8 +15,6 @@ import 'package:ssoss_flutter/features/dashboard/presentation/cubit/content_gene
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_detail/content_detail_page.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/content_generation_management_components.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/saved_content_template_detail_page.dart';
-import 'package:ssoss_flutter/features/new_style/presentation/models/new_style_args.dart';
-import 'package:ssoss_flutter/features/new_style/presentation/util/open_new_style_flow.dart';
 
 class ContentGenerationManagementPage extends StatefulWidget {
   const ContentGenerationManagementPage({
@@ -290,23 +287,6 @@ class _ContentGenerationManagementViewState
     setState(() => _selectedTabIndex = index);
   }
 
-  Future<void> _openNewStyle(
-    BuildContext context,
-    ContentManagementItem item,
-  ) async {
-    context.read<ContentGenerationManagementCubit>().closeDeleteMenu();
-    await openNewStyleFlow(
-      context,
-      args: NewStyleArgs(
-        sourceContentId: item.contentId.toString(),
-        purpose: item.purpose,
-        tone: item.writingTone,
-        referenceChannel: item.initialChannel ?? UploadChannel.blog,
-        referenceRawText: item.title,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<ContentGenerationManagementCubit,
@@ -444,9 +424,6 @@ class _ContentGenerationManagementViewState
                                               ),
                                               onDeleteTap: () => unawaited(
                                                 _confirmDelete(context, item),
-                                              ),
-                                              onReuseTap: () => unawaited(
-                                                _openNewStyle(context, item),
                                               ),
                                             ),
                                           );

@@ -169,8 +169,6 @@ class ContentGenerationManagementCubit
       initialChannel: ordered.isEmpty ? null : ordered.first,
       category: ContentLabelMapper.purpose(listItem.purpose),
       tone: ContentLabelMapper.tone(listItem.tone),
-      purpose: listItem.purpose,
-      writingTone: listItem.tone,
       title: listItem.title,
       tags: listItem.hashtags,
     );
