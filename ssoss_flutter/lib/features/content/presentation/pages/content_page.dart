@@ -12,14 +12,14 @@ import 'package:ssoss_flutter/features/content/presentation/cubit/content_recent
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_recent_state.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_recent_item.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_create_page.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/home/content_channel_shortcuts.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/home/content_hero_section.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/home/content_recent_section.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/home/content_template_section.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_detail/content_detail_page.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
+import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source/recommend_source_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 
 /// 콘텐츠 생성 탭의 첫 화면 본문. 상단 헤더·하단 네비게이션은 [HomePage]에서 제공한다.
 class ContentPage extends StatefulWidget {
@@ -113,21 +113,21 @@ class _ContentPageView extends StatelessWidget {
 
   void _openRecommendedTemplates(
     BuildContext context, [
-    ContentTemplateCategory category = ContentTemplateCategory.all,
+    TemplateCategory category = TemplateCategory.all,
   ]) {
     unawaited(
       context.push(
-        RecommendedContentTemplatesPage.routePath,
+        RecommendSourcePage.routePath,
         extra: category,
       ),
     );
   }
 
-  ContentTemplateCategory? _categoryForHomeTemplate(ContentTemplateItem item) {
+  TemplateCategory? _categoryForHomeTemplate(ContentTemplateItem item) {
     return switch (item.id) {
-      'new-menu' => ContentTemplateCategory.newMenu,
-      'event-discount' => ContentTemplateCategory.event,
-      'introduction' => ContentTemplateCategory.storeIntro,
+      'new-menu' => TemplateCategory.newMenu,
+      'event-discount' => TemplateCategory.event,
+      'introduction' => TemplateCategory.storeIntro,
       _ => null,
     };
   }

@@ -116,4 +116,4 @@
 
 - **API**: `GET|DELETE /v1/members/me/hashtag-bundles`
 - **선행**: 해시태그 카탈로그·북마크 (`feature/hashtag-catalog`)
-- **UI 재사용**: `ContentTemplateCard`, `RecommendedHashtagSetCard`, `SsossTabBar`, `SsossToast`
+- **UI 재사용**: `TemplateCard`, `RecommendSourceHashtagSetCard`, `SsossTabBar`, `SsossToast`

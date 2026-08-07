@@ -18,7 +18,7 @@
 
 독립 `hashtag` 피처에 카탈로그 조회·북마크 저장·해제 data/domain을 두고, 추천 콘텐츠 소스 해시태그 탭에 `HashtagCatalogCubit`을 연결한다. 이후 북마크 전용 목록 화면에서도 동일 usecase를 재사용할 수 있다.
 
-**피처 경로**: `lib/features/hashtag/` (data/domain/cubit), UI는 `lib/features/content/.../recommended_content_templates/`
+**피처 경로**: `lib/features/hashtag/` (data/domain/cubit), UI는 `lib/features/recommend_source/.../recommend_source/`
 
 ---
 
@@ -117,7 +117,7 @@ State 필드: `items`, `keyword`, `page`, `hasNext`, `isLoading`, `isLoadingMore
 
 ### 5.3 Pages & Widgets
 
-기존 `RecommendedContentTemplatesPage` + `RecommendedHashtagSetList` 연동. 신규 라우트 없음.
+기존 `RecommendSourcePage` + `RecommendSourceHashtagSetList` 연동. 신규 라우트 없음.
 
 ---
 

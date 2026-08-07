@@ -28,13 +28,13 @@ import 'package:ssoss_flutter/features/content/presentation/pages/content_save_c
 import 'package:ssoss_flutter/features/new_style/presentation/models/new_style_args.dart';
 import 'package:ssoss_flutter/features/new_style/presentation/pages/new_style_channel_page.dart';
 import 'package:ssoss_flutter/features/new_style/presentation/pages/new_style_detail_page.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_apply/recommended_content_template_apply_page.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_detail/recommended_content_template_detail_page.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_edit/recommended_content_template_edit_page.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_save_complete/recommended_content_template_save_complete_page.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_page.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
+import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source/recommend_source_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/pages/template_apply/template_apply_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/pages/template_detail/template_detail_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/pages/template_edit/template_edit_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/pages/template_save_complete/template_save_complete_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_intro_page.dart';
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_operation_info_page.dart';
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_store_info_complete_page.dart';
@@ -299,56 +299,55 @@ GoRouter createAppRouter(
         },
       ),
       GoRoute(
-        name: RecommendedContentTemplatesPage.routeName,
-        path: RecommendedContentTemplatesPage.routePath,
+        name: RecommendSourcePage.routeName,
+        path: RecommendSourcePage.routePath,
         builder: (context, state) {
           final extra = state.extra;
-          final initialCategory = extra is ContentTemplateCategory
+          final initialCategory = extra is TemplateCategory
               ? extra
-              : ContentTemplateCategory.all;
-          return RecommendedContentTemplatesPage(
+              : TemplateCategory.all;
+          return RecommendSourcePage(
             initialCategory: initialCategory,
           );
         },
       ),
       GoRoute(
-        name: RecommendedContentTemplateDetailPage.routeName,
-        path: RecommendedContentTemplateDetailPage.routePath,
+        name: TemplateDetailPage.routeName,
+        path: TemplateDetailPage.routePath,
         builder: (context, state) {
           final extra = state.extra;
-          if (extra is! RecommendedContentTemplateItem) {
-            return const RecommendedContentTemplatesPage();
+          if (extra is! TemplateItem) {
+            return const RecommendSourcePage();
           }
-          return RecommendedContentTemplateDetailPage(item: extra);
+          return TemplateDetailPage(item: extra);
         },
       ),
       GoRoute(
-        name: RecommendedContentTemplateApplyPage.routeName,
-        path: RecommendedContentTemplateApplyPage.routePath,
+        name: TemplateApplyPage.routeName,
+        path: TemplateApplyPage.routePath,
         builder: (context, state) {
           final extra = state.extra;
-          if (extra is! RecommendedContentTemplateItem) {
-            return const RecommendedContentTemplatesPage();
+          if (extra is! TemplateItem) {
+            return const RecommendSourcePage();
           }
-          return RecommendedContentTemplateApplyPage(item: extra);
+          return TemplateApplyPage(item: extra);
         },
       ),
       GoRoute(
-        name: RecommendedContentTemplateEditPage.routeName,
-        path: RecommendedContentTemplateEditPage.routePath,
+        name: TemplateEditPage.routeName,
+        path: TemplateEditPage.routePath,
         builder: (context, state) {
           final extra = state.extra;
-          if (extra is! RecommendedContentTemplateEditArgs) {
-            return const RecommendedContentTemplatesPage();
+          if (extra is! TemplateEditArgs) {
+            return const RecommendSourcePage();
           }
-          return RecommendedContentTemplateEditPage(args: extra);
+          return TemplateEditPage(args: extra);
         },
       ),
       GoRoute(
-        name: RecommendedContentTemplateSaveCompletePage.routeName,
-        path: RecommendedContentTemplateSaveCompletePage.routePath,
-        builder: (context, state) =>
-            const RecommendedContentTemplateSaveCompletePage(),
+        name: TemplateSaveCompletePage.routeName,
+        path: TemplateSaveCompletePage.routePath,
+        builder: (context, state) => const TemplateSaveCompletePage(),
       ),
     ],
   );

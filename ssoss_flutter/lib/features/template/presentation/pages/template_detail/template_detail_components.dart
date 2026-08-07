@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import 'package:ssoss_flutter/common/widgets/accordion/ssoss_accordion.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
+import 'package:ssoss_flutter/features/template/presentation/widgets/template_list.dart';
+import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 
-class ContentTemplateDetailBody extends StatelessWidget {
-  const ContentTemplateDetailBody({
+class TemplateDetailBody extends StatelessWidget {
+  const TemplateDetailBody({
     required this.item,
     required this.previewText,
     required this.isExampleOpen,
@@ -16,7 +19,7 @@ class ContentTemplateDetailBody extends StatelessWidget {
     super.key,
   });
 
-  final RecommendedContentTemplateItem item;
+  final TemplateItem item;
   final String previewText;
   final bool isExampleOpen;
   final VoidCallback onExampleTap;
@@ -26,50 +29,50 @@ class ContentTemplateDetailBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(15, 12, 16, 40),
       children: [
-        ContentTemplateDetailHeader(item: item),
+        TemplateDetailHeader(item: item),
         const SizedBox(height: 24),
-        const ContentTemplateDetailDivider(),
+        const TemplateDetailDivider(),
         const SizedBox(height: 24),
-        ContentTemplatePreviewSection(
+        TemplatePreviewSection(
           previewText: previewText,
           isExampleOpen: isExampleOpen,
           onExampleTap: onExampleTap,
         ),
         const SizedBox(height: 24),
-        const ContentTemplateNoticeBox(),
+        const TemplateNoticeBox(),
       ],
     );
   }
 }
 
-class ContentTemplateDetailHeader extends StatelessWidget {
-  const ContentTemplateDetailHeader({
+class TemplateDetailHeader extends StatelessWidget {
+  const TemplateDetailHeader({
     required this.item,
     super.key,
   });
 
-  final RecommendedContentTemplateItem item;
+  final TemplateItem item;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ContentTemplateCategoryTag(category: item.category),
+        TemplateCategoryTag(category: item.category),
         const SizedBox(height: 8),
-        ContentTemplateDetailTitle(
+        TemplateDetailTitle(
           title: item.title,
           description: item.description,
         ),
         const SizedBox(height: 10),
-        ContentTemplateRecommendedChannels(channels: item.channels),
+        TemplateRecommendedChannels(channels: item.channels),
       ],
     );
   }
 }
 
-class ContentTemplateDetailTitle extends StatelessWidget {
-  const ContentTemplateDetailTitle({
+class TemplateDetailTitle extends StatelessWidget {
+  const TemplateDetailTitle({
     required this.title,
     required this.description,
     super.key,
@@ -97,8 +100,8 @@ class ContentTemplateDetailTitle extends StatelessWidget {
   }
 }
 
-class ContentTemplateDetailDivider extends StatelessWidget {
-  const ContentTemplateDetailDivider({super.key});
+class TemplateDetailDivider extends StatelessWidget {
+  const TemplateDetailDivider({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -106,8 +109,8 @@ class ContentTemplateDetailDivider extends StatelessWidget {
   }
 }
 
-class ContentTemplatePreviewSection extends StatelessWidget {
-  const ContentTemplatePreviewSection({
+class TemplatePreviewSection extends StatelessWidget {
+  const TemplatePreviewSection({
     required this.previewText,
     required this.isExampleOpen,
     required this.onExampleTap,
@@ -128,20 +131,20 @@ class ContentTemplatePreviewSection extends StatelessWidget {
           style: AppTextStyles.h5.copyWith(color: AppColors.black),
         ),
         const SizedBox(height: 12),
-        ContentTemplatePreviewCard(
+        TemplatePreviewCard(
           previewText: previewText,
           isExampleOpen: isExampleOpen,
           onExampleTap: onExampleTap,
         ),
         const SizedBox(height: 16),
-        const ContentTemplateInfoHint(),
+        const TemplateInfoHint(),
       ],
     );
   }
 }
 
-class ContentTemplatePreviewCard extends StatelessWidget {
-  const ContentTemplatePreviewCard({
+class TemplatePreviewCard extends StatelessWidget {
+  const TemplatePreviewCard({
     required this.previewText,
     required this.isExampleOpen,
     required this.onExampleTap,
@@ -168,10 +171,10 @@ class ContentTemplatePreviewCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ContentTemplatePreviewText(text: previewText),
-          const ContentTemplateDetailDivider(),
+          TemplatePreviewText(text: previewText),
+          const TemplateDetailDivider(),
           const SizedBox(height: 8),
-          ContentTemplateExampleAccordion(
+          TemplateExampleAccordion(
             isOpen: isExampleOpen,
             onTap: onExampleTap,
           ),
@@ -181,8 +184,8 @@ class ContentTemplatePreviewCard extends StatelessWidget {
   }
 }
 
-class ContentTemplatePreviewText extends StatelessWidget {
-  const ContentTemplatePreviewText({
+class TemplatePreviewText extends StatelessWidget {
+  const TemplatePreviewText({
     required this.text,
     super.key,
   });
@@ -201,8 +204,8 @@ class ContentTemplatePreviewText extends StatelessWidget {
   }
 }
 
-class ContentTemplateExampleAccordion extends StatelessWidget {
-  const ContentTemplateExampleAccordion({
+class TemplateExampleAccordion extends StatelessWidget {
+  const TemplateExampleAccordion({
     required this.isOpen,
     required this.onTap,
     super.key,
@@ -223,7 +226,7 @@ class ContentTemplateExampleAccordion extends StatelessWidget {
         ),
         if (isOpen) ...[
           const SizedBox(height: 12),
-          const ContentTemplateExampleContent(),
+          const TemplateExampleContent(),
         ] else ...[
           const SizedBox(height: 8),
         ],
@@ -232,8 +235,8 @@ class ContentTemplateExampleAccordion extends StatelessWidget {
   }
 }
 
-class ContentTemplateExampleContent extends StatelessWidget {
-  const ContentTemplateExampleContent({super.key});
+class TemplateExampleContent extends StatelessWidget {
+  const TemplateExampleContent({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -260,8 +263,8 @@ class ContentTemplateExampleContent extends StatelessWidget {
   }
 }
 
-class ContentTemplateInfoHint extends StatelessWidget {
-  const ContentTemplateInfoHint({super.key});
+class TemplateInfoHint extends StatelessWidget {
+  const TemplateInfoHint({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -285,8 +288,8 @@ class ContentTemplateInfoHint extends StatelessWidget {
   }
 }
 
-class ContentTemplateNoticeBox extends StatelessWidget {
-  const ContentTemplateNoticeBox({super.key});
+class TemplateNoticeBox extends StatelessWidget {
+  const TemplateNoticeBox({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -302,10 +305,14 @@ class ContentTemplateNoticeBox extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.campaign_outlined,
-                size: 16,
-                color: AppColors.warning700,
+              SvgPicture.asset(
+                AppAssets.icToastWarning,
+                width: 16,
+                height: 16,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.warning700,
+                  BlendMode.srcIn,
+                ),
               ),
               const SizedBox(width: 8),
               AppText(
@@ -329,8 +336,8 @@ class ContentTemplateNoticeBox extends StatelessWidget {
   }
 }
 
-class ContentTemplateDetailBottomBar extends StatelessWidget {
-  const ContentTemplateDetailBottomBar({
+class TemplateDetailBottomBar extends StatelessWidget {
+  const TemplateDetailBottomBar({
     required this.isSaved,
     required this.onSaveTap,
     required this.onApplyTap,
@@ -356,7 +363,7 @@ class ContentTemplateDetailBottomBar extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
           child: Row(
             children: [
-              ContentTemplateDetailSaveAction(
+              TemplateDetailSaveAction(
                 isSaved: isSaved,
                 onTap: onSaveTap,
               ),
@@ -377,8 +384,8 @@ class ContentTemplateDetailBottomBar extends StatelessWidget {
   }
 }
 
-class ContentTemplateDetailSaveAction extends StatelessWidget {
-  const ContentTemplateDetailSaveAction({
+class TemplateDetailSaveAction extends StatelessWidget {
+  const TemplateDetailSaveAction({
     required this.isSaved,
     required this.onTap,
     super.key,
@@ -407,7 +414,7 @@ class ContentTemplateDetailSaveAction extends StatelessWidget {
             ),
             child: Center(
               child: IgnorePointer(
-                child: ContentTemplateSaveButton(
+                child: TemplateSaveButton(
                   isSaved: isSaved,
                   onTap: onTap,
                 ),

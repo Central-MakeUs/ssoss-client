@@ -8,9 +8,10 @@ import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_detail/recommended_content_template_detail_components.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/content_generation_management_components.dart';
+import 'package:ssoss_flutter/features/template/presentation/pages/template_detail/template_detail_components.dart';
+import 'package:ssoss_flutter/features/template/presentation/pages/template_edit/template_edit_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/widgets/template_list.dart';
 
 class SavedContentTemplateDetailPage extends StatelessWidget {
   const SavedContentTemplateDetailPage({
@@ -60,7 +61,7 @@ class SavedContentTemplateDetailBody extends StatelessWidget {
         const SizedBox(height: 24),
         _SavedTemplateBodySection(body: item.body),
         const SizedBox(height: 24),
-        const ContentTemplateNoticeBox(),
+        const TemplateNoticeBox(),
       ],
     );
   }
@@ -76,7 +77,7 @@ class _SavedTemplateDetailHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ContentTemplateCategoryTag(category: item.category),
+        TemplateCategoryTag(category: item.category),
         const SizedBox(height: 8),
         AppText(
           item.title,
@@ -88,7 +89,7 @@ class _SavedTemplateDetailHeader extends StatelessWidget {
           style: AppTextStyles.b4.copyWith(color: AppColors.black),
         ),
         const SizedBox(height: 10),
-        ContentTemplateRecommendedChannels(channels: item.channels),
+        TemplateRecommendedChannels(channels: item.channels),
       ],
     );
   }

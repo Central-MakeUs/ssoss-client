@@ -11,7 +11,8 @@ import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
+import 'package:ssoss_flutter/features/template/presentation/widgets/template_list.dart';
+import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 
 class ContentManagementItem {
   const ContentManagementItem({
@@ -66,7 +67,7 @@ class SavedContentTemplateManagementItem {
   });
 
   final String id;
-  final ContentTemplateCategory category;
+  final TemplateCategory category;
   final String title;
   final String description;
   final List<String> channels;
@@ -357,7 +358,7 @@ class SavedContentTemplateManagementCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  ContentTemplateCategoryTag(category: item.category),
+                  TemplateCategoryTag(category: item.category),
                   const Spacer(),
                   GestureDetector(
                     onTap: onMoreTap,

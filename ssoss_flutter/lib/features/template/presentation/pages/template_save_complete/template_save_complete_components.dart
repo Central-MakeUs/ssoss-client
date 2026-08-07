@@ -6,8 +6,8 @@ import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
-class RecommendedContentTemplateSaveCompleteBody extends StatelessWidget {
-  const RecommendedContentTemplateSaveCompleteBody({
+class TemplateSaveCompleteBody extends StatelessWidget {
+  const TemplateSaveCompleteBody({
     required this.onViewHistory,
     required this.onViewTemplates,
     super.key,
@@ -21,9 +21,9 @@ class RecommendedContentTemplateSaveCompleteBody extends StatelessWidget {
     return Column(
       children: [
         const Expanded(
-          child: RecommendedContentTemplateSaveCompleteMessage(),
+          child: TemplateSaveCompleteMessage(),
         ),
-        RecommendedContentTemplateSaveCompleteActions(
+        TemplateSaveCompleteActions(
           onViewHistory: onViewHistory,
           onViewTemplates: onViewTemplates,
         ),
@@ -32,8 +32,8 @@ class RecommendedContentTemplateSaveCompleteBody extends StatelessWidget {
   }
 }
 
-class RecommendedContentTemplateSaveCompleteMessage extends StatelessWidget {
-  const RecommendedContentTemplateSaveCompleteMessage({super.key});
+class TemplateSaveCompleteMessage extends StatelessWidget {
+  const TemplateSaveCompleteMessage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -68,8 +68,8 @@ class RecommendedContentTemplateSaveCompleteMessage extends StatelessWidget {
   }
 }
 
-class RecommendedContentTemplateSaveCompleteActions extends StatelessWidget {
-  const RecommendedContentTemplateSaveCompleteActions({
+class TemplateSaveCompleteActions extends StatelessWidget {
+  const TemplateSaveCompleteActions({
     required this.onViewHistory,
     required this.onViewTemplates,
     super.key,

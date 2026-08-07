@@ -9,7 +9,7 @@ import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/delete_content_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/list_contents_usecase.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
+import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/cubit/content_generation_management_cubit.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/cubit/content_generation_management_state.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_detail/content_detail_page.dart';
@@ -171,7 +171,7 @@ class _ContentGenerationManagementViewState
   static const List<SavedContentTemplateManagementItem> _templateItems = [
     SavedContentTemplateManagementItem(
       id: 'saved-template-1',
-      category: ContentTemplateCategory.newMenu,
+      category: TemplateCategory.newMenu,
       title: '신메뉴 출시 안내',
       description: '새로 나온 메뉴의 특징과 매력을 소개하는 글',
       channels: ['당근', '인스타그램', '스레드'],
@@ -180,7 +180,7 @@ class _ContentGenerationManagementViewState
     ),
     SavedContentTemplateManagementItem(
       id: 'saved-template-2',
-      category: ContentTemplateCategory.event,
+      category: TemplateCategory.event,
       title: '주말 한정 이벤트 안내',
       description: '기간, 혜택, 참여 방법을 명확하게 전달하는 글',
       channels: ['당근', '인스타그램', '스레드'],
@@ -189,7 +189,7 @@ class _ContentGenerationManagementViewState
     ),
     SavedContentTemplateManagementItem(
       id: 'saved-template-3',
-      category: ContentTemplateCategory.notice,
+      category: TemplateCategory.notice,
       title: '임시 휴무 안내',
       description: '운영 일정 변경을 고객에게 전달하는 글',
       channels: ['블로그', '인스타그램'],

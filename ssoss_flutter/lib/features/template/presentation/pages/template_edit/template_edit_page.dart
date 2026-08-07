@@ -12,40 +12,38 @@ import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/edit/content_edit_bottom_bar.dart';
 
-class RecommendedContentTemplateEditArgs {
-  const RecommendedContentTemplateEditArgs({
+class TemplateEditArgs {
+  const TemplateEditArgs({
     required this.document,
   });
 
   final SsossTemplateDocument document;
 }
 
-class RecommendedContentTemplateEditPage extends StatefulWidget {
-  const RecommendedContentTemplateEditPage({
+class TemplateEditPage extends StatefulWidget {
+  const TemplateEditPage({
     required this.args,
     super.key,
   });
 
-  static const String routeName = 'recommended-content-template-edit';
-  static const String routePath = '/recommended-content-template-edit';
+  static const String routeName = 'template-edit';
+  static const String routePath = '/template-edit';
   static const int maxBodyLength = 1000;
 
-  final RecommendedContentTemplateEditArgs args;
+  final TemplateEditArgs args;
 
   @override
-  State<RecommendedContentTemplateEditPage> createState() =>
-      _RecommendedContentTemplateEditPageState();
+  State<TemplateEditPage> createState() => _TemplateEditPageState();
 }
 
-class _RecommendedContentTemplateEditPageState
-    extends State<RecommendedContentTemplateEditPage> {
+class _TemplateEditPageState extends State<TemplateEditPage> {
   late final SsossTemplateDocument _originalDocument = widget.args.document;
   late SsossTemplateDocument _document = widget.args.document;
 
   bool get _isDirty => _document != _originalDocument;
   bool get _canSubmit =>
       _document.plainText.trim().isNotEmpty &&
-      _document.textLength <= RecommendedContentTemplateEditPage.maxBodyLength;
+      _document.textLength <= TemplateEditPage.maxBodyLength;
 
   Future<void> _onBack() async {
     if (!_isDirty) {
@@ -111,7 +109,7 @@ class _RecommendedContentTemplateEditPageState
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-                  child: RecommendedContentTemplateEditBody(
+                  child: TemplateEditBody(
                     document: _document,
                     onDocumentChanged: (document) {
                       setState(() => _document = document);
@@ -132,8 +130,8 @@ class _RecommendedContentTemplateEditPageState
   }
 }
 
-class RecommendedContentTemplateEditBody extends StatelessWidget {
-  const RecommendedContentTemplateEditBody({
+class TemplateEditBody extends StatelessWidget {
+  const TemplateEditBody({
     required this.document,
     required this.onDocumentChanged,
     super.key,
@@ -155,7 +153,7 @@ class RecommendedContentTemplateEditBody extends StatelessWidget {
         SsossTemplateContentsEditCard(
           document: document,
           width: double.infinity,
-          maxLength: RecommendedContentTemplateEditPage.maxBodyLength,
+          maxLength: TemplateEditPage.maxBodyLength,
           onDocumentChanged: onDocumentChanged,
           emptySlotColor: AppColors.primary300,
         ),

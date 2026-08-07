@@ -5,32 +5,30 @@ import 'package:go_router/go_router.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_apply/recommended_content_template_apply_page.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_detail/recommended_content_template_detail_components.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
+import 'package:ssoss_flutter/features/template/presentation/pages/template_apply/template_apply_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/pages/template_detail/template_detail_components.dart';
+import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 
-class RecommendedContentTemplateDetailPage extends StatefulWidget {
-  const RecommendedContentTemplateDetailPage({
+class TemplateDetailPage extends StatefulWidget {
+  const TemplateDetailPage({
     required this.item,
     super.key,
     this.onSavedChanged,
   });
 
-  static const String routeName = 'recommended-content-template-detail';
-  static const String routePath = '/recommended-content-template-detail';
+  static const String routeName = 'template-detail';
+  static const String routePath = '/template-detail';
 
-  final RecommendedContentTemplateItem item;
+  final TemplateItem item;
 
   /// 저장/해제 버튼 탭 직후 호출. `true`면 저장, `false`면 해제.
   final ValueChanged<bool>? onSavedChanged;
 
   @override
-  State<RecommendedContentTemplateDetailPage> createState() =>
-      _RecommendedContentTemplateDetailPageState();
+  State<TemplateDetailPage> createState() => _TemplateDetailPageState();
 }
 
-class _RecommendedContentTemplateDetailPageState
-    extends State<RecommendedContentTemplateDetailPage> {
+class _TemplateDetailPageState extends State<TemplateDetailPage> {
   late bool _isSaved = widget.item.isSaved;
   bool _isExampleOpen = false;
 
@@ -52,7 +50,7 @@ class _RecommendedContentTemplateDetailPageState
               onBack: () => Navigator.of(context).pop(),
             ),
             Expanded(
-              child: ContentTemplateDetailBody(
+              child: TemplateDetailBody(
                 item: widget.item,
                 previewText: _previewText,
                 isExampleOpen: _isExampleOpen,
@@ -64,13 +62,13 @@ class _RecommendedContentTemplateDetailPageState
           ],
         ),
       ),
-      bottomNavigationBar: ContentTemplateDetailBottomBar(
+      bottomNavigationBar: TemplateDetailBottomBar(
         isSaved: _isSaved,
         onSaveTap: _onSaveTap,
         onApplyTap: () {
           unawaited(
             context.push(
-              RecommendedContentTemplateApplyPage.routePath,
+              TemplateApplyPage.routePath,
               extra: widget.item,
             ),
           );

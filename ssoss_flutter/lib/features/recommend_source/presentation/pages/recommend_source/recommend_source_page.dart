@@ -8,8 +8,6 @@ import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/tab/ssoss_tab_bar.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_detail/recommended_content_template_detail_page.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
 import 'package:ssoss_flutter/features/hashtag/domain/entities/hashtag_bundle.dart';
 import 'package:ssoss_flutter/features/hashtag/domain/usecases/bookmark_hashtag_bundle_usecase.dart';
 import 'package:ssoss_flutter/features/hashtag/domain/usecases/list_hashtag_bundles_usecase.dart';
@@ -17,18 +15,22 @@ import 'package:ssoss_flutter/features/hashtag/domain/usecases/unbookmark_hashta
 import 'package:ssoss_flutter/features/hashtag/presentation/cubit/hashtag_catalog_cubit.dart';
 import 'package:ssoss_flutter/features/hashtag/presentation/cubit/hashtag_catalog_state.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
+import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source/recommend_source_components.dart';
+import 'package:ssoss_flutter/features/template/presentation/pages/template_detail/template_detail_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/widgets/template_list.dart';
+import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 import 'package:ssoss_flutter/utils/debouncer.dart';
 
-class RecommendedContentTemplatesPage extends StatelessWidget {
-  const RecommendedContentTemplatesPage({
+class RecommendSourcePage extends StatelessWidget {
+  const RecommendSourcePage({
     super.key,
-    this.initialCategory = ContentTemplateCategory.all,
+    this.initialCategory = TemplateCategory.all,
   });
 
-  static const String routeName = 'recommended-content-templates';
-  static const String routePath = '/recommended-content-templates';
+  static const String routeName = 'recommend-source';
+  static const String routePath = '/recommend-source';
 
-  final ContentTemplateCategory initialCategory;
+  final TemplateCategory initialCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -38,52 +40,50 @@ class RecommendedContentTemplatesPage extends StatelessWidget {
         bookmarkHashtagBundle: context.read<BookmarkHashtagBundleUseCase>(),
         unbookmarkHashtagBundle: context.read<UnbookmarkHashtagBundleUseCase>(),
       ),
-      child: _RecommendedContentTemplatesView(
+      child: _RecommendSourceView(
         initialCategory: initialCategory,
       ),
     );
   }
 }
 
-class _RecommendedContentTemplatesView extends StatefulWidget {
-  const _RecommendedContentTemplatesView({
+class _RecommendSourceView extends StatefulWidget {
+  const _RecommendSourceView({
     required this.initialCategory,
   });
 
-  final ContentTemplateCategory initialCategory;
+  final TemplateCategory initialCategory;
 
   @override
-  State<_RecommendedContentTemplatesView> createState() =>
-      _RecommendedContentTemplatesViewState();
+  State<_RecommendSourceView> createState() => _RecommendSourceViewState();
 }
 
-class _RecommendedContentTemplatesViewState
-    extends State<_RecommendedContentTemplatesView> {
-  static const List<RecommendedContentTemplateItem> _initialItems = [
-    RecommendedContentTemplateItem(
+class _RecommendSourceViewState extends State<_RecommendSourceView> {
+  static const List<TemplateItem> _initialItems = [
+    TemplateItem(
       id: 'template-1',
-      category: ContentTemplateCategory.newMenu,
+      category: TemplateCategory.newMenu,
       title: '신메뉴 출시 안내',
       description: '새로 나온 메뉴의 특징과 매력을 소개하는 글',
       channels: ['당근', '인스타그램', '스레드'],
     ),
-    RecommendedContentTemplateItem(
+    TemplateItem(
       id: 'template-2',
-      category: ContentTemplateCategory.event,
+      category: TemplateCategory.event,
       title: '주말 한정 이벤트 안내',
       description: '기간, 혜택, 참여 방법을 명확하게 전달하는 글',
       channels: ['당근', '인스타그램', '스레드'],
     ),
-    RecommendedContentTemplateItem(
+    TemplateItem(
       id: 'template-3',
-      category: ContentTemplateCategory.notice,
+      category: TemplateCategory.notice,
       title: '임시 휴무 안내',
       description: '운영 일정 변경을 고객에게 전달하는 글',
       channels: ['블로그', '인스타그램'],
     ),
-    RecommendedContentTemplateItem(
+    TemplateItem(
       id: 'template-4',
-      category: ContentTemplateCategory.storeIntro,
+      category: TemplateCategory.storeIntro,
       title: '매장 분위기 소개',
       description: '우리 가게의 공간감과 장점을 소개하는 글',
       channels: ['인스타그램', '스레드'],
@@ -98,8 +98,8 @@ class _RecommendedContentTemplatesViewState
   final TextEditingController _searchController = TextEditingController();
   final Debouncer _hashtagSearchDebouncer = Debouncer();
   late final PageController _pageController;
-  late List<RecommendedContentTemplateItem> _items;
-  late ContentTemplateCategory _selectedCategory;
+  late List<TemplateItem> _items;
+  late TemplateCategory _selectedCategory;
   int _selectedTabIndex = 0;
   String _templateSearchKeyword = '';
 
@@ -119,13 +119,12 @@ class _RecommendedContentTemplatesViewState
     super.dispose();
   }
 
-  List<RecommendedContentTemplateItem> get _visibleItems {
+  List<TemplateItem> get _visibleItems {
     final keyword = _templateSearchKeyword.trim();
 
     return _items.where((item) {
-      final matchesCategory =
-          _selectedCategory == ContentTemplateCategory.all ||
-              item.category == _selectedCategory;
+      final matchesCategory = _selectedCategory == TemplateCategory.all ||
+          item.category == _selectedCategory;
       final matchesKeyword = keyword.isEmpty ||
           item.title.contains(keyword) ||
           item.description.contains(keyword) ||
@@ -142,7 +141,7 @@ class _RecommendedContentTemplatesViewState
     setState(() {
       _selectedTabIndex = index;
       if (index == 1) {
-        _selectedCategory = ContentTemplateCategory.all;
+        _selectedCategory = TemplateCategory.all;
       }
     });
     _ensureHashtagCatalogLoaded(index);
@@ -162,7 +161,7 @@ class _RecommendedContentTemplatesViewState
     setState(() {
       _selectedTabIndex = index;
       if (index == 1) {
-        _selectedCategory = ContentTemplateCategory.all;
+        _selectedCategory = TemplateCategory.all;
       }
     });
     _ensureHashtagCatalogLoaded(index);
@@ -209,8 +208,8 @@ class _RecommendedContentTemplatesViewState
     context.go(HomePage.routePath);
   }
 
-  RecommendedHashtagSetItem _toHashtagSetItem(HashtagBundle bundle) {
-    return RecommendedHashtagSetItem(
+  RecommendSourceHashtagSetItem _toHashtagSetItem(HashtagBundle bundle) {
+    return RecommendSourceHashtagSetItem(
       id: bundle.id.toString(),
       title: bundle.name,
       hashtags: bundle.hashtags,
@@ -258,7 +257,7 @@ class _RecommendedContentTemplatesViewState
                 title: '추천 콘텐츠 소스',
                 onBack: () => _handleBack(context),
               ),
-              RecommendedContentTemplateHeader(
+              RecommendSourceHeader(
                 searchController: _searchController,
                 showIntro: isHashtagTab,
                 onSearchChanged: _onSearchChanged,
@@ -277,7 +276,7 @@ class _RecommendedContentTemplatesViewState
                   itemBuilder: (context, index) {
                     switch (index) {
                       case 0:
-                        return RecommendedContentTemplateList(
+                        return TemplateList(
                           items: visibleItems,
                           selectedCategory: _selectedCategory,
                           onCategoryChanged: (category) {
@@ -290,7 +289,7 @@ class _RecommendedContentTemplatesViewState
                         return BlocBuilder<HashtagCatalogCubit,
                             HashtagCatalogState>(
                           builder: (context, state) {
-                            return RecommendedHashtagSetList(
+                            return RecommendSourceHashtagSetList(
                               items: state.items
                                   .map(_toHashtagSetItem)
                                   .toList(growable: false),
@@ -344,11 +343,11 @@ class _RecommendedContentTemplatesViewState
     });
   }
 
-  void _openDetail(RecommendedContentTemplateItem item) {
+  void _openDetail(TemplateItem item) {
     unawaited(
       Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (_) => RecommendedContentTemplateDetailPage(
+          builder: (_) => TemplateDetailPage(
             item: item,
             onSavedChanged: (isSaved) => _setSaved(item.id, isSaved),
           ),
