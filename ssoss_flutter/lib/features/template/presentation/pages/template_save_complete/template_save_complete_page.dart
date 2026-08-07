@@ -5,7 +5,7 @@ import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/navigation/ssoss_navigation_bar.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
-import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source/recommend_source_page.dart';
+import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source_page.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_save_complete/template_save_complete_components.dart';
 
 class TemplateSaveCompletePage extends StatelessWidget {

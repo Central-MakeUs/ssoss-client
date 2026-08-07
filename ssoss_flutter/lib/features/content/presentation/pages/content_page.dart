@@ -18,7 +18,7 @@ import 'package:ssoss_flutter/features/content/presentation/widgets/home/content
 import 'package:ssoss_flutter/features/content/presentation/widgets/home/content_template_section.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_detail/content_detail_page.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
-import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source/recommend_source_page.dart';
+import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source_page.dart';
 import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 
 /// 콘텐츠 생성 탭의 첫 화면 본문. 상단 헤더·하단 네비게이션은 [HomePage]에서 제공한다.
