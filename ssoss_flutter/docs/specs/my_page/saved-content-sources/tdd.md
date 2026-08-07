@@ -107,7 +107,7 @@ State: `items`, `isLoading`, `hasLoaded`, `errorMessage`, `pendingUnbookmarkIds`
 | `saved_content_sources_page.dart` | AppBar, Tab, PageView, Cubit 연결 |
 | `saved_content_sources_components.dart` | `N건` 헤더, 템플릿/해시태그 리스트 |
 
-재사용: `ContentTemplateCard`, `RecommendedHashtagSetCard` (content 피처 컴포넌트)
+재사용: `TemplateCard`, `RecommendSourceHashtagSetCard` (template / recommend_source 피처 컴포넌트)
 
 ---
 

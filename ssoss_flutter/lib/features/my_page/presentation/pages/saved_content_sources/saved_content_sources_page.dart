@@ -7,14 +7,15 @@ import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/tab/ssoss_tab_bar.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_detail/recommended_content_template_detail_page.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
 import 'package:ssoss_flutter/features/hashtag/domain/entities/hashtag_bundle.dart';
 import 'package:ssoss_flutter/features/hashtag/domain/usecases/list_bookmarked_hashtag_bundles_usecase.dart';
 import 'package:ssoss_flutter/features/hashtag/domain/usecases/unbookmark_hashtag_bundle_usecase.dart';
 import 'package:ssoss_flutter/features/hashtag/presentation/cubit/bookmarked_hashtag_bundles_cubit.dart';
 import 'package:ssoss_flutter/features/hashtag/presentation/cubit/bookmarked_hashtag_bundles_state.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/saved_content_sources/saved_content_sources_components.dart';
+import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source/recommend_source_components.dart';
+import 'package:ssoss_flutter/features/template/presentation/pages/template_detail/template_detail_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 
 class SavedContentSourcesPage extends StatelessWidget {
   const SavedContentSourcesPage({super.key});
@@ -50,10 +51,10 @@ class _SavedContentSourcesViewState extends State<_SavedContentSourcesView> {
   ];
 
   /// TODO: 템플릿 북마크 API 연동 시 제거
-  static const List<RecommendedContentTemplateItem> _dummyTemplates = [
-    RecommendedContentTemplateItem(
+  static const List<TemplateItem> _dummyTemplates = [
+    TemplateItem(
       id: 'saved-template-1',
-      category: ContentTemplateCategory.newMenu,
+      category: TemplateCategory.newMenu,
       title: '신메뉴 출시 안내',
       description: '새로 나온 메뉴의 특징과 매력을 소개하는 글',
       channels: ['당근', '인스타그램', '스레드'],
@@ -62,7 +63,7 @@ class _SavedContentSourcesViewState extends State<_SavedContentSourcesView> {
   ];
 
   late final PageController _pageController;
-  late List<RecommendedContentTemplateItem> _templateItems;
+  late List<TemplateItem> _templateItems;
   int _selectedTabIndex = 0;
 
   @override
@@ -108,8 +109,8 @@ class _SavedContentSourcesViewState extends State<_SavedContentSourcesView> {
     unawaited(context.read<BookmarkedHashtagBundlesCubit>().ensureLoaded());
   }
 
-  RecommendedHashtagSetItem _toHashtagSetItem(HashtagBundle bundle) {
-    return RecommendedHashtagSetItem(
+  RecommendSourceHashtagSetItem _toHashtagSetItem(HashtagBundle bundle) {
+    return RecommendSourceHashtagSetItem(
       id: bundle.id.toString(),
       title: bundle.name,
       hashtags: bundle.hashtags,
@@ -137,7 +138,7 @@ class _SavedContentSourcesViewState extends State<_SavedContentSourcesView> {
     );
   }
 
-  void _restoreTemplate(RecommendedContentTemplateItem item) {
+  void _restoreTemplate(TemplateItem item) {
     if (_templateItems.any((template) => template.id == item.id)) {
       return;
     }
@@ -149,11 +150,11 @@ class _SavedContentSourcesViewState extends State<_SavedContentSourcesView> {
     });
   }
 
-  void _openTemplateDetail(RecommendedContentTemplateItem item) {
+  void _openTemplateDetail(TemplateItem item) {
     unawaited(
       Navigator.of(context, rootNavigator: true).push<void>(
         MaterialPageRoute<void>(
-          builder: (_) => RecommendedContentTemplateDetailPage(
+          builder: (_) => TemplateDetailPage(
             item: item,
             onSavedChanged: (isSaved) {
               if (!isSaved) {

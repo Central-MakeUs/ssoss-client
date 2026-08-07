@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
+import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source/recommend_source_components.dart';
+import 'package:ssoss_flutter/features/template/presentation/widgets/template_list.dart';
+import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 
 class SavedContentSourcesCountHeader extends StatelessWidget {
   const SavedContentSourcesCountHeader({
@@ -33,9 +35,9 @@ class SavedContentSourcesTemplateList extends StatelessWidget {
     this.onItemTap,
   });
 
-  final List<RecommendedContentTemplateItem> items;
+  final List<TemplateItem> items;
   final ValueChanged<String> onSaveTap;
-  final ValueChanged<RecommendedContentTemplateItem>? onItemTap;
+  final ValueChanged<TemplateItem>? onItemTap;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +66,7 @@ class SavedContentSourcesTemplateList extends StatelessWidget {
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final item = items[index];
-                    return ContentTemplateCard(
+                    return TemplateCard(
                       item: item,
                       onSaveTap: () => onSaveTap(item.id),
                       onTap: onItemTap == null ? null : () => onItemTap!(item),
@@ -87,7 +89,7 @@ class SavedContentSourcesHashtagList extends StatelessWidget {
     super.key,
   });
 
-  final List<RecommendedHashtagSetItem> items;
+  final List<RecommendSourceHashtagSetItem> items;
   final ValueChanged<String> onSaveTap;
   final bool isLoading;
   final String? errorMessage;
@@ -155,7 +157,7 @@ class SavedContentSourcesHashtagList extends StatelessWidget {
                   separatorBuilder: (_, __) => const SizedBox(height: 18),
                   itemBuilder: (context, index) {
                     final item = items[index];
-                    return RecommendedHashtagSetCard(
+                    return RecommendSourceHashtagSetCard(
                       item: item,
                       onSaveTap: () => onSaveTap(item.id),
                     );

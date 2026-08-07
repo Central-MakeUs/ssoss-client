@@ -4,15 +4,15 @@ import 'package:go_router/go_router.dart';
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/navigation/ssoss_navigation_bar.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_save_complete/recommended_content_template_save_complete_components.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_page.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
+import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source/recommend_source_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/pages/template_save_complete/template_save_complete_components.dart';
 
-class RecommendedContentTemplateSaveCompletePage extends StatelessWidget {
-  const RecommendedContentTemplateSaveCompletePage({super.key});
+class TemplateSaveCompletePage extends StatelessWidget {
+  const TemplateSaveCompletePage({super.key});
 
-  static const String routeName = 'recommended-content-template-save-complete';
-  static const String routePath = '/recommended-content-template-save-complete';
+  static const String routeName = 'template-save-complete';
+  static const String routePath = '/template-save-complete';
 
   void _goHome(BuildContext context) {
     context.go(HomePage.routePath);
@@ -26,7 +26,7 @@ class RecommendedContentTemplateSaveCompletePage extends StatelessWidget {
   }
 
   void _goTemplates(BuildContext context) {
-    context.go(RecommendedContentTemplatesPage.routePath);
+    context.go(RecommendSourcePage.routePath);
   }
 
   @override
@@ -44,7 +44,7 @@ class RecommendedContentTemplateSaveCompletePage extends StatelessWidget {
                 onExit: () => _goHome(context),
               ),
               Expanded(
-                child: RecommendedContentTemplateSaveCompleteBody(
+                child: TemplateSaveCompleteBody(
                   onViewHistory: () => _goHistory(context),
                   onViewTemplates: () => _goTemplates(context),
                 ),

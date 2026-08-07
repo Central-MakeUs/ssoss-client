@@ -7,31 +7,29 @@ import 'package:go_router/go_router.dart';
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/card/template/ssoss_template_document.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_apply/recommended_content_template_apply_components.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_edit/recommended_content_template_edit_page.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_save_complete/recommended_content_template_save_complete_page.dart';
-import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
 import 'package:ssoss_flutter/features/store/domain/entities/store_info.dart';
 import 'package:ssoss_flutter/features/store/presentation/cubit/store_cubit.dart';
+import 'package:ssoss_flutter/features/template/presentation/pages/template_apply/template_apply_components.dart';
+import 'package:ssoss_flutter/features/template/presentation/pages/template_edit/template_edit_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/pages/template_save_complete/template_save_complete_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 
-class RecommendedContentTemplateApplyPage extends StatefulWidget {
-  const RecommendedContentTemplateApplyPage({
+class TemplateApplyPage extends StatefulWidget {
+  const TemplateApplyPage({
     required this.item,
     super.key,
   });
 
-  static const String routeName = 'recommended-content-template-apply';
-  static const String routePath = '/recommended-content-template-apply';
+  static const String routeName = 'template-apply';
+  static const String routePath = '/template-apply';
 
-  final RecommendedContentTemplateItem item;
+  final TemplateItem item;
 
   @override
-  State<RecommendedContentTemplateApplyPage> createState() =>
-      _RecommendedContentTemplateApplyPageState();
+  State<TemplateApplyPage> createState() => _TemplateApplyPageState();
 }
 
-class _RecommendedContentTemplateApplyPageState
-    extends State<RecommendedContentTemplateApplyPage> {
+class _TemplateApplyPageState extends State<TemplateApplyPage> {
   late SsossTemplateDocument _document;
   late bool _hasStoreInfo;
 
@@ -47,8 +45,8 @@ class _RecommendedContentTemplateApplyPageState
 
   Future<void> _openEdit() async {
     final result = await context.push<SsossTemplateDocument>(
-      RecommendedContentTemplateEditPage.routePath,
-      extra: RecommendedContentTemplateEditArgs(document: _document),
+      TemplateEditPage.routePath,
+      extra: TemplateEditArgs(document: _document),
     );
     if (result == null || !mounted) {
       return;
@@ -71,7 +69,7 @@ class _RecommendedContentTemplateApplyPageState
               onDone: () => context.pop(),
             ),
             Expanded(
-              child: RecommendedContentTemplateApplyBody(
+              child: TemplateApplyBody(
                 document: _document,
                 hasStoreInfo: _hasStoreInfo,
                 onDocumentChanged: (document) {
@@ -83,16 +81,16 @@ class _RecommendedContentTemplateApplyPageState
           ],
         ),
       ),
-      bottomNavigationBar: RecommendedContentTemplateApplyBottomBar(
+      bottomNavigationBar: TemplateApplyBottomBar(
         onSaveTap: () {
-          context.go(RecommendedContentTemplateSaveCompletePage.routePath);
+          context.go(TemplateSaveCompletePage.routePath);
         },
       ),
     );
   }
 }
 
-String _templateTextFor(RecommendedContentTemplateItem item, StoreInfo info) {
+String _templateTextFor(TemplateItem item, StoreInfo info) {
   final storeName = _nonEmptyOr(info.basic.name, '[매장명]');
   final address = _nonEmptyOr(info.basic.address, '[주소]');
   final hours = _businessHoursLabel(info.operation);
@@ -103,32 +101,32 @@ String _templateTextFor(RecommendedContentTemplateItem item, StoreInfo info) {
       '[메뉴명]';
 
   switch (item.category) {
-    case ContentTemplateCategory.newMenu:
+    case TemplateCategory.newMenu:
       return _newMenuTemplate(
         storeName: storeName,
         menuName: menuName,
         address: address,
         hours: hours,
       );
-    case ContentTemplateCategory.event:
+    case TemplateCategory.event:
       return _eventTemplate(
         storeName: storeName,
         address: address,
         hours: hours,
       );
-    case ContentTemplateCategory.storeIntro:
+    case TemplateCategory.storeIntro:
       return _storeIntroTemplate(
         storeName: storeName,
         address: address,
         hours: hours,
       );
-    case ContentTemplateCategory.notice:
+    case TemplateCategory.notice:
       return _noticeTemplate(
         storeName: storeName,
         address: address,
         hours: hours,
       );
-    case ContentTemplateCategory.all:
+    case TemplateCategory.all:
       return _newMenuTemplate(
         storeName: storeName,
         menuName: menuName,

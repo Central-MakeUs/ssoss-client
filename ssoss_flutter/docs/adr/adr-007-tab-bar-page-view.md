@@ -101,7 +101,7 @@
 ### 후속 조치 필요 사항
 
 - [x] `content_detail`의 TabBar + PageView 패턴을 기준으로 문서화
-- [x] `recommended_content_templates`를 동일 패턴으로 정렬
+- [x] `recommend_source`를 동일 패턴으로 정렬
 - [ ] 이후 신규/기존 다중 탭 화면이 탭만 전환하거나 컨트롤러 없이 PageView를 쓰면 이 ADR에 맞게 수정
 
 ---
@@ -148,7 +148,7 @@ Expanded(
 **참고 파일**
 
 - `lib/features/dashboard/presentation/pages/content_detail/content_detail_page.dart` — 기준 구현
-- `lib/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_page.dart` — 동일 패턴 적용 예
+- `lib/features/recommend_source/presentation/pages/recommend_source/recommend_source_page.dart` — 동일 패턴 적용 예
 - `lib/common/widgets/tab/ssoss_tab_bar.dart` — 탭바 컴포넌트
 
 ---

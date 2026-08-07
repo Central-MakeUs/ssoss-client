@@ -13,8 +13,8 @@ import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
-class RecommendedContentTemplateApplyBody extends StatelessWidget {
-  const RecommendedContentTemplateApplyBody({
+class TemplateApplyBody extends StatelessWidget {
+  const TemplateApplyBody({
     required this.document,
     required this.hasStoreInfo,
     required this.onDocumentChanged,
@@ -32,22 +32,22 @@ class RecommendedContentTemplateApplyBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(15, 12, 16, 24),
       children: [
-        RecommendedContentTemplateApplyIntro(hasStoreInfo: hasStoreInfo),
+        TemplateApplyIntro(hasStoreInfo: hasStoreInfo),
         const SizedBox(height: 32),
-        RecommendedContentTemplateApplyEditor(
+        TemplateApplyEditor(
           document: document,
           onDocumentChanged: onDocumentChanged,
           onEditTap: onEditTap,
         ),
         const SizedBox(height: 14),
-        const RecommendedContentTemplateApplyHint(),
+        const TemplateApplyHint(),
       ],
     );
   }
 }
 
-class RecommendedContentTemplateApplyIntro extends StatelessWidget {
-  const RecommendedContentTemplateApplyIntro({
+class TemplateApplyIntro extends StatelessWidget {
+  const TemplateApplyIntro({
     required this.hasStoreInfo,
     super.key,
   });
@@ -57,7 +57,7 @@ class RecommendedContentTemplateApplyIntro extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!hasStoreInfo) {
-      return const RecommendedContentTemplateApplyStoreInfoWarning();
+      return const TemplateApplyStoreInfoWarning();
     }
 
     return Column(
@@ -77,8 +77,8 @@ class RecommendedContentTemplateApplyIntro extends StatelessWidget {
   }
 }
 
-class RecommendedContentTemplateApplyStoreInfoWarning extends StatelessWidget {
-  const RecommendedContentTemplateApplyStoreInfoWarning({super.key});
+class TemplateApplyStoreInfoWarning extends StatelessWidget {
+  const TemplateApplyStoreInfoWarning({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -124,8 +124,8 @@ class RecommendedContentTemplateApplyStoreInfoWarning extends StatelessWidget {
   }
 }
 
-class RecommendedContentTemplateApplyEditor extends StatelessWidget {
-  const RecommendedContentTemplateApplyEditor({
+class TemplateApplyEditor extends StatelessWidget {
+  const TemplateApplyEditor({
     required this.document,
     required this.onDocumentChanged,
     required this.onEditTap,
@@ -141,9 +141,9 @@ class RecommendedContentTemplateApplyEditor extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        RecommendedContentTemplateApplySectionHeader(onEditTap: onEditTap),
+        TemplateApplySectionHeader(onEditTap: onEditTap),
         const SizedBox(height: 8),
-        RecommendedContentTemplateApplyEditCard(
+        TemplateApplyEditCard(
           document: document,
           onDocumentChanged: onDocumentChanged,
         ),
@@ -152,8 +152,8 @@ class RecommendedContentTemplateApplyEditor extends StatelessWidget {
   }
 }
 
-class RecommendedContentTemplateApplySectionHeader extends StatelessWidget {
-  const RecommendedContentTemplateApplySectionHeader({
+class TemplateApplySectionHeader extends StatelessWidget {
+  const TemplateApplySectionHeader({
     required this.onEditTap,
     super.key,
   });
@@ -193,8 +193,8 @@ class RecommendedContentTemplateApplySectionHeader extends StatelessWidget {
   }
 }
 
-class RecommendedContentTemplateApplyEditCard extends StatelessWidget {
-  const RecommendedContentTemplateApplyEditCard({
+class TemplateApplyEditCard extends StatelessWidget {
+  const TemplateApplyEditCard({
     required this.document,
     required this.onDocumentChanged,
     super.key,
@@ -249,7 +249,7 @@ class RecommendedContentTemplateApplyEditCard extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              RecommendedContentTemplateApplyCopyButton(
+              TemplateApplyCopyButton(
                 onTap: () => unawaited(_copy(context)),
               ),
             ],
@@ -260,8 +260,8 @@ class RecommendedContentTemplateApplyEditCard extends StatelessWidget {
   }
 }
 
-class RecommendedContentTemplateApplyCopyButton extends StatelessWidget {
-  const RecommendedContentTemplateApplyCopyButton({
+class TemplateApplyCopyButton extends StatelessWidget {
+  const TemplateApplyCopyButton({
     required this.onTap,
     super.key,
   });
@@ -304,8 +304,8 @@ class RecommendedContentTemplateApplyCopyButton extends StatelessWidget {
   }
 }
 
-class RecommendedContentTemplateApplyHint extends StatelessWidget {
-  const RecommendedContentTemplateApplyHint({super.key});
+class TemplateApplyHint extends StatelessWidget {
+  const TemplateApplyHint({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -329,8 +329,8 @@ class RecommendedContentTemplateApplyHint extends StatelessWidget {
   }
 }
 
-class RecommendedContentTemplateApplyBottomBar extends StatelessWidget {
-  const RecommendedContentTemplateApplyBottomBar({
+class TemplateApplyBottomBar extends StatelessWidget {
+  const TemplateApplyBottomBar({
     required this.onSaveTap,
     super.key,
   });
