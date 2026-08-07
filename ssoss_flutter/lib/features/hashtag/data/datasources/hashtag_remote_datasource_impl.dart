@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import 'package:ssoss_flutter/core/network/dio_error_mapper.dart';
 import 'package:ssoss_flutter/features/hashtag/data/datasources/hashtag_remote_datasource.dart';
+import 'package:ssoss_flutter/features/hashtag/data/models/bookmarked_hashtag_bundle_list_response_model.dart';
 import 'package:ssoss_flutter/features/hashtag/data/models/hashtag_bundle_list_response_model.dart';
 
 class HashtagRemoteDatasourceImpl implements HashtagRemoteDatasource {
@@ -32,6 +33,21 @@ class HashtagRemoteDatasourceImpl implements HashtagRemoteDatasource {
         cancelToken: cancelToken,
       );
       return HashtagBundleListResponseModel.fromJson(response.data!);
+    } on DioException catch (e) {
+      throw mapDioError(e);
+    }
+  }
+
+  @override
+  Future<BookmarkedHashtagBundleListResponseModel> listBookmarkedBundles({
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        _memberBundlesPath,
+        cancelToken: cancelToken,
+      );
+      return BookmarkedHashtagBundleListResponseModel.fromJson(response.data!);
     } on DioException catch (e) {
       throw mapDioError(e);
     }

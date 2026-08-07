@@ -126,6 +126,7 @@ State 필드: `items`, `keyword`, `page`, `hasNext`, `isLoading`, `isLoadingMore
 | 메서드 | 엔드포인트 | 설명 | 인증 |
 |--------|-----------|------|------|
 | GET | `/v1/hashtag-bundles` | 카탈로그 (keyword, page, size) | Y |
+| GET | `/v1/members/me/hashtag-bundles` | 북마크 목록 (페이징 없음) | Y |
 | PUT | `/v1/members/me/hashtag-bundles/{bundleId}` | 북마크 저장 | Y |
 | DELETE | `/v1/members/me/hashtag-bundles/{bundleId}` | 북마크 해제 | Y |
 

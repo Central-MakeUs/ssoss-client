@@ -7,6 +7,7 @@ import 'package:ssoss_flutter/features/hashtag/data/datasources/hashtag_remote_d
 import 'package:ssoss_flutter/features/hashtag/data/repositories/hashtag_repository_impl.dart';
 import 'package:ssoss_flutter/features/hashtag/domain/repositories/hashtag_repository.dart';
 import 'package:ssoss_flutter/features/hashtag/domain/usecases/bookmark_hashtag_bundle_usecase.dart';
+import 'package:ssoss_flutter/features/hashtag/domain/usecases/list_bookmarked_hashtag_bundles_usecase.dart';
 import 'package:ssoss_flutter/features/hashtag/domain/usecases/list_hashtag_bundles_usecase.dart';
 import 'package:ssoss_flutter/features/hashtag/domain/usecases/unbookmark_hashtag_bundle_usecase.dart';
 
@@ -25,6 +26,10 @@ class HashtagProviders {
         ),
         ProxyProvider<HashtagRepository, ListHashtagBundlesUseCase>(
           update: (_, repository, __) => ListHashtagBundlesUseCase(repository),
+        ),
+        ProxyProvider<HashtagRepository, ListBookmarkedHashtagBundlesUseCase>(
+          update: (_, repository, __) =>
+              ListBookmarkedHashtagBundlesUseCase(repository),
         ),
         ProxyProvider<HashtagRepository, BookmarkHashtagBundleUseCase>(
           update: (_, repository, __) =>

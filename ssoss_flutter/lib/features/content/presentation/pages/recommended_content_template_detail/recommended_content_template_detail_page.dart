@@ -13,12 +13,16 @@ class RecommendedContentTemplateDetailPage extends StatefulWidget {
   const RecommendedContentTemplateDetailPage({
     required this.item,
     super.key,
+    this.onSavedChanged,
   });
 
   static const String routeName = 'recommended-content-template-detail';
   static const String routePath = '/recommended-content-template-detail';
 
   final RecommendedContentTemplateItem item;
+
+  /// 저장/해제 버튼 탭 직후 호출. `true`면 저장, `false`면 해제.
+  final ValueChanged<bool>? onSavedChanged;
 
   @override
   State<RecommendedContentTemplateDetailPage> createState() =>
@@ -29,6 +33,12 @@ class _RecommendedContentTemplateDetailPageState
     extends State<RecommendedContentTemplateDetailPage> {
   late bool _isSaved = widget.item.isSaved;
   bool _isExampleOpen = false;
+
+  void _onSaveTap() {
+    final nextSaved = !_isSaved;
+    setState(() => _isSaved = nextSaved);
+    widget.onSavedChanged?.call(nextSaved);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,9 +66,7 @@ class _RecommendedContentTemplateDetailPageState
       ),
       bottomNavigationBar: ContentTemplateDetailBottomBar(
         isSaved: _isSaved,
-        onSaveTap: () {
-          setState(() => _isSaved = !_isSaved);
-        },
+        onSaveTap: _onSaveTap,
         onApplyTap: () {
           unawaited(
             context.push(

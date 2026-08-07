@@ -1,3 +1,4 @@
+import 'package:ssoss_flutter/features/hashtag/domain/entities/hashtag_bundle.dart';
 import 'package:ssoss_flutter/features/hashtag/domain/entities/hashtag_bundle_list_page.dart';
 
 abstract class HashtagRepository {
@@ -6,6 +7,8 @@ abstract class HashtagRepository {
     int page = 0,
     int size = 20,
   });
+
+  Future<List<HashtagBundle>> listBookmarkedBundles();
 
   Future<void> bookmarkBundle(int bundleId);
 
