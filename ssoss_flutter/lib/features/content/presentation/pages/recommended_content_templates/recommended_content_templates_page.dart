@@ -1,16 +1,25 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/tab/ssoss_tab_bar.dart';
+import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_detail/recommended_content_template_detail_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_templates/recommended_content_templates_components.dart';
+import 'package:ssoss_flutter/features/hashtag/domain/entities/hashtag_bundle.dart';
+import 'package:ssoss_flutter/features/hashtag/domain/usecases/bookmark_hashtag_bundle_usecase.dart';
+import 'package:ssoss_flutter/features/hashtag/domain/usecases/list_hashtag_bundles_usecase.dart';
+import 'package:ssoss_flutter/features/hashtag/domain/usecases/unbookmark_hashtag_bundle_usecase.dart';
+import 'package:ssoss_flutter/features/hashtag/presentation/cubit/hashtag_catalog_cubit.dart';
+import 'package:ssoss_flutter/features/hashtag/presentation/cubit/hashtag_catalog_state.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
+import 'package:ssoss_flutter/utils/debouncer.dart';
 
-class RecommendedContentTemplatesPage extends StatefulWidget {
+class RecommendedContentTemplatesPage extends StatelessWidget {
   const RecommendedContentTemplatesPage({
     super.key,
     this.initialCategory = ContentTemplateCategory.all,
@@ -22,12 +31,34 @@ class RecommendedContentTemplatesPage extends StatefulWidget {
   final ContentTemplateCategory initialCategory;
 
   @override
-  State<RecommendedContentTemplatesPage> createState() =>
-      _RecommendedContentTemplatesPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => HashtagCatalogCubit(
+        listHashtagBundles: context.read<ListHashtagBundlesUseCase>(),
+        bookmarkHashtagBundle: context.read<BookmarkHashtagBundleUseCase>(),
+        unbookmarkHashtagBundle: context.read<UnbookmarkHashtagBundleUseCase>(),
+      ),
+      child: _RecommendedContentTemplatesView(
+        initialCategory: initialCategory,
+      ),
+    );
+  }
 }
 
-class _RecommendedContentTemplatesPageState
-    extends State<RecommendedContentTemplatesPage> {
+class _RecommendedContentTemplatesView extends StatefulWidget {
+  const _RecommendedContentTemplatesView({
+    required this.initialCategory,
+  });
+
+  final ContentTemplateCategory initialCategory;
+
+  @override
+  State<_RecommendedContentTemplatesView> createState() =>
+      _RecommendedContentTemplatesViewState();
+}
+
+class _RecommendedContentTemplatesViewState
+    extends State<_RecommendedContentTemplatesView> {
   static const List<RecommendedContentTemplateItem> _initialItems = [
     RecommendedContentTemplateItem(
       id: 'template-1',
@@ -59,85 +90,37 @@ class _RecommendedContentTemplatesPageState
     ),
   ];
 
-  static const List<RecommendedHashtagSetItem> _initialHashtagSets = [
-    RecommendedHashtagSetItem(
-      id: 'hashtag-1',
-      title: '카공 카페',
-      hashtags: [
-        '#카공',
-        '#카공족',
-        '#작업하기좋은카페',
-        '#작업실',
-        '#00동카공',
-        '#조용한카페',
-        '#스터디',
-        '#카공카페',
-        '#콘센트',
-        '#노트북가능카페',
-      ],
-    ),
-    RecommendedHashtagSetItem(
-      id: 'hashtag-2',
-      title: '이벤트/할인 홍보',
-      hashtags: [
-        '#이벤트',
-        '#카페이벤트',
-        '#할인이벤트',
-        '#오늘의이벤트',
-        '#주말이벤트',
-        '#기간한정',
-        '#특별할인',
-        '#첫방문할인',
-      ],
-    ),
-    RecommendedHashtagSetItem(
-      id: 'hashtag-3',
-      title: '동네 고객 유입 해시태그',
-      hashtags: [
-        '#마포카페',
-        '#합정카페',
-        '#연남동카페',
-        '#홍대카페',
-        '#동네카페',
-        '#숨은카페',
-        '#지역맛집',
-        '#연남동핫한카페',
-        '#마포인기카페',
-      ],
-    ),
-  ];
-
   static const List<SsossTabItem> _tabItems = [
     SsossTabItem(label: '템플릿'),
     SsossTabItem(label: '해시태그'),
   ];
 
   final TextEditingController _searchController = TextEditingController();
+  final Debouncer _hashtagSearchDebouncer = Debouncer();
   late final PageController _pageController;
   late List<RecommendedContentTemplateItem> _items;
-  late List<RecommendedHashtagSetItem> _hashtagSets;
   late ContentTemplateCategory _selectedCategory;
   int _selectedTabIndex = 0;
-  String _searchKeyword = '';
+  String _templateSearchKeyword = '';
 
   @override
   void initState() {
     super.initState();
     _items = List.of(_initialItems);
-    _hashtagSets = List.of(_initialHashtagSets);
     _selectedCategory = widget.initialCategory;
     _pageController = PageController(initialPage: _selectedTabIndex);
   }
 
   @override
   void dispose() {
+    _hashtagSearchDebouncer.dispose();
     _pageController.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
   List<RecommendedContentTemplateItem> get _visibleItems {
-    final keyword = _searchKeyword.trim();
+    final keyword = _templateSearchKeyword.trim();
 
     return _items.where((item) {
       final matchesCategory =
@@ -152,18 +135,6 @@ class _RecommendedContentTemplatesPageState
     }).toList();
   }
 
-  List<RecommendedHashtagSetItem> get _visibleHashtagSets {
-    final keyword = _searchKeyword.trim();
-    if (keyword.isEmpty) {
-      return _hashtagSets;
-    }
-
-    return _hashtagSets.where((item) {
-      return item.title.contains(keyword) ||
-          item.hashtags.any((hashtag) => hashtag.contains(keyword));
-    }).toList();
-  }
-
   void _onTabTap(int index) {
     if (index == _selectedTabIndex) {
       return;
@@ -174,6 +145,7 @@ class _RecommendedContentTemplatesPageState
         _selectedCategory = ContentTemplateCategory.all;
       }
     });
+    _ensureHashtagCatalogLoaded(index);
     unawaited(
       _pageController.animateToPage(
         index,
@@ -193,6 +165,40 @@ class _RecommendedContentTemplatesPageState
         _selectedCategory = ContentTemplateCategory.all;
       }
     });
+    _ensureHashtagCatalogLoaded(index);
+  }
+
+  void _ensureHashtagCatalogLoaded(int tabIndex) {
+    if (tabIndex != 1) {
+      return;
+    }
+    final cubit = context.read<HashtagCatalogCubit>();
+    final keyword = _searchController.text.trim();
+    if (!cubit.state.hasLoaded) {
+      if (keyword.isNotEmpty) {
+        unawaited(cubit.search(keyword));
+      } else {
+        unawaited(cubit.ensureLoaded());
+      }
+      return;
+    }
+    if (keyword != cubit.state.keyword) {
+      unawaited(cubit.search(keyword));
+    }
+  }
+
+  void _onSearchChanged(String value) {
+    if (_selectedTabIndex == 1) {
+      _hashtagSearchDebouncer.run(() {
+        if (!mounted) {
+          return;
+        }
+        unawaited(context.read<HashtagCatalogCubit>().search(value));
+      });
+      return;
+    }
+
+    setState(() => _templateSearchKeyword = value);
   }
 
   void _handleBack(BuildContext context) {
@@ -203,10 +209,36 @@ class _RecommendedContentTemplatesPageState
     context.go(HomePage.routePath);
   }
 
+  RecommendedHashtagSetItem _toHashtagSetItem(HashtagBundle bundle) {
+    return RecommendedHashtagSetItem(
+      id: bundle.id.toString(),
+      title: bundle.name,
+      hashtags: bundle.hashtags,
+      isSaved: bundle.bookmarked,
+    );
+  }
+
+  Future<void> _toggleHashtagSaved(String itemId) async {
+    final bundleId = int.tryParse(itemId);
+    if (bundleId == null) {
+      return;
+    }
+    final success =
+        await context.read<HashtagCatalogCubit>().toggleBookmark(bundleId);
+    if (!mounted || success) {
+      return;
+    }
+    showSsossToast(
+      context,
+      title: '북마크 변경에 실패했습니다',
+      type: SsossToastType.error,
+      margin: const EdgeInsets.only(bottom: 122),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final visibleItems = _visibleItems;
-    final visibleHashtagSets = _visibleHashtagSets;
     final isHashtagTab = _selectedTabIndex == 1;
 
     return PopScope(
@@ -229,9 +261,7 @@ class _RecommendedContentTemplatesPageState
               RecommendedContentTemplateHeader(
                 searchController: _searchController,
                 showIntro: isHashtagTab,
-                onSearchChanged: (value) {
-                  setState(() => _searchKeyword = value);
-                },
+                onSearchChanged: _onSearchChanged,
               ),
               SsossTabBar(
                 width: double.infinity,
@@ -257,9 +287,28 @@ class _RecommendedContentTemplatesPageState
                           onItemTap: _openDetail,
                         );
                       case 1:
-                        return RecommendedHashtagSetList(
-                          items: visibleHashtagSets,
-                          onSaveTap: _toggleHashtagSaved,
+                        return BlocBuilder<HashtagCatalogCubit,
+                            HashtagCatalogState>(
+                          builder: (context, state) {
+                            return RecommendedHashtagSetList(
+                              items: state.items
+                                  .map(_toHashtagSetItem)
+                                  .toList(growable: false),
+                              isLoading: state.isLoading,
+                              isLoadingMore: state.isLoadingMore,
+                              errorMessage: state.errorMessage,
+                              onRetry: () => unawaited(
+                                context
+                                    .read<HashtagCatalogCubit>()
+                                    .loadInitial(),
+                              ),
+                              onLoadMore: () => unawaited(
+                                context.read<HashtagCatalogCubit>().loadMore(),
+                              ),
+                              onSaveTap: (itemId) =>
+                                  unawaited(_toggleHashtagSaved(itemId)),
+                            );
+                          },
                         );
                       default:
                         return const SizedBox.shrink();
@@ -278,18 +327,6 @@ class _RecommendedContentTemplatesPageState
     setState(() {
       _items = [
         for (final item in _items)
-          if (item.id == itemId)
-            item.copyWith(isSaved: !item.isSaved)
-          else
-            item,
-      ];
-    });
-  }
-
-  void _toggleHashtagSaved(String itemId) {
-    setState(() {
-      _hashtagSets = [
-        for (final item in _hashtagSets)
           if (item.id == itemId)
             item.copyWith(isSaved: !item.isSaved)
           else

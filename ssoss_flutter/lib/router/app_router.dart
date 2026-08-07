@@ -25,6 +25,9 @@ import 'package:ssoss_flutter/features/content/presentation/pages/content_genera
 import 'package:ssoss_flutter/features/content/presentation/pages/content_other_channel_create_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_result_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_save_complete_page.dart';
+import 'package:ssoss_flutter/features/new_style/presentation/models/new_style_args.dart';
+import 'package:ssoss_flutter/features/new_style/presentation/pages/new_style_channel_page.dart';
+import 'package:ssoss_flutter/features/new_style/presentation/pages/new_style_detail_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_apply/recommended_content_template_apply_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_detail/recommended_content_template_detail_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/recommended_content_template_edit/recommended_content_template_edit_page.dart';
@@ -218,6 +221,28 @@ GoRouter createAppRouter(
             return const ContentCreatePage();
           }
           return ContentOtherChannelCreatePage(args: extra);
+        },
+      ),
+      GoRoute(
+        name: NewStyleChannelPage.routeName,
+        path: NewStyleChannelPage.routePath,
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is! NewStyleArgs) {
+            return const ContentCreatePage();
+          }
+          return NewStyleChannelPage(args: extra);
+        },
+      ),
+      GoRoute(
+        name: NewStyleDetailPage.routeName,
+        path: NewStyleDetailPage.routePath,
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is! NewStyleDetailArgs) {
+            return const ContentCreatePage();
+          }
+          return NewStyleDetailPage(args: extra);
         },
       ),
       GoRoute(

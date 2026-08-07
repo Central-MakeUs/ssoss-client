@@ -34,6 +34,7 @@ import 'features/content/presentation/content_providers.dart';
 import 'features/credit/domain/usecases/get_credit_balance_usecase.dart';
 import 'features/credit/presentation/credit_providers.dart';
 import 'features/credit/presentation/cubit/credit_balance_cubit.dart';
+import 'features/hashtag/presentation/hashtag_providers.dart';
 import 'features/store/domain/usecases/check_store_onboarding_usecase.dart';
 import 'features/store/domain/usecases/complete_store_onboarding_usecase.dart';
 import 'features/store/domain/usecases/get_my_store_usecase.dart';
@@ -248,6 +249,7 @@ class SsossAppScope extends StatelessWidget {
         ...AuthProviders.build(),
         ...ContentProviders.build(),
         ...CreditProviders.build(),
+        ...HashtagProviders.build(),
         ...StoreProviders.build(),
         ...AppVersionProviders.build(),
       ],
