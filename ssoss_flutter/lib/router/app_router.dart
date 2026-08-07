@@ -29,7 +29,7 @@ import 'package:ssoss_flutter/features/new_style/presentation/models/new_style_a
 import 'package:ssoss_flutter/features/new_style/presentation/pages/new_style_channel_page.dart';
 import 'package:ssoss_flutter/features/new_style/presentation/pages/new_style_detail_page.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
-import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source/recommend_source_page.dart';
+import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source_page.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_apply/template_apply_page.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_detail/template_detail_page.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_edit/template_edit_page.dart';
@@ -303,9 +303,8 @@ GoRouter createAppRouter(
         path: RecommendSourcePage.routePath,
         builder: (context, state) {
           final extra = state.extra;
-          final initialCategory = extra is TemplateCategory
-              ? extra
-              : TemplateCategory.all;
+          final initialCategory =
+              extra is TemplateCategory ? extra : TemplateCategory.all;
           return RecommendSourcePage(
             initialCategory: initialCategory,
           );

@@ -15,7 +15,7 @@ import 'package:ssoss_flutter/features/hashtag/domain/usecases/unbookmark_hashta
 import 'package:ssoss_flutter/features/hashtag/presentation/cubit/hashtag_catalog_cubit.dart';
 import 'package:ssoss_flutter/features/hashtag/presentation/cubit/hashtag_catalog_state.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
-import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source/recommend_source_components.dart';
+import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source_components.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_detail/template_detail_page.dart';
 import 'package:ssoss_flutter/features/template/presentation/widgets/template_list.dart';
 import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';

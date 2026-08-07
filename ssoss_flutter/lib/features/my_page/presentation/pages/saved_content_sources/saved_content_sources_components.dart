@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
-import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source/recommend_source_components.dart';
+import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source_components.dart';
 import 'package:ssoss_flutter/features/template/presentation/widgets/template_list.dart';
 import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 

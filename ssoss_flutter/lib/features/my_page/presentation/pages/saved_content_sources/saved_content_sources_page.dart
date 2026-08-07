@@ -13,7 +13,7 @@ import 'package:ssoss_flutter/features/hashtag/domain/usecases/unbookmark_hashta
 import 'package:ssoss_flutter/features/hashtag/presentation/cubit/bookmarked_hashtag_bundles_cubit.dart';
 import 'package:ssoss_flutter/features/hashtag/presentation/cubit/bookmarked_hashtag_bundles_state.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/saved_content_sources/saved_content_sources_components.dart';
-import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source/recommend_source_components.dart';
+import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source_components.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_detail/template_detail_page.dart';
 import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 
