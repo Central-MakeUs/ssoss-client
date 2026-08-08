@@ -1,13 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_components.dart';
 import 'package:ssoss_flutter/features/onboarding/presentation/pages/onboarding_store_info_page.dart';
-import 'package:ssoss_flutter/features/store/presentation/cubit/store_cubit.dart';
 
 class OnboardingIntroPage extends StatefulWidget {
   const OnboardingIntroPage({super.key});
@@ -64,10 +61,8 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
     );
   }
 
-  Future<void> _finishOnboarding() async {
-    await context.read<StoreCubit>().completeOnboarding();
-    if (!mounted) return;
-    context.go(HomePage.routePath);
+  void _goToStoreInfo() {
+    context.go(OnboardingStoreInfoPage.routePath);
   }
 
   @override
@@ -99,7 +94,7 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
         primaryLabel: _isFirstPage ? '시작하기' : '다음',
         showSkipButton: !_isFirstPage,
         onPrimaryTap: () => unawaited(_goToNextPage()),
-        onSkipTap: () => unawaited(_finishOnboarding()),
+        onSkipTap: _goToStoreInfo,
       ),
     );
   }
