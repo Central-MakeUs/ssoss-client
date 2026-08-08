@@ -333,43 +333,49 @@ class OnboardingPreviewImage extends StatelessWidget {
     if (data.imagePath == AppAssets.imgOnboardingEditStart) {
       return OnboardingEditPreview(isActive: isActive);
     }
-    if (data.imagePath == AppAssets.imgOnboardingCopyReady) {
-      return OnboardingCopyPreview(isActive: isActive);
-    }
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final imageHeight =
             (constraints.maxHeight * data.imageHeightRatio).clamp(360.0, 457.0);
+        final isCopyPreview =
+            data.imagePath == AppAssets.imgOnboardingCopyReady;
+        final imageWidth =
+            imageHeight * (isCopyPreview ? 223 / 469 : 211 / 457);
+        final image = data.imagePath == AppAssets.imgOnboardingContentInput
+            ? Image.asset(
+                data.imagePath,
+                width: imageWidth,
+                height: imageHeight,
+                fit: BoxFit.cover,
+                filterQuality: FilterQuality.high,
+              )
+            : OnboardingImageSequence(
+                imagePaths: data.previewImagePaths,
+                width: imageWidth,
+                height: imageHeight,
+                isActive: isActive,
+                fit: isCopyPreview ? BoxFit.fill : BoxFit.cover,
+              );
 
         return Stack(
           alignment: Alignment.topCenter,
           children: [
             Positioned(
               top: data.imageTop,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: data.imageBorderColor,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: data.imagePath == AppAssets.imgOnboardingContentInput
-                      ? Image.asset(
-                          data.imagePath,
-                          width: imageHeight * 211 / 457,
-                          height: imageHeight,
-                          fit: BoxFit.cover,
-                        )
-                      : OnboardingImageSequence(
-                          imagePaths: data.previewImagePaths,
-                          width: imageHeight * 211 / 457,
-                          height: imageHeight,
-                          isActive: isActive,
-                        ),
-                ),
-              ),
+              child: isCopyPreview
+                  ? image
+                  : Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: data.imageBorderColor,
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(18),
+                        child: image,
+                      ),
+                    ),
             ),
             if (data.imagePath == AppAssets.imgOnboardingContentInput)
               OnboardingContentInputOverlay(isActive: isActive),
@@ -495,31 +501,17 @@ class _OnboardingResultPreviewState extends State<OnboardingResultPreview> {
                   duration: _transitionDuration,
                   curve: Curves.easeInOutCubic,
                   top: frame.top - 170,
-                  child: Container(
-                    width: 211,
-                    height: 510,
-                    decoration: BoxDecoration(
-                      color: AppColors.neutral100,
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(24),
-                      ),
-                      border: Border.all(
-                        color: AppColors.neutral100,
-                        width: 6,
-                      ),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 260),
-                      switchInCurve: Curves.easeOutCubic,
-                      switchOutCurve: Curves.easeOutCubic,
-                      child: Image.asset(
-                        frame.imagePath,
-                        key: ValueKey(frame.imagePath),
-                        width: 211,
-                        height: 510,
-                        fit: BoxFit.cover,
-                      ),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 260),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeOutCubic,
+                    child: Image.asset(
+                      frame.imagePath,
+                      key: ValueKey(frame.imagePath),
+                      width: 223,
+                      height: 522,
+                      fit: BoxFit.fill,
+                      filterQuality: FilterQuality.high,
                     ),
                   ),
                 ),
@@ -653,33 +645,22 @@ class _OnboardingEditPreviewState extends State<OnboardingEditPreview> {
       children: [
         Positioned(
           top: 170,
-          child: Container(
-            width: 211,
-            height: 457,
-            decoration: BoxDecoration(
-              color: AppColors.neutral100,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(24),
-              ),
-              border: Border.all(color: AppColors.neutral100, width: 6),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: AnimatedSwitcher(
-              duration: _transitionDuration,
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeOutCubic,
-              child: Image.asset(
-                imagePath,
-                key: ValueKey(imagePath),
-                width: 211,
-                height: 457,
-                fit: BoxFit.cover,
-              ),
+          child: AnimatedSwitcher(
+            duration: _transitionDuration,
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeOutCubic,
+            child: Image.asset(
+              imagePath,
+              key: ValueKey(imagePath),
+              width: 223,
+              height: 469,
+              fit: BoxFit.fill,
+              filterQuality: FilterQuality.high,
             ),
           ),
         ),
         Positioned(
-          left: 264,
+          left: 272,
           top: 298,
           child: AnimatedOpacity(
             duration: _transitionDuration,
@@ -714,498 +695,6 @@ class _OnboardingEditPreviewState extends State<OnboardingEditPreview> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class OnboardingCopyPreview extends StatefulWidget {
-  const OnboardingCopyPreview({
-    required this.isActive,
-    super.key,
-  });
-
-  final bool isActive;
-
-  @override
-  State<OnboardingCopyPreview> createState() => _OnboardingCopyPreviewState();
-}
-
-class _OnboardingCopyPreviewState extends State<OnboardingCopyPreview> {
-  static const Duration _frameDuration = Duration(milliseconds: 1100);
-
-  Timer? _timer;
-  bool _showCopiedBadge = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.isActive) {
-      _startTimer();
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant OnboardingCopyPreview oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!oldWidget.isActive && widget.isActive) {
-      _showCopiedBadge = false;
-      _startTimer();
-      return;
-    }
-    if (oldWidget.isActive && !widget.isActive) {
-      _timer?.cancel();
-      _showCopiedBadge = false;
-    }
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  void _startTimer() {
-    _timer?.cancel();
-    _timer = Timer.periodic(_frameDuration, (_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() => _showCopiedBadge = !_showCopiedBadge);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.topCenter,
-      children: [
-        Positioned(
-          top: 171,
-          child: Container(
-            width: 211,
-            height: 457,
-            padding: const EdgeInsets.all(6),
-            decoration: const BoxDecoration(
-              color: AppColors.neutral100,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(24),
-              ),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(18),
-              ),
-              child: _OnboardingCopyScreenMockup(isCopied: _showCopiedBadge),
-            ),
-          ),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: 112,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  AppColors.neutral50.withValues(alpha: 0),
-                  AppColors.neutral50,
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _OnboardingCopyScreenMockup extends StatelessWidget {
-  const _OnboardingCopyScreenMockup({
-    required this.isCopied,
-  });
-
-  final bool isCopied;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRect(
-      child: SizedBox(
-        width: 211,
-        height: 457,
-        child: Stack(
-          children: [
-            const Positioned.fill(
-              child: ColoredBox(color: AppColors.white),
-            ),
-            const _OnboardingMiniStatusBar(),
-            const _OnboardingMiniAppBar(),
-            const Positioned(
-              left: 9,
-              right: 9,
-              top: 61,
-              child: _OnboardingMiniSummaryCard(),
-            ),
-            Positioned(
-              left: 9,
-              right: 9,
-              top: 132,
-              child: _OnboardingMiniContentSection(
-                title: '제목',
-                content: '무더위를 식혀줄 시원한 여름 시즌 메뉴, 고당도\n수박주스 출시!',
-                isCopied: isCopied,
-              ),
-            ),
-            const Positioned(
-              left: 9,
-              right: 9,
-              top: 246,
-              child: _OnboardingMiniContentSection(
-                title: '본문',
-                content:
-                    '무더운 날씨가 이어지는 요즘, 시원한 음료 한 잔이\n더욱 생각나는 계절이죠. 이번에 새롭게 선보이는\n신메뉴 수박주스는 잘 익은 고당도 수박만 엄선해\n더욱 진하고 달콤한 맛을 담았습니다.',
-                isCopied: false,
-              ),
-            ),
-            const Positioned(
-              left: 0,
-              right: 0,
-              top: 390,
-              child: _OnboardingMiniDots(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _OnboardingMiniStatusBar extends StatelessWidget {
-  const _OnboardingMiniStatusBar();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Positioned(
-      left: 0,
-      right: 0,
-      top: 0,
-      height: 27,
-      child: Stack(
-        children: [
-          Positioned(
-            left: 19,
-            top: 12,
-            child: Text(
-              '09:41',
-              style: TextStyle(
-                color: Colors.black,
-                fontFamily: 'SF Pro Text',
-                fontSize: 9.6,
-                fontWeight: FontWeight.w600,
-                height: 1,
-                letterSpacing: -0.28,
-              ),
-            ),
-          ),
-          Positioned(
-            right: 10,
-            top: 11,
-            child: Row(
-              children: [
-                Icon(Icons.signal_cellular_alt, size: 10, color: Colors.black),
-                SizedBox(width: 3),
-                Icon(Icons.wifi, size: 10, color: Colors.black),
-                SizedBox(width: 3),
-                Icon(Icons.battery_full, size: 13, color: Colors.black),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OnboardingMiniAppBar extends StatelessWidget {
-  const _OnboardingMiniAppBar();
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: 0,
-      right: 0,
-      top: 27,
-      height: 33,
-      child: Row(
-        children: [
-          SizedBox(
-            width: 32,
-            child: Center(
-              child: SvgPicture.asset(
-                AppAssets.icChevronLeft,
-                width: 14,
-                height: 14,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.neutral400,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              '콘텐츠 생성 결과',
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              style: AppTextStyles.h9.copyWith(
-                color: AppColors.neutral800,
-                fontSize: 10.2,
-                decoration: TextDecoration.none,
-              ),
-            ),
-          ),
-          const SizedBox(width: 32),
-        ],
-      ),
-    );
-  }
-}
-
-class _OnboardingMiniSummaryCard extends StatelessWidget {
-  const _OnboardingMiniSummaryCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(9),
-      decoration: BoxDecoration(
-        color: AppColors.neutral50,
-        borderRadius: BorderRadius.circular(7),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '블로그 · 정보성 · 일상형',
-            maxLines: 1,
-            style: AppTextStyles.h9.copyWith(
-              color: AppColors.black,
-              fontSize: 7.9,
-              decoration: TextDecoration.none,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Row(
-            children: [
-              Text(
-                '활용 키워드',
-                style: AppTextStyles.h9.copyWith(
-                  color: AppColors.neutral500,
-                  fontSize: 6.8,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  '디저트, 크루아상, 을지로베이커리',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.b7.copyWith(
-                    color: AppColors.neutral500,
-                    fontSize: 6.8,
-                    decoration: TextDecoration.none,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OnboardingMiniContentSection extends StatelessWidget {
-  const _OnboardingMiniContentSection({
-    required this.title,
-    required this.content,
-    required this.isCopied,
-  });
-
-  final String title;
-  final String content;
-  final bool isCopied;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              title,
-              style: AppTextStyles.h9.copyWith(
-                color: AppColors.black,
-                fontSize: 7.9,
-                decoration: TextDecoration.none,
-              ),
-            ),
-            const Spacer(),
-            SvgPicture.asset(
-              AppAssets.icEdit2,
-              width: 13.5,
-              height: 13.5,
-              colorFilter: const ColorFilter.mode(
-                AppColors.neutral500,
-                BlendMode.srcIn,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 5),
-        _OnboardingMiniContentCard(
-          content: content,
-          isCopied: isCopied,
-        ),
-      ],
-    );
-  }
-}
-
-class _OnboardingMiniContentCard extends StatelessWidget {
-  const _OnboardingMiniContentCard({
-    required this.content,
-    required this.isCopied,
-  });
-
-  final String content;
-  final bool isCopied;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(7),
-        border: Border.all(color: AppColors.neutral200, width: 0.6),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(9, 8, 9, 8),
-            child: Text(
-              content,
-              maxLines: 5,
-              overflow: TextOverflow.fade,
-              style: AppTextStyles.b7.copyWith(
-                color: AppColors.black,
-                fontSize: 6.8,
-                height: 1.5,
-                decoration: TextDecoration.none,
-              ),
-            ),
-          ),
-          const Divider(height: 1, thickness: 0.6, color: AppColors.neutral200),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: _OnboardingMiniCopyAction(isCopied: isCopied),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OnboardingMiniCopyAction extends StatelessWidget {
-  const _OnboardingMiniCopyAction({
-    required this.isCopied,
-  });
-
-  final bool isCopied;
-
-  @override
-  Widget build(BuildContext context) {
-    final iconAsset = isCopied ? AppAssets.icCheck : AppAssets.icCopy;
-    final label = isCopied ? '복사됨' : '복사하기';
-
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 220),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeOutCubic,
-      child: Row(
-        key: ValueKey(label),
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SvgPicture.asset(
-            iconAsset,
-            width: 10,
-            height: 10,
-            colorFilter: const ColorFilter.mode(
-              AppColors.neutral500,
-              BlendMode.srcIn,
-            ),
-          ),
-          const SizedBox(width: 2),
-          Text(
-            label,
-            style: AppTextStyles.h9.copyWith(
-              color: AppColors.neutral500,
-              fontSize: 6.8,
-              decoration: TextDecoration.none,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OnboardingMiniDots extends StatelessWidget {
-  const _OnboardingMiniDots();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _dot(AppColors.neutral200),
-        const SizedBox(width: 5),
-        _dot(AppColors.neutral200),
-        const SizedBox(width: 5),
-        _dot(AppColors.neutral200),
-        const SizedBox(width: 5),
-        Container(
-          width: 12,
-          height: 8,
-          decoration: BoxDecoration(
-            color: AppColors.primary400,
-            borderRadius: BorderRadius.circular(50),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _dot(Color color) {
-    return Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
     );
   }
 }
@@ -1416,12 +905,16 @@ class OnboardingImageSequence extends StatefulWidget {
     required this.height,
     required this.isActive,
     super.key,
+    this.fit = BoxFit.cover,
+    this.repeat = true,
   });
 
   final List<String> imagePaths;
   final double width;
   final double height;
   final bool isActive;
+  final BoxFit fit;
+  final bool repeat;
 
   @override
   State<OnboardingImageSequence> createState() =>
@@ -1475,8 +968,15 @@ class _OnboardingImageSequenceState extends State<OnboardingImageSequence> {
       if (!mounted) {
         return;
       }
+      if (!widget.repeat && _frameIndex == widget.imagePaths.length - 1) {
+        _timer?.cancel();
+        return;
+      }
       setState(() {
-        _frameIndex = (_frameIndex + 1) % widget.imagePaths.length;
+        final nextFrameIndex = _frameIndex + 1;
+        _frameIndex = widget.repeat
+            ? nextFrameIndex % widget.imagePaths.length
+            : nextFrameIndex.clamp(0, widget.imagePaths.length - 1);
       });
     });
   }
@@ -1484,18 +984,28 @@ class _OnboardingImageSequenceState extends State<OnboardingImageSequence> {
   @override
   Widget build(BuildContext context) {
     final imagePath = widget.imagePaths[_frameIndex];
+    final isSvg = imagePath.toLowerCase().endsWith('.svg');
 
     return AnimatedSwitcher(
       duration: _transitionDuration,
       switchInCurve: Curves.easeOutCubic,
       switchOutCurve: Curves.easeOutCubic,
-      child: Image.asset(
-        imagePath,
-        key: ValueKey(imagePath),
-        width: widget.width,
-        height: widget.height,
-        fit: BoxFit.cover,
-      ),
+      child: isSvg
+          ? SvgPicture.asset(
+              imagePath,
+              key: ValueKey(imagePath),
+              width: widget.width,
+              height: widget.height,
+              fit: widget.fit,
+            )
+          : Image.asset(
+              imagePath,
+              key: ValueKey(imagePath),
+              width: widget.width,
+              height: widget.height,
+              fit: widget.fit,
+              filterQuality: FilterQuality.high,
+            ),
     );
   }
 }
