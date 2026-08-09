@@ -14,6 +14,7 @@ class TemplateDetailBody extends StatelessWidget {
   const TemplateDetailBody({
     required this.item,
     required this.previewText,
+    required this.exampleText,
     required this.isExampleOpen,
     required this.onExampleTap,
     super.key,
@@ -21,6 +22,7 @@ class TemplateDetailBody extends StatelessWidget {
 
   final TemplateItem item;
   final String previewText;
+  final String exampleText;
   final bool isExampleOpen;
   final VoidCallback onExampleTap;
 
@@ -35,6 +37,7 @@ class TemplateDetailBody extends StatelessWidget {
         const SizedBox(height: 24),
         TemplatePreviewSection(
           previewText: previewText,
+          exampleText: exampleText,
           isExampleOpen: isExampleOpen,
           onExampleTap: onExampleTap,
         ),
@@ -112,12 +115,14 @@ class TemplateDetailDivider extends StatelessWidget {
 class TemplatePreviewSection extends StatelessWidget {
   const TemplatePreviewSection({
     required this.previewText,
+    required this.exampleText,
     required this.isExampleOpen,
     required this.onExampleTap,
     super.key,
   });
 
   final String previewText;
+  final String exampleText;
   final bool isExampleOpen;
   final VoidCallback onExampleTap;
 
@@ -133,6 +138,7 @@ class TemplatePreviewSection extends StatelessWidget {
         const SizedBox(height: 12),
         TemplatePreviewCard(
           previewText: previewText,
+          exampleText: exampleText,
           isExampleOpen: isExampleOpen,
           onExampleTap: onExampleTap,
         ),
@@ -146,12 +152,14 @@ class TemplatePreviewSection extends StatelessWidget {
 class TemplatePreviewCard extends StatelessWidget {
   const TemplatePreviewCard({
     required this.previewText,
+    required this.exampleText,
     required this.isExampleOpen,
     required this.onExampleTap,
     super.key,
   });
 
   final String previewText;
+  final String exampleText;
   final bool isExampleOpen;
   final VoidCallback onExampleTap;
 
@@ -176,6 +184,7 @@ class TemplatePreviewCard extends StatelessWidget {
           const SizedBox(height: 8),
           TemplateExampleAccordion(
             isOpen: isExampleOpen,
+            exampleText: exampleText,
             onTap: onExampleTap,
           ),
         ],
@@ -207,11 +216,13 @@ class TemplatePreviewText extends StatelessWidget {
 class TemplateExampleAccordion extends StatelessWidget {
   const TemplateExampleAccordion({
     required this.isOpen,
+    required this.exampleText,
     required this.onTap,
     super.key,
   });
 
   final bool isOpen;
+  final String exampleText;
   final VoidCallback onTap;
 
   @override
@@ -226,7 +237,7 @@ class TemplateExampleAccordion extends StatelessWidget {
         ),
         if (isOpen) ...[
           const SizedBox(height: 12),
-          const TemplateExampleContent(),
+          TemplateExampleContent(text: exampleText),
         ] else ...[
           const SizedBox(height: 8),
         ],
@@ -236,7 +247,12 @@ class TemplateExampleAccordion extends StatelessWidget {
 }
 
 class TemplateExampleContent extends StatelessWidget {
-  const TemplateExampleContent({super.key});
+  const TemplateExampleContent({
+    required this.text,
+    super.key,
+  });
+
+  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -248,15 +264,7 @@ class TemplateExampleContent extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: AppText(
-        '카페 모먼트에 새 메뉴가 출시되었습니다!\n\n'
-        '✨ 신메뉴: 피스타치오 크림 라떼\n'
-        '💰 가격: 6,500원\n\n'
-        '고소한 피스타치오 크림과 부드러운 라떼가 어우러진 시즌 한정 '
-        '음료입니다. 달콤한 디저트와 함께 더욱 맛있게 즐겨보세요.\n\n'
-        '신선한 재료로 정성껏 만들었습니다. 많은 사랑 부탁드립니다 🙏\n\n'
-        '📍 서울 성동구 서울숲2길 14\n'
-        '⏰ 영업시간: 매일 오전 10:00 ~ 오후 9:00\n'
-        '📞 02-3456-7890',
+        text,
         style: AppTextStyles.b4.copyWith(color: AppColors.neutral600),
       ),
     );
@@ -341,12 +349,14 @@ class TemplateDetailBottomBar extends StatelessWidget {
     required this.isSaved,
     required this.onSaveTap,
     required this.onApplyTap,
+    this.isApplying = false,
     super.key,
   });
 
   final bool isSaved;
   final VoidCallback onSaveTap;
-  final VoidCallback onApplyTap;
+  final VoidCallback? onApplyTap;
+  final bool isApplying;
 
   @override
   Widget build(BuildContext context) {
@@ -373,6 +383,7 @@ class TemplateDetailBottomBar extends StatelessWidget {
                   label: '템플릿 적용하기',
                   height: 56,
                   type: SsossButtonType.primary,
+                  isLoading: isApplying,
                   onPressed: onApplyTap,
                 ),
               ),

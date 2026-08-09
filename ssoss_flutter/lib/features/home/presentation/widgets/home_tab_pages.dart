@@ -6,6 +6,7 @@ import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_page.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/content_generation_management_page.dart';
+import 'package:ssoss_flutter/features/home/presentation/models/home_route_extra.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/my_page/my_page_page.dart';
 
 typedef HomeTabAppBarBuilder = Widget Function(BuildContext context);
@@ -32,9 +33,11 @@ class DashboardTab extends StatelessWidget {
   const DashboardTab({
     super.key,
     this.isActive = true,
+    this.initialManagementSection = ContentManagementSection.generated,
   });
 
   final bool isActive;
+  final ContentManagementSection initialManagementSection;
 
   static Widget buildAppBar(BuildContext context) {
     return ContentGenerationManagementPage.buildAppBar(context);
@@ -42,7 +45,13 @@ class DashboardTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ContentGenerationManagementPage(isActive: isActive);
+    return ContentGenerationManagementPage(
+      isActive: isActive,
+      initialTabIndex:
+          initialManagementSection == ContentManagementSection.templates
+              ? 1
+              : 0,
+    );
   }
 }
 

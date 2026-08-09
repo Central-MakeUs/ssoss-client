@@ -1,65 +1,141 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
+import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_template_contents_card.dart';
 import 'package:ssoss_flutter/common/widgets/card/template/ssoss_template_document.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
-import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/content_generation_management_components.dart';
+import 'package:ssoss_flutter/features/dashboard/presentation/cubit/saved_template_detail_cubit.dart';
+import 'package:ssoss_flutter/features/dashboard/presentation/cubit/saved_template_detail_state.dart';
+import 'package:ssoss_flutter/features/template/domain/entities/saved_template_detail.dart';
+import 'package:ssoss_flutter/features/template/domain/usecases/get_saved_template_usecase.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_detail/template_detail_components.dart';
-import 'package:ssoss_flutter/features/template/presentation/pages/template_edit/template_edit_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/util/template_label_mapper.dart';
 import 'package:ssoss_flutter/features/template/presentation/widgets/template_list.dart';
 
 class SavedContentTemplateDetailPage extends StatelessWidget {
   const SavedContentTemplateDetailPage({
-    required this.item,
+    required this.savedTemplateId,
     super.key,
   });
 
-  final SavedContentTemplateManagementItem item;
+  final int savedTemplateId;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            SsossAppBar.back(
-              title: '',
-              onBack: () => Navigator.of(context).pop(),
-            ),
-            Expanded(
-              child: SavedContentTemplateDetailBody(item: item),
-            ),
-          ],
-        ),
-      ),
+    return BlocProvider(
+      create: (context) {
+        final cubit = SavedTemplateDetailCubit(
+          getSavedTemplate: context.read<GetSavedTemplateUseCase>(),
+          savedTemplateId: savedTemplateId,
+        );
+        unawaited(cubit.load());
+        return cubit;
+      },
+      child: const _SavedContentTemplateDetailView(),
     );
+  }
+}
+
+class _SavedContentTemplateDetailView extends StatelessWidget {
+  const _SavedContentTemplateDetailView();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SavedTemplateDetailCubit, SavedTemplateDetailState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: AppColors.white,
+          body: SafeArea(
+            child: Column(
+              children: [
+                SsossAppBar.back(
+                  title: '',
+                  onBack: () => Navigator.of(context).pop(),
+                ),
+                Expanded(child: _buildBody(context, state)),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBody(BuildContext context, SavedTemplateDetailState state) {
+    final detail = state.detail;
+
+    if (state.isLoading && detail == null) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primary400),
+      );
+    }
+
+    final error = state.errorMessage;
+    if (error != null && detail == null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppText(
+                error,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.b3.copyWith(color: AppColors.neutral500),
+              ),
+              const SizedBox(height: 16),
+              SsossButton(
+                label: '다시 시도',
+                size: SsossButtonSize.small,
+                type: SsossButtonType.outline,
+                onPressed: () =>
+                    unawaited(context.read<SavedTemplateDetailCubit>().load()),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (detail == null) {
+      return Center(
+        child: AppText(
+          '저장한 템플릿을 찾을 수 없습니다',
+          style: AppTextStyles.b3.copyWith(color: AppColors.neutral500),
+        ),
+      );
+    }
+
+    return SavedContentTemplateDetailBody(detail: detail);
   }
 }
 
 class SavedContentTemplateDetailBody extends StatelessWidget {
   const SavedContentTemplateDetailBody({
-    required this.item,
+    required this.detail,
     super.key,
   });
 
-  final SavedContentTemplateManagementItem item;
+  final SavedTemplateDetail detail;
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.fromLTRB(15, 12, 16, 40),
       children: [
-        _SavedTemplateDetailHeader(item: item),
+        _SavedTemplateDetailHeader(detail: detail),
         const SizedBox(height: 24),
         const Divider(height: 1, color: AppColors.neutral200),
         const SizedBox(height: 24),
-        _SavedTemplateBodySection(body: item.body),
+        _SavedTemplateBodySection(body: detail.body),
         const SizedBox(height: 24),
         const TemplateNoticeBox(),
       ],
@@ -68,28 +144,32 @@ class SavedContentTemplateDetailBody extends StatelessWidget {
 }
 
 class _SavedTemplateDetailHeader extends StatelessWidget {
-  const _SavedTemplateDetailHeader({required this.item});
+  const _SavedTemplateDetailHeader({required this.detail});
 
-  final SavedContentTemplateManagementItem item;
+  final SavedTemplateDetail detail;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TemplateCategoryTag(category: item.category),
+        TemplateCategoryTag(
+          category: TemplateLabelMapper.category(detail.category),
+        ),
         const SizedBox(height: 8),
         AppText(
-          item.title,
+          detail.title,
           style: AppTextStyles.h4.copyWith(color: AppColors.neutral800),
         ),
         const SizedBox(height: 2),
         AppText(
-          item.description,
+          detail.description,
           style: AppTextStyles.b4.copyWith(color: AppColors.black),
         ),
         const SizedBox(height: 10),
-        TemplateRecommendedChannels(channels: item.channels),
+        TemplateRecommendedChannels(
+          channels: TemplateLabelMapper.channels(detail.recommendedChannels),
+        ),
       ],
     );
   }

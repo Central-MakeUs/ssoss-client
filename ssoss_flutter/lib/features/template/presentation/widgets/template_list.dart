@@ -1,6 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
+import 'package:ssoss_flutter/common/widgets/refresh/ssoss_pull_refresh_indicator.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_filter_chip.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -49,21 +52,66 @@ class TemplateFilterBar extends StatelessWidget {
   }
 }
 
-class TemplateList extends StatelessWidget {
+class TemplateList extends StatefulWidget {
   const TemplateList({
     required this.items,
     required this.selectedCategory,
     required this.onCategoryChanged,
     required this.onSaveTap,
     required this.onItemTap,
+    required this.onLoadMore,
+    required this.onRefresh,
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.hasNext = false,
+    this.errorMessage,
+    this.onRetry,
     super.key,
   });
 
   final List<TemplateItem> items;
   final TemplateCategory selectedCategory;
   final ValueChanged<TemplateCategory> onCategoryChanged;
-  final ValueChanged<String> onSaveTap;
+  final ValueChanged<int> onSaveTap;
   final ValueChanged<TemplateItem> onItemTap;
+  final VoidCallback onLoadMore;
+  final Future<void> Function() onRefresh;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final bool hasNext;
+  final String? errorMessage;
+  final VoidCallback? onRetry;
+
+  @override
+  State<TemplateList> createState() => _TemplateListState();
+}
+
+class _TemplateListState extends State<TemplateList> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients || !widget.hasNext) {
+      return;
+    }
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 200) {
+      widget.onLoadMore();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,26 +122,112 @@ class TemplateList extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: TemplateFilterBar(
-            selectedCategory: selectedCategory,
-            onChanged: onCategoryChanged,
+            selectedCategory: widget.selectedCategory,
+            onChanged: widget.onCategoryChanged,
           ),
         ),
         const SizedBox(height: 16),
-        Expanded(
-          child: ListView.separated(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 34),
-            itemCount: items.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return TemplateCard(
-                item: item,
-                onSaveTap: () => onSaveTap(item.id),
-                onTap: () => onItemTap(item),
-              );
-            },
+        Expanded(child: _buildBody()),
+      ],
+    );
+  }
+
+  Widget _buildBody() {
+    return CustomScrollView(
+      controller: _scrollController,
+      physics: widget.isLoading
+          ? const NeverScrollableScrollPhysics()
+          : const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+      slivers: [
+        if (!widget.isLoading)
+          CupertinoSliverRefreshControl(
+            refreshTriggerPullDistance: 100,
+            refreshIndicatorExtent: 60,
+            onRefresh: widget.onRefresh,
+            builder: buildSsossPullRefreshIndicator,
           ),
-        ),
+        if (widget.isLoading)
+          const SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: CircularProgressIndicator(color: AppColors.primary400),
+            ),
+          )
+        else if (widget.errorMessage != null && widget.items.isEmpty)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppText(
+                      widget.errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.b3
+                          .copyWith(color: AppColors.neutral500),
+                    ),
+                    if (widget.onRetry != null) ...[
+                      const SizedBox(height: 16),
+                      SsossButton(
+                        label: '다시 시도',
+                        size: SsossButtonSize.small,
+                        type: SsossButtonType.outline,
+                        onPressed: widget.onRetry,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          )
+        else if (widget.items.isEmpty)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: AppText(
+                '템플릿이 없습니다',
+                style: AppTextStyles.b3.copyWith(color: AppColors.neutral500),
+              ),
+            ),
+          )
+        else ...[
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final item = widget.items[index];
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: index == widget.items.length - 1 ? 0 : 12,
+                    ),
+                    child: TemplateCard(
+                      item: item,
+                      onSaveTap: () => widget.onSaveTap(item.id),
+                      onTap: () => widget.onItemTap(item),
+                    ),
+                  );
+                },
+                childCount: widget.items.length,
+              ),
+            ),
+          ),
+          if (widget.isLoadingMore && widget.hasNext)
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: CircularProgressIndicator(color: AppColors.primary400),
+                ),
+              ),
+            )
+          else
+            const SliverToBoxAdapter(child: SizedBox(height: 34)),
+        ],
       ],
     );
   }

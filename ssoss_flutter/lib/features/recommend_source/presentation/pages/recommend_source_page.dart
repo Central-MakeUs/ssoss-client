@@ -16,7 +16,12 @@ import 'package:ssoss_flutter/features/hashtag/presentation/cubit/hashtag_catalo
 import 'package:ssoss_flutter/features/hashtag/presentation/cubit/hashtag_catalog_state.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source_components.dart';
+import 'package:ssoss_flutter/features/template/domain/entities/recommended_template.dart';
+import 'package:ssoss_flutter/features/template/domain/usecases/list_templates_usecase.dart';
+import 'package:ssoss_flutter/features/template/presentation/cubit/template_catalog_cubit.dart';
+import 'package:ssoss_flutter/features/template/presentation/cubit/template_catalog_state.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_detail/template_detail_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/util/template_label_mapper.dart';
 import 'package:ssoss_flutter/features/template/presentation/widgets/template_list.dart';
 import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 import 'package:ssoss_flutter/utils/debouncer.dart';
@@ -34,62 +39,40 @@ class RecommendSourcePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => HashtagCatalogCubit(
-        listHashtagBundles: context.read<ListHashtagBundlesUseCase>(),
-        bookmarkHashtagBundle: context.read<BookmarkHashtagBundleUseCase>(),
-        unbookmarkHashtagBundle: context.read<UnbookmarkHashtagBundleUseCase>(),
-      ),
-      child: _RecommendSourceView(
-        initialCategory: initialCategory,
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) {
+            final cubit = TemplateCatalogCubit(
+              listTemplates: context.read<ListTemplatesUseCase>(),
+              initialCategory: TemplateLabelMapper.apiCategory(initialCategory),
+            );
+            unawaited(cubit.loadInitial());
+            return cubit;
+          },
+        ),
+        BlocProvider(
+          create: (context) => HashtagCatalogCubit(
+            listHashtagBundles: context.read<ListHashtagBundlesUseCase>(),
+            bookmarkHashtagBundle: context.read<BookmarkHashtagBundleUseCase>(),
+            unbookmarkHashtagBundle:
+                context.read<UnbookmarkHashtagBundleUseCase>(),
+          ),
+        ),
+      ],
+      child: const _RecommendSourceView(),
     );
   }
 }
 
 class _RecommendSourceView extends StatefulWidget {
-  const _RecommendSourceView({
-    required this.initialCategory,
-  });
-
-  final TemplateCategory initialCategory;
+  const _RecommendSourceView();
 
   @override
   State<_RecommendSourceView> createState() => _RecommendSourceViewState();
 }
 
 class _RecommendSourceViewState extends State<_RecommendSourceView> {
-  static const List<TemplateItem> _initialItems = [
-    TemplateItem(
-      id: 'template-1',
-      category: TemplateCategory.newMenu,
-      title: '신메뉴 출시 안내',
-      description: '새로 나온 메뉴의 특징과 매력을 소개하는 글',
-      channels: ['당근', '인스타그램', '스레드'],
-    ),
-    TemplateItem(
-      id: 'template-2',
-      category: TemplateCategory.event,
-      title: '주말 한정 이벤트 안내',
-      description: '기간, 혜택, 참여 방법을 명확하게 전달하는 글',
-      channels: ['당근', '인스타그램', '스레드'],
-    ),
-    TemplateItem(
-      id: 'template-3',
-      category: TemplateCategory.notice,
-      title: '임시 휴무 안내',
-      description: '운영 일정 변경을 고객에게 전달하는 글',
-      channels: ['블로그', '인스타그램'],
-    ),
-    TemplateItem(
-      id: 'template-4',
-      category: TemplateCategory.storeIntro,
-      title: '매장 분위기 소개',
-      description: '우리 가게의 공간감과 장점을 소개하는 글',
-      channels: ['인스타그램', '스레드'],
-    ),
-  ];
-
   static const List<SsossTabItem> _tabItems = [
     SsossTabItem(label: '템플릿'),
     SsossTabItem(label: '해시태그'),
@@ -98,16 +81,11 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
   final TextEditingController _searchController = TextEditingController();
   final Debouncer _hashtagSearchDebouncer = Debouncer();
   late final PageController _pageController;
-  late List<TemplateItem> _items;
-  late TemplateCategory _selectedCategory;
   int _selectedTabIndex = 0;
-  String _templateSearchKeyword = '';
 
   @override
   void initState() {
     super.initState();
-    _items = List.of(_initialItems);
-    _selectedCategory = widget.initialCategory;
     _pageController = PageController(initialPage: _selectedTabIndex);
   }
 
@@ -119,31 +97,11 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
     super.dispose();
   }
 
-  List<TemplateItem> get _visibleItems {
-    final keyword = _templateSearchKeyword.trim();
-
-    return _items.where((item) {
-      final matchesCategory = _selectedCategory == TemplateCategory.all ||
-          item.category == _selectedCategory;
-      final matchesKeyword = keyword.isEmpty ||
-          item.title.contains(keyword) ||
-          item.description.contains(keyword) ||
-          item.channels.any((channel) => channel.contains(keyword));
-
-      return matchesCategory && matchesKeyword;
-    }).toList();
-  }
-
   void _onTabTap(int index) {
     if (index == _selectedTabIndex) {
       return;
     }
-    setState(() {
-      _selectedTabIndex = index;
-      if (index == 1) {
-        _selectedCategory = TemplateCategory.all;
-      }
-    });
+    setState(() => _selectedTabIndex = index);
     _ensureHashtagCatalogLoaded(index);
     unawaited(
       _pageController.animateToPage(
@@ -158,12 +116,7 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
     if (index == _selectedTabIndex) {
       return;
     }
-    setState(() {
-      _selectedTabIndex = index;
-      if (index == 1) {
-        _selectedCategory = TemplateCategory.all;
-      }
-    });
+    setState(() => _selectedTabIndex = index);
     _ensureHashtagCatalogLoaded(index);
   }
 
@@ -187,17 +140,15 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
   }
 
   void _onSearchChanged(String value) {
-    if (_selectedTabIndex == 1) {
-      _hashtagSearchDebouncer.run(() {
-        if (!mounted) {
-          return;
-        }
-        unawaited(context.read<HashtagCatalogCubit>().search(value));
-      });
+    if (_selectedTabIndex != 1) {
       return;
     }
-
-    setState(() => _templateSearchKeyword = value);
+    _hashtagSearchDebouncer.run(() {
+      if (!mounted) {
+        return;
+      }
+      unawaited(context.read<HashtagCatalogCubit>().search(value));
+    });
   }
 
   void _handleBack(BuildContext context) {
@@ -214,6 +165,17 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
       title: bundle.name,
       hashtags: bundle.hashtags,
       isSaved: bundle.bookmarked,
+    );
+  }
+
+  TemplateItem _toTemplateItem(RecommendedTemplate template) {
+    return TemplateItem(
+      id: template.id,
+      category: TemplateLabelMapper.category(template.category),
+      title: template.title,
+      description: template.description,
+      channels: TemplateLabelMapper.channels(template.recommendedChannels),
+      isSaved: template.bookmarked,
     );
   }
 
@@ -235,9 +197,17 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
     );
   }
 
+  void _openDetail(TemplateItem item) {
+    unawaited(
+      context.push(
+        TemplateDetailPage.routePath,
+        extra: item.id,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final visibleItems = _visibleItems;
     final isHashtagTab = _selectedTabIndex == 1;
 
     return PopScope(
@@ -276,14 +246,43 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
                   itemBuilder: (context, index) {
                     switch (index) {
                       case 0:
-                        return TemplateList(
-                          items: visibleItems,
-                          selectedCategory: _selectedCategory,
-                          onCategoryChanged: (category) {
-                            setState(() => _selectedCategory = category);
+                        return BlocBuilder<TemplateCatalogCubit,
+                            TemplateCatalogState>(
+                          builder: (context, state) {
+                            final selectedCategory = state.category == null
+                                ? TemplateCategory.all
+                                : TemplateLabelMapper.category(state.category!);
+                            return TemplateList(
+                              items: state.items
+                                  .map(_toTemplateItem)
+                                  .toList(growable: false),
+                              selectedCategory: selectedCategory,
+                              isLoading: state.isLoading,
+                              isLoadingMore: state.isLoadingMore,
+                              hasNext: state.hasNext,
+                              errorMessage: state.errorMessage,
+                              onCategoryChanged: (category) => unawaited(
+                                context
+                                    .read<TemplateCatalogCubit>()
+                                    .selectCategory(
+                                      TemplateLabelMapper.apiCategory(category),
+                                    ),
+                              ),
+                              onSaveTap: (_) {},
+                              onItemTap: _openDetail,
+                              onLoadMore: () => unawaited(
+                                context.read<TemplateCatalogCubit>().loadMore(),
+                              ),
+                              onRefresh: () => context
+                                  .read<TemplateCatalogCubit>()
+                                  .refresh(),
+                              onRetry: () => unawaited(
+                                context
+                                    .read<TemplateCatalogCubit>()
+                                    .loadInitial(),
+                              ),
+                            );
                           },
-                          onSaveTap: _toggleSaved,
-                          onItemTap: _openDetail,
                         );
                       case 1:
                         return BlocBuilder<HashtagCatalogCubit,
@@ -295,6 +294,7 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
                                   .toList(growable: false),
                               isLoading: state.isLoading,
                               isLoadingMore: state.isLoadingMore,
+                              hasNext: state.hasNext,
                               errorMessage: state.errorMessage,
                               onRetry: () => unawaited(
                                 context
@@ -304,6 +304,8 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
                               onLoadMore: () => unawaited(
                                 context.read<HashtagCatalogCubit>().loadMore(),
                               ),
+                              onRefresh: () =>
+                                  context.read<HashtagCatalogCubit>().refresh(),
                               onSaveTap: (itemId) =>
                                   unawaited(_toggleHashtagSaved(itemId)),
                             );
@@ -316,40 +318,6 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _toggleSaved(String itemId) {
-    setState(() {
-      _items = [
-        for (final item in _items)
-          if (item.id == itemId)
-            item.copyWith(isSaved: !item.isSaved)
-          else
-            item,
-      ];
-    });
-  }
-
-  void _setSaved(String itemId, bool isSaved) {
-    setState(() {
-      _items = [
-        for (final item in _items)
-          if (item.id == itemId) item.copyWith(isSaved: isSaved) else item,
-      ];
-    });
-  }
-
-  void _openDetail(TemplateItem item) {
-    unawaited(
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => TemplateDetailPage(
-            item: item,
-            onSavedChanged: (isSaved) => _setSaved(item.id, isSaved),
           ),
         ),
       ),

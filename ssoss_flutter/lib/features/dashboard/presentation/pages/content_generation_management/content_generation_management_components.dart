@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
 import 'package:ssoss_flutter/common/widgets/modal/ssoss_modal.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_filter_chip.dart';
 import 'package:ssoss_flutter/common/widgets/tag/ssoss_tag.dart';
@@ -57,73 +57,20 @@ class ContentManagementItem {
 
 class SavedContentTemplateManagementItem {
   const SavedContentTemplateManagementItem({
-    required this.id,
+    required this.savedTemplateId,
     required this.category,
     required this.title,
     required this.description,
-    required this.channels,
-    required this.body,
     required this.date,
   });
 
-  final String id;
+  final int savedTemplateId;
   final TemplateCategory category;
   final String title;
   final String description;
-  final List<String> channels;
-  final String body;
   final String date;
-}
 
-class ContentManagementTabBar extends StatelessWidget {
-  const ContentManagementTabBar({
-    super.key,
-    this.selectedIndex = 0,
-    this.onTabSelected,
-  });
-
-  final int selectedIndex;
-  final ValueChanged<int>? onTabSelected;
-
-  static const List<String> _tabs = ['생성 콘텐츠', '템플릿'];
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        for (var index = 0; index < _tabs.length; index += 1)
-          Expanded(
-            child: GestureDetector(
-              onTap: onTabSelected == null ? null : () => onTabSelected!(index),
-              behavior: HitTestBehavior.opaque,
-              child: Container(
-                height: 44,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: index == selectedIndex
-                          ? AppColors.neutral800
-                          : AppColors.neutral200,
-                      width: index == selectedIndex ? 2 : 1,
-                    ),
-                  ),
-                ),
-                child: AppText(
-                  _tabs[index],
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.h6.copyWith(
-                    color: index == selectedIndex
-                        ? AppColors.black
-                        : AppColors.neutral500,
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
+  String get menuId => savedTemplateId.toString();
 }
 
 class ContentManagementFilterBar extends StatelessWidget {
@@ -330,75 +277,96 @@ class SavedContentTemplateManagementCard extends StatelessWidget {
   const SavedContentTemplateManagementCard({
     required this.item,
     super.key,
+    this.showDeleteMenu = false,
     this.onTap,
     this.onMoreTap,
+    this.onTitleEditTap,
+    this.onDeleteTap,
   });
 
   final SavedContentTemplateManagementItem item;
+  final bool showDeleteMenu;
   final VoidCallback? onTap;
   final VoidCallback? onMoreTap;
+  final VoidCallback? onTitleEditTap;
+  final VoidCallback? onDeleteTap;
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      child: GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            border: Border.all(color: AppColors.neutral200),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Semantics(
+          button: true,
+          child: GestureDetector(
+            onTap: onTap,
+            behavior: HitTestBehavior.opaque,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                border: Border.all(color: AppColors.neutral200),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  TemplateCategoryTag(category: item.category),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: onMoreTap,
-                    behavior: HitTestBehavior.opaque,
-                    child: const SizedBox.square(
-                      dimension: 24,
-                      child: Icon(
-                        Icons.more_vert,
-                        size: 20,
-                        color: AppColors.neutral500,
+                  Row(
+                    children: [
+                      TemplateCategoryTag(category: item.category),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: onMoreTap,
+                        behavior: HitTestBehavior.opaque,
+                        child: const SizedBox.square(
+                          dimension: 24,
+                          child: Icon(
+                            Icons.more_vert,
+                            size: 20,
+                            color: AppColors.neutral500,
+                          ),
+                        ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  AppText(
+                    item.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        AppTextStyles.h5.copyWith(color: AppColors.neutral800),
+                  ),
+                  const SizedBox(height: 2),
+                  AppText(
+                    item.description,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.b5.copyWith(color: AppColors.black),
+                  ),
+                  const SizedBox(height: 12),
+                  AppText(
+                    '사용일자 ${item.date}',
+                    style: AppTextStyles.b5.copyWith(
+                      color: AppColors.neutral400,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              AppText(
-                item.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.h5.copyWith(color: AppColors.neutral800),
-              ),
-              const SizedBox(height: 2),
-              AppText(
-                item.description,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.b5.copyWith(color: AppColors.black),
-              ),
-              const SizedBox(height: 12),
-              AppText(
-                '사용일자 ${item.date}',
-                style: AppTextStyles.b5.copyWith(
-                  color: AppColors.neutral400,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
-      ),
+        if (showDeleteMenu)
+          Positioned(
+            top: 40,
+            right: 16,
+            child: ContentDeleteMenu(
+              onTitleEditTap: onTitleEditTap,
+              onDeleteTap: onDeleteTap,
+            ),
+          ),
+      ],
     );
   }
 }
@@ -434,7 +402,7 @@ class ContentDeleteMenu extends StatelessWidget {
           children: [
             _ContentMenuAction(
               iconAsset: AppAssets.icEdit2,
-              label: '제목 수정하기',
+              label: '이름 수정하기',
               color: AppColors.black,
               onTap: onTitleEditTap,
             ),
@@ -497,101 +465,106 @@ Future<String?> showContentTitleEditDialog(
   BuildContext context, {
   required String initialTitle,
 }) {
-  final controller = TextEditingController(text: initialTitle);
-
   return showDialog<String>(
     context: context,
     barrierColor: AppColors.black.withValues(alpha: 0.5),
-    builder: (dialogContext) {
-      var currentValue = initialTitle;
+    builder: (_) => _ContentTitleEditDialog(initialTitle: initialTitle),
+  );
+}
 
-      void close() {
-        Navigator.of(dialogContext).pop();
-      }
+class _ContentTitleEditDialog extends StatefulWidget {
+  const _ContentTitleEditDialog({required this.initialTitle});
 
-      void submit() {
-        final trimmed = currentValue.trim();
-        if (trimmed.length < 2 || trimmed.length > 20) {
-          return;
-        }
-        Navigator.of(dialogContext).pop(trimmed);
-      }
+  final String initialTitle;
 
-      return StatefulBuilder(
-        builder: (context, setState) {
-          final canSubmit = currentValue.trim().length >= 2 &&
-              currentValue.trim().length <= 20;
+  @override
+  State<_ContentTitleEditDialog> createState() =>
+      _ContentTitleEditDialogState();
+}
 
-          return Dialog(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            insetPadding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SsossModal(
-              title: '제목을 수정해보세요',
-              message: '최소 2자, 최대 20자까지 입력할 수 있어요',
-              width: double.infinity,
-              showButtonIcons: false,
-              onClose: close,
-              content: TextField(
-                controller: controller,
-                inputFormatters: [
-                  LengthLimitingTextInputFormatter(20),
-                ],
-                decoration: InputDecoration(
-                  hintText: 'ex) 여름 한정 복숭아 빙수 홍보',
-                  hintStyle: AppTextStyles.b4.copyWith(
-                    color: AppColors.neutral500,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.neutral200),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: AppColors.neutral500),
-                  ),
-                  counterText: '',
-                ),
-                maxLength: 20,
-                style: AppTextStyles.b4.copyWith(
-                  color: AppColors.neutral800,
-                ),
-                onChanged: (value) => setState(() => currentValue = value),
-              ),
-              actions: Row(
-                children: [
-                  Expanded(
-                    child: SsossButton(
-                      label: '취소',
-                      size: SsossButtonSize.medium,
-                      type: SsossButtonType.neutral,
-                      width: double.infinity,
-                      onPressed: close,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: SsossButton(
-                      label: '저장',
-                      size: SsossButtonSize.medium,
-                      type: SsossButtonType.primary,
-                      width: double.infinity,
-                      enabled: canSubmit,
-                      onPressed: submit,
-                    ),
-                  ),
-                ],
+class _ContentTitleEditDialogState extends State<_ContentTitleEditDialog> {
+  static const int _minTitleLength = 2;
+  static const int _maxTitleLength = 20;
+
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialTitle);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  bool get _canSubmit {
+    final length = _controller.text.trim().length;
+    return length >= _minTitleLength && length <= _maxTitleLength;
+  }
+
+  void _close() {
+    Navigator.of(context).pop();
+  }
+
+  void _submit() {
+    final trimmed = _controller.text.trim();
+    if (trimmed.length < _minTitleLength || trimmed.length > _maxTitleLength) {
+      return;
+    }
+    Navigator.of(context).pop(trimmed);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SsossModal(
+        title: '콘텐츠 이름을 수정해보세요',
+        message: '최소 2자, 최대 20자까지 입력할 수 있어요',
+        width: double.infinity,
+        showButtonIcons: false,
+        onClose: _close,
+        content: SsossTextField(
+          controller: _controller,
+          hintText: 'ex) 여름 한정 복숭아 빙수 홍보',
+          hintColor: AppColors.neutral500,
+          textColor: AppColors.neutral800,
+          width: double.infinity,
+          maxLength: _maxTitleLength,
+          onChanged: (_) => setState(() {}),
+        ),
+        actions: Row(
+          children: [
+            Expanded(
+              child: SsossButton(
+                label: '취소',
+                size: SsossButtonSize.medium,
+                type: SsossButtonType.neutral,
+                width: double.infinity,
+                onPressed: _close,
               ),
             ),
-          );
-        },
-      );
-    },
-  ).whenComplete(controller.dispose);
+            const SizedBox(width: 8),
+            Expanded(
+              child: SsossButton(
+                label: '저장',
+                size: SsossButtonSize.medium,
+                type: SsossButtonType.primary,
+                width: double.infinity,
+                enabled: _canSubmit,
+                onPressed: _submit,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 Future<bool> showContentDeleteConfirmDialog(BuildContext context) async {

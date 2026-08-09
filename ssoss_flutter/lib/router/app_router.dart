@@ -28,8 +28,10 @@ import 'package:ssoss_flutter/features/content/presentation/pages/content_save_c
 import 'package:ssoss_flutter/features/new_style/presentation/models/new_style_args.dart';
 import 'package:ssoss_flutter/features/new_style/presentation/pages/new_style_channel_page.dart';
 import 'package:ssoss_flutter/features/new_style/presentation/pages/new_style_detail_page.dart';
+import 'package:ssoss_flutter/features/home/presentation/models/home_route_extra.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/models/template_apply_args.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_apply/template_apply_page.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_detail/template_detail_page.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_edit/template_edit_page.dart';
@@ -185,6 +187,13 @@ GoRouter createAppRouter(
         path: HomePage.routePath,
         builder: (context, state) {
           final extra = state.extra;
+          if (extra is HomeRouteExtra) {
+            return HomePage(
+              key: ValueKey('${extra.tab}_${extra.managementSection}'),
+              initialTab: extra.tab,
+              initialManagementSection: extra.managementSection,
+            );
+          }
           final initialTab = extra is SsossNavigationItem
               ? extra
               : SsossNavigationItem.contentCreation;
@@ -312,10 +321,10 @@ GoRouter createAppRouter(
         path: TemplateDetailPage.routePath,
         builder: (context, state) {
           final extra = state.extra;
-          if (extra is! TemplateItem) {
+          if (extra is! int) {
             return const RecommendSourcePage();
           }
-          return TemplateDetailPage(item: extra);
+          return TemplateDetailPage(templateId: extra);
         },
       ),
       GoRoute(
@@ -323,10 +332,10 @@ GoRouter createAppRouter(
         path: TemplateApplyPage.routePath,
         builder: (context, state) {
           final extra = state.extra;
-          if (extra is! TemplateItem) {
+          if (extra is! TemplateApplyArgs) {
             return const RecommendSourcePage();
           }
-          return TemplateApplyPage(item: extra);
+          return TemplateApplyPage(args: extra);
         },
       ),
       GoRoute(
