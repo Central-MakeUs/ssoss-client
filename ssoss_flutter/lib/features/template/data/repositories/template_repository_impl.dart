@@ -4,7 +4,9 @@ import 'package:ssoss_flutter/features/template/data/models/applied_template_res
 import 'package:ssoss_flutter/features/template/data/models/recommended_template_detail_response_model.dart';
 import 'package:ssoss_flutter/features/template/data/models/recommended_template_list_response_model.dart';
 import 'package:ssoss_flutter/features/template/data/models/saved_template_detail_response_model.dart';
+import 'package:ssoss_flutter/features/template/data/models/saved_template_edit_request.dart';
 import 'package:ssoss_flutter/features/template/data/models/saved_template_list_response_model.dart';
+import 'package:ssoss_flutter/features/template/data/models/saved_template_rename_request.dart';
 import 'package:ssoss_flutter/features/template/data/models/saved_template_save_request.dart';
 import 'package:ssoss_flutter/features/template/data/models/saved_template_save_response_model.dart';
 import 'package:ssoss_flutter/features/template/domain/entities/applied_template.dart';
@@ -82,5 +84,34 @@ class TemplateRepositoryImpl implements TemplateRepository {
   Future<SavedTemplateDetail> getSavedTemplate(int savedTemplateId) async {
     final model = await _remote.getSavedTemplate(savedTemplateId);
     return model.toEntity();
+  }
+
+  @override
+  Future<SavedTemplateDetail> editSavedTemplate({
+    required int savedTemplateId,
+    required String body,
+  }) async {
+    final model = await _remote.editSavedTemplate(
+      savedTemplateId,
+      SavedTemplateEditRequest(body: body),
+    );
+    return model.toEntity();
+  }
+
+  @override
+  Future<SavedTemplateDetail> renameSavedTemplate({
+    required int savedTemplateId,
+    required String title,
+  }) async {
+    final model = await _remote.renameSavedTemplate(
+      savedTemplateId,
+      SavedTemplateRenameRequest(title: title),
+    );
+    return model.toEntity();
+  }
+
+  @override
+  Future<void> deleteSavedTemplate(int savedTemplateId) {
+    return _remote.deleteSavedTemplate(savedTemplateId);
   }
 }

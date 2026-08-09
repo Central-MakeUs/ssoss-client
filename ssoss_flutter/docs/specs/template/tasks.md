@@ -79,9 +79,19 @@
 
 ---
 
+## Phase 6 — 저장 내역 편집·삭제
+
+- [x] **6-1** Edit / Rename / Delete usecase + request 모델 + datasource
+- [x] **6-2** 목록 삭제 모달 로딩 + 제목 PUT + 2~20자 공용 다이얼로그
+- [x] **6-3** `TemplateEditPage` 저장 템플릿 body PUT + ADR-005 로딩
+- [x] **6-4** `dart analyze` 통과 (생성 파일 trailing comma info 제외)
+
+---
+
 ## 완료 기준 (Definition of Done)
 
 - [x] PRD Must FR-01~FR-10 구현 완료
-- [x] PRD Must FR-11~FR-13 구현 완료
+- [x] PRD Must FR-11~FR-12 구현 완료
+- [x] PRD Must FR-13~FR-14 구현 완료
 - [x] DI 등록 완료
 - [x] analyze 에러 없음 (이번 변경 범위)

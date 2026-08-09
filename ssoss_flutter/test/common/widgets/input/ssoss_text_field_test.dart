@@ -43,4 +43,19 @@ void main() {
 
     expect(tester.getSize(find.byType(SsossTextField)).height, 68);
   });
+
+  test('isWithinLength accepts 2 to 20 trimmed characters', () {
+    expect(
+      SsossTextField.isWithinLength('가', minLength: 2, maxLength: 20),
+      isFalse,
+    );
+    expect(
+      SsossTextField.isWithinLength('가게', minLength: 2, maxLength: 20),
+      isTrue,
+    );
+    expect(
+      SsossTextField.isWithinLength(' 가게 ', minLength: 2, maxLength: 20),
+      isTrue,
+    );
+  });
 }

@@ -34,6 +34,7 @@
 - [ ] As a **가게 운영자**, I want to **적용하기를 눌러 매장 정보가 채워진 본문을 편집하고**, so that **바로 쓸 수 있는 글을 만들 수 있다**.
 - [ ] As a **가게 운영자**, I want to **저장하기를 눌러 내 글로 남기고**, so that **저장 내역에서 다시 볼 수 있다**.
 - [ ] As a **가게 운영자**, I want to **생성 관리 템플릿 탭에서 저장한 글을 다시 보고**, so that **예전에 저장한 글을 꺼내 쓸 수 있다**.
+- [ ] As a **가게 운영자**, I want to **저장한 글의 제목·본문을 고치거나 삭제하고**, so that **저장 내역을 최신 상태로 유지할 수 있다**.
 
 ---
 
@@ -55,7 +56,8 @@
 | FR-10 | ACTIVE 회원 accessToken 전용 (기존 Dio 인터셉터) | Must |
 | FR-11 | 생성 관리 템플릿 탭 진입 시 `GET /v1/saved-templates` (sort, page=0, size=10). 채널·분류 필터 없음 | Must |
 | FR-12 | 카드 탭 시 `GET /v1/saved-templates/{savedTemplateId}` 로 상세 조회. body·recommendedChannels 표시 | Must |
-| FR-13 | 카드 점 3개 메뉴는 콘텐츠 탭과 동일(이름 수정·삭제 모달). 삭제·이름 수정 API는 호출하지 않음 | Must |
+| FR-13 | 점 3개 이름 수정은 `PUT /v1/saved-templates/{id}/title` (클라 2~20자). 삭제는 `DELETE /v1/saved-templates/{id}` | Must |
+| FR-14 | 상세 편집 → 수정하기는 `PUT /v1/saved-templates/{id}` (body만, ≤2000). 저장·삭제 중 ADR-005 로딩·다른 액션 비활성 | Must |
 
 ### 3.2 비기능 요구사항 (Non-functional Requirements)
 
@@ -77,12 +79,11 @@
 - 상세·적용·저장 화면 실 API 연동
 - 저장 완료 → 생성 관리 템플릿 탭 진입
 - 생성 관리 템플릿 탭 저장 글 목록·상세 조회
-- 저장 글 카드 점 3개 메뉴(이름 수정·삭제 모달 UI만)
+- 저장 글 본문 편집·제목 수정·삭제 API
 
 ### Out of Scope (이번 구현에서 제외)
 
 - 북마크 추가/삭제 API
-- 저장 템플릿 삭제·이름 수정 API
 - 마이페이지 저장 소스 템플릿 북마크 목록
 - 템플릿 탭 서버 검색 (API keyword 없음)
 - 저장 내역 채널·분류 필터 (API 없음)
@@ -100,7 +101,7 @@
 | 템플릿 적용 | 채워진 본문 편집·저장 | N/A |
 | 저장 완료 | 저장 내역 / 다른 템플릿 | N/A |
 | 콘텐츠 생성 관리 (템플릿 탭) | 저장한 글 목록·정렬·페이지네이션 | N/A |
-| 저장한 템플릿 상세 | 저장 시점 본문·추천 채널 | N/A |
+| 저장한 템플릿 상세 | 저장 시점 본문·추천 채널·편집 진입 | N/A |
 
 **주요 사용자 흐름**
 
@@ -111,8 +112,8 @@
   → 저장하기 → POST → [완료]
   → 저장 내역 보기 → 홈 대시보드 + 템플릿 탭
   → 저장 글 목록 / 정렬 / 스크롤
-  → 카드 탭 → [저장 상세] GET
-  → 점 3개 → 이름 수정·삭제 모달 (API 없음)
+  → 카드 탭 → [저장 상세] GET → 편집 아이콘 → PUT body
+  → 점 3개 → 이름 수정 PUT /title · 삭제 DELETE
 ```
 
 ---
@@ -130,7 +131,9 @@
 | 401/403 | 기존 인증 인터셉터 |
 | 저장 내역 목록 오류 | 토스트 |
 | 저장 상세 404/오류 | 에러 표시 + 다시 시도 |
-| 이름 수정·삭제 확인 | 모달만 닫음. 서버·목록 미반영 |
+| 본문 편집 실패 | 토스트, 편집 화면 유지 |
+| 제목 수정 실패 | 토스트, 모달 유지 |
+| 삭제 실패 | 토스트, 모달 유지. 목록 불변 |
 
 ---
 
@@ -140,12 +143,13 @@
 - 상세·적용·저장 흐름을 오류 없이 완료할 수 있다.
 - 저장 내역 보기가 생성 관리 템플릿 탭을 연다.
 - 템플릿 탭에서 저장한 글 목록·상세를 조회할 수 있다.
+- 저장한 글의 본문·제목 수정과 삭제가 동작한다.
 
 ---
 
 ## 8. 의존성 & 선행 조건
 
-- **API**: `GET /v1/templates`, `GET /v1/templates/{id}`, `GET /v1/templates/{id}/applied`, `POST /v1/saved-templates`, `GET /v1/saved-templates`, `GET /v1/saved-templates/{id}`
+- **API**: `GET /v1/templates`, `GET /v1/templates/{id}`, `GET /v1/templates/{id}/applied`, `POST /v1/saved-templates`, `GET /v1/saved-templates`, `GET /v1/saved-templates/{id}`, `PUT /v1/saved-templates/{id}`, `PUT /v1/saved-templates/{id}/title`, `DELETE /v1/saved-templates/{id}`
 - **권한**: ACTIVE accessToken
 - **외부 서비스**: 없음
 - **선행 기능**: 추천 소스·상세·적용·완료 UI, ADR-004 템플릿 문서 모델

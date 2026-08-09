@@ -16,7 +16,7 @@
 
 ## 1. 기능 요약
 
-기존 `template` 피처에 추천 템플릿 목록·상세·적용·저장 data/domain을 두고, 추천 콘텐츠 소스 템플릿 탭과 상세·적용 화면에 Cubit을 연결한다. 생성 관리 템플릿 탭에서 저장한 글 목록·상세를 조회한다. 북마크 변경과 저장 글 삭제·이름 수정 API는 하지 않는다.
+기존 `template` 피처에 추천 템플릿 목록·상세·적용·저장 data/domain을 두고, 추천 콘텐츠 소스 템플릿 탭과 상세·적용 화면에 Cubit을 연결한다. 생성 관리 템플릿 탭에서 저장한 글 목록·상세·본문 편집·제목 수정·삭제를 조회·변경한다. 북마크 변경 API는 하지 않는다.
 
 **피처 경로**: `lib/features/template/` (data/domain/catalog cubit), 저장 내역 Cubit·UI는 `lib/features/dashboard/`, 카탈로그 목록 UI는 `lib/features/recommend_source/`
 
@@ -34,6 +34,9 @@
 [생성 관리 템플릿 탭] → SavedTemplateManagementCubit.loadInitial
 [정렬/스크롤] → toggleSort / loadMore
 [카드 탭] → SavedTemplateDetailCubit.load(savedTemplateId)
+[상세 편집] → PUT /v1/saved-templates/{id} (body)
+[이름 수정] → PUT /v1/saved-templates/{id}/title
+[삭제] → DELETE /v1/saved-templates/{id}
     ↓
 UseCase → TemplateRepository → TemplateRemoteDatasource → Dio
     ↓
@@ -134,6 +137,9 @@ class SavedTemplateDetail {
 - `saveTemplate({required int templateId, required String body})` → `SavedTemplate`
 - `listSavedTemplates({SavedTemplateSort sort, int page, int size})` → `SavedTemplateListPage`
 - `getSavedTemplate(int savedTemplateId)` → `SavedTemplateDetail`
+- `editSavedTemplate({required int savedTemplateId, required String body})` → `SavedTemplateDetail`
+- `renameSavedTemplate({required int savedTemplateId, required String title})` → `SavedTemplateDetail`
+- `deleteSavedTemplate(int savedTemplateId)` → `void`
 
 ### 3.3 Use Cases
 
@@ -143,6 +149,9 @@ class SavedTemplateDetail {
 - `SaveTemplateUseCase`
 - `ListSavedTemplatesUseCase`
 - `GetSavedTemplateUseCase`
+- `EditSavedTemplateUseCase`
+- `RenameSavedTemplateUseCase`
+- `DeleteSavedTemplateUseCase`
 
 ---
 
@@ -156,6 +165,8 @@ class SavedTemplateDetail {
 - `SavedTemplateSaveRequest` / `SavedTemplateSaveResponseModel`
 - `SavedTemplateListItemModel` / `SavedTemplateListResponseModel`
 - `SavedTemplateDetailResponseModel`
+- `SavedTemplateEditRequest` `{ body }`
+- `SavedTemplateRenameRequest` `{ title }`
 
 freezed + json_serializable + `toEntity()`.
 
@@ -167,6 +178,9 @@ freezed + json_serializable + `toEntity()`.
 - `POST /v1/saved-templates` — 201 `{ savedTemplateId }`
 - `GET /v1/saved-templates` — query: sort?, page, size
 - `GET /v1/saved-templates/{savedTemplateId}`
+- `PUT /v1/saved-templates/{savedTemplateId}` — `{ body }`
+- `PUT /v1/saved-templates/{savedTemplateId}/title` — `{ title }`
+- `DELETE /v1/saved-templates/{savedTemplateId}` — 204
 
 ### 4.3 Repository 구현체
 
@@ -193,7 +207,9 @@ freezed + json_serializable + `toEntity()`.
 | 저장 내역 pageSize | 10 | 생성 콘텐츠 탭과 동일 |
 | 저장 내역 필터 | 없음 | API에 채널·분류 쿼리 없음 |
 | 저장 내역 Cubit | 콘텐츠 Cubit과 분리 | 피처·필터 축이 다름 |
-| 점 3개 메뉴 | 모달 UI만 | 삭제·이름 수정 API 추후 |
+| 점 3개 메뉴 | 제목 PUT / 삭제 DELETE | 모달 로딩 ADR-005 |
+| 본문 편집 | `TemplateEditPage` + body PUT | 적용 플로우는 document pop 유지 |
+| 제목 한도 | 2~20자 | 콘텐츠 탭과 동일. `SsossTextField.isWithinLength` |
 
 ### 5.2 Cubits
 
@@ -218,6 +234,7 @@ freezed + json_serializable + `toEntity()`.
 | `/template-detail` | `int templateId` |
 | `/template-apply` | `TemplateApplyArgs(templateId, body)` |
 | `/home` | `SsossNavigationItem` 또는 `HomeRouteExtra` |
+| `/template-edit` | `TemplateEditArgs(document, savedTemplateId?)` |
 
 ---
 
@@ -231,6 +248,9 @@ freezed + json_serializable + `toEntity()`.
 | POST | `/v1/saved-templates` | 저장 | Y |
 | GET | `/v1/saved-templates` | 저장 내역 목록 (sort?, page, size) | Y |
 | GET | `/v1/saved-templates/{savedTemplateId}` | 저장 내역 상세 | Y |
+| PUT | `/v1/saved-templates/{savedTemplateId}` | 본문 편집 | Y |
+| PUT | `/v1/saved-templates/{savedTemplateId}/title` | 제목 수정 | Y |
+| DELETE | `/v1/saved-templates/{savedTemplateId}` | 삭제 | Y |
 
 **저장 Request**
 
@@ -260,6 +280,7 @@ freezed + json_serializable + `toEntity()`.
 | 적용/저장 실패 | `AppException.message` 토스트 |
 | 저장 내역 목록 오류 | Cubit `errorMessage` + 토스트 |
 | 저장 상세 오류 | Cubit `errorMessage` + 다시 시도 |
+| 본문·제목 수정/삭제 실패 | `AppException.message` 토스트, 모달·화면 유지 |
 | 401/403 | 기존 Dio 인터셉터 |
 
 ---
