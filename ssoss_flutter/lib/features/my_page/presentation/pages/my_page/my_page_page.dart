@@ -127,7 +127,7 @@ class _MyPagePageState extends State<MyPagePage> {
 
   void _openCreditHistory(BuildContext context) {
     unawaited(
-      Navigator.of(context).push(
+      Navigator.of(context, rootNavigator: true).push(
         CupertinoPageRoute<void>(
           builder: (_) => const CreditHistoryPage(),
         ),
@@ -167,7 +167,7 @@ class _MyPagePageState extends State<MyPagePage> {
 
   void _openSavedContentSources(BuildContext context) {
     unawaited(
-      Navigator.of(context).push(
+      Navigator.of(context, rootNavigator: true).push(
         CupertinoPageRoute<void>(
           builder: (_) => const SavedContentSourcesPage(),
         ),

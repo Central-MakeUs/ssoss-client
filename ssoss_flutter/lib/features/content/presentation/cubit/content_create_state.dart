@@ -24,7 +24,7 @@ abstract class ContentCreateState with _$ContentCreateState {
     @Default('') String highlight,
     @Default('') String forbidden,
     @Default(<String>[]) List<String> keywords,
-    @Default(false) bool photoGuideEnabled,
+    @Default(true) bool photoGuideEnabled,
     String? errorMessage,
   }) = _ContentCreateState;
 

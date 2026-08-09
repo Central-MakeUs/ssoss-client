@@ -378,7 +378,7 @@ class _ContentCreateState extends ContentCreateState {
       this.highlight = '',
       this.forbidden = '',
       final List<String> keywords = const <String>[],
-      this.photoGuideEnabled = false,
+      this.photoGuideEnabled = true,
       this.errorMessage})
       : _channels = channels,
         _keywords = keywords,
