@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_radio.dart';
@@ -84,7 +83,7 @@ class WithdrawReasonOptionList extends StatelessWidget {
           ),
           if (i == kWithdrawReasonOtherIndex &&
               selectedIndex == kWithdrawReasonOtherIndex) ...[
-            const SizedBox(height: 14),
+            const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.only(left: 34),
               child: SsossTextField(
@@ -94,11 +93,7 @@ class WithdrawReasonOptionList extends StatelessWidget {
                 hintText: '의견을 자유롭게 작성해주세요.',
                 hintColor: AppColors.neutral500,
                 height: 68,
-                inputFormatters: [
-                  LengthLimitingTextInputFormatter(
-                    WithdrawalReason.detailMaxLength,
-                  ),
-                ],
+                maxLength: WithdrawalReason.detailMaxLength,
               ),
             ),
           ],

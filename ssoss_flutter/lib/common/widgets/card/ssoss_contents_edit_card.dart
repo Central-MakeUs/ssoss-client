@@ -4,9 +4,12 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:ssoss_flutter/common/widgets/card/content-edit/ssoss_contents_edit_document.dart';
 import 'package:ssoss_flutter/common/widgets/card/content-edit/ssoss_contents_edit_document_mapper.dart';
+import 'package:ssoss_flutter/common/widgets/card/content-edit/ssoss_contents_edit_max_length.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_recommendation_card.dart';
 import 'package:ssoss_flutter/common/widgets/card/content-edit/ssoss_recommendation_node.dart';
 import 'package:ssoss_flutter/common/widgets/card/content-edit/ssoss_recommendation_node_builder.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_focused_input_scroller.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_max_length_formatter.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -114,6 +117,14 @@ class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
   /// 추천 카드 삭제 확인 중 중복 모달·중복 삭제를 막는다.
   bool _isDeletingRecommendation = false;
 
+  /// 글자 수 한도 초과 입력을 IME 단계에서 차단한다.
+  late final SsossContentsEditMaxLengthInterceptor _maxLengthInterceptor =
+      SsossContentsEditMaxLengthInterceptor(
+    maxLength: () => widget.maxLength,
+    onPasteOverflow: _insertTextRespectingMaxLength,
+  );
+  late final SsossFocusedInputScroller _focusedInputScroller;
+
   @override
   void initState() {
     super.initState();
@@ -121,8 +132,19 @@ class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
     _editorStyle = _buildEditorStyle();
     _editorFocusNode.addListener(_onEditorFocusChanged);
     _editorState.selectionNotifier.addListener(_onEditorSelectionChanged);
+    _focusedInputScroller = SsossFocusedInputScroller(
+      isFocused: () => _editorFocusNode.hasFocus,
+      globalRectOf: (_) {
+        final rects = _editorState.selectionRects();
+        if (rects.isEmpty) {
+          return null;
+        }
+        return rects.last;
+      },
+    )..attach(context);
     _transactionSubscription =
-        _editorState.transactionStream.listen((_) => _handleTransaction());
+        _editorState.transactionStream.listen(_handleTransaction);
+    _scheduleMaxLengthInterceptorRegistration();
   }
 
   @override
@@ -147,24 +169,43 @@ class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
 
   /// 에디터 상태를 [document] 기준으로 교체한다. (외부 sync / 초기화 복구)
   void _replaceEditorState(SsossContentsEditDocument document) {
+    _unregisterMaxLengthInterceptor();
     _transactionSubscription?.cancel();
     _editorState.selectionNotifier.removeListener(_onEditorSelectionChanged);
     _editorScrollController.dispose();
     _bindEditorState(_createEditorState(document));
     _editorState.selectionNotifier.addListener(_onEditorSelectionChanged);
     _transactionSubscription =
-        _editorState.transactionStream.listen((_) => _handleTransaction());
+        _editorState.transactionStream.listen(_handleTransaction);
     _lastEmittedDocument = document;
+    _scheduleMaxLengthInterceptorRegistration();
   }
 
   @override
   void dispose() {
+    _focusedInputScroller.detach();
+    _unregisterMaxLengthInterceptor();
     _transactionSubscription?.cancel();
     _editorFocusNode.removeListener(_onEditorFocusChanged);
     _editorFocusNode.dispose();
     _editorState.selectionNotifier.removeListener(_onEditorSelectionChanged);
     _editorScrollController.dispose();
     super.dispose();
+  }
+
+  void _scheduleMaxLengthInterceptorRegistration() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _editorState.service.keyboardService
+          ?.registerInterceptor(_maxLengthInterceptor);
+    });
+  }
+
+  void _unregisterMaxLengthInterceptor() {
+    _editorState.service.keyboardService
+        ?.unregisterInterceptor(_maxLengthInterceptor);
   }
 
   void _bindEditorState(EditorState editorState) {
@@ -179,11 +220,25 @@ class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
     if (mounted) {
       setState(() {});
     }
+    if (_editorFocusNode.hasFocus) {
+      _focusedInputScroller.onFocusGained();
+    }
   }
 
   void _onEditorSelectionChanged() {
     if (mounted) {
       setState(() {});
+    }
+  }
+
+  void _unfocusEditor() {
+    _editorState.service.keyboardService?.closeKeyboard();
+    if (_editorFocusNode.hasFocus) {
+      _editorFocusNode.unfocus();
+    }
+    // 포커스만 풀면 테두리는 바뀌지만 AppFlowy는 selection이 남아 커서를 그린다.
+    if (_editorState.selection != null) {
+      _editorState.selection = null;
     }
   }
 
@@ -298,8 +353,62 @@ class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
     return node.delta?.toPlainText().isEmpty ?? true;
   }
 
-  void _handleTransaction() {
+  void _handleTransaction(EditorTransactionValue value) {
+    if (value.$1 != TransactionTime.after) {
+      return;
+    }
     _emitDocumentChange();
+  }
+
+  Future<void> _pasteRespectingMaxLength() async {
+    final data = await AppFlowyClipboard.getData();
+    final text = data.text;
+    if (text == null || text.isEmpty) {
+      return;
+    }
+    await _insertTextRespectingMaxLength(text);
+  }
+
+  Future<void> _insertTextRespectingMaxLength(String text) async {
+    final selection = _editorState.selection;
+    if (selection == null) {
+      return;
+    }
+
+    final clipped = SsossContentsEditMaxLength.clipToRemaining(
+      text,
+      editorState: _editorState,
+      maxLength: widget.maxLength,
+    );
+    final wasTruncated = clipped.length < text.length;
+
+    if (clipped.isNotEmpty) {
+      if (!selection.isCollapsed) {
+        await _editorState.deleteSelection(selection);
+      }
+
+      final lines = clipped.split('\n');
+      for (var i = 0; i < lines.length; i++) {
+        if (i > 0) {
+          await _editorState.insertNewLine();
+        }
+        if (lines[i].isNotEmpty) {
+          await _editorState.insertTextAtCurrentSelection(lines[i]);
+        }
+      }
+    }
+
+    if (wasTruncated && mounted) {
+      showSsossMaxLengthPasteTruncatedToast(context);
+    }
+  }
+
+  KeyEventResult _handlePasteCommand(EditorState editorState) {
+    if (editorState.selection == null) {
+      return KeyEventResult.ignored;
+    }
+    unawaited(_pasteRespectingMaxLength());
+    return KeyEventResult.handled;
   }
 
   int get _textLength =>
@@ -508,59 +617,77 @@ class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
           SingleChildScrollView(
             physics: const NeverScrollableScrollPhysics(),
             child: IntrinsicHeight(
-              // 모바일 드래그 핸들 선택 후 자르기/복사/붙여넣기를 보여주기 위해 MobileFloatingToolbar 사용
-              child: MobileFloatingToolbar(
-                editorState: _editorState,
-                editorScrollController: _editorScrollController,
-                floatingToolbarHeight: 32,
-                toolbarBuilder: (context, anchor, closeToolbar) {
-                  return AdaptiveTextSelectionToolbar.editable(
-                    clipboardStatus: ClipboardStatus.pasteable,
-                    onCopy: () {
-                      copyCommand.execute(_editorState);
-                      closeToolbar();
-                    },
-                    onCut: () {
-                      cutCommand.execute(_editorState);
-                      closeToolbar();
-                    },
-                    onPaste: () {
-                      pasteCommand.execute(_editorState);
-                      closeToolbar();
-                    },
-                    onSelectAll: () {
-                      selectAllCommand.execute(_editorState);
-                      closeToolbar();
-                    },
-                    onLiveTextInput: null,
-                    onLookUp: null,
-                    onSearchWeb: null,
-                    onShare: null,
-                    anchors: TextSelectionToolbarAnchors(
-                      primaryAnchor: anchor,
-                    ),
-                  );
-                },
-                child: AppFlowyEditor(
-                  key: ValueKey(_editorState),
+              child: TapRegion(
+                onTapOutside: (_) => _unfocusEditor(),
+                // 모바일 드래그 핸들 선택 후 자르기/복사/붙여넣기를 보여주기 위해 MobileFloatingToolbar 사용
+                child: MobileFloatingToolbar(
                   editorState: _editorState,
                   editorScrollController: _editorScrollController,
-                  editorStyle: _editorStyle,
-                  focusNode: _editorFocusNode,
-                  editable: widget.enabled && !widget.readOnly,
-                  autoFocus: false,
-                  shrinkWrap: true,
-                  blockComponentBuilders: _buildBlockComponentBuilders(),
-                  // ssoss 핸들러를 standard 이벤트보다 앞에 둔다.
-                  commandShortcutEvents: [
-                    CommandShortcutEvent(
-                      key: 'ssoss recommendation backspace',
-                      command: 'backspace',
-                      getDescription: () => 'ssoss recommendation backspace',
-                      handler: _handleRecommendationBackspace,
-                    ),
-                    ...standardCommandShortcutEvents,
-                  ],
+                  floatingToolbarHeight: 32,
+                  toolbarBuilder: (context, anchor, closeToolbar) {
+                    return AdaptiveTextSelectionToolbar.editable(
+                      clipboardStatus: ClipboardStatus.pasteable,
+                      onCopy: () {
+                        copyCommand.execute(_editorState);
+                        closeToolbar();
+                      },
+                      onCut: () {
+                        cutCommand.execute(_editorState);
+                        closeToolbar();
+                      },
+                      onPaste: () {
+                        unawaited(_pasteRespectingMaxLength());
+                        closeToolbar();
+                      },
+                      onSelectAll: () {
+                        selectAllCommand.execute(_editorState);
+                        closeToolbar();
+                      },
+                      onLiveTextInput: null,
+                      onLookUp: null,
+                      onSearchWeb: null,
+                      onShare: null,
+                      anchors: TextSelectionToolbarAnchors(
+                        primaryAnchor: anchor,
+                      ),
+                    );
+                  },
+                  child: AppFlowyEditor(
+                    key: ValueKey(_editorState),
+                    editorState: _editorState,
+                    editorScrollController: _editorScrollController,
+                    editorStyle: _editorStyle,
+                    focusNode: _editorFocusNode,
+                    editable: widget.enabled && !widget.readOnly,
+                    autoFocus: false,
+                    shrinkWrap: true,
+                    disableAutoScroll: true,
+                    blockComponentBuilders: _buildBlockComponentBuilders(),
+                    // ssoss 핸들러를 standard 이벤트보다 앞에 둔다.
+                    commandShortcutEvents: [
+                      CommandShortcutEvent(
+                        key: 'ssoss recommendation backspace',
+                        command: 'backspace',
+                        getDescription: () => 'ssoss recommendation backspace',
+                        handler: _handleRecommendationBackspace,
+                      ),
+                      CommandShortcutEvent(
+                        key: 'ssoss paste max length',
+                        command: 'ctrl+v',
+                        macOSCommand: 'cmd+v',
+                        getDescription: () => 'ssoss paste max length',
+                        handler: _handlePasteCommand,
+                      ),
+                      CommandShortcutEvent(
+                        key: 'ssoss paste plain max length',
+                        command: 'ctrl+shift+v',
+                        macOSCommand: 'cmd+shift+v',
+                        getDescription: () => 'ssoss paste plain max length',
+                        handler: _handlePasteCommand,
+                      ),
+                      ...standardCommandShortcutEvents,
+                    ],
+                  ),
                 ),
               ),
             ),

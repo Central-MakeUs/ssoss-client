@@ -57,6 +57,7 @@ class StoreInfoFormField extends StatelessWidget {
     this.multiline = false,
     this.isRequired = false,
     this.helperText,
+    this.maxLength,
     this.textInputAction,
     this.onTap,
   });
@@ -69,6 +70,7 @@ class StoreInfoFormField extends StatelessWidget {
   final bool multiline;
   final bool isRequired;
   final String? helperText;
+  final int? maxLength;
   final TextInputAction? textInputAction;
   final VoidCallback? onTap;
 
@@ -92,6 +94,7 @@ class StoreInfoFormField extends StatelessWidget {
               hintText: hintText,
               readOnly: readOnly,
               multiline: multiline,
+              maxLength: maxLength,
               textInputAction: textInputAction,
               textColor: AppColors.neutral800,
               hintColor: AppColors.neutral400,

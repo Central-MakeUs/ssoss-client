@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
+import 'package:ssoss_flutter/common/widgets/input/ssoss_focused_input_scroller.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_select_option.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
@@ -66,7 +67,10 @@ class _SsossAddressSearchFieldState extends State<SsossAddressSearchField> {
     _searchService = widget.searchService ?? KakaoLocalSearchService();
     _debouncer = Debouncer();
     _focusNode.addListener(_handleFocusChange);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _syncOverlay());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _syncOverlay();
+      _scrollResultsIntoView();
+    });
   }
 
   @override
@@ -96,11 +100,40 @@ class _SsossAddressSearchFieldState extends State<SsossAddressSearchField> {
     if (mounted) {
       setState(() {});
     }
-    _syncOverlay();
+    _scheduleSyncOverlay();
   }
 
   void _scheduleSyncOverlay() {
-    WidgetsBinding.instance.addPostFrameCallback((_) => _syncOverlay());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _syncOverlay();
+      _scrollResultsIntoView();
+    });
+  }
+
+  void _scrollResultsIntoView() {
+    if (!_showDropdown) {
+      return;
+    }
+
+    final fieldContext = _fieldKey.currentContext;
+    final fieldBox = fieldContext?.findRenderObject() as RenderBox?;
+    if (fieldContext == null ||
+        fieldBox == null ||
+        !fieldBox.attached ||
+        !fieldBox.hasSize) {
+      return;
+    }
+
+    final extraHeight = SsossSelectOptionsPanel.gap +
+        SsossSelectOptionsPanel.heightFor(_addresses.length);
+    final origin = fieldBox.localToGlobal(Offset.zero);
+    ensureSsossFocusedInputVisible(
+      fieldContext,
+      globalRect: origin & Size(
+        fieldBox.size.width,
+        fieldBox.size.height + extraHeight,
+      ),
+    );
   }
 
   void _syncOverlay() {

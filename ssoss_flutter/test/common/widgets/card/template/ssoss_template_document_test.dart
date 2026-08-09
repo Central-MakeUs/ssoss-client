@@ -157,4 +157,33 @@ void main() {
       const Color(0xFF000000),
     ]);
   });
+
+  test('removing one closing bracket does not swallow the next placeholder', () {
+    var doc = SsossTemplateDocument.fromTemplate('[메뉴명]\n가격: [가격]원');
+    expect(doc.activePlaceholderCounts, {
+      '[메뉴명]': 1,
+      '[가격]': 1,
+    });
+
+    doc = doc.copyWith(text: '[메뉴명\n가격: [가격]원');
+    expect(doc.plainText, '[메뉴명\n가격: [가격]원');
+    expect(doc.activePlaceholderCounts, {'[가격]': 1});
+    expect(colorsOf(doc), [
+      const Color(0xFF000000),
+      placeholderColor,
+      const Color(0xFF000000),
+    ]);
+  });
+
+  test('unclosed bracket does not merge with a later token on the same line', () {
+    var doc = SsossTemplateDocument.fromTemplate('[가격] and [가격]');
+
+    doc = doc.copyWith(text: '[가격 and [가격]');
+    expect(doc.plainText, '[가격 and [가격]');
+    expect(doc.activePlaceholderCounts, {'[가격]': 1});
+    expect(colorsOf(doc), [
+      const Color(0xFF000000),
+      placeholderColor,
+    ]);
+  });
 }

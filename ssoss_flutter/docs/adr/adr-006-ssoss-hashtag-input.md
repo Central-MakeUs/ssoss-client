@@ -11,7 +11,7 @@
 | 상태 | Accepted |
 | 작성자 | ahndohyeon |
 | 작성일 | 2026-07-24 |
-| 최종 개정 | 2026-07-31 |
+| 최종 개정 | 2026-08-09 |
 | 영향 범위 | 전체 프로젝트 (`common` 해시태그 입력, content·my_page 등 칩 목록 추가 UI가 있는 presentation 화면) |
 
 ---
@@ -110,7 +110,7 @@ Figma MCP·디자인 컨텍스트·레이아웃 스케치가 들어올 때도 �
 
 ### 부정적 결과 / 감수한 트레이드오프
 
-- 부모가 `onAdd`에서 한도·중복·normalize 실패를 처리해야 한다(토스트 등).
+- 부모가 `onAdd`에서 한도·normalize 실패를 처리해야 한다(토스트 등). 중복은 컴포넌트가 `SsossToast(error)`로 막는다.
 - 읽기 전용 해시태그 나열(복사·추천 템플릿 카드 등)은 이 컴포넌트의 범위가 아니다. 편집·추가가 없는 표시는 기존 카드/칩 UI를 유지한다.
 
 ### 후속 조치 필요 사항
@@ -155,6 +155,7 @@ Figma MCP·디자인 컨텍스트·레이아웃 스케치가 들어올 때도 �
 - 「입력 + 추가 + 삭제 가능 칩」 UI에는 `SsossHashtagInput`을 사용한다.
 - 리스트 상태는 `#` 없는 문자열로 보관한다. 표시만 `display` / 칩에 맡긴다.
 - 추가는 `SsossHashtagNormalizer.normalize` 결과를 기준으로 하고, `maxCount`·중복을 검사한다.
+- 이미 등록된 값을 다시 추가하면 `onAdd`를 호출하지 않고 `showSsossToast(..., type: SsossToastType.error, title: kSsossHashtagDuplicateMessage)`를 띄운다.
 - 입력 길이는 컴포넌트 내부 formatter와 normalize의 길이 검사를 함께 지킨다.
 - 긴 칩이 한 줄을 넘기면 `Wrap`으로 다음 줄에 배치되도록 공용 컴포넌트 레이아웃을 유지한다.
 
@@ -175,7 +176,7 @@ SsossHashtagInput(
       return;
     }
     final normalized = SsossHashtagNormalizer.normalize(raw);
-    if (normalized == null || keywords.contains(normalized)) {
+    if (normalized == null) {
       return;
     }
     // state에 normalized 추가

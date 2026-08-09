@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_contents_edit_card.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_focused_input_scroller.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
 import 'package:ssoss_flutter/common/widgets/modal/ssoss_modal.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
@@ -213,7 +214,12 @@ class _ContentEditViewState extends State<_ContentEditView> {
                   ),
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                      padding: const EdgeInsets.fromLTRB(
+                        16,
+                        12,
+                        16,
+                        24 + kSsossFocusedInputScrollPaddingBottom,
+                      ),
                       child: _EditBody(
                         state: state,
                         onAddHashtag: (raw) => _onAddHashtag(context, raw),

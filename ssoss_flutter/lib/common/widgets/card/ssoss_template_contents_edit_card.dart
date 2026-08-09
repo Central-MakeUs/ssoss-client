@@ -1,8 +1,9 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ssoss_flutter/common/widgets/card/template/ssoss_template_document.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_focused_input_scroller.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_max_length_formatter.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
@@ -83,6 +84,8 @@ class _SsossTemplateContentsEditCardState
   late final FocusNode _focusNode;
   late final _TemplateTextEditingController _controller;
   late final ValueNotifier<int> _lengthNotifier;
+  late final SsossMaxLengthFormatter _maxLengthFormatter;
+  late final SsossFocusedInputScroller _focusedInputScroller;
   late SsossTemplateDocument _document;
   SsossTemplateDocument? _lastEmittedDocument;
   bool _isApplyingDocument = false;
@@ -93,6 +96,13 @@ class _SsossTemplateContentsEditCardState
     _document = widget.document;
     _lengthNotifier = ValueNotifier<int>(_document.textLength);
     _focusNode = FocusNode()..addListener(_onFocusChanged);
+    _maxLengthFormatter = SsossMaxLengthFormatter(
+      widget.maxLength,
+      onTruncatedPaste: _onTruncatedPaste,
+    );
+    _focusedInputScroller = SsossFocusedInputScroller(
+      isFocused: () => _focusNode.hasFocus,
+    )..attach(context);
     _controller = _TemplateTextEditingController(
       document: _document,
       contentColor: widget.contentColor ?? AppColors.black,
@@ -112,6 +122,10 @@ class _SsossTemplateContentsEditCardState
       _syncFromDocument(widget.document);
     }
 
+    if (oldWidget.maxLength != widget.maxLength) {
+      _maxLengthFormatter.maxLength = widget.maxLength;
+    }
+
     if (oldWidget.contentColor != widget.contentColor ||
         oldWidget.emptySlotColor != widget.emptySlotColor) {
       _controller.contentColor = widget.contentColor ?? AppColors.black;
@@ -122,6 +136,7 @@ class _SsossTemplateContentsEditCardState
 
   @override
   void dispose() {
+    _focusedInputScroller.detach();
     _controller.removeListener(_onControllerChanged);
     _focusNode.removeListener(_onFocusChanged);
     _focusNode.dispose();
@@ -134,6 +149,19 @@ class _SsossTemplateContentsEditCardState
     if (mounted) {
       setState(() {});
     }
+    if (_focusNode.hasFocus) {
+      _focusedInputScroller.onFocusGained();
+    }
+  }
+
+  void _unfocusIfNeeded() {
+    if (_focusNode.hasFocus) {
+      _focusNode.unfocus();
+    }
+  }
+
+  void _onTruncatedPaste() {
+    showSsossMaxLengthPasteTruncatedToast(context);
   }
 
   void _onControllerChanged() {
@@ -141,6 +169,19 @@ class _SsossTemplateContentsEditCardState
       return;
     }
     if (_controller.value.composing.isValid) {
+      return;
+    }
+
+    if (widget.maxLength > 0 && _controller.text.length > widget.maxLength) {
+      final attemptedGrowth = _controller.text.length - _document.textLength;
+      final truncated = _controller.text.substring(0, widget.maxLength);
+      _controller.value = TextEditingValue(
+        text: truncated,
+        selection: TextSelection.collapsed(offset: truncated.length),
+      );
+      if (attemptedGrowth > 1) {
+        showSsossMaxLengthPasteTruncatedToast(context);
+      }
       return;
     }
 
@@ -240,12 +281,12 @@ class _SsossTemplateContentsEditCardState
             style: textStyle,
             cursorColor: widget.focusedBorderColor ?? AppColors.primary400,
             keyboardType: TextInputType.multiline,
-            inputFormatters: canEdit
-                ? [LengthLimitingTextInputFormatter(widget.maxLength)]
-                : const [],
+            showCursor: _hasFocus,
+            scrollPadding: EdgeInsets.zero,
+            inputFormatters: canEdit ? [_maxLengthFormatter] : const [],
             selectionWidthStyle: ui.BoxWidthStyle.tight,
             selectionHeightStyle: ui.BoxHeightStyle.tight,
-            onTapOutside: (_) => _focusNode.unfocus(),
+            onTapOutside: (_) => _unfocusIfNeeded(),
             decoration: const InputDecoration(
               isDense: true,
               border: InputBorder.none,

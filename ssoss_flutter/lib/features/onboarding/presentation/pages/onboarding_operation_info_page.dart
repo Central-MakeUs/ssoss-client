@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:ssoss_flutter/common/widgets/input/ssoss_focused_input_scroller.dart';
 import 'package:ssoss_flutter/common/widgets/picker/ssoss_time_picker_bottom_sheet.dart';
 import 'package:ssoss_flutter/common/widgets/store_info/store_info_components.dart';
 import 'package:ssoss_flutter/common/widgets/store_info/store_operation_info_form.dart';
@@ -138,7 +139,12 @@ class _OnboardingOperationInfoPageState
             ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 6, 24, 24),
+                padding: const EdgeInsets.fromLTRB(
+                  24,
+                  6,
+                  24,
+                  24 + kSsossFocusedInputScrollPaddingBottom,
+                ),
                 children: [
                   const _OperationInfoTitle(),
                   const SizedBox(height: 28),
