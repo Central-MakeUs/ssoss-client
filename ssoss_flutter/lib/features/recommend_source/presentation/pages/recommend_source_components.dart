@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
+import 'package:ssoss_flutter/common/widgets/refresh/ssoss_pull_refresh_indicator.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -114,8 +117,10 @@ class RecommendSourceHashtagSetList extends StatefulWidget {
     required this.items,
     required this.onSaveTap,
     required this.onLoadMore,
+    required this.onRefresh,
     this.isLoading = false,
     this.isLoadingMore = false,
+    this.hasNext = false,
     this.errorMessage,
     this.onRetry,
     super.key,
@@ -124,8 +129,10 @@ class RecommendSourceHashtagSetList extends StatefulWidget {
   final List<RecommendSourceHashtagSetItem> items;
   final ValueChanged<String> onSaveTap;
   final VoidCallback onLoadMore;
+  final Future<void> Function() onRefresh;
   final bool isLoading;
   final bool isLoadingMore;
+  final bool hasNext;
   final String? errorMessage;
   final VoidCallback? onRetry;
 
@@ -153,7 +160,7 @@ class _RecommendSourceHashtagSetListState
   }
 
   void _onScroll() {
-    if (!_scrollController.hasClients) {
+    if (!_scrollController.hasClients || !widget.hasNext) {
       return;
     }
     final position = _scrollController.position;
@@ -164,78 +171,101 @@ class _RecommendSourceHashtagSetListState
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary400),
-      );
-    }
-
-    if (widget.errorMessage != null && widget.items.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppText(
-                widget.errorMessage!,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.b3.copyWith(color: AppColors.neutral500),
-              ),
-              if (widget.onRetry != null) ...[
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: widget.onRetry,
-                  child: AppText(
-                    '다시 시도',
-                    style:
-                        AppTextStyles.b3.copyWith(color: AppColors.primary400),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (widget.items.isEmpty) {
-      return Center(
-        child: AppText(
-          '해시태그 묶음이 없습니다',
-          style: AppTextStyles.b3.copyWith(color: AppColors.neutral500),
-        ),
-      );
-    }
-
-    final itemCount = widget.items.length + (widget.isLoadingMore ? 1 : 0);
-
-    return ListView.separated(
+    return CustomScrollView(
       controller: _scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 34),
-      itemBuilder: (context, index) {
-        if (index >= widget.items.length) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
+      physics: widget.isLoading
+          ? const NeverScrollableScrollPhysics()
+          : const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+      slivers: [
+        if (!widget.isLoading)
+          CupertinoSliverRefreshControl(
+            refreshTriggerPullDistance: 100,
+            refreshIndicatorExtent: 60,
+            onRefresh: widget.onRefresh,
+            builder: buildSsossPullRefreshIndicator,
+          ),
+        if (widget.isLoading)
+          const SliverFillRemaining(
+            hasScrollBody: false,
             child: Center(
               child: CircularProgressIndicator(color: AppColors.primary400),
             ),
-          );
-        }
-
-        final item = widget.items[index];
-        return RecommendSourceHashtagSetCard(
-          item: item,
-          onSaveTap: () => widget.onSaveTap(item.id),
-        );
-      },
-      separatorBuilder: (_, index) {
-        if (index >= widget.items.length - 1 && widget.isLoadingMore) {
-          return const SizedBox.shrink();
-        }
-        return const SizedBox(height: 18);
-      },
-      itemCount: itemCount,
+          )
+        else if (widget.errorMessage != null && widget.items.isEmpty)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppText(
+                      widget.errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.b3
+                          .copyWith(color: AppColors.neutral500),
+                    ),
+                    if (widget.onRetry != null) ...[
+                      const SizedBox(height: 16),
+                      SsossButton(
+                        label: '다시 시도',
+                        size: SsossButtonSize.small,
+                        type: SsossButtonType.outline,
+                        onPressed: widget.onRetry,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          )
+        else if (widget.items.isEmpty)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: AppText(
+                '해시태그 묶음이 없습니다',
+                style: AppTextStyles.b3.copyWith(color: AppColors.neutral500),
+              ),
+            ),
+          )
+        else ...[
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final item = widget.items[index];
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: index == widget.items.length - 1 ? 0 : 18,
+                    ),
+                    child: RecommendSourceHashtagSetCard(
+                      item: item,
+                      onSaveTap: () => widget.onSaveTap(item.id),
+                    ),
+                  );
+                },
+                childCount: widget.items.length,
+              ),
+            ),
+          ),
+          if (widget.isLoadingMore && widget.hasNext)
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: CircularProgressIndicator(color: AppColors.primary400),
+                ),
+              ),
+            )
+          else
+            const SliverToBoxAdapter(child: SizedBox(height: 34)),
+        ],
+      ],
     );
   }
 }

@@ -20,7 +20,7 @@ class TemplateItem {
     this.isSaved = false,
   });
 
-  final String id;
+  final int id;
   final TemplateCategory category;
   final String title;
   final String description;

@@ -332,10 +332,12 @@ class TemplateApplyHint extends StatelessWidget {
 class TemplateApplyBottomBar extends StatelessWidget {
   const TemplateApplyBottomBar({
     required this.onSaveTap,
+    this.isLoading = false,
     super.key,
   });
 
-  final VoidCallback onSaveTap;
+  final VoidCallback? onSaveTap;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -348,6 +350,7 @@ class TemplateApplyBottomBar extends StatelessWidget {
           width: double.infinity,
           height: 56,
           type: SsossButtonType.primary,
+          isLoading: isLoading,
           onPressed: onSaveTap,
         ),
       ),

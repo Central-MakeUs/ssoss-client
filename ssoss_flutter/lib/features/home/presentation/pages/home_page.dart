@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:ssoss_flutter/common/widgets/navigation/ssoss_navigation_bar.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/features/home/presentation/models/home_route_extra.dart';
 import 'package:ssoss_flutter/features/home/presentation/widgets/home_tab_pages.dart';
 
 /// 로그인 성공 후 진입하는 메인 셸 화면. 하단 네비게이션으로 탭을 전환한다.
@@ -9,12 +10,14 @@ class HomePage extends StatefulWidget {
   const HomePage({
     super.key,
     this.initialTab = SsossNavigationItem.contentCreation,
+    this.initialManagementSection = ContentManagementSection.generated,
   });
 
   static const String routeName = 'home';
   static const String routePath = '/home';
 
   final SsossNavigationItem initialTab;
+  final ContentManagementSection initialManagementSection;
 
   /// 이미 홈 셸 안에 있을 때 탭만 전환한다. 없으면 false.
   static bool selectTab(BuildContext context, SsossNavigationItem tab) {
@@ -84,7 +87,8 @@ class _HomePageState extends State<HomePage> {
     return [
       ContentCreationTab.buildAppBar(context),
       DashboardTab.buildAppBar(context),
-      PlaceDiagnosisTab.buildAppBar(context),
+      // TODO: 플레이스 진단 추가 시 사용
+      // PlaceDiagnosisTab.buildAppBar(context),
       MyPageTab.buildAppBar(context),
     ];
   }
@@ -96,8 +100,10 @@ class _HomePageState extends State<HomePage> {
       ),
       DashboardTab(
         isActive: _currentItem == SsossNavigationItem.dashboard,
+        initialManagementSection: widget.initialManagementSection,
       ),
-      const PlaceDiagnosisTab(),
+      // TODO: 플레이스 진단 추가 시 사용
+      // const PlaceDiagnosisTab(),
       const MyPageTab(),
     ];
   }

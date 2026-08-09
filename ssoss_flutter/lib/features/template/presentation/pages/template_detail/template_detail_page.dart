@@ -1,95 +1,189 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
+import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
+import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/exception/app_exception.dart';
+import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
+import 'package:ssoss_flutter/features/template/domain/entities/recommended_template_detail.dart';
+import 'package:ssoss_flutter/features/template/domain/usecases/get_applied_template_usecase.dart';
+import 'package:ssoss_flutter/features/template/domain/usecases/get_template_usecase.dart';
+import 'package:ssoss_flutter/features/template/presentation/cubit/template_detail_cubit.dart';
+import 'package:ssoss_flutter/features/template/presentation/cubit/template_detail_state.dart';
+import 'package:ssoss_flutter/features/template/presentation/models/template_apply_args.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_apply/template_apply_page.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_detail/template_detail_components.dart';
+import 'package:ssoss_flutter/features/template/presentation/util/template_label_mapper.dart';
 import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 
-class TemplateDetailPage extends StatefulWidget {
+class TemplateDetailPage extends StatelessWidget {
   const TemplateDetailPage({
-    required this.item,
+    required this.templateId,
     super.key,
-    this.onSavedChanged,
   });
 
   static const String routeName = 'template-detail';
   static const String routePath = '/template-detail';
 
-  final TemplateItem item;
-
-  /// 저장/해제 버튼 탭 직후 호출. `true`면 저장, `false`면 해제.
-  final ValueChanged<bool>? onSavedChanged;
-
-  @override
-  State<TemplateDetailPage> createState() => _TemplateDetailPageState();
-}
-
-class _TemplateDetailPageState extends State<TemplateDetailPage> {
-  late bool _isSaved = widget.item.isSaved;
-  bool _isExampleOpen = false;
-
-  void _onSaveTap() {
-    final nextSaved = !_isSaved;
-    setState(() => _isSaved = nextSaved);
-    widget.onSavedChanged?.call(nextSaved);
-  }
+  final int templateId;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            SsossAppBar.back(
-              title: '템플릿 미리보기',
-              onBack: () => Navigator.of(context).pop(),
-            ),
-            Expanded(
-              child: TemplateDetailBody(
-                item: widget.item,
-                previewText: _previewText,
-                isExampleOpen: _isExampleOpen,
-                onExampleTap: () {
-                  setState(() => _isExampleOpen = !_isExampleOpen);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: TemplateDetailBottomBar(
-        isSaved: _isSaved,
-        onSaveTap: _onSaveTap,
-        onApplyTap: () {
-          unawaited(
-            context.push(
-              TemplateApplyPage.routePath,
-              extra: widget.item,
-            ),
-          );
-        },
-      ),
+    return BlocProvider(
+      create: (context) {
+        final cubit = TemplateDetailCubit(
+          getTemplate: context.read<GetTemplateUseCase>(),
+          getAppliedTemplate: context.read<GetAppliedTemplateUseCase>(),
+          templateId: templateId,
+        );
+        unawaited(cubit.load());
+        return cubit;
+      },
+      child: const _TemplateDetailView(),
     );
   }
 }
 
-const String _previewText = '''
-[가게명]에 새 메뉴가 출시되었습니다!
+class _TemplateDetailView extends StatefulWidget {
+  const _TemplateDetailView();
 
-✨ 신메뉴: [메뉴명]
-💰 가격: [가격]원
+  @override
+  State<_TemplateDetailView> createState() => _TemplateDetailViewState();
+}
 
-[메뉴 설명을 입력해주세요]
+class _TemplateDetailViewState extends State<_TemplateDetailView> {
+  bool _isExampleOpen = false;
 
-신선한 재료로 정성껏 만들었습니다.
-많은 사랑 부탁드립니다 🙏
+  TemplateItem _toItem(RecommendedTemplateDetail detail) {
+    return TemplateItem(
+      id: detail.id,
+      category: TemplateLabelMapper.category(detail.category),
+      title: detail.title,
+      description: detail.description,
+      channels: TemplateLabelMapper.channels(detail.recommendedChannels),
+      isSaved: detail.bookmarked,
+    );
+  }
 
-📍 [주소]
-⏰ 영업시간: [영업시간]
-📞 [전화번호]
-''';
+  Future<void> _onApplyTap() async {
+    final cubit = context.read<TemplateDetailCubit>();
+    try {
+      final applied = await cubit.apply();
+      if (!mounted || applied == null) {
+        return;
+      }
+      await context.push(
+        TemplateApplyPage.routePath,
+        extra: TemplateApplyArgs(
+          templateId: applied.id,
+          body: applied.body,
+        ),
+      );
+    } on AppException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      showSsossToast(
+        context,
+        title: error.message,
+        type: SsossToastType.error,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<TemplateDetailCubit, TemplateDetailState>(
+      builder: (context, state) {
+        final detail = state.detail;
+
+        return Scaffold(
+          backgroundColor: AppColors.white,
+          body: SafeArea(
+            child: Column(
+              children: [
+                SsossAppBar.back(
+                  title: '템플릿 미리보기',
+                  onBack: () => Navigator.of(context).pop(),
+                ),
+                Expanded(child: _buildBody(state, detail)),
+              ],
+            ),
+          ),
+          bottomNavigationBar: detail == null
+              ? null
+              : TemplateDetailBottomBar(
+                  isSaved: detail.bookmarked,
+                  isApplying: state.isApplying,
+                  onSaveTap: () {},
+                  onApplyTap:
+                      state.isApplying ? null : () => unawaited(_onApplyTap()),
+                ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBody(
+    TemplateDetailState state,
+    RecommendedTemplateDetail? detail,
+  ) {
+    if (state.isLoading && detail == null) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primary400),
+      );
+    }
+
+    final error = state.errorMessage;
+    if (error != null && detail == null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppText(
+                error,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.b3.copyWith(color: AppColors.neutral500),
+              ),
+              const SizedBox(height: 16),
+              SsossButton(
+                label: '다시 시도',
+                size: SsossButtonSize.small,
+                type: SsossButtonType.outline,
+                onPressed: () =>
+                    unawaited(context.read<TemplateDetailCubit>().load()),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (detail == null) {
+      return Center(
+        child: AppText(
+          '템플릿을 찾을 수 없습니다',
+          style: AppTextStyles.b3.copyWith(color: AppColors.neutral500),
+        ),
+      );
+    }
+
+    return TemplateDetailBody(
+      item: _toItem(detail),
+      previewText: detail.body,
+      exampleText: detail.exampleBody,
+      isExampleOpen: _isExampleOpen,
+      onExampleTap: () {
+        setState(() => _isExampleOpen = !_isExampleOpen);
+      },
+    );
+  }
+}

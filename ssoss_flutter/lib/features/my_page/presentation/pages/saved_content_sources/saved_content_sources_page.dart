@@ -53,7 +53,7 @@ class _SavedContentSourcesViewState extends State<_SavedContentSourcesView> {
   /// TODO: 템플릿 북마크 API 연동 시 제거
   static const List<TemplateItem> _dummyTemplates = [
     TemplateItem(
-      id: 'saved-template-1',
+      id: 1,
       category: TemplateCategory.newMenu,
       title: '신메뉴 출시 안내',
       description: '새로 나온 메뉴의 특징과 매력을 소개하는 글',
@@ -118,7 +118,7 @@ class _SavedContentSourcesViewState extends State<_SavedContentSourcesView> {
     );
   }
 
-  void _unbookmarkTemplate(String itemId) {
+  void _unbookmarkTemplate(int itemId) {
     final hadItem = _templateItems.any((item) => item.id == itemId);
     if (!hadItem) {
       return;
@@ -134,36 +134,14 @@ class _SavedContentSourcesViewState extends State<_SavedContentSourcesView> {
       context,
       title: '북마크가 해제되었습니다',
       type: SsossToastType.info,
-      margin: const EdgeInsets.only(bottom: 122),
     );
-  }
-
-  void _restoreTemplate(TemplateItem item) {
-    if (_templateItems.any((template) => template.id == item.id)) {
-      return;
-    }
-    setState(() {
-      _templateItems = [
-        ..._templateItems,
-        item.copyWith(isSaved: true),
-      ];
-    });
   }
 
   void _openTemplateDetail(TemplateItem item) {
     unawaited(
       Navigator.of(context, rootNavigator: true).push<void>(
         MaterialPageRoute<void>(
-          builder: (_) => TemplateDetailPage(
-            item: item,
-            onSavedChanged: (isSaved) {
-              if (!isSaved) {
-                _unbookmarkTemplate(item.id);
-                return;
-              }
-              _restoreTemplate(item);
-            },
-          ),
+          builder: (_) => TemplateDetailPage(templateId: item.id),
         ),
       ),
     );
@@ -185,7 +163,6 @@ class _SavedContentSourcesViewState extends State<_SavedContentSourcesView> {
         context,
         title: '북마크가 해제되었습니다',
         type: SsossToastType.info,
-        margin: const EdgeInsets.only(bottom: 122),
       );
       return;
     }
@@ -193,7 +170,6 @@ class _SavedContentSourcesViewState extends State<_SavedContentSourcesView> {
       context,
       title: '북마크 해제에 실패했습니다',
       type: SsossToastType.error,
-      margin: const EdgeInsets.only(bottom: 122),
     );
   }
 

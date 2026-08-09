@@ -9,7 +9,8 @@ import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 enum SsossNavigationItem {
   contentCreation,
   dashboard,
-  placeDiagnosis,
+  // TODO: 플레이스 진단 추가 시 사용
+  // placeDiagnosis,
   myPage,
 }
 
@@ -124,9 +125,10 @@ extension SsossNavigationItemX on SsossNavigationItem {
       case SsossNavigationItem.contentCreation:
         return '콘텐츠 생성';
       case SsossNavigationItem.dashboard:
-        return '대시보드';
-      case SsossNavigationItem.placeDiagnosis:
-        return '플레이스 진단';
+        return '생성 관리';
+      // TODO: 플레이스 진단 추가 시 사용
+      // case SsossNavigationItem.placeDiagnosis:
+      //   return '플레이스 진단';
       case SsossNavigationItem.myPage:
         return '마이페이지';
     }
@@ -138,8 +140,9 @@ extension SsossNavigationItemX on SsossNavigationItem {
         return AppAssets.navContent;
       case SsossNavigationItem.dashboard:
         return AppAssets.navDashboard;
-      case SsossNavigationItem.placeDiagnosis:
-        return AppAssets.navPlaceDiagnosis;
+      // TODO: 플레이스 진단 추가 시 사용
+      // case SsossNavigationItem.placeDiagnosis:
+      //   return AppAssets.navPlaceDiagnosis;
       case SsossNavigationItem.myPage:
         return AppAssets.navMyPage;
     }

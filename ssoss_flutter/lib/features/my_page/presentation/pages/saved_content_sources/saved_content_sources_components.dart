@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
@@ -36,7 +37,7 @@ class SavedContentSourcesTemplateList extends StatelessWidget {
   });
 
   final List<TemplateItem> items;
-  final ValueChanged<String> onSaveTap;
+  final ValueChanged<int> onSaveTap;
   final ValueChanged<TemplateItem>? onItemTap;
 
   @override
@@ -117,13 +118,11 @@ class SavedContentSourcesHashtagList extends StatelessWidget {
               ),
               if (onRetry != null) ...[
                 const SizedBox(height: 16),
-                TextButton(
+                SsossButton(
+                  label: '다시 시도',
+                  size: SsossButtonSize.small,
+                  type: SsossButtonType.outline,
                   onPressed: onRetry,
-                  child: AppText(
-                    '다시 시도',
-                    style:
-                        AppTextStyles.b3.copyWith(color: AppColors.primary400),
-                  ),
                 ),
               ],
             ],
