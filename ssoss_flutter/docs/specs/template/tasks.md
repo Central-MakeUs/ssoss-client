@@ -99,11 +99,21 @@
 
 ---
 
+## Phase 8 — 추천 템플릿 검색
+
+- [x] **8-1** `listTemplates` keyword 파라미터 (repository · usecase · datasource)
+- [x] **8-2** `TemplateCatalogCubit.search` + state.keyword
+- [x] **8-3** 추천 소스 검색창을 템플릿 탭에도 동일 디바운스로 연결
+- [x] **8-4** `dart analyze` 통과 (생성 파일 trailing comma info 제외)
+
+---
+
 ## 완료 기준 (Definition of Done)
 
 - [x] PRD Must FR-01~FR-10 구현 완료 (FR-09는 Phase 7에서 갱신)
 - [x] PRD Must FR-11~FR-12 구현 완료
 - [x] PRD Must FR-13~FR-14 구현 완료
 - [x] PRD Must FR-09 북마크 PUT/DELETE 구현 완료
+- [x] PRD Must FR-15 keyword 검색 구현 완료
 - [x] DI 등록 완료
 - [x] analyze 에러 없음 (이번 변경 범위)

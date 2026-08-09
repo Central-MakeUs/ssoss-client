@@ -25,15 +25,19 @@ class TemplateRemoteDatasourceImpl implements TemplateRemoteDatasource {
   @override
   Future<RecommendedTemplateListResponseModel> listTemplates({
     String? category,
+    String? keyword,
     int page = 0,
     int size = 20,
     CancelToken? cancelToken,
   }) async {
     try {
+      final trimmedKeyword = keyword?.trim();
       final response = await _dio.get<Map<String, dynamic>>(
         _templatesPath,
         queryParameters: <String, dynamic>{
           if (category != null) 'category': category,
+          if (trimmedKeyword != null && trimmedKeyword.isNotEmpty)
+            'keyword': trimmedKeyword,
           'page': page,
           'size': size,
         },

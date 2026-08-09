@@ -83,7 +83,7 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
   ];
 
   final TextEditingController _searchController = TextEditingController();
-  final Debouncer _hashtagSearchDebouncer = Debouncer();
+  final Debouncer _searchDebouncer = Debouncer();
   late final PageController _pageController;
   int _selectedTabIndex = 0;
 
@@ -95,7 +95,7 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
 
   @override
   void dispose() {
-    _hashtagSearchDebouncer.dispose();
+    _searchDebouncer.dispose();
     _pageController.dispose();
     _searchController.dispose();
     super.dispose();
@@ -106,7 +106,7 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
       return;
     }
     setState(() => _selectedTabIndex = index);
-    _ensureHashtagCatalogLoaded(index);
+    _syncSearchToTab(index);
     unawaited(
       _pageController.animateToPage(
         index,
@@ -121,15 +121,20 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
       return;
     }
     setState(() => _selectedTabIndex = index);
-    _ensureHashtagCatalogLoaded(index);
+    _syncSearchToTab(index);
   }
 
-  void _ensureHashtagCatalogLoaded(int tabIndex) {
-    if (tabIndex != 1) {
+  void _syncSearchToTab(int tabIndex) {
+    final keyword = _searchController.text.trim();
+    if (tabIndex == 0) {
+      final cubit = context.read<TemplateCatalogCubit>();
+      if (keyword != cubit.state.keyword) {
+        unawaited(cubit.search(keyword));
+      }
       return;
     }
+
     final cubit = context.read<HashtagCatalogCubit>();
-    final keyword = _searchController.text.trim();
     if (!cubit.state.hasLoaded) {
       if (keyword.isNotEmpty) {
         unawaited(cubit.search(keyword));
@@ -144,11 +149,12 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
   }
 
   void _onSearchChanged(String value) {
-    if (_selectedTabIndex != 1) {
-      return;
-    }
-    _hashtagSearchDebouncer.run(() {
+    _searchDebouncer.run(() {
       if (!mounted) {
+        return;
+      }
+      if (_selectedTabIndex == 0) {
+        unawaited(context.read<TemplateCatalogCubit>().search(value));
         return;
       }
       unawaited(context.read<HashtagCatalogCubit>().search(value));

@@ -27,6 +27,7 @@
 ```
 [템플릿 탭 진입] → TemplateCatalogCubit.loadInitial(category)
 [분류 칩] → Cubit.selectCategory → page=0 재조회
+[검색] → Cubit.search(keyword) → page=0 재조회
 [하단 스크롤] → Cubit.loadMore
 [북마크 아이콘] → Cubit.toggleBookmark → PUT/DELETE /v1/members/me/templates/{id}
 [카드 탭] → TemplateDetailCubit.load(templateId)
@@ -133,7 +134,7 @@ class SavedTemplateDetail {
 
 `TemplateRepository`:
 
-- `listTemplates({RecommendedTemplateCategory? category, int page, int size})` → `RecommendedTemplateListPage`
+- `listTemplates({RecommendedTemplateCategory? category, String? keyword, int page, int size})` → `RecommendedTemplateListPage`
 - `getTemplate(int templateId)` → `RecommendedTemplateDetail`
 - `getAppliedTemplate(int templateId)` → `AppliedTemplate`
 - `saveTemplate({required int templateId, required String body})` → `SavedTemplate`
@@ -181,7 +182,7 @@ freezed + json_serializable + `toEntity()`.
 
 ### 4.2 DataSource
 
-- `GET /v1/templates` — query: category?, page, size
+- `GET /v1/templates` — query: category?, keyword?, page, size
 - `GET /v1/templates/{templateId}`
 - `GET /v1/templates/{templateId}/applied`
 - `POST /v1/saved-templates` — 201 `{ savedTemplateId }`
@@ -209,7 +210,7 @@ freezed + json_serializable + `toEntity()`.
 | 상태 관리 | Cubit | 목록·상세·저장이 단순 비동기 |
 | pageSize | 20 | API 기본값 |
 | 전체 탭 | category 쿼리 생략 | API 계약 |
-| 템플릿 검색 | 무시 | API keyword 없음. 해시태그 탭만 검색 |
+| 템플릿 검색 | `keyword` + 디바운스 | 해시태그 카탈로그와 동일. category와 함께 적용 |
 | 북마크 토글 | 낙관적 아이콘 + 실패 복원 | 해시태그 카탈로그와 동일 |
 | 북마크 목록 Cubit | `BookmarkedTemplatesCubit` | 마이페이지 저장 소스 템플릿 탭 |
 | 채널 배지 | template presentation 매퍼 | content 피처 비의존 |
@@ -256,7 +257,7 @@ freezed + json_serializable + `toEntity()`.
 
 | 메서드 | 엔드포인트 | 설명 | 인증 |
 |--------|-----------|------|------|
-| GET | `/v1/templates` | 목록 (category?, page, size) | Y |
+| GET | `/v1/templates` | 목록 (category?, keyword?, page, size) | Y |
 | GET | `/v1/templates/{templateId}` | 상세 | Y |
 | GET | `/v1/templates/{templateId}/applied` | 매장 정보 치환 본문 | Y |
 | POST | `/v1/saved-templates` | 저장 | Y |
