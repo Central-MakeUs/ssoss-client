@@ -1,6 +1,7 @@
 import 'package:ssoss_flutter/features/template/data/datasources/template_remote_datasource.dart';
 import 'package:ssoss_flutter/features/template/data/mappers/template_api_mapper.dart';
 import 'package:ssoss_flutter/features/template/data/models/applied_template_response_model.dart';
+import 'package:ssoss_flutter/features/template/data/models/bookmarked_template_list_response_model.dart';
 import 'package:ssoss_flutter/features/template/data/models/recommended_template_detail_response_model.dart';
 import 'package:ssoss_flutter/features/template/data/models/recommended_template_list_response_model.dart';
 import 'package:ssoss_flutter/features/template/data/models/saved_template_detail_response_model.dart';
@@ -10,6 +11,7 @@ import 'package:ssoss_flutter/features/template/data/models/saved_template_renam
 import 'package:ssoss_flutter/features/template/data/models/saved_template_save_request.dart';
 import 'package:ssoss_flutter/features/template/data/models/saved_template_save_response_model.dart';
 import 'package:ssoss_flutter/features/template/domain/entities/applied_template.dart';
+import 'package:ssoss_flutter/features/template/domain/entities/recommended_template.dart';
 import 'package:ssoss_flutter/features/template/domain/entities/recommended_template_category.dart';
 import 'package:ssoss_flutter/features/template/domain/entities/recommended_template_detail.dart';
 import 'package:ssoss_flutter/features/template/domain/entities/recommended_template_list_page.dart';
@@ -113,5 +115,21 @@ class TemplateRepositoryImpl implements TemplateRepository {
   @override
   Future<void> deleteSavedTemplate(int savedTemplateId) {
     return _remote.deleteSavedTemplate(savedTemplateId);
+  }
+
+  @override
+  Future<void> bookmarkTemplate(int templateId) {
+    return _remote.bookmarkTemplate(templateId);
+  }
+
+  @override
+  Future<void> unbookmarkTemplate(int templateId) {
+    return _remote.unbookmarkTemplate(templateId);
+  }
+
+  @override
+  Future<List<RecommendedTemplate>> listBookmarkedTemplates() async {
+    final model = await _remote.listBookmarkedTemplates();
+    return model.toEntities();
   }
 }

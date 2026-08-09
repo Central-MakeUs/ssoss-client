@@ -35,6 +35,7 @@
 - [ ] As a **가게 운영자**, I want to **저장하기를 눌러 내 글로 남기고**, so that **저장 내역에서 다시 볼 수 있다**.
 - [ ] As a **가게 운영자**, I want to **생성 관리 템플릿 탭에서 저장한 글을 다시 보고**, so that **예전에 저장한 글을 꺼내 쓸 수 있다**.
 - [ ] As a **가게 운영자**, I want to **저장한 글의 제목·본문을 고치거나 삭제하고**, so that **저장 내역을 최신 상태로 유지할 수 있다**.
+- [ ] As a **가게 운영자**, I want to **추천 템플릿을 북마크하거나 해제하고**, so that **나중에 마이페이지에서 다시 찾을 수 있다**.
 
 ---
 
@@ -52,7 +53,7 @@
 | FR-06 | 적용하기 시 `GET /v1/templates/{templateId}/applied` 후 적용 화면에 받은 body 표시 | Must |
 | FR-07 | 저장하기 시 `POST /v1/saved-templates` (templateId, 화면 본문). 성공 시 완료 페이지 | Must |
 | FR-08 | 완료 화면 「저장 내역 보기」는 홈 대시보드 + 생성 관리 템플릿 탭으로 진입 | Must |
-| FR-09 | bookmarked 는 조회 결과만 표시. 북마크 추가/삭제 API는 호출하지 않음 | Must |
+| FR-09 | 카드·상세 북마크 탭 시 낙관적 토글. 저장 `PUT /v1/members/me/templates/{id}`, 해제 `DELETE` 동일 경로. 실패 시 error 토스트 + 이전 상태 복원 | Must |
 | FR-10 | ACTIVE 회원 accessToken 전용 (기존 Dio 인터셉터) | Must |
 | FR-11 | 생성 관리 템플릿 탭 진입 시 `GET /v1/saved-templates` (sort, page=0, size=10). 채널·분류 필터 없음 | Must |
 | FR-12 | 카드 탭 시 `GET /v1/saved-templates/{savedTemplateId}` 로 상세 조회. body·recommendedChannels 표시 | Must |
@@ -80,11 +81,11 @@
 - 저장 완료 → 생성 관리 템플릿 탭 진입
 - 생성 관리 템플릿 탭 저장 글 목록·상세 조회
 - 저장 글 본문 편집·제목 수정·삭제 API
+- 추천 템플릿 북마크 저장/해제 API (카탈로그·상세)
 
 ### Out of Scope (이번 구현에서 제외)
 
-- 북마크 추가/삭제 API
-- 마이페이지 저장 소스 템플릿 북마크 목록
+- 마이페이지 저장 소스 템플릿 북마크 목록 (saved-content-sources)
 - 템플릿 탭 서버 검색 (API keyword 없음)
 - 저장 내역 채널·분류 필터 (API 없음)
 
@@ -107,7 +108,9 @@
 
 ```
 [추천 콘텐츠 소스] → 분류 칩 / 스크롤
+  → 북마크 아이콘 → PUT/DELETE → 아이콘 반영 (실패 시 복원)
   → 카드 탭 → [상세] 로드
+  → 상세 북마크 → PUT/DELETE
   → 적용하기 → applied API → [적용] 편집
   → 저장하기 → POST → [완료]
   → 저장 내역 보기 → 홈 대시보드 + 템플릿 탭
@@ -134,6 +137,7 @@
 | 본문 편집 실패 | 토스트, 편집 화면 유지 |
 | 제목 수정 실패 | 토스트, 모달 유지 |
 | 삭제 실패 | 토스트, 모달 유지. 목록 불변 |
+| 북마크 저장/해제 실패 | error 토스트 + 아이콘·목록 이전 상태 복원 |
 
 ---
 
@@ -144,12 +148,13 @@
 - 저장 내역 보기가 생성 관리 템플릿 탭을 연다.
 - 템플릿 탭에서 저장한 글 목록·상세를 조회할 수 있다.
 - 저장한 글의 본문·제목 수정과 삭제가 동작한다.
+- 카탈로그·상세에서 북마크 저장/해제가 동작하고, 실패 시 이전 상태로 돌아간다.
 
 ---
 
 ## 8. 의존성 & 선행 조건
 
-- **API**: `GET /v1/templates`, `GET /v1/templates/{id}`, `GET /v1/templates/{id}/applied`, `POST /v1/saved-templates`, `GET /v1/saved-templates`, `GET /v1/saved-templates/{id}`, `PUT /v1/saved-templates/{id}`, `PUT /v1/saved-templates/{id}/title`, `DELETE /v1/saved-templates/{id}`
+- **API**: `GET /v1/templates`, `GET /v1/templates/{id}`, `GET /v1/templates/{id}/applied`, `PUT|DELETE /v1/members/me/templates/{id}`, `POST /v1/saved-templates`, `GET /v1/saved-templates`, `GET /v1/saved-templates/{id}`, `PUT /v1/saved-templates/{id}`, `PUT /v1/saved-templates/{id}/title`, `DELETE /v1/saved-templates/{id}`
 - **권한**: ACTIVE accessToken
 - **외부 서비스**: 없음
 - **선행 기능**: 추천 소스·상세·적용·완료 UI, ADR-004 템플릿 문서 모델

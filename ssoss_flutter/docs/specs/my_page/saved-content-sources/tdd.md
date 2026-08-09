@@ -16,10 +16,11 @@
 
 ## 1. 기능 요약
 
-마이페이지에 `SavedContentSourcesPage`를 두고, 해시태그 북마크 목록은 `hashtag` 피처 data/domain/cubit에 추가한다. 템플릿 탭은 빈 UI만 둔다.
+마이페이지에 `SavedContentSourcesPage`를 두고, 해시태그 북마크 목록은 `hashtag` 피처 data/domain/cubit에 둔다. 템플릿 북마크 목록은 `template` 피처 Cubit으로 조회·해제한다.
 
 **페이지 경로**: `lib/features/my_page/presentation/pages/saved_content_sources/`  
-**해시태그 API·Cubit**: `lib/features/hashtag/`
+**해시태그 API·Cubit**: `lib/features/hashtag/`  
+**템플릿 API·Cubit**: `lib/features/template/`
 
 ---
 
@@ -27,12 +28,21 @@
 
 ```
 [SavedContentSourcesPage]
+  → BookmarkedTemplatesCubit.load
+  → ListBookmarkedTemplatesUseCase
+  → GET /v1/members/me/templates
+
   → BookmarkedHashtagBundlesCubit.load
   → ListBookmarkedHashtagBundlesUseCase
-  → HashtagRepository.listBookmarkedBundles
   → GET /v1/members/me/hashtag-bundles
 
-[북마크 해제]
+[템플릿 북마크 해제]
+  → Cubit.unbookmark (낙관적 제거)
+  → UnbookmarkTemplateUseCase
+  → DELETE /v1/members/me/templates/{id}
+  → 성공: info 토스트 / 실패: 복원 + error 토스트
+
+[해시태그 북마크 해제]
   → Cubit.unbookmark (낙관적 제거)
   → UnbookmarkHashtagBundleUseCase
   → DELETE /v1/members/me/hashtag-bundles/{id}
@@ -88,7 +98,7 @@
 | 상태 관리 | Cubit | 목록·해제 단순 비동기 |
 | 탭 | SsossTabBar + PageView | ADR-007, 추천 소스와 동일 |
 | 정렬 UI | 없음 | 제품 결정 |
-| 템플릿 | 빈 목록 | API 미제공 |
+| 템플릿 | GET 목록 + 낙관적 해제 | 템플릿 북마크 API |
 | 해제 | 낙관적 제거 + 실패 복원 | UX |
 
 ### 5.2 Cubit (hashtag)
@@ -97,6 +107,15 @@
 
 - `load()` — 전체 목록
 - `unbookmark(bundleId)` → `Future<bool>` (성공 여부; 토스트는 Page)
+
+State: `items`, `isLoading`, `hasLoaded`, `errorMessage`, `pendingUnbookmarkIds`
+
+### 5.2b Cubit (template)
+
+`BookmarkedTemplatesCubit` / `BookmarkedTemplatesState` — `template/presentation/cubit/`
+
+- `load()` / `ensureLoaded()` — 전체 목록
+- `unbookmark(templateId)` → `Future<bool>`
 
 State: `items`, `isLoading`, `hasLoaded`, `errorMessage`, `pendingUnbookmarkIds`
 
@@ -117,6 +136,8 @@ State: `items`, `isLoading`, `hasLoaded`, `errorMessage`, `pendingUnbookmarkIds`
 |--------|-----------|------|
 | GET | `/v1/members/me/hashtag-bundles` | 북마크 묶음 전부 (페이징 없음) |
 | DELETE | `/v1/members/me/hashtag-bundles/{bundleId}` | 북마크 해제 (기존) |
+| GET | `/v1/members/me/templates` | 북마크 템플릿 전부 (페이징 없음) |
+| DELETE | `/v1/members/me/templates/{templateId}` | 북마크 해제 |
 
 ---
 
@@ -132,10 +153,10 @@ State: `items`, `isLoading`, `hasLoaded`, `errorMessage`, `pendingUnbookmarkIds`
 
 ## 8. 의존성 주입
 
-`HashtagProviders`에 `ListBookmarkedHashtagBundlesUseCase` 등록. Cubit은 페이지 `BlocProvider`에서 생성.
+`HashtagProviders`에 `ListBookmarkedHashtagBundlesUseCase` 등록. `TemplateProviders`에 `ListBookmarkedTemplatesUseCase` / `UnbookmarkTemplateUseCase` 등록. Cubit은 페이지 `MultiBlocProvider`에서 생성.
 
 ---
 
 ## 9. 테스트 계획
 
-수동: 마이페이지 진입, 탭 스와이프, 해시태그 로드·해제·토스트, 템플릿 빈 목록.
+수동: 마이페이지 진입, 탭 스와이프, 템플릿·해시태그 로드·해제·토스트, 빈 목록.

@@ -10,6 +10,7 @@ abstract class TemplateDetailState with _$TemplateDetailState {
     RecommendedTemplateDetail? detail,
     @Default(true) bool isLoading,
     @Default(false) bool isApplying,
+    @Default(false) bool isTogglingBookmark,
     String? errorMessage,
   }) = _TemplateDetailState;
 }

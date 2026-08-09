@@ -32,16 +32,55 @@ class SavedContentSourcesTemplateList extends StatelessWidget {
   const SavedContentSourcesTemplateList({
     required this.items,
     required this.onSaveTap,
+    this.isLoading = false,
+    this.errorMessage,
+    this.onRetry,
     super.key,
     this.onItemTap,
   });
 
   final List<TemplateItem> items;
   final ValueChanged<int> onSaveTap;
+  final bool isLoading;
+  final String? errorMessage;
+  final VoidCallback? onRetry;
   final ValueChanged<TemplateItem>? onItemTap;
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading && items.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primary400),
+      );
+    }
+
+    if (errorMessage != null && items.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppText(
+                errorMessage!,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.b3.copyWith(color: AppColors.neutral500),
+              ),
+              if (onRetry != null) ...[
+                const SizedBox(height: 16),
+                SsossButton(
+                  label: '다시 시도',
+                  size: SsossButtonSize.small,
+                  type: SsossButtonType.outline,
+                  onPressed: onRetry,
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

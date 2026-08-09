@@ -1,19 +1,28 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:ssoss_flutter/features/template/domain/entities/recommended_template.dart';
 import 'package:ssoss_flutter/features/template/domain/entities/recommended_template_category.dart';
+import 'package:ssoss_flutter/features/template/domain/usecases/bookmark_template_usecase.dart';
 import 'package:ssoss_flutter/features/template/domain/usecases/list_templates_usecase.dart';
+import 'package:ssoss_flutter/features/template/domain/usecases/unbookmark_template_usecase.dart';
 import 'package:ssoss_flutter/features/template/presentation/cubit/template_catalog_state.dart';
 
 class TemplateCatalogCubit extends Cubit<TemplateCatalogState> {
   TemplateCatalogCubit({
     required ListTemplatesUseCase listTemplates,
+    required BookmarkTemplateUseCase bookmarkTemplate,
+    required UnbookmarkTemplateUseCase unbookmarkTemplate,
     RecommendedTemplateCategory? initialCategory,
   })  : _listTemplates = listTemplates,
+        _bookmarkTemplate = bookmarkTemplate,
+        _unbookmarkTemplate = unbookmarkTemplate,
         super(TemplateCatalogState(category: initialCategory));
 
   static const int pageSize = 20;
 
   final ListTemplatesUseCase _listTemplates;
+  final BookmarkTemplateUseCase _bookmarkTemplate;
+  final UnbookmarkTemplateUseCase _unbookmarkTemplate;
 
   Future<void> loadInitial() async {
     if (state.isLoading) {
@@ -43,6 +52,74 @@ class TemplateCatalogCubit extends Cubit<TemplateCatalogState> {
     }
     emit(state.copyWith(isLoadingMore: true, errorMessage: null));
     await _load(page: state.page + 1, replace: false);
+  }
+
+  Future<bool> toggleBookmark(int templateId) async {
+    if (state.pendingBookmarkIds.contains(templateId)) {
+      return false;
+    }
+
+    final index = state.items.indexWhere((item) => item.id == templateId);
+    if (index < 0) {
+      return false;
+    }
+
+    final current = state.items[index];
+    final nextBookmarked = !current.bookmarked;
+    final previousItems = state.items;
+
+    emit(
+      state.copyWith(
+        items: _replaceItem(
+          previousItems,
+          current.copyWith(bookmarked: nextBookmarked),
+        ),
+        pendingBookmarkIds: {...state.pendingBookmarkIds, templateId},
+        errorMessage: null,
+      ),
+    );
+
+    try {
+      if (nextBookmarked) {
+        await _bookmarkTemplate(templateId);
+      } else {
+        await _unbookmarkTemplate(templateId);
+      }
+      if (isClosed) {
+        return true;
+      }
+      emit(
+        state.copyWith(
+          pendingBookmarkIds: _withoutPending(templateId),
+        ),
+      );
+      return true;
+    } catch (_) {
+      if (isClosed) {
+        return false;
+      }
+      emit(
+        state.copyWith(
+          items: previousItems,
+          pendingBookmarkIds: _withoutPending(templateId),
+        ),
+      );
+      return false;
+    }
+  }
+
+  Set<int> _withoutPending(int templateId) {
+    return {...state.pendingBookmarkIds}..remove(templateId);
+  }
+
+  List<RecommendedTemplate> _replaceItem(
+    List<RecommendedTemplate> items,
+    RecommendedTemplate updated,
+  ) {
+    return [
+      for (final item in items)
+        if (item.id == updated.id) updated else item,
+    ];
   }
 
   Future<void> _load({
