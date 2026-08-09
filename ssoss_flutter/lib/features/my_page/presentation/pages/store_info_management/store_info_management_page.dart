@@ -5,11 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_focused_input_scroller.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
 import 'package:ssoss_flutter/common/widgets/picker/ssoss_time_picker_bottom_sheet.dart';
 import 'package:ssoss_flutter/common/widgets/store_info/store_basic_info_form.dart';
 import 'package:ssoss_flutter/common/widgets/store_info/store_content_info_form.dart';
 import 'package:ssoss_flutter/common/widgets/store_info/store_info_components.dart';
+import 'package:ssoss_flutter/common/widgets/store_info/store_info_limits.dart';
 import 'package:ssoss_flutter/common/widgets/store_info/store_operation_info_form.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -111,7 +113,12 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
             ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+                padding: const EdgeInsets.fromLTRB(
+                  16,
+                  12,
+                  16,
+                  32 + kSsossFocusedInputScrollPaddingBottom,
+                ),
                 children: [
                   _buildSelectedForm(),
                 ],
@@ -189,7 +196,30 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
     });
   }
 
-  void _addMenu(String menu) {
+  void _addMenu(String raw) {
+    final menu = raw.trim();
+    if (menu.isEmpty) {
+      return;
+    }
+    if (menu.length > StoreInfoLimits.menu) {
+      showSsossToast(
+        context,
+        title: '메뉴는 ${StoreInfoLimits.menu}자 이하로 입력해주세요',
+        type: SsossToastType.warning,
+      );
+      return;
+    }
+    if (_menus.contains(menu)) {
+      showSsossToast(
+        context,
+        title: '이미 추가된 메뉴예요',
+        type: SsossToastType.warning,
+      );
+      return;
+    }
+    if (_menus.length >= SsossHashtagLimits.maxCount) {
+      return;
+    }
     setState(() => _menus.add(menu));
   }
 

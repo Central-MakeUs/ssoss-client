@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
+import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
+
+/// 이미 등록된 키워드를 다시 추가할 때 쓰는 에러 문구.
+const String kSsossHashtagDuplicateMessage = '중복되는 키워드는 입력할 수 없습니다.';
 
 /// 해시태그/키워드 개수·글자 수 한도.
 class SsossHashtagLimits {
@@ -23,8 +26,11 @@ class SsossHashtagLimits {
 class SsossHashtagNormalizer {
   const SsossHashtagNormalizer._();
 
-  /// `#` 제거·trim. 비어 있거나 [SsossHashtagLimits.maxLength] 초과면 null.
-  static String? normalize(String raw) {
+  /// `#` 제거·trim. 비어 있거나 [maxLength] 초과면 null.
+  static String? normalize(
+    String raw, {
+    int maxLength = SsossHashtagLimits.maxLength,
+  }) {
     var text = raw.trim();
     if (text.startsWith('#')) {
       text = text.substring(1).trim();
@@ -32,7 +38,7 @@ class SsossHashtagNormalizer {
     if (text.isEmpty) {
       return null;
     }
-    if (text.length > SsossHashtagLimits.maxLength) {
+    if (text.length > maxLength) {
       return null;
     }
     return text;
@@ -125,6 +131,7 @@ class SsossHashtagInput extends StatefulWidget {
     this.limitHint,
     this.showHeader = false,
     this.showHashPrefix = true,
+    this.maxLength = SsossHashtagLimits.maxLength,
     super.key,
   });
 
@@ -139,10 +146,18 @@ class SsossHashtagInput extends StatefulWidget {
   /// 칩에 `#` 접두사를 표시할지 여부. 기본값 true.
   final bool showHashPrefix;
 
+  /// 입력 최대 글자 수. 기본값 [SsossHashtagLimits.maxLength].
+  final int maxLength;
+
   static const double inputRowHeight = 44;
 
-  static String get defaultLimitHint => '최대 ${SsossHashtagLimits.maxCount}개, '
-      '${SsossHashtagLimits.maxLength}자 제한';
+  static String defaultLimitHintFor({
+    int maxCount = SsossHashtagLimits.maxCount,
+    int maxLength = SsossHashtagLimits.maxLength,
+  }) =>
+      '최대 $maxCount개, $maxLength자 제한';
+
+  static String get defaultLimitHint => defaultLimitHintFor();
 
   @override
   State<SsossHashtagInput> createState() => _SsossHashtagInputState();
@@ -161,8 +176,25 @@ class _SsossHashtagInputState extends State<SsossHashtagInput> {
     if (!_canAdd) {
       return;
     }
+    final normalized = SsossHashtagNormalizer.normalize(
+      _controller.text,
+      maxLength: widget.maxLength,
+    );
+    if (normalized != null && _containsHashtag(normalized)) {
+      showSsossToast(
+        context,
+        title: kSsossHashtagDuplicateMessage,
+        type: SsossToastType.error,
+      );
+      return;
+    }
     widget.onAdd(_controller.text);
     _controller.clear();
+  }
+
+  bool _containsHashtag(String normalized) {
+    return SsossHashtagNormalizer.stripAll(widget.hashtags)
+        .contains(normalized);
   }
 
   bool get _canAdd => widget.hashtags.length < SsossHashtagLimits.maxCount;
@@ -170,7 +202,8 @@ class _SsossHashtagInputState extends State<SsossHashtagInput> {
   @override
   Widget build(BuildContext context) {
     final title = widget.title ?? '해시태그 편집';
-    final limitHint = widget.limitHint ?? SsossHashtagInput.defaultLimitHint;
+    final limitHint = widget.limitHint ??
+        SsossHashtagInput.defaultLimitHintFor(maxLength: widget.maxLength);
     final canAdd = _canAdd;
 
     return Column(
@@ -200,11 +233,7 @@ class _SsossHashtagInputState extends State<SsossHashtagInput> {
                 hintText: widget.hintText,
                 height: SsossHashtagInput.inputRowHeight,
                 textInputAction: TextInputAction.done,
-                inputFormatters: [
-                  LengthLimitingTextInputFormatter(
-                    SsossHashtagLimits.maxLength,
-                  ),
-                ],
+                maxLength: widget.maxLength,
                 onSubmitted: (_) => _submit(),
               ),
             ),

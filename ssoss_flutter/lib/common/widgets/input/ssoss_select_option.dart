@@ -121,16 +121,32 @@ class SsossSelectOptionsPanel extends StatelessWidget {
   final Color? selectedOptionTextColor;
 
   static const double gap = 6;
+  static const double _padding = 8;
+  static const double _itemSpacing = 8;
+  static const double _borderWidth = 1;
+
+  /// 옵션 [optionCount]개일 때 패널의 레이아웃 높이.
+  static double heightFor(int optionCount) {
+    if (optionCount <= 0) {
+      return 0;
+    }
+
+    return (_borderWidth * 2) +
+        (_padding * 2) +
+        (optionCount * SsossSelectOption.height) +
+        ((optionCount - 1) * _itemSpacing);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(_padding),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: optionBorderColor ?? AppColors.neutral200,
+          width: _borderWidth,
         ),
       ),
       child: Column(
@@ -138,7 +154,7 @@ class SsossSelectOptionsPanel extends StatelessWidget {
         children: [
           for (var index = 0; index < options.length; index++)
             Padding(
-              padding: EdgeInsets.only(top: index == 0 ? 0 : 8),
+              padding: EdgeInsets.only(top: index == 0 ? 0 : _itemSpacing),
               child: Listener(
                 behavior: HitTestBehavior.opaque,
                 onPointerDown: onOptionSelected == null

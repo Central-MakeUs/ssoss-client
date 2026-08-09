@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
 import 'package:ssoss_flutter/common/widgets/store_info/store_info_components.dart';
+import 'package:ssoss_flutter/common/widgets/store_info/store_info_limits.dart';
 import 'package:ssoss_flutter/core/constants/writing_tone.dart';
 
 class StoreContentInfoForm extends StatelessWidget {
@@ -34,6 +35,7 @@ class StoreContentInfoForm extends StatelessWidget {
           controller: storeStrengthController,
           hintText: '입력해주세요',
           multiline: true,
+          maxLength: StoreInfoLimits.strength,
         ),
         const SizedBox(height: 32),
         StoreInfoSectionTitle(
@@ -53,6 +55,7 @@ class StoreContentInfoForm extends StatelessWidget {
           controller: prohibitedContentController,
           hintText: '입력해주세요',
           multiline: true,
+          maxLength: StoreInfoLimits.forbidden,
         ),
         const SizedBox(height: 32),
         const StoreInfoSectionTitle(title: '콘텐츠 작성 톤'),

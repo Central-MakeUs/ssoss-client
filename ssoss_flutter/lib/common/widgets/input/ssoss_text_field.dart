@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:ssoss_flutter/common/widgets/input/ssoss_focused_input_scroller.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_max_length_formatter.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
@@ -24,6 +26,7 @@ class SsossTextField extends StatefulWidget {
     this.maxLines,
     this.keyboardType,
     this.textInputAction,
+    this.maxLength,
     this.inputFormatters,
     this.onChanged,
     this.onSubmitted,
@@ -55,6 +58,10 @@ class SsossTextField extends StatefulWidget {
   final int? maxLines;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
+
+  /// 최대 글자 수. null이거나 0 이하면 제한하지 않는다.
+  /// 붙여넣기가 한도를 넘으면 잘라 넣고 경고 토스트를 띄운다.
+  final int? maxLength;
   final List<TextInputFormatter>? inputFormatters;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
@@ -86,6 +93,10 @@ class SsossTextField extends StatefulWidget {
 class _SsossTextFieldState extends State<SsossTextField> {
   late final FocusNode _focusNode;
   late final bool _ownsFocusNode;
+  late final SsossMaxLengthFormatter _maxLengthFormatter;
+  late final SsossFocusedInputScroller _focusedInputScroller;
+  TextEditingController? _boundController;
+  int _lastKnownLength = 0;
   bool _hasFocus = false;
 
   @override
@@ -95,10 +106,31 @@ class _SsossTextFieldState extends State<SsossTextField> {
     _focusNode = widget.focusNode ?? FocusNode();
     _hasFocus = _focusNode.hasFocus;
     _focusNode.addListener(_handleFocusChange);
+    _maxLengthFormatter = SsossMaxLengthFormatter(
+      widget.maxLength ?? 0,
+      onTruncatedPaste: _onTruncatedPaste,
+    );
+    _focusedInputScroller = SsossFocusedInputScroller(
+      isFocused: () => _focusNode.hasFocus,
+    )..attach(context);
+    _bindController(widget.controller);
+  }
+
+  @override
+  void didUpdateWidget(covariant SsossTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.maxLength != widget.maxLength) {
+      _maxLengthFormatter.maxLength = widget.maxLength ?? 0;
+    }
+    if (oldWidget.controller != widget.controller) {
+      _bindController(widget.controller);
+    }
   }
 
   @override
   void dispose() {
+    _focusedInputScroller.detach();
+    _boundController?.removeListener(_onControllerChanged);
     _focusNode.removeListener(_handleFocusChange);
     if (_ownsFocusNode) {
       _focusNode.dispose();
@@ -106,13 +138,65 @@ class _SsossTextFieldState extends State<SsossTextField> {
     super.dispose();
   }
 
-  void _handleFocusChange() {
-    if (_hasFocus == _focusNode.hasFocus) {
+  void _bindController(TextEditingController? controller) {
+    _boundController?.removeListener(_onControllerChanged);
+    _boundController = controller;
+    _lastKnownLength = controller?.text.length ?? 0;
+    _boundController?.addListener(_onControllerChanged);
+  }
+
+  void _onControllerChanged() {
+    final maxLength = widget.maxLength ?? 0;
+    final controller = _boundController;
+    if (controller == null || maxLength <= 0) {
+      _lastKnownLength = controller?.text.length ?? 0;
       return;
     }
-    setState(() {
-      _hasFocus = _focusNode.hasFocus;
-    });
+    if (controller.text.length <= maxLength) {
+      _lastKnownLength = controller.text.length;
+      return;
+    }
+
+    final attemptedGrowth = controller.text.length - _lastKnownLength;
+    final truncated = controller.text.substring(0, maxLength);
+    controller.value = TextEditingValue(
+      text: truncated,
+      selection: TextSelection.collapsed(offset: truncated.length),
+    );
+    if (attemptedGrowth > 1) {
+      showSsossMaxLengthPasteTruncatedToast(context);
+    }
+    _lastKnownLength = truncated.length;
+  }
+
+  void _handleFocusChange() {
+    final hasFocus = _focusNode.hasFocus;
+    if (_hasFocus != hasFocus) {
+      setState(() {
+        _hasFocus = hasFocus;
+      });
+    }
+    if (hasFocus) {
+      _focusedInputScroller.onFocusGained();
+    }
+  }
+
+  void _unfocusIfNeeded() {
+    if (_focusNode.hasFocus) {
+      _focusNode.unfocus();
+    }
+  }
+
+  void _onTruncatedPaste() {
+    showSsossMaxLengthPasteTruncatedToast(context);
+  }
+
+  List<TextInputFormatter> get _inputFormatters {
+    final maxLength = widget.maxLength ?? 0;
+    return [
+      if (maxLength > 0) _maxLengthFormatter,
+      ...?widget.inputFormatters,
+    ];
   }
 
   @override
@@ -125,6 +209,9 @@ class _SsossTextFieldState extends State<SsossTextField> {
         : widget.disabledFillColor ?? AppColors.neutral50;
     final textStyle = AppTextStyles.b4;
     final resolvedHeight = widget.height ?? SsossTextField.defaultHeight;
+    final fillExplicitMultilineHeight =
+        widget.multiline && widget.height != null;
+    final expands = widget.expands || fillExplicitMultilineHeight;
     final resolvedErrorColor = widget.errorBorderColor ?? AppColors.error500;
     final resolvedBorderColor = widget.hasError
         ? resolvedErrorColor
@@ -144,14 +231,13 @@ class _SsossTextFieldState extends State<SsossTextField> {
           (widget.multiline ? TextInputType.multiline : null),
       textInputAction: widget.textInputAction ??
           (widget.multiline ? TextInputAction.newline : null),
-      inputFormatters: widget.inputFormatters,
+      inputFormatters: _inputFormatters,
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
-      onTapOutside: (_) {
-        _focusNode.unfocus();
-      },
-      minLines: widget.multiline ? widget.minLines : null,
-      maxLines: widget.multiline ? widget.maxLines : 1,
+      onTapOutside: (_) => _unfocusIfNeeded(),
+      scrollPadding: EdgeInsets.zero,
+      minLines: expands ? null : (widget.multiline ? widget.minLines : null),
+      maxLines: expands ? null : (widget.multiline ? widget.maxLines : 1),
       textAlignVertical:
           widget.multiline ? TextAlignVertical.top : TextAlignVertical.center,
       cursorColor: widget.hasError
@@ -160,7 +246,7 @@ class _SsossTextFieldState extends State<SsossTextField> {
       style: textStyle.copyWith(
         color: resolvedTextColor,
       ),
-      expands: widget.expands,
+      expands: expands,
       decoration: InputDecoration(
         hintText: widget.hintText,
         hintStyle: textStyle.copyWith(
@@ -228,10 +314,10 @@ class _SsossTextFieldState extends State<SsossTextField> {
         borderRadius: BorderRadius.circular(SsossTextField._borderRadius),
         boxShadow: showFocusedShadow ? SsossTextField._focusedShadow : null,
       ),
-      child: widget.multiline
+      child: widget.multiline && widget.height == null
           ? ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: resolvedHeight,
+                minHeight: SsossTextField.defaultHeight,
                 minWidth: widget.width ?? 0,
                 maxWidth: widget.width ?? double.infinity,
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
 import 'package:ssoss_flutter/common/widgets/store_info/store_info_components.dart';
+import 'package:ssoss_flutter/common/widgets/store_info/store_info_limits.dart';
 
 class StoreOperationInfoForm extends StatelessWidget {
   const StoreOperationInfoForm({
@@ -72,9 +73,10 @@ class StoreOperationInfoForm extends StatelessWidget {
             onAddMenu != null &&
             onRemoveMenu != null) ...[
           const SizedBox(height: 32),
-          const StoreInfoSectionTitle(
+          StoreInfoSectionTitle(
             title: '대표 메뉴',
-            helperText: '최대 10개',
+            helperText:
+                '최대 ${SsossHashtagLimits.maxCount}개, ${StoreInfoLimits.menu}자 제한',
           ),
           const SizedBox(height: 8),
           SsossHashtagInput(
@@ -83,6 +85,7 @@ class StoreOperationInfoForm extends StatelessWidget {
             onAdd: onAddMenu,
             onRemove: onRemoveMenu,
             showHashPrefix: false,
+            maxLength: StoreInfoLimits.menu,
           ),
         ],
         const SizedBox(height: 32),

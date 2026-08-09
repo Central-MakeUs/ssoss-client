@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_text_field.dart';
 import 'package:ssoss_flutter/common/widgets/selection/ssoss_checkbox.dart';
@@ -231,7 +230,7 @@ class _MultilineInput extends StatelessWidget {
         expands: true,
         controller: controller,
         hintText: hintText,
-        inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
+        maxLength: maxLength,
         onChanged: onChanged,
       ),
     );

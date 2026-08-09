@@ -20,7 +20,9 @@ class SsossTemplateDocument {
   /// 아직 강조 가능한 원본 토큰별 잔여 개수. 편집 시 절대 증가하지 않는다.
   final Map<String, int> activePlaceholderCounts;
 
-  static final RegExp _placeholderPattern = RegExp(r'\[[^\]]*\]');
+  /// 한 줄·한 쌍의 `[...]`만 토큰으로 본다.
+  /// `[`·`]`·줄바꿈을 허용하면 `]`만 지워도 다음 괄호까지 한 토큰으로 붙는다.
+  static final RegExp _placeholderPattern = RegExp(r'\[[^\[\]\n]*\]');
 
   factory SsossTemplateDocument.fromTemplate(String template) {
     return SsossTemplateDocument(
@@ -172,7 +174,8 @@ class SsossTemplateDocument {
         text,
         originalTemplate,
         Object.hashAll(
-          activePlaceholderCounts.entries.map((e) => Object.hash(e.key, e.value)),
+          activePlaceholderCounts.entries
+              .map((e) => Object.hash(e.key, e.value)),
         ),
       );
 

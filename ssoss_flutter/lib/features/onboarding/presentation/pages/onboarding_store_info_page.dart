@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:ssoss_flutter/common/widgets/input/ssoss_focused_input_scroller.dart';
 import 'package:ssoss_flutter/common/widgets/store_info/store_basic_info_form.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
@@ -115,7 +116,12 @@ class _OnboardingStoreInfoPageState extends State<OnboardingStoreInfoPage> {
             ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 6, 24, 24),
+                padding: const EdgeInsets.fromLTRB(
+                  24,
+                  6,
+                  24,
+                  24 + kSsossFocusedInputScrollPaddingBottom,
+                ),
                 children: [
                   const _StoreInfoTitle(),
                   const SizedBox(height: 28),

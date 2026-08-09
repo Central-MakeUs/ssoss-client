@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_focused_input_scroller.dart';
 import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/auth/domain/entities/withdrawal_reason.dart';
@@ -104,7 +105,12 @@ class _WithdrawReasonPageState extends State<WithdrawReasonPage> {
                 ),
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(16, 6, 16, 24),
+                    padding: const EdgeInsets.fromLTRB(
+                      16,
+                      6,
+                      16,
+                      24 + kSsossFocusedInputScrollPaddingBottom,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ssoss_flutter/common/widgets/card/ssoss_template_contents_edit_card.dart';
 import 'package:ssoss_flutter/common/widgets/card/template/ssoss_template_document.dart';
+import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 
 void main() {
   testWidgets('can edit any part of the document text', (tester) async {
@@ -135,6 +136,31 @@ void main() {
     expect(editableState.widget.focusNode.hasFocus, isFalse);
   });
 
+  testWidgets('blocks input beyond maxLength', (tester) async {
+    var document = SsossTemplateDocument.fromTemplate('12345');
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SsossTemplateContentsEditCard(
+            document: document,
+            maxLength: 5,
+            onDocumentChanged: (value) => document = value,
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(find.byType(EditableText), '123456789');
+    await tester.pump();
+
+    expect(document.plainText, '12345');
+    expect(find.byType(SsossToast), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(milliseconds: 200));
+  });
+
   testWidgets('reset restores active highlight after same text is retyped',
       (tester) async {
     late StateSetter setState;
@@ -188,5 +214,67 @@ void main() {
 
     expect(document.plainText, '[최초]');
     expect(document.activePlaceholderCounts, {'[최초]': 1});
+  });
+
+  testWidgets('unfocuses when tapping outside the editor', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ListView(
+            children: [
+              SsossTemplateContentsEditCard(
+                document: SsossTemplateDocument.fromTemplate('본문'),
+              ),
+              const SizedBox(height: 80),
+              const Text('outside'),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(EditableText));
+    await tester.pump();
+
+    final focusNode =
+        tester.widget<EditableText>(find.byType(EditableText)).focusNode;
+    expect(focusNode?.hasFocus, isTrue);
+
+    await tester.tap(find.text('outside'));
+    await tester.pump();
+
+    expect(focusNode?.hasFocus, isFalse);
+  });
+
+  testWidgets('keeps focus when keyboard is dismissed', (tester) async {
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SsossTemplateContentsEditCard(
+            document: SsossTemplateDocument.fromTemplate('본문'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(EditableText));
+    await tester.pump();
+
+    tester.view.viewInsets = const FakeViewPadding(bottom: 360);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    tester.view.viewInsets = FakeViewPadding.zero;
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(
+      tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus,
+      isTrue,
+    );
   });
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:ssoss_flutter/common/widgets/input/ssoss_select_dropdown.dart';
 import 'package:ssoss_flutter/common/widgets/store_info/store_info_components.dart';
+import 'package:ssoss_flutter/common/widgets/store_info/store_info_limits.dart';
 
 class StoreBasicInfoForm extends StatefulWidget {
   const StoreBasicInfoForm({
@@ -54,6 +55,7 @@ class _StoreBasicInfoFormState extends State<StoreBasicInfoForm> {
           controller: widget.storeNameController,
           hintText: '입력해주세요.',
           isRequired: widget.markRequiredFields,
+          maxLength: StoreInfoLimits.storeName,
         ),
         const SizedBox(height: 32),
         StoreInfoSectionTitle(
@@ -90,6 +92,7 @@ class _StoreBasicInfoFormState extends State<StoreBasicInfoForm> {
           controller: widget.introController,
           hintText: '입력해주세요.',
           helperText: widget.markRequiredFields ? '선택' : null,
+          maxLength: StoreInfoLimits.introduction,
         ),
       ],
     );

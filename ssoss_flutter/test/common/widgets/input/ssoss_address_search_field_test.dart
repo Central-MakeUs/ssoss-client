@@ -216,6 +216,55 @@ void main() {
     expect(find.byType(SsossSelectOption), findsOneWidget);
   });
 
+  testWidgets('scrolls to search results even when keyboard is visible',
+      (tester) async {
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final scrollController = ScrollController();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ListView(
+            controller: scrollController,
+            children: [
+              const SizedBox(height: 400),
+              SsossAddressSearchField(
+                searchService: _MockKakaoLocalSearchService(
+                  (query, {cancelToken}) async {
+                    return List<String>.generate(
+                      5,
+                      (index) => '서울 마포구 동교로16길 ${index + 1}',
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 800),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(TextField));
+    await tester.pump();
+
+    tester.view.viewInsets = const FakeViewPadding(bottom: 360);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+    final offsetAfterKeyboard = scrollController.offset;
+
+    await tester.enterText(find.byType(TextField), '동교로');
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(find.byType(SsossSelectOption), findsNWidgets(5));
+    expect(scrollController.offset, greaterThan(offsetAfterKeyboard));
+  });
+
   testWidgets('hides dropdown when query is cleared', (tester) async {
     await pumpAddressSearchField(
       tester,
