@@ -29,6 +29,13 @@ class HashtagCatalogCubit extends Cubit<HashtagCatalogState> {
     await _load(page: 0, replace: true);
   }
 
+  Future<void> refresh() {
+    if (state.isLoading) {
+      return Future.value();
+    }
+    return _load(page: 0, replace: true, keepRefreshing: true);
+  }
+
   Future<void> ensureLoaded() async {
     if (state.hasLoaded || state.isLoading) {
       return;
@@ -114,8 +121,9 @@ class HashtagCatalogCubit extends Cubit<HashtagCatalogState> {
   Future<void> _load({
     required int page,
     required bool replace,
+    bool keepRefreshing = false,
   }) async {
-    if (replace) {
+    if (replace && !keepRefreshing) {
       emit(
         state.copyWith(
           isLoading: true,
@@ -136,9 +144,7 @@ class HashtagCatalogCubit extends Cubit<HashtagCatalogState> {
       }
       emit(
         state.copyWith(
-          items: replace
-              ? result.bundles
-              : [...state.items, ...result.bundles],
+          items: replace ? result.bundles : [...state.items, ...result.bundles],
           page: result.page,
           hasNext: result.hasNext,
           hasLoaded: true,
