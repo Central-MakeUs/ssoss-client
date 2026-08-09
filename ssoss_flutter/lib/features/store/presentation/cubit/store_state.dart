@@ -5,6 +5,7 @@ class StoreState {
     required this.info,
     this.isLoading = false,
     this.isBootstrapped = false,
+    this.isNetworkUnavailable = false,
     this.isSavingBasic = false,
     this.isSavingOperation = false,
     this.isSavingContent = false,
@@ -17,6 +18,7 @@ class StoreState {
   final StoreInfo info;
   final bool isLoading;
   final bool isBootstrapped;
+  final bool isNetworkUnavailable;
   final bool isSavingBasic;
   final bool isSavingOperation;
   final bool isSavingContent;
@@ -29,6 +31,7 @@ class StoreState {
     StoreInfo? info,
     bool? isLoading,
     bool? isBootstrapped,
+    bool? isNetworkUnavailable,
     bool? isSavingBasic,
     bool? isSavingOperation,
     bool? isSavingContent,
@@ -40,6 +43,7 @@ class StoreState {
       info: info ?? this.info,
       isLoading: isLoading ?? this.isLoading,
       isBootstrapped: isBootstrapped ?? this.isBootstrapped,
+      isNetworkUnavailable: isNetworkUnavailable ?? this.isNetworkUnavailable,
       isSavingBasic: isSavingBasic ?? this.isSavingBasic,
       isSavingOperation: isSavingOperation ?? this.isSavingOperation,
       isSavingContent: isSavingContent ?? this.isSavingContent,

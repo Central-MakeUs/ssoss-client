@@ -86,11 +86,6 @@ GoRouter createAppRouter(
         return isOnSplash ? null : SplashPage.routePath;
       }
 
-      // 세션 만료 모달 표시 중에는 현재 라우트 유지.
-      if (authState is LoginSessionExpired) {
-        return null;
-      }
-
       // 로그인 진행·실패(설정 탈퇴 실패 포함) 중에는 현재 화면 유지.
       if (authState is LoginLoading || authState is LoginFailure) {
         return null;
@@ -120,7 +115,9 @@ GoRouter createAppRouter(
 
       final storeState = storeCubit.state;
       if (!storeState.isBootstrapped) {
-        return isOnSplash ? null : SplashPage.routePath;
+        // 로그인 화면에서는 스플래시로 보내지 않고 버튼 로딩을 유지한다.
+        if (isOnLogin || isOnSplash) return null;
+        return SplashPage.routePath;
       }
 
       if (_forceOnboardingForDebug || storeState.shouldShowOnboarding) {

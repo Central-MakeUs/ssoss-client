@@ -14,7 +14,9 @@ AppException mapDioError(DioException exception) {
   if (exception.type == DioExceptionType.connectionTimeout ||
       exception.type == DioExceptionType.receiveTimeout ||
       exception.type == DioExceptionType.sendTimeout ||
-      exception.type == DioExceptionType.connectionError) {
+      exception.type == DioExceptionType.connectionError ||
+      exception.type == DioExceptionType.badCertificate ||
+      exception.response == null) {
     return const NetworkException();
   }
 
@@ -30,10 +32,10 @@ AppException mapDioError(DioException exception) {
     'A0001' => AuthException.socialFailed(message),
     'A0004' || 'A0005' => AuthException.unauthenticated(message),
     _ => ServerException(
-          statusCode,
-          message,
-          code.value.isEmpty ? null : code.value,
-        ),
+        statusCode,
+        message,
+        code.value.isEmpty ? null : code.value,
+      ),
   };
 }
 

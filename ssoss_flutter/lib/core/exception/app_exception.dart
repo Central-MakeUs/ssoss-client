@@ -12,7 +12,7 @@ sealed class AppException implements Exception {
 
 /// 네트워크 연결 오류.
 class NetworkException extends AppException {
-  const NetworkException([super.message = '네트워크 오류가 발생했습니다.']);
+  const NetworkException([super.message = '네트워크 연결 상태를 확인해주세요.']);
 }
 
 /// 서버 응답 오류 (4xx/5xx).

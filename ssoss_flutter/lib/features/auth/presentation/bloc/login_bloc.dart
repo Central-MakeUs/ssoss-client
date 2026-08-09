@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ssoss_flutter/core/exception/app_exception.dart';
+import 'package:ssoss_flutter/core/network/error_ui_suppressor.dart';
 import 'package:ssoss_flutter/core/network/session_expired_notifier.dart';
 
 import '../../domain/entities/auth_session.dart';
@@ -258,11 +259,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     SessionExpired event,
     Emitter<LoginState> emit,
   ) async {
-    if (state is! LoginAuthenticated) {
-      emit(const LoginState.unauthenticated());
-      return;
-    }
-    emit(const LoginState.sessionExpired());
+    _lastAuthenticatedUser = null;
+    ErrorUiSuppressor.suppressToasts = false;
+    emit(const LoginState.unauthenticated());
   }
 
   Future<void> _onSessionExpiredAcknowledged(

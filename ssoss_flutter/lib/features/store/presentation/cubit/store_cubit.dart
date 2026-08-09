@@ -34,7 +34,14 @@ class StoreCubit extends Cubit<StoreState> {
   final CompleteStoreOnboardingUseCase _completeOnboarding;
 
   Future<void> bootstrap() async {
-    emit(state.copyWith(isLoading: true, clearErrorMessage: true));
+    emit(
+      state.copyWith(
+        isLoading: true,
+        isBootstrapped: false,
+        isNetworkUnavailable: false,
+        clearErrorMessage: true,
+      ),
+    );
     try {
       final info = await _getMyStore();
       final completed = await _checkOnboarding();
@@ -44,6 +51,15 @@ class StoreCubit extends Cubit<StoreState> {
           hasCompletedOnboarding: completed,
           isLoading: false,
           isBootstrapped: true,
+          isNetworkUnavailable: false,
+        ),
+      );
+    } on NetworkException {
+      emit(
+        state.copyWith(
+          isLoading: false,
+          isBootstrapped: false,
+          isNetworkUnavailable: true,
         ),
       );
     } on AppException catch (e) {
@@ -51,6 +67,7 @@ class StoreCubit extends Cubit<StoreState> {
         state.copyWith(
           isLoading: false,
           isBootstrapped: true,
+          isNetworkUnavailable: false,
           errorMessage: e.message,
         ),
       );
@@ -60,6 +77,7 @@ class StoreCubit extends Cubit<StoreState> {
         state.copyWith(
           isLoading: false,
           isBootstrapped: true,
+          isNetworkUnavailable: false,
           errorMessage: '매장 정보를 불러오지 못했습니다.',
         ),
       );

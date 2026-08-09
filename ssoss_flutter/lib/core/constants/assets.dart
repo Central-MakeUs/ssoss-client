@@ -84,6 +84,12 @@ class AppAssets {
   static const String icToastWarning =
       'assets/icons/common/ic_toast_warning.svg';
   static const String icToastError = 'assets/icons/common/ic_toast_error.svg';
+  static const String icInfoFilled = 'assets/icons/common/ic_info_filled.svg';
+  static const String icWarningFilled =
+      'assets/icons/common/ic_warning_filled.svg';
+  static const String icErrorFilled = 'assets/icons/common/ic_error_filled.svg';
+  static const String icSuccessFilled =
+      'assets/icons/common/ic_success_filled.svg';
   static const String icOnboardingStoreInfoComplete =
       'assets/img/onboarding/ic_onboarding_store_info_complete.svg';
 

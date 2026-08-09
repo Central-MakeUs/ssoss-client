@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/constants/assets.dart';
+import 'package:ssoss_flutter/core/network/error_ui_suppressor.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 
 enum SsossToastType {
@@ -59,10 +60,17 @@ class SsossToast extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = _ToastStyle.from(type);
     final resolvedBorderRadius = borderRadius ?? BorderRadius.circular(8);
-    final resolvedTitleColor = titleColor ?? style.titleColor;
-    final resolvedCaptionColor = captionColor ?? AppColors.neutral500;
+    final resolvedTitleColor = titleColor ?? AppColors.white;
+    final resolvedBackgroundColor =
+        backgroundColor ?? AppColors.neutral600.withValues(alpha: 0.95);
+    final resolvedCaptionColor = captionColor ?? AppColors.neutral300;
+    final iconAsset = switch (type) {
+      SsossToastType.success => AppAssets.icSuccessFilled,
+      SsossToastType.info => AppAssets.icInfoFilled,
+      SsossToastType.warning => AppAssets.icWarningFilled,
+      SsossToastType.error => AppAssets.icErrorFilled,
+    };
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: maxWidth),
@@ -70,9 +78,9 @@ class SsossToast extends StatelessWidget {
         width: width,
         padding: padding ?? const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: backgroundColor ?? style.backgroundColor,
+          color: resolvedBackgroundColor,
           borderRadius: resolvedBorderRadius,
-          border: Border.all(color: borderColor ?? style.borderColor),
+          border: borderColor != null ? Border.all(color: borderColor!) : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -84,7 +92,7 @@ class SsossToast extends StatelessWidget {
                 child: Center(
                   child: icon ??
                       SvgPicture.asset(
-                        style.iconAsset,
+                        iconAsset,
                         width: 20,
                         height: 20,
                       ),
@@ -137,12 +145,19 @@ void showSsossToast(
   Alignment alignment = Alignment.bottomCenter,
   EdgeInsetsGeometry margin = const EdgeInsets.only(bottom: 88),
   double maxWidth = 320,
+  bool ignoreSuppressor = false,
 }) {
-  if (_isSsossToastVisible) {
+  if (!ignoreSuppressor &&
+      (ErrorUiSuppressor.suppressToasts || _isSsossToastVisible)) {
     return;
   }
 
-  final overlay = Overlay.of(context, rootOverlay: true);
+  final overlay = Overlay.maybeOf(context, rootOverlay: true) ??
+      Navigator.maybeOf(context, rootNavigator: true)?.overlay;
+  if (overlay == null) {
+    return;
+  }
+
   late final OverlayEntry entry;
 
   _isSsossToastVisible = true;
@@ -276,52 +291,5 @@ class _SsossToastOverlayState extends State<_SsossToastOverlay>
         ),
       ),
     );
-  }
-}
-
-class _ToastStyle {
-  const _ToastStyle({
-    required this.iconAsset,
-    required this.backgroundColor,
-    required this.borderColor,
-    required this.titleColor,
-  });
-
-  final String iconAsset;
-  final Color backgroundColor;
-  final Color borderColor;
-  final Color titleColor;
-
-  static _ToastStyle from(SsossToastType type) {
-    switch (type) {
-      case SsossToastType.success:
-        return const _ToastStyle(
-          iconAsset: AppAssets.icToastSuccess,
-          backgroundColor: AppColors.success50,
-          borderColor: AppColors.success500,
-          titleColor: AppColors.success700,
-        );
-      case SsossToastType.info:
-        return const _ToastStyle(
-          iconAsset: AppAssets.icToastInfo,
-          backgroundColor: AppColors.info50,
-          borderColor: AppColors.info500,
-          titleColor: AppColors.info700,
-        );
-      case SsossToastType.warning:
-        return const _ToastStyle(
-          iconAsset: AppAssets.icToastWarning,
-          backgroundColor: AppColors.warning50,
-          borderColor: AppColors.warning500,
-          titleColor: AppColors.warning700,
-        );
-      case SsossToastType.error:
-        return const _ToastStyle(
-          iconAsset: AppAssets.icToastError,
-          backgroundColor: AppColors.error50,
-          borderColor: AppColors.error500,
-          titleColor: AppColors.error700,
-        );
-    }
   }
 }

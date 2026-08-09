@@ -53,6 +53,7 @@ extension AppVersionStatePatterns on AppVersionState {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(AppVersionChecking value)? checking,
     TResult Function(AppVersionUpdateRequired value)? updateRequired,
+    TResult Function(AppVersionNetworkUnavailable value)? networkUnavailable,
     TResult Function(AppVersionAllowed value)? allowed,
     required TResult orElse(),
   }) {
@@ -62,6 +63,8 @@ extension AppVersionStatePatterns on AppVersionState {
         return checking(_that);
       case AppVersionUpdateRequired() when updateRequired != null:
         return updateRequired(_that);
+      case AppVersionNetworkUnavailable() when networkUnavailable != null:
+        return networkUnavailable(_that);
       case AppVersionAllowed() when allowed != null:
         return allowed(_that);
       case _:
@@ -86,6 +89,8 @@ extension AppVersionStatePatterns on AppVersionState {
   TResult map<TResult extends Object?>({
     required TResult Function(AppVersionChecking value) checking,
     required TResult Function(AppVersionUpdateRequired value) updateRequired,
+    required TResult Function(AppVersionNetworkUnavailable value)
+        networkUnavailable,
     required TResult Function(AppVersionAllowed value) allowed,
   }) {
     final _that = this;
@@ -94,6 +99,8 @@ extension AppVersionStatePatterns on AppVersionState {
         return checking(_that);
       case AppVersionUpdateRequired():
         return updateRequired(_that);
+      case AppVersionNetworkUnavailable():
+        return networkUnavailable(_that);
       case AppVersionAllowed():
         return allowed(_that);
       case _:
@@ -117,6 +124,7 @@ extension AppVersionStatePatterns on AppVersionState {
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(AppVersionChecking value)? checking,
     TResult? Function(AppVersionUpdateRequired value)? updateRequired,
+    TResult? Function(AppVersionNetworkUnavailable value)? networkUnavailable,
     TResult? Function(AppVersionAllowed value)? allowed,
   }) {
     final _that = this;
@@ -125,6 +133,8 @@ extension AppVersionStatePatterns on AppVersionState {
         return checking(_that);
       case AppVersionUpdateRequired() when updateRequired != null:
         return updateRequired(_that);
+      case AppVersionNetworkUnavailable() when networkUnavailable != null:
+        return networkUnavailable(_that);
       case AppVersionAllowed() when allowed != null:
         return allowed(_that);
       case _:
@@ -148,6 +158,7 @@ extension AppVersionStatePatterns on AppVersionState {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? checking,
     TResult Function(String minimumVersion)? updateRequired,
+    TResult Function()? networkUnavailable,
     TResult Function()? allowed,
     required TResult orElse(),
   }) {
@@ -157,6 +168,8 @@ extension AppVersionStatePatterns on AppVersionState {
         return checking();
       case AppVersionUpdateRequired() when updateRequired != null:
         return updateRequired(_that.minimumVersion);
+      case AppVersionNetworkUnavailable() when networkUnavailable != null:
+        return networkUnavailable();
       case AppVersionAllowed() when allowed != null:
         return allowed();
       case _:
@@ -181,6 +194,7 @@ extension AppVersionStatePatterns on AppVersionState {
   TResult when<TResult extends Object?>({
     required TResult Function() checking,
     required TResult Function(String minimumVersion) updateRequired,
+    required TResult Function() networkUnavailable,
     required TResult Function() allowed,
   }) {
     final _that = this;
@@ -189,6 +203,8 @@ extension AppVersionStatePatterns on AppVersionState {
         return checking();
       case AppVersionUpdateRequired():
         return updateRequired(_that.minimumVersion);
+      case AppVersionNetworkUnavailable():
+        return networkUnavailable();
       case AppVersionAllowed():
         return allowed();
       case _:
@@ -212,6 +228,7 @@ extension AppVersionStatePatterns on AppVersionState {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? checking,
     TResult? Function(String minimumVersion)? updateRequired,
+    TResult? Function()? networkUnavailable,
     TResult? Function()? allowed,
   }) {
     final _that = this;
@@ -220,6 +237,8 @@ extension AppVersionStatePatterns on AppVersionState {
         return checking();
       case AppVersionUpdateRequired() when updateRequired != null:
         return updateRequired(_that.minimumVersion);
+      case AppVersionNetworkUnavailable() when networkUnavailable != null:
+        return networkUnavailable();
       case AppVersionAllowed() when allowed != null:
         return allowed();
       case _:
@@ -311,6 +330,27 @@ class _$AppVersionUpdateRequiredCopyWithImpl<$Res>
           : minimumVersion // ignore: cast_nullable_to_non_nullable
               as String,
     ));
+  }
+}
+
+/// @nodoc
+
+class AppVersionNetworkUnavailable implements AppVersionState {
+  const AppVersionNetworkUnavailable();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is AppVersionNetworkUnavailable);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'AppVersionState.networkUnavailable()';
   }
 }
 

@@ -305,7 +305,6 @@ Future<SsossModalResult?> showSsossModal(
                   isPrimaryLoading = false;
                   isActionsDisabled = false;
                 });
-                rethrow;
               }
             }
 

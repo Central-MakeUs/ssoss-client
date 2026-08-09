@@ -451,7 +451,7 @@ Apple 이메일은 SDK가 준 값만 세션 캐시(`StoredAuthCacheModel.email`)
 | 재로그인 시 이름 미제공 | `AppleAuthDatasource` | `givenName`/`familyName` null → nickname 기본값 사용 |
 | 네트워크 오류 | `AuthRemoteDatasource` | `NetworkException` throw |
 | 서버 에러 4xx/5xx | `AuthRemoteDatasource` | `ServerException(statusCode, message, code)` throw |
-| 토큰 갱신 실패 (`A0004`/`A0005`) | Dio 인증 인터셉터 | 세션 만료 모달(로그인 후 화면) → `/login` |
+| 토큰 갱신 실패 (`A0004`/`A0005`) | Dio 인증 인터셉터 | 세션 만료 경고 토스트 → `/login` |
 | 탈퇴 API 실패 | 탈퇴 사유 화면 | `SsossToast(error)` + authenticated 복원 (화면 유지) |
 
 ---
