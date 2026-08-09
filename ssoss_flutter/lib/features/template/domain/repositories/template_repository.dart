@@ -30,4 +30,16 @@ abstract class TemplateRepository {
   });
 
   Future<SavedTemplateDetail> getSavedTemplate(int savedTemplateId);
+
+  Future<SavedTemplateDetail> editSavedTemplate({
+    required int savedTemplateId,
+    required String body,
+  });
+
+  Future<SavedTemplateDetail> renameSavedTemplate({
+    required int savedTemplateId,
+    required String title,
+  });
+
+  Future<void> deleteSavedTemplate(int savedTemplateId);
 }

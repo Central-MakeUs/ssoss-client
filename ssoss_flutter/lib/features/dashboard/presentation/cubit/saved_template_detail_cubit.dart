@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:ssoss_flutter/features/dashboard/presentation/cubit/saved_template_detail_state.dart';
+import 'package:ssoss_flutter/features/template/domain/entities/saved_template_detail.dart';
 import 'package:ssoss_flutter/features/template/domain/usecases/get_saved_template_usecase.dart';
 
 class SavedTemplateDetailCubit extends Cubit<SavedTemplateDetailState> {
@@ -43,5 +44,15 @@ class SavedTemplateDetailCubit extends Cubit<SavedTemplateDetailState> {
         ),
       );
     }
+  }
+
+  void applyDetail(SavedTemplateDetail detail) {
+    emit(
+      state.copyWith(
+        detail: detail,
+        isLoading: false,
+        errorMessage: null,
+      ),
+    );
   }
 }

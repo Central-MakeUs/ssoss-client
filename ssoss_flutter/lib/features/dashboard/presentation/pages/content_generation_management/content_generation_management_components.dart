@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -71,6 +73,16 @@ class SavedContentTemplateManagementItem {
   final String date;
 
   String get menuId => savedTemplateId.toString();
+
+  SavedContentTemplateManagementItem copyWith({String? title}) {
+    return SavedContentTemplateManagementItem(
+      savedTemplateId: savedTemplateId,
+      category: category,
+      title: title ?? this.title,
+      description: description,
+      date: date,
+    );
+  }
 }
 
 class ContentManagementFilterBar extends StatelessWidget {
@@ -464,18 +476,27 @@ class _ContentMenuAction extends StatelessWidget {
 Future<String?> showContentTitleEditDialog(
   BuildContext context, {
   required String initialTitle,
+  Future<void> Function(String title)? onSave,
 }) {
   return showDialog<String>(
     context: context,
     barrierColor: AppColors.black.withValues(alpha: 0.5),
-    builder: (_) => _ContentTitleEditDialog(initialTitle: initialTitle),
+    barrierDismissible: onSave == null,
+    builder: (_) => _ContentTitleEditDialog(
+      initialTitle: initialTitle,
+      onSave: onSave,
+    ),
   );
 }
 
 class _ContentTitleEditDialog extends StatefulWidget {
-  const _ContentTitleEditDialog({required this.initialTitle});
+  const _ContentTitleEditDialog({
+    required this.initialTitle,
+    this.onSave,
+  });
 
   final String initialTitle;
+  final Future<void> Function(String title)? onSave;
 
   @override
   State<_ContentTitleEditDialog> createState() =>
@@ -487,6 +508,7 @@ class _ContentTitleEditDialogState extends State<_ContentTitleEditDialog> {
   static const int _maxTitleLength = 20;
 
   late final TextEditingController _controller;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -500,21 +522,49 @@ class _ContentTitleEditDialogState extends State<_ContentTitleEditDialog> {
     super.dispose();
   }
 
-  bool get _canSubmit {
-    final length = _controller.text.trim().length;
-    return length >= _minTitleLength && length <= _maxTitleLength;
-  }
+  bool get _canSubmit => SsossTextField.isWithinLength(
+        _controller.text,
+        minLength: _minTitleLength,
+        maxLength: _maxTitleLength,
+      );
 
   void _close() {
+    if (_isSaving) {
+      return;
+    }
     Navigator.of(context).pop();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final trimmed = _controller.text.trim();
-    if (trimmed.length < _minTitleLength || trimmed.length > _maxTitleLength) {
+    if (_isSaving ||
+        !SsossTextField.isWithinLength(
+          trimmed,
+          minLength: _minTitleLength,
+          maxLength: _maxTitleLength,
+        )) {
       return;
     }
-    Navigator.of(context).pop(trimmed);
+
+    final onSave = widget.onSave;
+    if (onSave == null) {
+      Navigator.of(context).pop(trimmed);
+      return;
+    }
+
+    setState(() => _isSaving = true);
+    try {
+      await onSave(trimmed);
+      if (!mounted) {
+        return;
+      }
+      Navigator.of(context).pop(trimmed);
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => _isSaving = false);
+    }
   }
 
   @override
@@ -528,7 +578,8 @@ class _ContentTitleEditDialogState extends State<_ContentTitleEditDialog> {
         message: '최소 2자, 최대 20자까지 입력할 수 있어요',
         width: double.infinity,
         showButtonIcons: false,
-        onClose: _close,
+        isActionsDisabled: _isSaving,
+        onClose: _isSaving ? null : _close,
         content: SsossTextField(
           controller: _controller,
           hintText: 'ex) 여름 한정 복숭아 빙수 홍보',
@@ -536,6 +587,7 @@ class _ContentTitleEditDialogState extends State<_ContentTitleEditDialog> {
           textColor: AppColors.neutral800,
           width: double.infinity,
           maxLength: _maxTitleLength,
+          enabled: !_isSaving,
           onChanged: (_) => setState(() {}),
         ),
         actions: Row(
@@ -546,7 +598,8 @@ class _ContentTitleEditDialogState extends State<_ContentTitleEditDialog> {
                 size: SsossButtonSize.medium,
                 type: SsossButtonType.neutral,
                 width: double.infinity,
-                onPressed: _close,
+                enabled: !_isSaving,
+                onPressed: _isSaving ? null : _close,
               ),
             ),
             const SizedBox(width: 8),
@@ -556,8 +609,11 @@ class _ContentTitleEditDialogState extends State<_ContentTitleEditDialog> {
                 size: SsossButtonSize.medium,
                 type: SsossButtonType.primary,
                 width: double.infinity,
-                enabled: _canSubmit,
-                onPressed: _submit,
+                enabled: _canSubmit && !_isSaving,
+                isLoading: _isSaving,
+                onPressed: _canSubmit && !_isSaving
+                    ? () => unawaited(_submit())
+                    : null,
               ),
             ),
           ],
@@ -565,6 +621,22 @@ class _ContentTitleEditDialogState extends State<_ContentTitleEditDialog> {
       ),
     );
   }
+}
+
+Future<bool> showSavedTemplateDeleteConfirmDialog(
+  BuildContext context, {
+  required Future<void> Function() onDelete,
+}) async {
+  final result = await showSsossModal(
+    context,
+    title: '저장한 콘텐츠를 삭제하시겠어요?',
+    message: '삭제한 콘텐츠는 복구할 수 없어요',
+    primaryButtonLabel: '삭제',
+    secondaryButtonLabel: '취소',
+    showButtonIcons: false,
+    onPrimaryPressedAsync: onDelete,
+  );
+  return result == SsossModalResult.primary;
 }
 
 Future<bool> showContentDeleteConfirmDialog(BuildContext context) async {

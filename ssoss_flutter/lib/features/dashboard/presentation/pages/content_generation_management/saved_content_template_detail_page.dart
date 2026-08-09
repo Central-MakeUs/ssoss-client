@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
 import 'package:ssoss_flutter/common/widgets/button/ssoss_button.dart';
@@ -17,6 +18,7 @@ import 'package:ssoss_flutter/features/dashboard/presentation/cubit/saved_templa
 import 'package:ssoss_flutter/features/template/domain/entities/saved_template_detail.dart';
 import 'package:ssoss_flutter/features/template/domain/usecases/get_saved_template_usecase.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_detail/template_detail_components.dart';
+import 'package:ssoss_flutter/features/template/presentation/pages/template_edit/template_edit_page.dart';
 import 'package:ssoss_flutter/features/template/presentation/util/template_label_mapper.dart';
 import 'package:ssoss_flutter/features/template/presentation/widgets/template_list.dart';
 
@@ -114,17 +116,39 @@ class _SavedContentTemplateDetailView extends StatelessWidget {
       );
     }
 
-    return SavedContentTemplateDetailBody(detail: detail);
+    return SavedContentTemplateDetailBody(
+      detail: detail,
+      onEditTap: () => unawaited(_openEdit(context, detail)),
+    );
+  }
+
+  Future<void> _openEdit(
+    BuildContext context,
+    SavedTemplateDetail detail,
+  ) async {
+    final result = await context.push<SavedTemplateDetail>(
+      TemplateEditPage.routePath,
+      extra: TemplateEditArgs(
+        document: SsossTemplateDocument.fromTemplate(detail.body),
+        savedTemplateId: detail.savedTemplateId,
+      ),
+    );
+    if (result == null || !context.mounted) {
+      return;
+    }
+    context.read<SavedTemplateDetailCubit>().applyDetail(result);
   }
 }
 
 class SavedContentTemplateDetailBody extends StatelessWidget {
   const SavedContentTemplateDetailBody({
     required this.detail,
+    required this.onEditTap,
     super.key,
   });
 
   final SavedTemplateDetail detail;
+  final VoidCallback onEditTap;
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +159,10 @@ class SavedContentTemplateDetailBody extends StatelessWidget {
         const SizedBox(height: 24),
         const Divider(height: 1, color: AppColors.neutral200),
         const SizedBox(height: 24),
-        _SavedTemplateBodySection(body: detail.body),
+        _SavedTemplateBodySection(
+          body: detail.body,
+          onEditTap: onEditTap,
+        ),
         const SizedBox(height: 24),
         const TemplateNoticeBox(),
       ],
@@ -176,9 +203,13 @@ class _SavedTemplateDetailHeader extends StatelessWidget {
 }
 
 class _SavedTemplateBodySection extends StatelessWidget {
-  const _SavedTemplateBodySection({required this.body});
+  const _SavedTemplateBodySection({
+    required this.body,
+    required this.onEditTap,
+  });
 
   final String body;
+  final VoidCallback onEditTap;
 
   @override
   Widget build(BuildContext context) {
@@ -193,16 +224,20 @@ class _SavedTemplateBodySection extends StatelessWidget {
                 style: AppTextStyles.h5.copyWith(color: AppColors.black),
               ),
             ),
-            SizedBox.square(
-              dimension: 32,
-              child: Center(
-                child: SvgPicture.asset(
-                  AppAssets.icEdit2,
-                  width: 24,
-                  height: 24,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.neutral500,
-                    BlendMode.srcIn,
+            GestureDetector(
+              onTap: onEditTap,
+              behavior: HitTestBehavior.opaque,
+              child: SizedBox.square(
+                dimension: 32,
+                child: Center(
+                  child: SvgPicture.asset(
+                    AppAssets.icEdit2,
+                    width: 24,
+                    height: 24,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.neutral500,
+                      BlendMode.srcIn,
+                    ),
                   ),
                 ),
               ),

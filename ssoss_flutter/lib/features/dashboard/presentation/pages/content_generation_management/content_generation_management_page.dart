@@ -18,7 +18,9 @@ import 'package:ssoss_flutter/features/dashboard/presentation/cubit/saved_templa
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_detail/content_detail_page.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/content_generation_management_components.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/saved_content_template_detail_page.dart';
+import 'package:ssoss_flutter/features/template/domain/usecases/delete_saved_template_usecase.dart';
 import 'package:ssoss_flutter/features/template/domain/usecases/list_saved_templates_usecase.dart';
+import 'package:ssoss_flutter/features/template/domain/usecases/rename_saved_template_usecase.dart';
 
 class ContentGenerationManagementPage extends StatefulWidget {
   const ContentGenerationManagementPage({
@@ -59,6 +61,8 @@ class _ContentGenerationManagementPageState
     );
     _savedTemplateCubit = SavedTemplateManagementCubit(
       listSavedTemplates: context.read<ListSavedTemplatesUseCase>(),
+      renameSavedTemplate: context.read<RenameSavedTemplateUseCase>(),
+      deleteSavedTemplate: context.read<DeleteSavedTemplateUseCase>(),
     );
     unawaited(_cubit.loadInitial());
     unawaited(_savedTemplateCubit.loadInitial());
@@ -479,19 +483,28 @@ class _SavedTemplateTabState extends State<_SavedTemplateTab>
     }
   }
 
-  Future<void> _confirmDelete(BuildContext context) async {
-    context.read<SavedTemplateManagementCubit>().closeDeleteMenu();
-    await showContentDeleteConfirmDialog(context);
+  Future<void> _confirmDelete(
+    BuildContext context,
+    SavedContentTemplateManagementItem item,
+  ) async {
+    final cubit = context.read<SavedTemplateManagementCubit>();
+    cubit.closeDeleteMenu();
+    await showSavedTemplateDeleteConfirmDialog(
+      context,
+      onDelete: () => cubit.deleteItem(item),
+    );
   }
 
   Future<void> _openTitleEditDialog(
     BuildContext context,
     SavedContentTemplateManagementItem item,
   ) async {
-    context.read<SavedTemplateManagementCubit>().closeDeleteMenu();
+    final cubit = context.read<SavedTemplateManagementCubit>();
+    cubit.closeDeleteMenu();
     await showContentTitleEditDialog(
       context,
       initialTitle: item.title,
+      onSave: (title) => cubit.renameItem(item, title),
     );
   }
 
@@ -585,7 +598,7 @@ class _SavedTemplateTabState extends State<_SavedTemplateTab>
                                     _openTitleEditDialog(context, item),
                                   ),
                                   onDeleteTap: () => unawaited(
-                                    _confirmDelete(context),
+                                    _confirmDelete(context, item),
                                   ),
                                 ),
                               );

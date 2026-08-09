@@ -77,6 +77,23 @@ class SsossTextField extends StatefulWidget {
   final double? width;
   final double? height;
 
+  /// trim 길이가 [minLength] 이상 [maxLength] 이하인지 검사한다.
+  /// [minLength]/[maxLength]가 0 이하면 해당 쪽은 검사하지 않는다.
+  static bool isWithinLength(
+    String text, {
+    int minLength = 0,
+    int maxLength = 0,
+  }) {
+    final length = text.trim().length;
+    if (minLength > 0 && length < minLength) {
+      return false;
+    }
+    if (maxLength > 0 && length > maxLength) {
+      return false;
+    }
+    return true;
+  }
+
   static const double defaultHeight = 44;
   static const double _borderRadius = 8;
   static const List<BoxShadow> _focusedShadow = [

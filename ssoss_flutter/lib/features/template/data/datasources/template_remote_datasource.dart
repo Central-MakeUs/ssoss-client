@@ -4,7 +4,9 @@ import 'package:ssoss_flutter/features/template/data/models/applied_template_res
 import 'package:ssoss_flutter/features/template/data/models/recommended_template_detail_response_model.dart';
 import 'package:ssoss_flutter/features/template/data/models/recommended_template_list_response_model.dart';
 import 'package:ssoss_flutter/features/template/data/models/saved_template_detail_response_model.dart';
+import 'package:ssoss_flutter/features/template/data/models/saved_template_edit_request.dart';
 import 'package:ssoss_flutter/features/template/data/models/saved_template_list_response_model.dart';
+import 'package:ssoss_flutter/features/template/data/models/saved_template_rename_request.dart';
 import 'package:ssoss_flutter/features/template/data/models/saved_template_save_request.dart';
 import 'package:ssoss_flutter/features/template/data/models/saved_template_save_response_model.dart';
 
@@ -39,6 +41,23 @@ abstract class TemplateRemoteDatasource {
   });
 
   Future<SavedTemplateDetailResponseModel> getSavedTemplate(
+    int savedTemplateId, {
+    CancelToken? cancelToken,
+  });
+
+  Future<SavedTemplateDetailResponseModel> editSavedTemplate(
+    int savedTemplateId,
+    SavedTemplateEditRequest request, {
+    CancelToken? cancelToken,
+  });
+
+  Future<SavedTemplateDetailResponseModel> renameSavedTemplate(
+    int savedTemplateId,
+    SavedTemplateRenameRequest request, {
+    CancelToken? cancelToken,
+  });
+
+  Future<void> deleteSavedTemplate(
     int savedTemplateId, {
     CancelToken? cancelToken,
   });

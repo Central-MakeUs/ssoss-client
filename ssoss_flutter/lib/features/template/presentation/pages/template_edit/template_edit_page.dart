@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
@@ -9,16 +10,22 @@ import 'package:ssoss_flutter/common/widgets/input/ssoss_focused_input_scroller.
 import 'package:ssoss_flutter/common/widgets/card/template/ssoss_template_document.dart';
 import 'package:ssoss_flutter/common/widgets/modal/ssoss_modal.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
+import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/edit/content_edit_bottom_bar.dart';
+import 'package:ssoss_flutter/features/template/domain/entities/saved_template_detail.dart';
+import 'package:ssoss_flutter/features/template/domain/usecases/edit_saved_template_usecase.dart';
 
 class TemplateEditArgs {
   const TemplateEditArgs({
     required this.document,
+    this.savedTemplateId,
   });
 
   final SsossTemplateDocument document;
+  final int? savedTemplateId;
 }
 
 class TemplateEditPage extends StatefulWidget {
@@ -30,6 +37,7 @@ class TemplateEditPage extends StatefulWidget {
   static const String routeName = 'template-edit';
   static const String routePath = '/template-edit';
   static const int maxBodyLength = 1000;
+  static const int savedTemplateMaxBodyLength = 2000;
 
   final TemplateEditArgs args;
 
@@ -40,13 +48,23 @@ class TemplateEditPage extends StatefulWidget {
 class _TemplateEditPageState extends State<TemplateEditPage> {
   late final SsossTemplateDocument _originalDocument = widget.args.document;
   late SsossTemplateDocument _document = widget.args.document;
+  bool _isSubmitting = false;
+
+  bool get _isSavedTemplateEdit => widget.args.savedTemplateId != null;
+
+  int get _maxBodyLength => _isSavedTemplateEdit
+      ? TemplateEditPage.savedTemplateMaxBodyLength
+      : TemplateEditPage.maxBodyLength;
 
   bool get _isDirty => _document != _originalDocument;
   bool get _canSubmit =>
       _document.plainText.trim().isNotEmpty &&
-      _document.textLength <= TemplateEditPage.maxBodyLength;
+      _document.textLength <= _maxBodyLength;
 
   Future<void> _onBack() async {
+    if (_isSubmitting) {
+      return;
+    }
     if (!_isDirty) {
       context.pop();
       return;
@@ -67,6 +85,9 @@ class _TemplateEditPageState extends State<TemplateEditPage> {
   }
 
   Future<void> _onReset() async {
+    if (_isSubmitting) {
+      return;
+    }
     final result = await showSsossModal(
       context,
       title: '수정한 내용을 초기화하시겠어요?',
@@ -81,11 +102,66 @@ class _TemplateEditPageState extends State<TemplateEditPage> {
     setState(() => _document = _originalDocument);
   }
 
-  void _onSubmit() {
-    if (!_canSubmit) {
+  Future<void> _onSubmit() async {
+    if (!_canSubmit || _isSubmitting) {
       return;
     }
-    context.pop(_document);
+
+    final savedTemplateId = widget.args.savedTemplateId;
+    if (savedTemplateId == null) {
+      context.pop(_document);
+      return;
+    }
+
+    final body = _document.text.trim();
+    if (body.isEmpty) {
+      showSsossToast(
+        context,
+        title: '본문을 입력해 주세요',
+        type: SsossToastType.error,
+      );
+      return;
+    }
+    if (body.length > TemplateEditPage.savedTemplateMaxBodyLength) {
+      showSsossToast(
+        context,
+        title: '본문은 2000자 이내로 입력해 주세요',
+        type: SsossToastType.error,
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    try {
+      final detail = await context.read<EditSavedTemplateUseCase>()(
+        savedTemplateId: savedTemplateId,
+        body: body,
+      );
+      if (!mounted) {
+        return;
+      }
+      context.pop<SavedTemplateDetail>(detail);
+    } on AppException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => _isSubmitting = false);
+      showSsossToast(
+        context,
+        title: error.message,
+        type: SsossToastType.error,
+      );
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => _isSubmitting = false);
+      showSsossToast(
+        context,
+        title: '템플릿 수정에 실패했습니다.',
+        type: SsossToastType.error,
+      );
+    }
   }
 
   @override
@@ -93,7 +169,7 @@ class _TemplateEditPageState extends State<TemplateEditPage> {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (didPop) {
+        if (didPop || _isSubmitting) {
           return;
         }
         unawaited(_onBack());
@@ -105,7 +181,7 @@ class _TemplateEditPageState extends State<TemplateEditPage> {
             children: [
               SsossAppBar.back(
                 title: '콘텐츠 편집',
-                onBack: () => unawaited(_onBack()),
+                onBack: _isSubmitting ? () {} : () => unawaited(_onBack()),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -117,16 +193,21 @@ class _TemplateEditPageState extends State<TemplateEditPage> {
                   ),
                   child: TemplateEditBody(
                     document: _document,
-                    onDocumentChanged: (document) {
-                      setState(() => _document = document);
-                    },
+                    maxLength: _maxBodyLength,
+                    enabled: !_isSubmitting,
+                    onDocumentChanged: _isSubmitting
+                        ? (_) {}
+                        : (document) {
+                            setState(() => _document = document);
+                          },
                   ),
                 ),
               ),
               ContentEditBottomBar(
                 canSubmit: _canSubmit,
+                isLoading: _isSubmitting,
                 onReset: () => unawaited(_onReset()),
-                onSubmit: _onSubmit,
+                onSubmit: () => unawaited(_onSubmit()),
               ),
             ],
           ),
@@ -140,11 +221,15 @@ class TemplateEditBody extends StatelessWidget {
   const TemplateEditBody({
     required this.document,
     required this.onDocumentChanged,
+    this.maxLength = TemplateEditPage.maxBodyLength,
+    this.enabled = true,
     super.key,
   });
 
   final SsossTemplateDocument document;
   final ValueChanged<SsossTemplateDocument> onDocumentChanged;
+  final int maxLength;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +244,8 @@ class TemplateEditBody extends StatelessWidget {
         SsossTemplateContentsEditCard(
           document: document,
           width: double.infinity,
-          maxLength: TemplateEditPage.maxBodyLength,
+          maxLength: maxLength,
+          enabled: enabled,
           onDocumentChanged: onDocumentChanged,
           emptySlotColor: AppColors.primary300,
         ),
