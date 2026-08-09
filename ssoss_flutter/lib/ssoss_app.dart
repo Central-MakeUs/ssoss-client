@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -10,9 +11,11 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'common/widgets/modal/ssoss_modal.dart';
+import 'common/widgets/toast/ssoss_toast.dart';
 import 'core/colors/app_colors.dart';
 import 'core/config/app_config.dart';
 import 'core/constants/app_urls.dart';
+import 'core/network/network_error_notifier.dart';
 import 'core/network/network_providers.dart';
 import 'core/network/session_expired_notifier.dart';
 import 'core/theme/app_theme.dart';
@@ -30,6 +33,7 @@ import 'features/auth/presentation/auth_providers.dart';
 import 'features/auth/presentation/bloc/login_bloc.dart';
 import 'features/auth/presentation/bloc/login_event.dart';
 import 'features/auth/presentation/bloc/login_state.dart';
+import 'features/auth/presentation/pages/splash_page.dart';
 import 'features/content/presentation/content_providers.dart';
 import 'features/credit/domain/usecases/get_credit_balance_usecase.dart';
 import 'features/credit/presentation/credit_providers.dart';
@@ -42,6 +46,7 @@ import 'features/store/domain/usecases/save_store_basic_info_usecase.dart';
 import 'features/store/domain/usecases/save_store_content_info_usecase.dart';
 import 'features/store/domain/usecases/save_store_operation_info_usecase.dart';
 import 'features/store/presentation/cubit/store_cubit.dart';
+import 'features/store/presentation/cubit/store_state.dart';
 import 'features/store/presentation/store_providers.dart';
 import 'router/app_router.dart';
 
@@ -67,8 +72,10 @@ class _SsossAppState extends State<SsossApp> {
   final GlobalKey<NavigatorState> _rootNavigatorKey =
       GlobalKey<NavigatorState>();
   late final GoRouter _router;
-  bool _isSessionExpiredModalVisible = false;
+  late final NetworkErrorNotifier _networkErrorNotifier;
+  late final SessionExpiredNotifier _sessionExpiredNotifier;
   bool _isForceUpdateModalVisible = false;
+  bool _isNetworkUnavailableModalVisible = false;
   bool _didRequestSessionRestore = false;
 
   @override
@@ -80,46 +87,114 @@ class _SsossAppState extends State<SsossApp> {
       storeCubit: context.read<StoreCubit>(),
       navigatorKey: _rootNavigatorKey,
     );
+    _networkErrorNotifier = context.read<NetworkErrorNotifier>();
+    _networkErrorNotifier.onNetworkUnavailable = _showNetworkUnavailableToast;
+    _sessionExpiredNotifier = context.read<SessionExpiredNotifier>();
+    _sessionExpiredNotifier.onSessionExpiredUi = _showSessionExpiredToast;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       unawaited(context.read<AppVersionCubit>().check());
     });
   }
 
+  @override
+  void dispose() {
+    _networkErrorNotifier.onNetworkUnavailable = null;
+    _sessionExpiredNotifier.onSessionExpiredUi = null;
+    super.dispose();
+  }
+
   BuildContext? get _navigatorContext => _rootNavigatorKey.currentContext;
 
-  Future<void> _showSessionExpiredModal() async {
-    if (_isSessionExpiredModalVisible) return;
+  void _showSessionExpiredToast() {
+    void show() {
+      final toastContext = _navigatorContext;
+      if (toastContext == null || !toastContext.mounted) {
+        return;
+      }
+      showSsossToast(
+        toastContext,
+        title: '세션이 만료되었습니다. 다시 로그인해 주세요.',
+        type: SsossToastType.warning,
+        ignoreSuppressor: true,
+      );
+    }
+
+    final phase = WidgetsBinding.instance.schedulerPhase;
+    if (phase == SchedulerPhase.idle ||
+        phase == SchedulerPhase.postFrameCallbacks) {
+      show();
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => show());
+  }
+
+  void _showNetworkUnavailableToast() {
+    if (_isNetworkUnavailableModalVisible || _isSplashGateActive) {
+      return;
+    }
+
+    void show() {
+      final toastContext = _navigatorContext;
+      if (toastContext == null || !toastContext.mounted) {
+        return;
+      }
+      showSsossToast(
+        toastContext,
+        title: '네트워크 연결 상태를 확인해주세요.',
+        type: SsossToastType.warning,
+      );
+    }
+
+    final phase = WidgetsBinding.instance.schedulerPhase;
+    if (phase == SchedulerPhase.idle ||
+        phase == SchedulerPhase.postFrameCallbacks) {
+      show();
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => show());
+  }
+
+  bool get _isSplashGateActive {
+    final location = _router.state.matchedLocation;
+    if (location == SplashPage.routePath) {
+      return true;
+    }
+    final loginState = context.read<LoginBloc>().state;
+    final storeState = context.read<StoreCubit>().state;
+    return loginState is LoginAuthenticated && !storeState.isBootstrapped;
+  }
+
+  Future<void> _showNetworkUnavailableModal({
+    required VoidCallback onRetry,
+  }) async {
+    if (_isNetworkUnavailableModalVisible) return;
     final dialogContext = _navigatorContext;
     if (dialogContext == null || !dialogContext.mounted) {
-      // Navigator 준비 전이면 다음 프레임에 재시도한다.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          unawaited(_showSessionExpiredModal());
+          unawaited(_showNetworkUnavailableModal(onRetry: onRetry));
         }
       });
       return;
     }
 
-    _isSessionExpiredModalVisible = true;
+    _isNetworkUnavailableModalVisible = true;
 
     try {
       await showSsossModal(
         dialogContext,
-        title: '세션이 만료되었습니다. 다시 로그인해 주세요.',
+        title: '인터넷 연결이 원활하지 않습니다.',
+        message: '네트워크 연결 상태를 확인해주세요.',
+        primaryButtonLabel: '재시도',
         showButtonIcons: false,
+        showCloseButton: false,
         showSecondaryButton: false,
         barrierDismissible: false,
-        primaryButtonLabel: '확인',
-        onPrimaryPressed: () {},
+        onPrimaryPressed: onRetry,
       );
     } finally {
-      _isSessionExpiredModalVisible = false;
-      if (mounted) {
-        context.read<LoginBloc>().add(
-              const LoginEvent.sessionExpiredAcknowledged(),
-            );
-      }
+      _isNetworkUnavailableModalVisible = false;
     }
   }
 
@@ -185,10 +260,23 @@ class _SsossAppState extends State<SsossApp> {
                 BlocListener<AppVersionCubit, AppVersionState>(
                   listenWhen: (previous, current) =>
                       current is AppVersionUpdateRequired ||
-                      current is AppVersionAllowed,
+                      current is AppVersionAllowed ||
+                      current is AppVersionNetworkUnavailable,
                   listener: (context, state) {
                     if (state is AppVersionUpdateRequired) {
                       unawaited(_showForceUpdateModal());
+                      return;
+                    }
+                    if (state is AppVersionNetworkUnavailable) {
+                      unawaited(
+                        _showNetworkUnavailableModal(
+                          onRetry: () {
+                            unawaited(
+                              context.read<AppVersionCubit>().check(),
+                            );
+                          },
+                        ),
+                      );
                       return;
                     }
                     if (state is AppVersionAllowed) {
@@ -199,8 +287,7 @@ class _SsossAppState extends State<SsossApp> {
                 BlocListener<LoginBloc, LoginState>(
                   listenWhen: (previous, current) =>
                       current is LoginAuthenticated ||
-                      current is LoginUnauthenticated ||
-                      current is LoginSessionExpired,
+                      current is LoginUnauthenticated,
                   listener: (context, state) {
                     if (state is LoginAuthenticated) {
                       unawaited(
@@ -211,9 +298,22 @@ class _SsossAppState extends State<SsossApp> {
                       return;
                     }
                     context.read<StoreCubit>().reset();
-                    if (state is LoginSessionExpired) {
-                      unawaited(_showSessionExpiredModal());
-                    }
+                  },
+                ),
+                BlocListener<StoreCubit, StoreState>(
+                  listenWhen: (previous, current) =>
+                      current.isNetworkUnavailable &&
+                      !previous.isNetworkUnavailable,
+                  listener: (context, state) {
+                    unawaited(
+                      _showNetworkUnavailableModal(
+                        onRetry: () {
+                          unawaited(
+                            context.read<StoreCubit>().bootstrap(),
+                          );
+                        },
+                      ),
+                    );
                   },
                 ),
               ],

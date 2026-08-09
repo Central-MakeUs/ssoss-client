@@ -493,18 +493,19 @@ final GoRouter appRouter = GoRouter(
 
 | 에러 종류 | 발생 위치 | 처리 방법 |
 |----------|----------|---------|
-| 네트워크 오류 | `AuthRemoteDatasource` | `NetworkException` throw → Bloc에서 "네트워크 오류" failure |
+| 네트워크 오류 | `AuthRemoteDatasource` / 전역 인터셉터 | `NetworkException` + `SsossToast(warning)` `네트워크 연결 상태를 확인해주세요.` |
 | 서버 에러 (4xx/5xx) | `AuthRemoteDatasource` | `ServerException(statusCode, message, code)` throw |
 | 네이버 인증 취소 | `NaverAuthDatasource` | `AuthException.cancelled` throw → 로그인 화면 유지 |
 | 네이버 토큰 실패/무효 | `NaverAuthDatasource` / API `A0001` | `AuthException.socialFailed` throw |
-| 토큰 갱신 실패 | Dio 인증 인터셉터 (`A0004`/`A0005`) | 로컬 clear → 로그인 후 화면이면 세션 만료 모달 → `/login` |
+| 토큰 갱신 실패 | Dio 인증 인터셉터 (`A0004`/`A0005`) | 로컬 clear → 경고 토스트 → `/login` |
+| refresh 중 네트워크 오류 | Dio 인증 인터셉터 | 세션 유지 + 네트워크 경고 토스트 |
 | 탈퇴 처리 실패 | 탈퇴 사유 화면 | `SsossToast(error)` + `failureAcknowledged` 로 authenticated 복원 |
 
-**세션 만료 모달**
+**세션 만료**
 
-- 조건: 로그인 **후** 화면에서 invalid token + refresh 실패
-- 문구: `세션이 만료되었습니다. 다시 로그인해 주세요.`
-- 확인 → 로그인 화면. 콜드 스타트·로그인 화면에서는 모달 없이 redirect.
+- 조건: 로그인 **후** 화면에서 invalid token + refresh 인증 실패
+- `SsossToast(warning)`: `세션이 만료되었습니다. 다시 로그인해 주세요.`
+- 토스트 표시 후 로그인 화면으로 이동한다. 원요청 실패 토스트는 띄우지 않는다.
 ---
 
 ## 8. 로컬 상태 & 캐싱 전략

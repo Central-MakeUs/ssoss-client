@@ -30,7 +30,7 @@ sealed class LoginState with _$LoginState {
   /// 회원 탈퇴 API 성공 — 완료 화면.
   const factory LoginState.withdrawComplete() = LoginWithdrawComplete;
 
-  /// 로그인 후 화면에서 refresh 실패. 모달 표시 전까지 라우트 유지.
+  /// 로그인 후 화면에서 refresh 실패.
   const factory LoginState.sessionExpired() = LoginSessionExpired;
 
   const factory LoginState.unauthenticated() = LoginUnauthenticated;

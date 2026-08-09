@@ -2,4 +2,5 @@
 abstract final class AuthRequestExtra {
   static const skipAuth = 'skip_auth';
   static const authRetried = 'auth_retried';
+  static const skipNetworkToast = 'skip_network_toast';
 }

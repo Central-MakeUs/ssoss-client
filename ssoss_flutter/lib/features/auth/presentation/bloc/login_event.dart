@@ -14,7 +14,7 @@ sealed class LoginEvent with _$LoginEvent {
   const factory LoginEvent.sessionRestoreRequested() = SessionRestoreRequested;
   const factory LoginEvent.logoutRequested() = LogoutRequested;
 
-  /// access invalid + refresh 실패. 로그인 후 화면에서 모달 표시용.
+  /// access invalid + refresh 인증 실패. 즉시 로그인 화면으로 보낸다.
   const factory LoginEvent.sessionExpired() = SessionExpired;
 
   /// 세션 만료 모달 확인 — 로그인 화면으로 이동.

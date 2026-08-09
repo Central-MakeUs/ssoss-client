@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/core/network/auth_request_extra.dart';
+import 'package:ssoss_flutter/core/network/error_ui_suppressor.dart';
 import 'package:ssoss_flutter/core/network/session_expired_notifier.dart';
 import 'package:ssoss_flutter/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:ssoss_flutter/features/auth/data/datasources/auth_remote_datasource.dart';
@@ -72,7 +73,7 @@ class AuthInterceptor extends QueuedInterceptor {
       final refreshToken = cache?.token.refreshToken;
       if (refreshToken == null || refreshToken.isEmpty) {
         await _expireSession();
-        handler.next(err);
+        handler.reject(_cancelledAfterSessionExpire(err));
         return;
       }
 
@@ -87,14 +88,15 @@ class AuthInterceptor extends QueuedInterceptor {
       handler.resolve(response);
     } on AuthException catch (_) {
       await _expireSession();
-      handler.next(err);
+      handler.reject(_cancelledAfterSessionExpire(err));
+    } on NetworkException {
+      handler.reject(_networkErrorAfterRefresh(err));
     } catch (e) {
       // 401 재시도 중 CancelToken 이 끊기면 로그아웃하지 않는다.
       if (_isCancelled(e) || _isCancelled(err)) {
         handler.next(err);
         return;
       }
-      await _expireSession();
       handler.next(err);
     }
   }
@@ -108,7 +110,25 @@ class AuthInterceptor extends QueuedInterceptor {
   }
 
   Future<void> _expireSession() async {
+    ErrorUiSuppressor.suppressToasts = true;
     await _local.clear();
     _sessionExpiredNotifier.notify();
+  }
+
+  DioException _cancelledAfterSessionExpire(DioException err) {
+    return DioException(
+      requestOptions: err.requestOptions,
+      type: DioExceptionType.cancel,
+      error: const CancelledException(),
+    );
+  }
+
+  DioException _networkErrorAfterRefresh(DioException err) {
+    err.requestOptions.extra[AuthRequestExtra.skipNetworkToast] = true;
+    return DioException(
+      requestOptions: err.requestOptions,
+      type: DioExceptionType.connectionError,
+      error: const NetworkException(),
+    );
   }
 }

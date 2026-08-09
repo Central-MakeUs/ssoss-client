@@ -6,7 +6,11 @@ class SessionExpiredNotifier {
 
   Stream<void> get stream => _controller.stream;
 
+  /// 로그인 후 화면에서 세션 만료 토스트를 띄울 때 사용한다.
+  void Function()? onSessionExpiredUi;
+
   void notify() {
+    onSessionExpiredUi?.call();
     if (!_controller.isClosed) {
       _controller.add(null);
     }

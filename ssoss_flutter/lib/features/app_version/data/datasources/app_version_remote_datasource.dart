@@ -29,7 +29,10 @@ class AppVersionRemoteDatasourceImpl implements AppVersionRemoteDatasource {
         '$_pathPrefix/$os',
         queryParameters: <String, dynamic>{'version': version},
         options: Options(
-          extra: const {AuthRequestExtra.skipAuth: true},
+          extra: const {
+            AuthRequestExtra.skipAuth: true,
+            AuthRequestExtra.skipNetworkToast: true,
+          },
         ),
       );
       return AppVersionResponseModel.fromJson(response.data!);

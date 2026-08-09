@@ -49,11 +49,12 @@
 
 ## Phase 3 — Presentation 레이어
 
-- [x] **3-1** `AppVersionCubit` + state (`checking` / `updateRequired` / `allowed`)
+- [x] **3-1** `AppVersionCubit` + state (`checking` / `updateRequired` / `allowed` / `networkUnavailable`)
 - [x] **3-2** `AppVersionProviders`
 - [x] **3-3** `SsossModal`에 `showCloseButton` 추가
 - [x] **3-4** `AppUrls` 스토어 URL 추가
 - [x] **3-5** `SsossAppScope` / `SsossApp` 부트스트랩 연동
+- [x] **3-6** 네트워크 오류 재시도 모달 (`SsossApp`) — 닫은 뒤 `check()` 재호출, 실패 시 재표시
 
 ---
 
