@@ -14,7 +14,13 @@ import 'package:ssoss_flutter/features/hashtag/presentation/cubit/bookmarked_has
 import 'package:ssoss_flutter/features/hashtag/presentation/cubit/bookmarked_hashtag_bundles_state.dart';
 import 'package:ssoss_flutter/features/my_page/presentation/pages/saved_content_sources/saved_content_sources_components.dart';
 import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source_components.dart';
+import 'package:ssoss_flutter/features/template/domain/entities/recommended_template.dart';
+import 'package:ssoss_flutter/features/template/domain/usecases/list_bookmarked_templates_usecase.dart';
+import 'package:ssoss_flutter/features/template/domain/usecases/unbookmark_template_usecase.dart';
+import 'package:ssoss_flutter/features/template/presentation/cubit/bookmarked_templates_cubit.dart';
+import 'package:ssoss_flutter/features/template/presentation/cubit/bookmarked_templates_state.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_detail/template_detail_page.dart';
+import 'package:ssoss_flutter/features/template/presentation/util/template_label_mapper.dart';
 import 'package:ssoss_flutter/features/template/presentation/widgets/template_models.dart';
 
 class SavedContentSourcesPage extends StatelessWidget {
@@ -25,12 +31,28 @@ class SavedContentSourcesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => BookmarkedHashtagBundlesCubit(
-        listBookmarkedHashtagBundles:
-            context.read<ListBookmarkedHashtagBundlesUseCase>(),
-        unbookmarkHashtagBundle: context.read<UnbookmarkHashtagBundleUseCase>(),
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) {
+            final cubit = BookmarkedTemplatesCubit(
+              listBookmarkedTemplates:
+                  context.read<ListBookmarkedTemplatesUseCase>(),
+              unbookmarkTemplate: context.read<UnbookmarkTemplateUseCase>(),
+            );
+            unawaited(cubit.load());
+            return cubit;
+          },
+        ),
+        BlocProvider(
+          create: (context) => BookmarkedHashtagBundlesCubit(
+            listBookmarkedHashtagBundles:
+                context.read<ListBookmarkedHashtagBundlesUseCase>(),
+            unbookmarkHashtagBundle:
+                context.read<UnbookmarkHashtagBundleUseCase>(),
+          ),
+        ),
+      ],
       child: const _SavedContentSourcesView(),
     );
   }
@@ -50,26 +72,12 @@ class _SavedContentSourcesViewState extends State<_SavedContentSourcesView> {
     SsossTabItem(label: '해시태그'),
   ];
 
-  /// TODO: 템플릿 북마크 API 연동 시 제거
-  static const List<TemplateItem> _dummyTemplates = [
-    TemplateItem(
-      id: 1,
-      category: TemplateCategory.newMenu,
-      title: '신메뉴 출시 안내',
-      description: '새로 나온 메뉴의 특징과 매력을 소개하는 글',
-      channels: ['당근', '인스타그램', '스레드'],
-      isSaved: true,
-    ),
-  ];
-
   late final PageController _pageController;
-  late List<TemplateItem> _templateItems;
   int _selectedTabIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _templateItems = List.of(_dummyTemplates);
     _pageController = PageController(initialPage: _selectedTabIndex);
   }
 
@@ -118,22 +126,35 @@ class _SavedContentSourcesViewState extends State<_SavedContentSourcesView> {
     );
   }
 
-  void _unbookmarkTemplate(int itemId) {
-    final hadItem = _templateItems.any((item) => item.id == itemId);
-    if (!hadItem) {
+  TemplateItem _toTemplateItem(RecommendedTemplate template) {
+    return TemplateItem(
+      id: template.id,
+      category: TemplateLabelMapper.category(template.category),
+      title: template.title,
+      description: template.description,
+      channels: TemplateLabelMapper.channels(template.recommendedChannels),
+      isSaved: true,
+    );
+  }
+
+  Future<void> _unbookmarkTemplate(int itemId) async {
+    final success =
+        await context.read<BookmarkedTemplatesCubit>().unbookmark(itemId);
+    if (!mounted) {
       return;
     }
-    setState(() {
-      _templateItems = [
-        for (final item in _templateItems)
-          if (item.id != itemId) item,
-      ];
-    });
-    // TODO: 템플릿 북마크 해제 API 연동
+    if (success) {
+      showSsossToast(
+        context,
+        title: '북마크가 해제되었습니다',
+        type: SsossToastType.info,
+      );
+      return;
+    }
     showSsossToast(
       context,
-      title: '북마크가 해제되었습니다',
-      type: SsossToastType.info,
+      title: '북마크 해제에 실패했습니다',
+      type: SsossToastType.error,
     );
   }
 
@@ -198,10 +219,23 @@ class _SavedContentSourcesViewState extends State<_SavedContentSourcesView> {
                 itemBuilder: (context, index) {
                   switch (index) {
                     case 0:
-                      return SavedContentSourcesTemplateList(
-                        items: _templateItems,
-                        onSaveTap: _unbookmarkTemplate,
-                        onItemTap: _openTemplateDetail,
+                      return BlocBuilder<BookmarkedTemplatesCubit,
+                          BookmarkedTemplatesState>(
+                        builder: (context, state) {
+                          return SavedContentSourcesTemplateList(
+                            items: state.items
+                                .map(_toTemplateItem)
+                                .toList(growable: false),
+                            isLoading: state.isLoading,
+                            errorMessage: state.errorMessage,
+                            onRetry: () => unawaited(
+                              context.read<BookmarkedTemplatesCubit>().load(),
+                            ),
+                            onSaveTap: (itemId) =>
+                                unawaited(_unbookmarkTemplate(itemId)),
+                            onItemTap: _openTemplateDetail,
+                          );
+                        },
                       );
                     case 1:
                       return BlocBuilder<BookmarkedHashtagBundlesCubit,

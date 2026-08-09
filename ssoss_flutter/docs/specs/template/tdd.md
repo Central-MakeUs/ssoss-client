@@ -16,7 +16,7 @@
 
 ## 1. 기능 요약
 
-기존 `template` 피처에 추천 템플릿 목록·상세·적용·저장 data/domain을 두고, 추천 콘텐츠 소스 템플릿 탭과 상세·적용 화면에 Cubit을 연결한다. 생성 관리 템플릿 탭에서 저장한 글 목록·상세·본문 편집·제목 수정·삭제를 조회·변경한다. 북마크 변경 API는 하지 않는다.
+기존 `template` 피처에 추천 템플릿 목록·상세·적용·저장 data/domain을 두고, 추천 콘텐츠 소스 템플릿 탭과 상세·적용 화면에 Cubit을 연결한다. 생성 관리 템플릿 탭에서 저장한 글 목록·상세·본문 편집·제목 수정·삭제를 조회·변경한다. 카탈로그·상세에서 북마크 PUT/DELETE를 낙관적으로 토글한다.
 
 **피처 경로**: `lib/features/template/` (data/domain/catalog cubit), 저장 내역 Cubit·UI는 `lib/features/dashboard/`, 카탈로그 목록 UI는 `lib/features/recommend_source/`
 
@@ -28,7 +28,9 @@
 [템플릿 탭 진입] → TemplateCatalogCubit.loadInitial(category)
 [분류 칩] → Cubit.selectCategory → page=0 재조회
 [하단 스크롤] → Cubit.loadMore
+[북마크 아이콘] → Cubit.toggleBookmark → PUT/DELETE /v1/members/me/templates/{id}
 [카드 탭] → TemplateDetailCubit.load(templateId)
+[상세 북마크] → TemplateDetailCubit.toggleBookmark → 동일 PUT/DELETE
 [적용하기] → GetAppliedTemplate → TemplateApplyArgs
 [저장하기] → SaveTemplateUseCase → 완료 페이지
 [생성 관리 템플릿 탭] → SavedTemplateManagementCubit.loadInitial
@@ -140,6 +142,9 @@ class SavedTemplateDetail {
 - `editSavedTemplate({required int savedTemplateId, required String body})` → `SavedTemplateDetail`
 - `renameSavedTemplate({required int savedTemplateId, required String title})` → `SavedTemplateDetail`
 - `deleteSavedTemplate(int savedTemplateId)` → `void`
+- `bookmarkTemplate(int templateId)` → `void`
+- `unbookmarkTemplate(int templateId)` → `void`
+- `listBookmarkedTemplates()` → `List<RecommendedTemplate>`
 
 ### 3.3 Use Cases
 
@@ -152,6 +157,9 @@ class SavedTemplateDetail {
 - `EditSavedTemplateUseCase`
 - `RenameSavedTemplateUseCase`
 - `DeleteSavedTemplateUseCase`
+- `BookmarkTemplateUseCase`
+- `UnbookmarkTemplateUseCase`
+- `ListBookmarkedTemplatesUseCase`
 
 ---
 
@@ -167,6 +175,7 @@ class SavedTemplateDetail {
 - `SavedTemplateDetailResponseModel`
 - `SavedTemplateEditRequest` `{ body }`
 - `SavedTemplateRenameRequest` `{ title }`
+- `BookmarkedTemplateListResponseModel` `{ templates }` — 항목에 `bookmarked` 없음. `toEntity()` 시 `bookmarked: true`
 
 freezed + json_serializable + `toEntity()`.
 
@@ -181,6 +190,9 @@ freezed + json_serializable + `toEntity()`.
 - `PUT /v1/saved-templates/{savedTemplateId}` — `{ body }`
 - `PUT /v1/saved-templates/{savedTemplateId}/title` — `{ title }`
 - `DELETE /v1/saved-templates/{savedTemplateId}` — 204
+- `PUT /v1/members/me/templates/{templateId}` — 204
+- `DELETE /v1/members/me/templates/{templateId}` — 204
+- `GET /v1/members/me/templates` — `{ templates }` 페이징 없음
 
 ### 4.3 Repository 구현체
 
@@ -198,7 +210,8 @@ freezed + json_serializable + `toEntity()`.
 | pageSize | 20 | API 기본값 |
 | 전체 탭 | category 쿼리 생략 | API 계약 |
 | 템플릿 검색 | 무시 | API keyword 없음. 해시태그 탭만 검색 |
-| 북마크 탭 | no-op | 저장/해제 API 추후 |
+| 북마크 토글 | 낙관적 아이콘 + 실패 복원 | 해시태그 카탈로그와 동일 |
+| 북마크 목록 Cubit | `BookmarkedTemplatesCubit` | 마이페이지 저장 소스 템플릿 탭 |
 | 채널 배지 | template presentation 매퍼 | content 피처 비의존 |
 | 적용하기 | 상세 CTA에서 API 후 이동 | ADR-005 버튼 로딩 |
 | 적용 본문 | `SsossTemplateDocument.fromTemplate` | ADR-004 |
@@ -218,6 +231,7 @@ freezed + json_serializable + `toEntity()`.
 | `TemplateCatalogCubit` | `template/presentation/cubit/` |
 | `TemplateDetailCubit` | 동일 |
 | `TemplateApplyCubit` | 동일 |
+| `BookmarkedTemplatesCubit` | 동일 |
 | `SavedTemplateManagementCubit` | `dashboard/presentation/cubit/` |
 | `SavedTemplateDetailCubit` | 동일 |
 
@@ -251,6 +265,9 @@ freezed + json_serializable + `toEntity()`.
 | PUT | `/v1/saved-templates/{savedTemplateId}` | 본문 편집 | Y |
 | PUT | `/v1/saved-templates/{savedTemplateId}/title` | 제목 수정 | Y |
 | DELETE | `/v1/saved-templates/{savedTemplateId}` | 삭제 | Y |
+| PUT | `/v1/members/me/templates/{templateId}` | 북마크 저장 | Y |
+| DELETE | `/v1/members/me/templates/{templateId}` | 북마크 해제 | Y |
+| GET | `/v1/members/me/templates` | 내 북마크 목록 | Y |
 
 **저장 Request**
 
@@ -281,6 +298,7 @@ freezed + json_serializable + `toEntity()`.
 | 저장 내역 목록 오류 | Cubit `errorMessage` + 토스트 |
 | 저장 상세 오류 | Cubit `errorMessage` + 다시 시도 |
 | 본문·제목 수정/삭제 실패 | `AppException.message` 토스트, 모달·화면 유지 |
+| 북마크 토글 실패 | 이전 상태 복원 + error 토스트 「북마크 변경에 실패했습니다」 |
 | 401/403 | 기존 Dio 인터셉터 |
 
 ---

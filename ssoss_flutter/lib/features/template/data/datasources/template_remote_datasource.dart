@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import 'package:ssoss_flutter/features/template/data/models/applied_template_response_model.dart';
+import 'package:ssoss_flutter/features/template/data/models/bookmarked_template_list_response_model.dart';
 import 'package:ssoss_flutter/features/template/data/models/recommended_template_detail_response_model.dart';
 import 'package:ssoss_flutter/features/template/data/models/recommended_template_list_response_model.dart';
 import 'package:ssoss_flutter/features/template/data/models/saved_template_detail_response_model.dart';
@@ -59,6 +60,20 @@ abstract class TemplateRemoteDatasource {
 
   Future<void> deleteSavedTemplate(
     int savedTemplateId, {
+    CancelToken? cancelToken,
+  });
+
+  Future<void> bookmarkTemplate(
+    int templateId, {
+    CancelToken? cancelToken,
+  });
+
+  Future<void> unbookmarkTemplate(
+    int templateId, {
+    CancelToken? cancelToken,
+  });
+
+  Future<BookmarkedTemplateListResponseModel> listBookmarkedTemplates({
     CancelToken? cancelToken,
   });
 }

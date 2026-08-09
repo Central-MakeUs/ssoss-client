@@ -16,4 +16,15 @@ class RecommendedTemplate {
   final String description;
   final List<String> recommendedChannels;
   final bool bookmarked;
+
+  RecommendedTemplate copyWith({bool? bookmarked}) {
+    return RecommendedTemplate(
+      id: id,
+      category: category,
+      title: title,
+      description: description,
+      recommendedChannels: recommendedChannels,
+      bookmarked: bookmarked ?? this.bookmarked,
+    );
+  }
 }

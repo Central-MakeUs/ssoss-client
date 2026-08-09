@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'template_catalog_state.dart';
+part of 'bookmarked_templates_state.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,43 +13,33 @@ part of 'template_catalog_state.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$TemplateCatalogState {
+mixin _$BookmarkedTemplatesState {
   List<RecommendedTemplate> get items;
-  RecommendedTemplateCategory? get category;
-  int get page;
-  bool get hasNext;
   bool get hasLoaded;
   bool get isLoading;
-  bool get isLoadingMore;
-  Set<int> get pendingBookmarkIds;
+  Set<int> get pendingUnbookmarkIds;
   String? get errorMessage;
 
-  /// Create a copy of TemplateCatalogState
+  /// Create a copy of BookmarkedTemplatesState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $TemplateCatalogStateCopyWith<TemplateCatalogState> get copyWith =>
-      _$TemplateCatalogStateCopyWithImpl<TemplateCatalogState>(
-          this as TemplateCatalogState, _$identity);
+  $BookmarkedTemplatesStateCopyWith<BookmarkedTemplatesState> get copyWith =>
+      _$BookmarkedTemplatesStateCopyWithImpl<BookmarkedTemplatesState>(
+          this as BookmarkedTemplatesState, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is TemplateCatalogState &&
+            other is BookmarkedTemplatesState &&
             const DeepCollectionEquality().equals(other.items, items) &&
-            (identical(other.category, category) ||
-                other.category == category) &&
-            (identical(other.page, page) || other.page == page) &&
-            (identical(other.hasNext, hasNext) || other.hasNext == hasNext) &&
             (identical(other.hasLoaded, hasLoaded) ||
                 other.hasLoaded == hasLoaded) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
-            (identical(other.isLoadingMore, isLoadingMore) ||
-                other.isLoadingMore == isLoadingMore) &&
             const DeepCollectionEquality()
-                .equals(other.pendingBookmarkIds, pendingBookmarkIds) &&
+                .equals(other.pendingUnbookmarkIds, pendingUnbookmarkIds) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
@@ -58,60 +48,48 @@ mixin _$TemplateCatalogState {
   int get hashCode => Object.hash(
       runtimeType,
       const DeepCollectionEquality().hash(items),
-      category,
-      page,
-      hasNext,
       hasLoaded,
       isLoading,
-      isLoadingMore,
-      const DeepCollectionEquality().hash(pendingBookmarkIds),
+      const DeepCollectionEquality().hash(pendingUnbookmarkIds),
       errorMessage);
 
   @override
   String toString() {
-    return 'TemplateCatalogState(items: $items, category: $category, page: $page, hasNext: $hasNext, hasLoaded: $hasLoaded, isLoading: $isLoading, isLoadingMore: $isLoadingMore, pendingBookmarkIds: $pendingBookmarkIds, errorMessage: $errorMessage)';
+    return 'BookmarkedTemplatesState(items: $items, hasLoaded: $hasLoaded, isLoading: $isLoading, pendingUnbookmarkIds: $pendingUnbookmarkIds, errorMessage: $errorMessage)';
   }
 }
 
 /// @nodoc
-abstract mixin class $TemplateCatalogStateCopyWith<$Res> {
-  factory $TemplateCatalogStateCopyWith(TemplateCatalogState value,
-          $Res Function(TemplateCatalogState) _then) =
-      _$TemplateCatalogStateCopyWithImpl;
+abstract mixin class $BookmarkedTemplatesStateCopyWith<$Res> {
+  factory $BookmarkedTemplatesStateCopyWith(BookmarkedTemplatesState value,
+          $Res Function(BookmarkedTemplatesState) _then) =
+      _$BookmarkedTemplatesStateCopyWithImpl;
   @useResult
   $Res call(
       {List<RecommendedTemplate> items,
-      RecommendedTemplateCategory? category,
-      int page,
-      bool hasNext,
       bool hasLoaded,
       bool isLoading,
-      bool isLoadingMore,
-      Set<int> pendingBookmarkIds,
+      Set<int> pendingUnbookmarkIds,
       String? errorMessage});
 }
 
 /// @nodoc
-class _$TemplateCatalogStateCopyWithImpl<$Res>
-    implements $TemplateCatalogStateCopyWith<$Res> {
-  _$TemplateCatalogStateCopyWithImpl(this._self, this._then);
+class _$BookmarkedTemplatesStateCopyWithImpl<$Res>
+    implements $BookmarkedTemplatesStateCopyWith<$Res> {
+  _$BookmarkedTemplatesStateCopyWithImpl(this._self, this._then);
 
-  final TemplateCatalogState _self;
-  final $Res Function(TemplateCatalogState) _then;
+  final BookmarkedTemplatesState _self;
+  final $Res Function(BookmarkedTemplatesState) _then;
 
-  /// Create a copy of TemplateCatalogState
+  /// Create a copy of BookmarkedTemplatesState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? items = null,
-    Object? category = freezed,
-    Object? page = null,
-    Object? hasNext = null,
     Object? hasLoaded = null,
     Object? isLoading = null,
-    Object? isLoadingMore = null,
-    Object? pendingBookmarkIds = null,
+    Object? pendingUnbookmarkIds = null,
     Object? errorMessage = freezed,
   }) {
     return _then(_self.copyWith(
@@ -119,18 +97,6 @@ class _$TemplateCatalogStateCopyWithImpl<$Res>
           ? _self.items
           : items // ignore: cast_nullable_to_non_nullable
               as List<RecommendedTemplate>,
-      category: freezed == category
-          ? _self.category
-          : category // ignore: cast_nullable_to_non_nullable
-              as RecommendedTemplateCategory?,
-      page: null == page
-          ? _self.page
-          : page // ignore: cast_nullable_to_non_nullable
-              as int,
-      hasNext: null == hasNext
-          ? _self.hasNext
-          : hasNext // ignore: cast_nullable_to_non_nullable
-              as bool,
       hasLoaded: null == hasLoaded
           ? _self.hasLoaded
           : hasLoaded // ignore: cast_nullable_to_non_nullable
@@ -139,13 +105,9 @@ class _$TemplateCatalogStateCopyWithImpl<$Res>
           ? _self.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
-      isLoadingMore: null == isLoadingMore
-          ? _self.isLoadingMore
-          : isLoadingMore // ignore: cast_nullable_to_non_nullable
-              as bool,
-      pendingBookmarkIds: null == pendingBookmarkIds
-          ? _self.pendingBookmarkIds
-          : pendingBookmarkIds // ignore: cast_nullable_to_non_nullable
+      pendingUnbookmarkIds: null == pendingUnbookmarkIds
+          ? _self.pendingUnbookmarkIds
+          : pendingUnbookmarkIds // ignore: cast_nullable_to_non_nullable
               as Set<int>,
       errorMessage: freezed == errorMessage
           ? _self.errorMessage
@@ -155,8 +117,8 @@ class _$TemplateCatalogStateCopyWithImpl<$Res>
   }
 }
 
-/// Adds pattern-matching-related methods to [TemplateCatalogState].
-extension TemplateCatalogStatePatterns on TemplateCatalogState {
+/// Adds pattern-matching-related methods to [BookmarkedTemplatesState].
+extension BookmarkedTemplatesStatePatterns on BookmarkedTemplatesState {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
@@ -171,12 +133,12 @@ extension TemplateCatalogStatePatterns on TemplateCatalogState {
 
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>(
-    TResult Function(_TemplateCatalogState value)? $default, {
+    TResult Function(_BookmarkedTemplatesState value)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _TemplateCatalogState() when $default != null:
+      case _BookmarkedTemplatesState() when $default != null:
         return $default(_that);
       case _:
         return orElse();
@@ -198,11 +160,11 @@ extension TemplateCatalogStatePatterns on TemplateCatalogState {
 
   @optionalTypeArgs
   TResult map<TResult extends Object?>(
-    TResult Function(_TemplateCatalogState value) $default,
+    TResult Function(_BookmarkedTemplatesState value) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _TemplateCatalogState():
+      case _BookmarkedTemplatesState():
         return $default(_that);
       case _:
         throw StateError('Unexpected subclass');
@@ -223,11 +185,11 @@ extension TemplateCatalogStatePatterns on TemplateCatalogState {
 
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_TemplateCatalogState value)? $default,
+    TResult? Function(_BookmarkedTemplatesState value)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _TemplateCatalogState() when $default != null:
+      case _BookmarkedTemplatesState() when $default != null:
         return $default(_that);
       case _:
         return null;
@@ -250,30 +212,18 @@ extension TemplateCatalogStatePatterns on TemplateCatalogState {
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(
             List<RecommendedTemplate> items,
-            RecommendedTemplateCategory? category,
-            int page,
-            bool hasNext,
             bool hasLoaded,
             bool isLoading,
-            bool isLoadingMore,
-            Set<int> pendingBookmarkIds,
+            Set<int> pendingUnbookmarkIds,
             String? errorMessage)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _TemplateCatalogState() when $default != null:
-        return $default(
-            _that.items,
-            _that.category,
-            _that.page,
-            _that.hasNext,
-            _that.hasLoaded,
-            _that.isLoading,
-            _that.isLoadingMore,
-            _that.pendingBookmarkIds,
-            _that.errorMessage);
+      case _BookmarkedTemplatesState() when $default != null:
+        return $default(_that.items, _that.hasLoaded, _that.isLoading,
+            _that.pendingUnbookmarkIds, _that.errorMessage);
       case _:
         return orElse();
     }
@@ -294,31 +244,15 @@ extension TemplateCatalogStatePatterns on TemplateCatalogState {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(
-            List<RecommendedTemplate> items,
-            RecommendedTemplateCategory? category,
-            int page,
-            bool hasNext,
-            bool hasLoaded,
-            bool isLoading,
-            bool isLoadingMore,
-            Set<int> pendingBookmarkIds,
-            String? errorMessage)
+    TResult Function(List<RecommendedTemplate> items, bool hasLoaded,
+            bool isLoading, Set<int> pendingUnbookmarkIds, String? errorMessage)
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _TemplateCatalogState():
-        return $default(
-            _that.items,
-            _that.category,
-            _that.page,
-            _that.hasNext,
-            _that.hasLoaded,
-            _that.isLoading,
-            _that.isLoadingMore,
-            _that.pendingBookmarkIds,
-            _that.errorMessage);
+      case _BookmarkedTemplatesState():
+        return $default(_that.items, _that.hasLoaded, _that.isLoading,
+            _that.pendingUnbookmarkIds, _that.errorMessage);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -340,29 +274,17 @@ extension TemplateCatalogStatePatterns on TemplateCatalogState {
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(
             List<RecommendedTemplate> items,
-            RecommendedTemplateCategory? category,
-            int page,
-            bool hasNext,
             bool hasLoaded,
             bool isLoading,
-            bool isLoadingMore,
-            Set<int> pendingBookmarkIds,
+            Set<int> pendingUnbookmarkIds,
             String? errorMessage)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _TemplateCatalogState() when $default != null:
-        return $default(
-            _that.items,
-            _that.category,
-            _that.page,
-            _that.hasNext,
-            _that.hasLoaded,
-            _that.isLoading,
-            _that.isLoadingMore,
-            _that.pendingBookmarkIds,
-            _that.errorMessage);
+      case _BookmarkedTemplatesState() when $default != null:
+        return $default(_that.items, _that.hasLoaded, _that.isLoading,
+            _that.pendingUnbookmarkIds, _that.errorMessage);
       case _:
         return null;
     }
@@ -371,19 +293,15 @@ extension TemplateCatalogStatePatterns on TemplateCatalogState {
 
 /// @nodoc
 
-class _TemplateCatalogState implements TemplateCatalogState {
-  const _TemplateCatalogState(
+class _BookmarkedTemplatesState implements BookmarkedTemplatesState {
+  const _BookmarkedTemplatesState(
       {final List<RecommendedTemplate> items = const <RecommendedTemplate>[],
-      this.category,
-      this.page = 0,
-      this.hasNext = false,
       this.hasLoaded = false,
       this.isLoading = false,
-      this.isLoadingMore = false,
-      final Set<int> pendingBookmarkIds = const <int>{},
+      final Set<int> pendingUnbookmarkIds = const <int>{},
       this.errorMessage})
       : _items = items,
-        _pendingBookmarkIds = pendingBookmarkIds;
+        _pendingUnbookmarkIds = pendingUnbookmarkIds;
 
   final List<RecommendedTemplate> _items;
   @override
@@ -395,62 +313,45 @@ class _TemplateCatalogState implements TemplateCatalogState {
   }
 
   @override
-  final RecommendedTemplateCategory? category;
-  @override
-  @JsonKey()
-  final int page;
-  @override
-  @JsonKey()
-  final bool hasNext;
-  @override
   @JsonKey()
   final bool hasLoaded;
   @override
   @JsonKey()
   final bool isLoading;
+  final Set<int> _pendingUnbookmarkIds;
   @override
   @JsonKey()
-  final bool isLoadingMore;
-  final Set<int> _pendingBookmarkIds;
-  @override
-  @JsonKey()
-  Set<int> get pendingBookmarkIds {
-    if (_pendingBookmarkIds is EqualUnmodifiableSetView)
-      return _pendingBookmarkIds;
+  Set<int> get pendingUnbookmarkIds {
+    if (_pendingUnbookmarkIds is EqualUnmodifiableSetView)
+      return _pendingUnbookmarkIds;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableSetView(_pendingBookmarkIds);
+    return EqualUnmodifiableSetView(_pendingUnbookmarkIds);
   }
 
   @override
   final String? errorMessage;
 
-  /// Create a copy of TemplateCatalogState
+  /// Create a copy of BookmarkedTemplatesState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$TemplateCatalogStateCopyWith<_TemplateCatalogState> get copyWith =>
-      __$TemplateCatalogStateCopyWithImpl<_TemplateCatalogState>(
+  _$BookmarkedTemplatesStateCopyWith<_BookmarkedTemplatesState> get copyWith =>
+      __$BookmarkedTemplatesStateCopyWithImpl<_BookmarkedTemplatesState>(
           this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _TemplateCatalogState &&
+            other is _BookmarkedTemplatesState &&
             const DeepCollectionEquality().equals(other._items, _items) &&
-            (identical(other.category, category) ||
-                other.category == category) &&
-            (identical(other.page, page) || other.page == page) &&
-            (identical(other.hasNext, hasNext) || other.hasNext == hasNext) &&
             (identical(other.hasLoaded, hasLoaded) ||
                 other.hasLoaded == hasLoaded) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
-            (identical(other.isLoadingMore, isLoadingMore) ||
-                other.isLoadingMore == isLoadingMore) &&
             const DeepCollectionEquality()
-                .equals(other._pendingBookmarkIds, _pendingBookmarkIds) &&
+                .equals(other._pendingUnbookmarkIds, _pendingUnbookmarkIds) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
@@ -459,81 +360,57 @@ class _TemplateCatalogState implements TemplateCatalogState {
   int get hashCode => Object.hash(
       runtimeType,
       const DeepCollectionEquality().hash(_items),
-      category,
-      page,
-      hasNext,
       hasLoaded,
       isLoading,
-      isLoadingMore,
-      const DeepCollectionEquality().hash(_pendingBookmarkIds),
+      const DeepCollectionEquality().hash(_pendingUnbookmarkIds),
       errorMessage);
 
   @override
   String toString() {
-    return 'TemplateCatalogState(items: $items, category: $category, page: $page, hasNext: $hasNext, hasLoaded: $hasLoaded, isLoading: $isLoading, isLoadingMore: $isLoadingMore, pendingBookmarkIds: $pendingBookmarkIds, errorMessage: $errorMessage)';
+    return 'BookmarkedTemplatesState(items: $items, hasLoaded: $hasLoaded, isLoading: $isLoading, pendingUnbookmarkIds: $pendingUnbookmarkIds, errorMessage: $errorMessage)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$TemplateCatalogStateCopyWith<$Res>
-    implements $TemplateCatalogStateCopyWith<$Res> {
-  factory _$TemplateCatalogStateCopyWith(_TemplateCatalogState value,
-          $Res Function(_TemplateCatalogState) _then) =
-      __$TemplateCatalogStateCopyWithImpl;
+abstract mixin class _$BookmarkedTemplatesStateCopyWith<$Res>
+    implements $BookmarkedTemplatesStateCopyWith<$Res> {
+  factory _$BookmarkedTemplatesStateCopyWith(_BookmarkedTemplatesState value,
+          $Res Function(_BookmarkedTemplatesState) _then) =
+      __$BookmarkedTemplatesStateCopyWithImpl;
   @override
   @useResult
   $Res call(
       {List<RecommendedTemplate> items,
-      RecommendedTemplateCategory? category,
-      int page,
-      bool hasNext,
       bool hasLoaded,
       bool isLoading,
-      bool isLoadingMore,
-      Set<int> pendingBookmarkIds,
+      Set<int> pendingUnbookmarkIds,
       String? errorMessage});
 }
 
 /// @nodoc
-class __$TemplateCatalogStateCopyWithImpl<$Res>
-    implements _$TemplateCatalogStateCopyWith<$Res> {
-  __$TemplateCatalogStateCopyWithImpl(this._self, this._then);
+class __$BookmarkedTemplatesStateCopyWithImpl<$Res>
+    implements _$BookmarkedTemplatesStateCopyWith<$Res> {
+  __$BookmarkedTemplatesStateCopyWithImpl(this._self, this._then);
 
-  final _TemplateCatalogState _self;
-  final $Res Function(_TemplateCatalogState) _then;
+  final _BookmarkedTemplatesState _self;
+  final $Res Function(_BookmarkedTemplatesState) _then;
 
-  /// Create a copy of TemplateCatalogState
+  /// Create a copy of BookmarkedTemplatesState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $Res call({
     Object? items = null,
-    Object? category = freezed,
-    Object? page = null,
-    Object? hasNext = null,
     Object? hasLoaded = null,
     Object? isLoading = null,
-    Object? isLoadingMore = null,
-    Object? pendingBookmarkIds = null,
+    Object? pendingUnbookmarkIds = null,
     Object? errorMessage = freezed,
   }) {
-    return _then(_TemplateCatalogState(
+    return _then(_BookmarkedTemplatesState(
       items: null == items
           ? _self._items
           : items // ignore: cast_nullable_to_non_nullable
               as List<RecommendedTemplate>,
-      category: freezed == category
-          ? _self.category
-          : category // ignore: cast_nullable_to_non_nullable
-              as RecommendedTemplateCategory?,
-      page: null == page
-          ? _self.page
-          : page // ignore: cast_nullable_to_non_nullable
-              as int,
-      hasNext: null == hasNext
-          ? _self.hasNext
-          : hasNext // ignore: cast_nullable_to_non_nullable
-              as bool,
       hasLoaded: null == hasLoaded
           ? _self.hasLoaded
           : hasLoaded // ignore: cast_nullable_to_non_nullable
@@ -542,13 +419,9 @@ class __$TemplateCatalogStateCopyWithImpl<$Res>
           ? _self.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
-      isLoadingMore: null == isLoadingMore
-          ? _self.isLoadingMore
-          : isLoadingMore // ignore: cast_nullable_to_non_nullable
-              as bool,
-      pendingBookmarkIds: null == pendingBookmarkIds
-          ? _self._pendingBookmarkIds
-          : pendingBookmarkIds // ignore: cast_nullable_to_non_nullable
+      pendingUnbookmarkIds: null == pendingUnbookmarkIds
+          ? _self._pendingUnbookmarkIds
+          : pendingUnbookmarkIds // ignore: cast_nullable_to_non_nullable
               as Set<int>,
       errorMessage: freezed == errorMessage
           ? _self.errorMessage

@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:ssoss_flutter/core/network/dio_error_mapper.dart';
 import 'package:ssoss_flutter/features/template/data/datasources/template_remote_datasource.dart';
 import 'package:ssoss_flutter/features/template/data/models/applied_template_response_model.dart';
+import 'package:ssoss_flutter/features/template/data/models/bookmarked_template_list_response_model.dart';
 import 'package:ssoss_flutter/features/template/data/models/recommended_template_detail_response_model.dart';
 import 'package:ssoss_flutter/features/template/data/models/recommended_template_list_response_model.dart';
 import 'package:ssoss_flutter/features/template/data/models/saved_template_detail_response_model.dart';
@@ -19,6 +20,7 @@ class TemplateRemoteDatasourceImpl implements TemplateRemoteDatasource {
 
   static const _templatesPath = '/v1/templates';
   static const _savedTemplatesPath = '/v1/saved-templates';
+  static const _memberTemplatesPath = '/v1/members/me/templates';
 
   @override
   Future<RecommendedTemplateListResponseModel> listTemplates({
@@ -177,6 +179,51 @@ class TemplateRemoteDatasourceImpl implements TemplateRemoteDatasource {
         '$_savedTemplatesPath/$savedTemplateId',
         cancelToken: cancelToken,
       );
+    } on DioException catch (e) {
+      throw mapDioError(e);
+    }
+  }
+
+  @override
+  Future<void> bookmarkTemplate(
+    int templateId, {
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      await _dio.put<void>(
+        '$_memberTemplatesPath/$templateId',
+        cancelToken: cancelToken,
+      );
+    } on DioException catch (e) {
+      throw mapDioError(e);
+    }
+  }
+
+  @override
+  Future<void> unbookmarkTemplate(
+    int templateId, {
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      await _dio.delete<void>(
+        '$_memberTemplatesPath/$templateId',
+        cancelToken: cancelToken,
+      );
+    } on DioException catch (e) {
+      throw mapDioError(e);
+    }
+  }
+
+  @override
+  Future<BookmarkedTemplateListResponseModel> listBookmarkedTemplates({
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        _memberTemplatesPath,
+        cancelToken: cancelToken,
+      );
+      return BookmarkedTemplateListResponseModel.fromJson(response.data!);
     } on DioException catch (e) {
       throw mapDioError(e);
     }

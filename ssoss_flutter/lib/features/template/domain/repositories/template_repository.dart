@@ -1,4 +1,5 @@
 import 'package:ssoss_flutter/features/template/domain/entities/applied_template.dart';
+import 'package:ssoss_flutter/features/template/domain/entities/recommended_template.dart';
 import 'package:ssoss_flutter/features/template/domain/entities/recommended_template_category.dart';
 import 'package:ssoss_flutter/features/template/domain/entities/recommended_template_detail.dart';
 import 'package:ssoss_flutter/features/template/domain/entities/recommended_template_list_page.dart';
@@ -42,4 +43,10 @@ abstract class TemplateRepository {
   });
 
   Future<void> deleteSavedTemplate(int savedTemplateId);
+
+  Future<void> bookmarkTemplate(int templateId);
+
+  Future<void> unbookmarkTemplate(int templateId);
+
+  Future<List<RecommendedTemplate>> listBookmarkedTemplates();
 }

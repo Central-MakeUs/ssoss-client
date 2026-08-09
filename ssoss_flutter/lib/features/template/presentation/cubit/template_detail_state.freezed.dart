@@ -17,6 +17,7 @@ mixin _$TemplateDetailState {
   RecommendedTemplateDetail? get detail;
   bool get isLoading;
   bool get isApplying;
+  bool get isTogglingBookmark;
   String? get errorMessage;
 
   /// Create a copy of TemplateDetailState
@@ -37,17 +38,19 @@ mixin _$TemplateDetailState {
                 other.isLoading == isLoading) &&
             (identical(other.isApplying, isApplying) ||
                 other.isApplying == isApplying) &&
+            (identical(other.isTogglingBookmark, isTogglingBookmark) ||
+                other.isTogglingBookmark == isTogglingBookmark) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, detail, isLoading, isApplying, errorMessage);
+  int get hashCode => Object.hash(runtimeType, detail, isLoading, isApplying,
+      isTogglingBookmark, errorMessage);
 
   @override
   String toString() {
-    return 'TemplateDetailState(detail: $detail, isLoading: $isLoading, isApplying: $isApplying, errorMessage: $errorMessage)';
+    return 'TemplateDetailState(detail: $detail, isLoading: $isLoading, isApplying: $isApplying, isTogglingBookmark: $isTogglingBookmark, errorMessage: $errorMessage)';
   }
 }
 
@@ -61,6 +64,7 @@ abstract mixin class $TemplateDetailStateCopyWith<$Res> {
       {RecommendedTemplateDetail? detail,
       bool isLoading,
       bool isApplying,
+      bool isTogglingBookmark,
       String? errorMessage});
 }
 
@@ -80,6 +84,7 @@ class _$TemplateDetailStateCopyWithImpl<$Res>
     Object? detail = freezed,
     Object? isLoading = null,
     Object? isApplying = null,
+    Object? isTogglingBookmark = null,
     Object? errorMessage = freezed,
   }) {
     return _then(_self.copyWith(
@@ -94,6 +99,10 @@ class _$TemplateDetailStateCopyWithImpl<$Res>
       isApplying: null == isApplying
           ? _self.isApplying
           : isApplying // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isTogglingBookmark: null == isTogglingBookmark
+          ? _self.isTogglingBookmark
+          : isTogglingBookmark // ignore: cast_nullable_to_non_nullable
               as bool,
       errorMessage: freezed == errorMessage
           ? _self.errorMessage
@@ -197,7 +206,7 @@ extension TemplateDetailStatePatterns on TemplateDetailState {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(RecommendedTemplateDetail? detail, bool isLoading,
-            bool isApplying, String? errorMessage)?
+            bool isApplying, bool isTogglingBookmark, String? errorMessage)?
         $default, {
     required TResult orElse(),
   }) {
@@ -205,7 +214,7 @@ extension TemplateDetailStatePatterns on TemplateDetailState {
     switch (_that) {
       case _TemplateDetailState() when $default != null:
         return $default(_that.detail, _that.isLoading, _that.isApplying,
-            _that.errorMessage);
+            _that.isTogglingBookmark, _that.errorMessage);
       case _:
         return orElse();
     }
@@ -227,14 +236,14 @@ extension TemplateDetailStatePatterns on TemplateDetailState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
     TResult Function(RecommendedTemplateDetail? detail, bool isLoading,
-            bool isApplying, String? errorMessage)
+            bool isApplying, bool isTogglingBookmark, String? errorMessage)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _TemplateDetailState():
         return $default(_that.detail, _that.isLoading, _that.isApplying,
-            _that.errorMessage);
+            _that.isTogglingBookmark, _that.errorMessage);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -255,14 +264,14 @@ extension TemplateDetailStatePatterns on TemplateDetailState {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(RecommendedTemplateDetail? detail, bool isLoading,
-            bool isApplying, String? errorMessage)?
+            bool isApplying, bool isTogglingBookmark, String? errorMessage)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _TemplateDetailState() when $default != null:
         return $default(_that.detail, _that.isLoading, _that.isApplying,
-            _that.errorMessage);
+            _that.isTogglingBookmark, _that.errorMessage);
       case _:
         return null;
     }
@@ -276,6 +285,7 @@ class _TemplateDetailState implements TemplateDetailState {
       {this.detail,
       this.isLoading = true,
       this.isApplying = false,
+      this.isTogglingBookmark = false,
       this.errorMessage});
 
   @override
@@ -286,6 +296,9 @@ class _TemplateDetailState implements TemplateDetailState {
   @override
   @JsonKey()
   final bool isApplying;
+  @override
+  @JsonKey()
+  final bool isTogglingBookmark;
   @override
   final String? errorMessage;
 
@@ -308,17 +321,19 @@ class _TemplateDetailState implements TemplateDetailState {
                 other.isLoading == isLoading) &&
             (identical(other.isApplying, isApplying) ||
                 other.isApplying == isApplying) &&
+            (identical(other.isTogglingBookmark, isTogglingBookmark) ||
+                other.isTogglingBookmark == isTogglingBookmark) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, detail, isLoading, isApplying, errorMessage);
+  int get hashCode => Object.hash(runtimeType, detail, isLoading, isApplying,
+      isTogglingBookmark, errorMessage);
 
   @override
   String toString() {
-    return 'TemplateDetailState(detail: $detail, isLoading: $isLoading, isApplying: $isApplying, errorMessage: $errorMessage)';
+    return 'TemplateDetailState(detail: $detail, isLoading: $isLoading, isApplying: $isApplying, isTogglingBookmark: $isTogglingBookmark, errorMessage: $errorMessage)';
   }
 }
 
@@ -334,6 +349,7 @@ abstract mixin class _$TemplateDetailStateCopyWith<$Res>
       {RecommendedTemplateDetail? detail,
       bool isLoading,
       bool isApplying,
+      bool isTogglingBookmark,
       String? errorMessage});
 }
 
@@ -353,6 +369,7 @@ class __$TemplateDetailStateCopyWithImpl<$Res>
     Object? detail = freezed,
     Object? isLoading = null,
     Object? isApplying = null,
+    Object? isTogglingBookmark = null,
     Object? errorMessage = freezed,
   }) {
     return _then(_TemplateDetailState(
@@ -367,6 +384,10 @@ class __$TemplateDetailStateCopyWithImpl<$Res>
       isApplying: null == isApplying
           ? _self.isApplying
           : isApplying // ignore: cast_nullable_to_non_nullable
+              as bool,
+      isTogglingBookmark: null == isTogglingBookmark
+          ? _self.isTogglingBookmark
+          : isTogglingBookmark // ignore: cast_nullable_to_non_nullable
               as bool,
       errorMessage: freezed == errorMessage
           ? _self.errorMessage

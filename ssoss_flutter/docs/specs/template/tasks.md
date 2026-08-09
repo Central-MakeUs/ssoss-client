@@ -88,10 +88,22 @@
 
 ---
 
+## Phase 7 — 추천 템플릿 북마크
+
+- [x] **7-1** `bookmarkTemplate` / `unbookmarkTemplate` / `listBookmarkedTemplates` repository + usecase
+- [x] **7-2** Bookmarked list 모델 + datasource PUT/DELETE/GET + `build_runner` + providers
+- [x] **7-3** `TemplateCatalogCubit.toggleBookmark` + 추천 소스 카드 연동
+- [x] **7-4** `TemplateDetailCubit.toggleBookmark` + 상세 하단 버튼
+- [x] **7-5** `BookmarkedTemplatesCubit` (마이페이지 저장 소스에서 사용)
+- [x] **7-6** `dart analyze` 통과 (생성 파일 trailing comma info 제외)
+
+---
+
 ## 완료 기준 (Definition of Done)
 
-- [x] PRD Must FR-01~FR-10 구현 완료
+- [x] PRD Must FR-01~FR-10 구현 완료 (FR-09는 Phase 7에서 갱신)
 - [x] PRD Must FR-11~FR-12 구현 완료
 - [x] PRD Must FR-13~FR-14 구현 완료
+- [x] PRD Must FR-09 북마크 PUT/DELETE 구현 완료
 - [x] DI 등록 완료
 - [x] analyze 에러 없음 (이번 변경 범위)

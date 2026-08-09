@@ -17,7 +17,9 @@ import 'package:ssoss_flutter/features/hashtag/presentation/cubit/hashtag_catalo
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
 import 'package:ssoss_flutter/features/recommend_source/presentation/pages/recommend_source_components.dart';
 import 'package:ssoss_flutter/features/template/domain/entities/recommended_template.dart';
+import 'package:ssoss_flutter/features/template/domain/usecases/bookmark_template_usecase.dart';
 import 'package:ssoss_flutter/features/template/domain/usecases/list_templates_usecase.dart';
+import 'package:ssoss_flutter/features/template/domain/usecases/unbookmark_template_usecase.dart';
 import 'package:ssoss_flutter/features/template/presentation/cubit/template_catalog_cubit.dart';
 import 'package:ssoss_flutter/features/template/presentation/cubit/template_catalog_state.dart';
 import 'package:ssoss_flutter/features/template/presentation/pages/template_detail/template_detail_page.dart';
@@ -45,6 +47,8 @@ class RecommendSourcePage extends StatelessWidget {
           create: (context) {
             final cubit = TemplateCatalogCubit(
               listTemplates: context.read<ListTemplatesUseCase>(),
+              bookmarkTemplate: context.read<BookmarkTemplateUseCase>(),
+              unbookmarkTemplate: context.read<UnbookmarkTemplateUseCase>(),
               initialCategory: TemplateLabelMapper.apiCategory(initialCategory),
             );
             unawaited(cubit.loadInitial());
@@ -179,6 +183,20 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
     );
   }
 
+  Future<void> _toggleTemplateSaved(int templateId) async {
+    final success =
+        await context.read<TemplateCatalogCubit>().toggleBookmark(templateId);
+    if (!mounted || success) {
+      return;
+    }
+    showSsossToast(
+      context,
+      title: '북마크 변경에 실패했습니다',
+      type: SsossToastType.error,
+      margin: const EdgeInsets.only(bottom: 122),
+    );
+  }
+
   Future<void> _toggleHashtagSaved(String itemId) async {
     final bundleId = int.tryParse(itemId);
     if (bundleId == null) {
@@ -268,7 +286,8 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
                                       TemplateLabelMapper.apiCategory(category),
                                     ),
                               ),
-                              onSaveTap: (_) {},
+                              onSaveTap: (itemId) =>
+                                  unawaited(_toggleTemplateSaved(itemId)),
                               onItemTap: _openDetail,
                               onLoadMore: () => unawaited(
                                 context.read<TemplateCatalogCubit>().loadMore(),

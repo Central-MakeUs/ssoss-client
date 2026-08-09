@@ -15,6 +15,7 @@ abstract class TemplateCatalogState with _$TemplateCatalogState {
     @Default(false) bool hasLoaded,
     @Default(false) bool isLoading,
     @Default(false) bool isLoadingMore,
+    @Default(<int>{}) Set<int> pendingBookmarkIds,
     String? errorMessage,
   }) = _TemplateCatalogState;
 }

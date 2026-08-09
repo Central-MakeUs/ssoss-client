@@ -12,8 +12,10 @@ import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
 import 'package:ssoss_flutter/features/template/domain/entities/recommended_template_detail.dart';
+import 'package:ssoss_flutter/features/template/domain/usecases/bookmark_template_usecase.dart';
 import 'package:ssoss_flutter/features/template/domain/usecases/get_applied_template_usecase.dart';
 import 'package:ssoss_flutter/features/template/domain/usecases/get_template_usecase.dart';
+import 'package:ssoss_flutter/features/template/domain/usecases/unbookmark_template_usecase.dart';
 import 'package:ssoss_flutter/features/template/presentation/cubit/template_detail_cubit.dart';
 import 'package:ssoss_flutter/features/template/presentation/cubit/template_detail_state.dart';
 import 'package:ssoss_flutter/features/template/presentation/models/template_apply_args.dart';
@@ -40,6 +42,8 @@ class TemplateDetailPage extends StatelessWidget {
         final cubit = TemplateDetailCubit(
           getTemplate: context.read<GetTemplateUseCase>(),
           getAppliedTemplate: context.read<GetAppliedTemplateUseCase>(),
+          bookmarkTemplate: context.read<BookmarkTemplateUseCase>(),
+          unbookmarkTemplate: context.read<UnbookmarkTemplateUseCase>(),
           templateId: templateId,
         );
         unawaited(cubit.load());
@@ -68,6 +72,19 @@ class _TemplateDetailViewState extends State<_TemplateDetailView> {
       description: detail.description,
       channels: TemplateLabelMapper.channels(detail.recommendedChannels),
       isSaved: detail.bookmarked,
+    );
+  }
+
+  Future<void> _onSaveTap() async {
+    final success =
+        await context.read<TemplateDetailCubit>().toggleBookmark();
+    if (!mounted || success) {
+      return;
+    }
+    showSsossToast(
+      context,
+      title: '북마크 변경에 실패했습니다',
+      type: SsossToastType.error,
     );
   }
 
@@ -121,7 +138,7 @@ class _TemplateDetailViewState extends State<_TemplateDetailView> {
               : TemplateDetailBottomBar(
                   isSaved: detail.bookmarked,
                   isApplying: state.isApplying,
-                  onSaveTap: () {},
+                  onSaveTap: () => unawaited(_onSaveTap()),
                   onApplyTap:
                       state.isApplying ? null : () => unawaited(_onApplyTap()),
                 ),
