@@ -16,6 +16,7 @@ T _$identity<T>(T value) => value;
 mixin _$TemplateCatalogState {
   List<RecommendedTemplate> get items;
   RecommendedTemplateCategory? get category;
+  String get keyword;
   int get page;
   bool get hasNext;
   bool get hasLoaded;
@@ -40,6 +41,7 @@ mixin _$TemplateCatalogState {
             const DeepCollectionEquality().equals(other.items, items) &&
             (identical(other.category, category) ||
                 other.category == category) &&
+            (identical(other.keyword, keyword) || other.keyword == keyword) &&
             (identical(other.page, page) || other.page == page) &&
             (identical(other.hasNext, hasNext) || other.hasNext == hasNext) &&
             (identical(other.hasLoaded, hasLoaded) ||
@@ -59,6 +61,7 @@ mixin _$TemplateCatalogState {
       runtimeType,
       const DeepCollectionEquality().hash(items),
       category,
+      keyword,
       page,
       hasNext,
       hasLoaded,
@@ -69,7 +72,7 @@ mixin _$TemplateCatalogState {
 
   @override
   String toString() {
-    return 'TemplateCatalogState(items: $items, category: $category, page: $page, hasNext: $hasNext, hasLoaded: $hasLoaded, isLoading: $isLoading, isLoadingMore: $isLoadingMore, pendingBookmarkIds: $pendingBookmarkIds, errorMessage: $errorMessage)';
+    return 'TemplateCatalogState(items: $items, category: $category, keyword: $keyword, page: $page, hasNext: $hasNext, hasLoaded: $hasLoaded, isLoading: $isLoading, isLoadingMore: $isLoadingMore, pendingBookmarkIds: $pendingBookmarkIds, errorMessage: $errorMessage)';
   }
 }
 
@@ -82,6 +85,7 @@ abstract mixin class $TemplateCatalogStateCopyWith<$Res> {
   $Res call(
       {List<RecommendedTemplate> items,
       RecommendedTemplateCategory? category,
+      String keyword,
       int page,
       bool hasNext,
       bool hasLoaded,
@@ -106,6 +110,7 @@ class _$TemplateCatalogStateCopyWithImpl<$Res>
   $Res call({
     Object? items = null,
     Object? category = freezed,
+    Object? keyword = null,
     Object? page = null,
     Object? hasNext = null,
     Object? hasLoaded = null,
@@ -123,6 +128,10 @@ class _$TemplateCatalogStateCopyWithImpl<$Res>
           ? _self.category
           : category // ignore: cast_nullable_to_non_nullable
               as RecommendedTemplateCategory?,
+      keyword: null == keyword
+          ? _self.keyword
+          : keyword // ignore: cast_nullable_to_non_nullable
+              as String,
       page: null == page
           ? _self.page
           : page // ignore: cast_nullable_to_non_nullable
@@ -251,6 +260,7 @@ extension TemplateCatalogStatePatterns on TemplateCatalogState {
     TResult Function(
             List<RecommendedTemplate> items,
             RecommendedTemplateCategory? category,
+            String keyword,
             int page,
             bool hasNext,
             bool hasLoaded,
@@ -267,6 +277,7 @@ extension TemplateCatalogStatePatterns on TemplateCatalogState {
         return $default(
             _that.items,
             _that.category,
+            _that.keyword,
             _that.page,
             _that.hasNext,
             _that.hasLoaded,
@@ -297,6 +308,7 @@ extension TemplateCatalogStatePatterns on TemplateCatalogState {
     TResult Function(
             List<RecommendedTemplate> items,
             RecommendedTemplateCategory? category,
+            String keyword,
             int page,
             bool hasNext,
             bool hasLoaded,
@@ -312,6 +324,7 @@ extension TemplateCatalogStatePatterns on TemplateCatalogState {
         return $default(
             _that.items,
             _that.category,
+            _that.keyword,
             _that.page,
             _that.hasNext,
             _that.hasLoaded,
@@ -341,6 +354,7 @@ extension TemplateCatalogStatePatterns on TemplateCatalogState {
     TResult? Function(
             List<RecommendedTemplate> items,
             RecommendedTemplateCategory? category,
+            String keyword,
             int page,
             bool hasNext,
             bool hasLoaded,
@@ -356,6 +370,7 @@ extension TemplateCatalogStatePatterns on TemplateCatalogState {
         return $default(
             _that.items,
             _that.category,
+            _that.keyword,
             _that.page,
             _that.hasNext,
             _that.hasLoaded,
@@ -375,6 +390,7 @@ class _TemplateCatalogState implements TemplateCatalogState {
   const _TemplateCatalogState(
       {final List<RecommendedTemplate> items = const <RecommendedTemplate>[],
       this.category,
+      this.keyword = '',
       this.page = 0,
       this.hasNext = false,
       this.hasLoaded = false,
@@ -396,6 +412,9 @@ class _TemplateCatalogState implements TemplateCatalogState {
 
   @override
   final RecommendedTemplateCategory? category;
+  @override
+  @JsonKey()
+  final String keyword;
   @override
   @JsonKey()
   final int page;
@@ -441,6 +460,7 @@ class _TemplateCatalogState implements TemplateCatalogState {
             const DeepCollectionEquality().equals(other._items, _items) &&
             (identical(other.category, category) ||
                 other.category == category) &&
+            (identical(other.keyword, keyword) || other.keyword == keyword) &&
             (identical(other.page, page) || other.page == page) &&
             (identical(other.hasNext, hasNext) || other.hasNext == hasNext) &&
             (identical(other.hasLoaded, hasLoaded) ||
@@ -460,6 +480,7 @@ class _TemplateCatalogState implements TemplateCatalogState {
       runtimeType,
       const DeepCollectionEquality().hash(_items),
       category,
+      keyword,
       page,
       hasNext,
       hasLoaded,
@@ -470,7 +491,7 @@ class _TemplateCatalogState implements TemplateCatalogState {
 
   @override
   String toString() {
-    return 'TemplateCatalogState(items: $items, category: $category, page: $page, hasNext: $hasNext, hasLoaded: $hasLoaded, isLoading: $isLoading, isLoadingMore: $isLoadingMore, pendingBookmarkIds: $pendingBookmarkIds, errorMessage: $errorMessage)';
+    return 'TemplateCatalogState(items: $items, category: $category, keyword: $keyword, page: $page, hasNext: $hasNext, hasLoaded: $hasLoaded, isLoading: $isLoading, isLoadingMore: $isLoadingMore, pendingBookmarkIds: $pendingBookmarkIds, errorMessage: $errorMessage)';
   }
 }
 
@@ -485,6 +506,7 @@ abstract mixin class _$TemplateCatalogStateCopyWith<$Res>
   $Res call(
       {List<RecommendedTemplate> items,
       RecommendedTemplateCategory? category,
+      String keyword,
       int page,
       bool hasNext,
       bool hasLoaded,
@@ -509,6 +531,7 @@ class __$TemplateCatalogStateCopyWithImpl<$Res>
   $Res call({
     Object? items = null,
     Object? category = freezed,
+    Object? keyword = null,
     Object? page = null,
     Object? hasNext = null,
     Object? hasLoaded = null,
@@ -526,6 +549,10 @@ class __$TemplateCatalogStateCopyWithImpl<$Res>
           ? _self.category
           : category // ignore: cast_nullable_to_non_nullable
               as RecommendedTemplateCategory?,
+      keyword: null == keyword
+          ? _self.keyword
+          : keyword // ignore: cast_nullable_to_non_nullable
+              as String,
       page: null == page
           ? _self.page
           : page // ignore: cast_nullable_to_non_nullable

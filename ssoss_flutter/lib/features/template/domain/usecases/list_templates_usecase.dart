@@ -9,11 +9,13 @@ class ListTemplatesUseCase {
 
   Future<RecommendedTemplateListPage> call({
     RecommendedTemplateCategory? category,
+    String? keyword,
     int page = 0,
     int size = 20,
   }) {
     return _repository.listTemplates(
       category: category,
+      keyword: keyword,
       page: page,
       size: size,
     );

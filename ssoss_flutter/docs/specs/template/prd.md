@@ -59,6 +59,7 @@
 | FR-12 | 카드 탭 시 `GET /v1/saved-templates/{savedTemplateId}` 로 상세 조회. body·recommendedChannels 표시 | Must |
 | FR-13 | 점 3개 이름 수정은 `PUT /v1/saved-templates/{id}/title` (클라 2~20자). 삭제는 `DELETE /v1/saved-templates/{id}` | Must |
 | FR-14 | 상세 편집 → 수정하기는 `PUT /v1/saved-templates/{id}` (body만, ≤2000). 저장·삭제 중 ADR-005 로딩·다른 액션 비활성 | Must |
+| FR-15 | 검색창 `keyword` 로 `GET /v1/templates` 재조회 (제목·설명·본문 부분 일치). 공백 trim, 빈 값은 미검색과 동일. category와 함께 적용. 해시태그 탭과 동일 디바운스 | Must |
 
 ### 3.2 비기능 요구사항 (Non-functional Requirements)
 
@@ -82,11 +83,11 @@
 - 생성 관리 템플릿 탭 저장 글 목록·상세 조회
 - 저장 글 본문 편집·제목 수정·삭제 API
 - 추천 템플릿 북마크 저장/해제 API (카탈로그·상세)
+- 추천 템플릿 목록 `keyword` 검색
 
 ### Out of Scope (이번 구현에서 제외)
 
 - 마이페이지 저장 소스 템플릿 북마크 목록 (saved-content-sources)
-- 템플릿 탭 서버 검색 (API keyword 없음)
 - 저장 내역 채널·분류 필터 (API 없음)
 
 ---

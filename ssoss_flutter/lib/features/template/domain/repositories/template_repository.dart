@@ -11,6 +11,7 @@ import 'package:ssoss_flutter/features/template/domain/entities/saved_template_s
 abstract class TemplateRepository {
   Future<RecommendedTemplateListPage> listTemplates({
     RecommendedTemplateCategory? category,
+    String? keyword,
     int page = 0,
     int size = 20,
   });

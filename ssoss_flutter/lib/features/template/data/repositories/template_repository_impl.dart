@@ -31,11 +31,13 @@ class TemplateRepositoryImpl implements TemplateRepository {
   @override
   Future<RecommendedTemplateListPage> listTemplates({
     RecommendedTemplateCategory? category,
+    String? keyword,
     int page = 0,
     int size = 20,
   }) async {
     final model = await _remote.listTemplates(
       category: category == null ? null : TemplateApiMapper.category(category),
+      keyword: keyword,
       page: page,
       size: size,
     );

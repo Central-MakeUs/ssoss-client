@@ -14,6 +14,7 @@ import 'package:ssoss_flutter/features/template/data/models/saved_template_save_
 abstract class TemplateRemoteDatasource {
   Future<RecommendedTemplateListResponseModel> listTemplates({
     String? category,
+    String? keyword,
     int page = 0,
     int size = 20,
     CancelToken? cancelToken,

@@ -10,6 +10,7 @@ abstract class TemplateCatalogState with _$TemplateCatalogState {
   const factory TemplateCatalogState({
     @Default(<RecommendedTemplate>[]) List<RecommendedTemplate> items,
     RecommendedTemplateCategory? category,
+    @Default('') String keyword,
     @Default(0) int page,
     @Default(false) bool hasNext,
     @Default(false) bool hasLoaded,

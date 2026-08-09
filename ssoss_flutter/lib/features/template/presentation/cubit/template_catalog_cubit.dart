@@ -46,6 +46,15 @@ class TemplateCatalogCubit extends Cubit<TemplateCatalogState> {
     await _load(page: 0, replace: true);
   }
 
+  Future<void> search(String keyword) async {
+    final trimmed = keyword.trim();
+    if (trimmed == state.keyword && state.hasLoaded) {
+      return;
+    }
+    emit(state.copyWith(keyword: trimmed));
+    await _load(page: 0, replace: true);
+  }
+
   Future<void> loadMore() async {
     if (!state.hasNext || state.isLoadingMore || state.isLoading) {
       return;
@@ -137,8 +146,10 @@ class TemplateCatalogCubit extends Cubit<TemplateCatalogState> {
     }
 
     try {
+      final keyword = state.keyword.isEmpty ? null : state.keyword;
       final result = await _listTemplates(
         category: state.category,
+        keyword: keyword,
         page: page,
         size: pageSize,
       );
