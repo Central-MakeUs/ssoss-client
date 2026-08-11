@@ -11,6 +11,7 @@ part 'content_list_response_model.g.dart';
 abstract class ContentListItemModel with _$ContentListItemModel {
   const factory ContentListItemModel({
     required int contentId,
+    required String name,
     required String savedAt,
     required List<String> channels,
     required String purpose,
@@ -40,6 +41,7 @@ abstract class ContentListResponseModel with _$ContentListResponseModel {
 extension ContentListItemModelX on ContentListItemModel {
   ContentListItem toEntity() => ContentListItem(
         contentId: contentId,
+        name: name,
         savedAt: DateTime.parse(savedAt).toLocal(),
         channels: channels
             .map(ContentCreateApiMapper.channelFromApi)

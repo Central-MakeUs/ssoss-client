@@ -62,6 +62,7 @@ class ContentDetailCubit extends Cubit<ContentDetailState> {
       state.copyWith(
         detail: ContentDetail(
           contentId: detail.contentId,
+          name: detail.name,
           purpose: detail.purpose,
           tone: detail.tone,
           keywords: detail.keywords,

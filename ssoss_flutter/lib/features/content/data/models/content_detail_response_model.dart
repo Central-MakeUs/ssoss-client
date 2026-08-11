@@ -13,6 +13,7 @@ abstract class ContentDetailResponseModel with _$ContentDetailResponseModel {
     required int contentId,
     required String purpose,
     required String tone,
+    @Default('') String name,
     @Default(<String>[]) List<String> keywords,
     @Default(<ContentChannelResponseModel>[])
     List<ContentChannelResponseModel> contents,
@@ -25,6 +26,7 @@ abstract class ContentDetailResponseModel with _$ContentDetailResponseModel {
 extension ContentDetailResponseModelX on ContentDetailResponseModel {
   ContentDetail toEntity() => ContentDetail(
         contentId: contentId,
+        name: name,
         purpose: ContentCreateApiMapper.purposeFromApi(purpose),
         tone: ContentCreateApiMapper.toneFromApi(tone),
         keywords: keywords,

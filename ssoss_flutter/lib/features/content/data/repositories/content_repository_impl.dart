@@ -7,6 +7,7 @@ import 'package:ssoss_flutter/features/content/data/models/content_channel_edit_
 import 'package:ssoss_flutter/features/content/data/models/content_channel_response_model.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_detail_response_model.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_list_response_model.dart';
+import 'package:ssoss_flutter/features/content/data/models/content_rename_request.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_save_request.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_save_response_model.dart';
 import 'package:ssoss_flutter/features/content/data/models/generation_channel_result_model.dart';
@@ -113,6 +114,18 @@ class ContentRepositoryImpl implements ContentRepository {
   @override
   Future<void> deleteContent(int contentId) {
     return _remote.deleteContent(contentId);
+  }
+
+  @override
+  Future<ContentDetail> renameContent({
+    required int contentId,
+    required String name,
+  }) async {
+    final model = await _remote.renameContent(
+      contentId: contentId,
+      request: ContentRenameRequest(name: name),
+    );
+    return model.toEntity();
   }
 
   @override

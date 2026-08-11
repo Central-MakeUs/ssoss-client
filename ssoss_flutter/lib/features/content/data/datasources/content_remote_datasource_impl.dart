@@ -6,6 +6,7 @@ import 'package:ssoss_flutter/features/content/data/models/content_channel_edit_
 import 'package:ssoss_flutter/features/content/data/models/content_channel_response_model.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_detail_response_model.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_list_response_model.dart';
+import 'package:ssoss_flutter/features/content/data/models/content_rename_request.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_save_request.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_save_response_model.dart';
 import 'package:ssoss_flutter/features/content/data/models/generation_detail_model.dart';
@@ -140,6 +141,24 @@ class ContentRemoteDatasourceImpl implements ContentRemoteDatasource {
         '$_contentsPath/$contentId',
         cancelToken: cancelToken,
       );
+    } on DioException catch (e) {
+      throw mapDioError(e);
+    }
+  }
+
+  @override
+  Future<ContentDetailResponseModel> renameContent({
+    required int contentId,
+    required ContentRenameRequest request,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _dio.put<Map<String, dynamic>>(
+        '$_contentsPath/$contentId/name',
+        data: request.toJson(),
+        cancelToken: cancelToken,
+      );
+      return ContentDetailResponseModel.fromJson(response.data!);
     } on DioException catch (e) {
       throw mapDioError(e);
     }

@@ -36,7 +36,7 @@ class ContentRecentListItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AppText(
-                      item.title,
+                      item.name,
                       style: AppTextStyles.h6.copyWith(
                         color: AppColors.neutral800,
                       ),

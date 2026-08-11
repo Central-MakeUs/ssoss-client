@@ -46,7 +46,7 @@ class ContentRecentCubit extends Cubit<ContentRecentState> {
     final ordered = ContentLabelMapper.orderedChannels(item.channels);
     return ContentRecentItem(
       id: item.contentId.toString(),
-      title: item.title,
+      name: item.name,
       createdAt: item.savedAt,
       channels: ordered.map(ContentLabelMapper.channel).toList(growable: false),
       firstChannel: ordered.isEmpty ? null : ordered.first,

@@ -11,6 +11,7 @@ import 'package:ssoss_flutter/features/content/domain/usecases/edit_content_chan
 import 'package:ssoss_flutter/features/content/domain/usecases/get_content_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/list_contents_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/poll_generation_usecase.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/rename_content_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/run_generation_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/save_content_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/start_generation_usecase.dart';
@@ -54,6 +55,9 @@ class ContentProviders {
         ),
         ProxyProvider<ContentRepository, DeleteContentUseCase>(
           update: (_, repository, __) => DeleteContentUseCase(repository),
+        ),
+        ProxyProvider<ContentRepository, RenameContentUseCase>(
+          update: (_, repository, __) => RenameContentUseCase(repository),
         ),
       ];
 }

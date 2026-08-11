@@ -12,6 +12,7 @@ _ContentDetailResponseModel _$ContentDetailResponseModelFromJson(
       contentId: (json['contentId'] as num).toInt(),
       purpose: json['purpose'] as String,
       tone: json['tone'] as String,
+      name: json['name'] as String? ?? '',
       keywords: (json['keywords'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
@@ -29,6 +30,7 @@ Map<String, dynamic> _$ContentDetailResponseModelToJson(
       'contentId': instance.contentId,
       'purpose': instance.purpose,
       'tone': instance.tone,
+      'name': instance.name,
       'keywords': instance.keywords,
       'contents': instance.contents,
     };

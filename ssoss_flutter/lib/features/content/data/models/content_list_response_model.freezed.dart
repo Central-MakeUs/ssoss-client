@@ -15,6 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ContentListItemModel {
   int get contentId;
+  String get name;
   String get savedAt;
   List<String> get channels;
   String get purpose;
@@ -40,6 +41,7 @@ mixin _$ContentListItemModel {
             other is ContentListItemModel &&
             (identical(other.contentId, contentId) ||
                 other.contentId == contentId) &&
+            (identical(other.name, name) || other.name == name) &&
             (identical(other.savedAt, savedAt) || other.savedAt == savedAt) &&
             const DeepCollectionEquality().equals(other.channels, channels) &&
             (identical(other.purpose, purpose) || other.purpose == purpose) &&
@@ -53,6 +55,7 @@ mixin _$ContentListItemModel {
   int get hashCode => Object.hash(
       runtimeType,
       contentId,
+      name,
       savedAt,
       const DeepCollectionEquality().hash(channels),
       purpose,
@@ -62,7 +65,7 @@ mixin _$ContentListItemModel {
 
   @override
   String toString() {
-    return 'ContentListItemModel(contentId: $contentId, savedAt: $savedAt, channels: $channels, purpose: $purpose, tone: $tone, title: $title, hashtags: $hashtags)';
+    return 'ContentListItemModel(contentId: $contentId, name: $name, savedAt: $savedAt, channels: $channels, purpose: $purpose, tone: $tone, title: $title, hashtags: $hashtags)';
   }
 }
 
@@ -74,6 +77,7 @@ abstract mixin class $ContentListItemModelCopyWith<$Res> {
   @useResult
   $Res call(
       {int contentId,
+      String name,
       String savedAt,
       List<String> channels,
       String purpose,
@@ -96,6 +100,7 @@ class _$ContentListItemModelCopyWithImpl<$Res>
   @override
   $Res call({
     Object? contentId = null,
+    Object? name = null,
     Object? savedAt = null,
     Object? channels = null,
     Object? purpose = null,
@@ -108,6 +113,10 @@ class _$ContentListItemModelCopyWithImpl<$Res>
           ? _self.contentId
           : contentId // ignore: cast_nullable_to_non_nullable
               as int,
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
       savedAt: null == savedAt
           ? _self.savedAt
           : savedAt // ignore: cast_nullable_to_non_nullable
@@ -229,16 +238,30 @@ extension ContentListItemModelPatterns on ContentListItemModel {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(int contentId, String savedAt, List<String> channels,
-            String purpose, String tone, String title, List<String> hashtags)?
+    TResult Function(
+            int contentId,
+            String name,
+            String savedAt,
+            List<String> channels,
+            String purpose,
+            String tone,
+            String title,
+            List<String> hashtags)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _ContentListItemModel() when $default != null:
-        return $default(_that.contentId, _that.savedAt, _that.channels,
-            _that.purpose, _that.tone, _that.title, _that.hashtags);
+        return $default(
+            _that.contentId,
+            _that.name,
+            _that.savedAt,
+            _that.channels,
+            _that.purpose,
+            _that.tone,
+            _that.title,
+            _that.hashtags);
       case _:
         return orElse();
     }
@@ -259,15 +282,29 @@ extension ContentListItemModelPatterns on ContentListItemModel {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(int contentId, String savedAt, List<String> channels,
-            String purpose, String tone, String title, List<String> hashtags)
+    TResult Function(
+            int contentId,
+            String name,
+            String savedAt,
+            List<String> channels,
+            String purpose,
+            String tone,
+            String title,
+            List<String> hashtags)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ContentListItemModel():
-        return $default(_that.contentId, _that.savedAt, _that.channels,
-            _that.purpose, _that.tone, _that.title, _that.hashtags);
+        return $default(
+            _that.contentId,
+            _that.name,
+            _that.savedAt,
+            _that.channels,
+            _that.purpose,
+            _that.tone,
+            _that.title,
+            _that.hashtags);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -287,15 +324,29 @@ extension ContentListItemModelPatterns on ContentListItemModel {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(int contentId, String savedAt, List<String> channels,
-            String purpose, String tone, String title, List<String> hashtags)?
+    TResult? Function(
+            int contentId,
+            String name,
+            String savedAt,
+            List<String> channels,
+            String purpose,
+            String tone,
+            String title,
+            List<String> hashtags)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ContentListItemModel() when $default != null:
-        return $default(_that.contentId, _that.savedAt, _that.channels,
-            _that.purpose, _that.tone, _that.title, _that.hashtags);
+        return $default(
+            _that.contentId,
+            _that.name,
+            _that.savedAt,
+            _that.channels,
+            _that.purpose,
+            _that.tone,
+            _that.title,
+            _that.hashtags);
       case _:
         return null;
     }
@@ -307,6 +358,7 @@ extension ContentListItemModelPatterns on ContentListItemModel {
 class _ContentListItemModel implements ContentListItemModel {
   const _ContentListItemModel(
       {required this.contentId,
+      required this.name,
       required this.savedAt,
       required final List<String> channels,
       required this.purpose,
@@ -320,6 +372,8 @@ class _ContentListItemModel implements ContentListItemModel {
 
   @override
   final int contentId;
+  @override
+  final String name;
   @override
   final String savedAt;
   final List<String> _channels;
@@ -368,6 +422,7 @@ class _ContentListItemModel implements ContentListItemModel {
             other is _ContentListItemModel &&
             (identical(other.contentId, contentId) ||
                 other.contentId == contentId) &&
+            (identical(other.name, name) || other.name == name) &&
             (identical(other.savedAt, savedAt) || other.savedAt == savedAt) &&
             const DeepCollectionEquality().equals(other._channels, _channels) &&
             (identical(other.purpose, purpose) || other.purpose == purpose) &&
@@ -381,6 +436,7 @@ class _ContentListItemModel implements ContentListItemModel {
   int get hashCode => Object.hash(
       runtimeType,
       contentId,
+      name,
       savedAt,
       const DeepCollectionEquality().hash(_channels),
       purpose,
@@ -390,7 +446,7 @@ class _ContentListItemModel implements ContentListItemModel {
 
   @override
   String toString() {
-    return 'ContentListItemModel(contentId: $contentId, savedAt: $savedAt, channels: $channels, purpose: $purpose, tone: $tone, title: $title, hashtags: $hashtags)';
+    return 'ContentListItemModel(contentId: $contentId, name: $name, savedAt: $savedAt, channels: $channels, purpose: $purpose, tone: $tone, title: $title, hashtags: $hashtags)';
   }
 }
 
@@ -404,6 +460,7 @@ abstract mixin class _$ContentListItemModelCopyWith<$Res>
   @useResult
   $Res call(
       {int contentId,
+      String name,
       String savedAt,
       List<String> channels,
       String purpose,
@@ -426,6 +483,7 @@ class __$ContentListItemModelCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   $Res call({
     Object? contentId = null,
+    Object? name = null,
     Object? savedAt = null,
     Object? channels = null,
     Object? purpose = null,
@@ -438,6 +496,10 @@ class __$ContentListItemModelCopyWithImpl<$Res>
           ? _self.contentId
           : contentId // ignore: cast_nullable_to_non_nullable
               as int,
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
       savedAt: null == savedAt
           ? _self.savedAt
           : savedAt // ignore: cast_nullable_to_non_nullable

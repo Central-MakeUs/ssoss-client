@@ -164,7 +164,7 @@ ContentRecentItem _toRecentItem(ContentGenerationPreview generation) {
   final first = generation.firstChannel;
   return ContentRecentItem(
     id: generation.id,
-    title: first?.recentDisplayTitle ?? '',
+    name: first?.recentDisplayTitle ?? '',
     createdAt: generation.createdAt,
     channels: generation.orderedChannelEnums
         .map(ContentLabelMapper.channel)

@@ -4,14 +4,14 @@ import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.da
 class ContentRecentItem {
   const ContentRecentItem({
     required this.id,
-    required this.title,
+    required this.name,
     required this.createdAt,
     required this.channels,
     this.firstChannel,
   });
 
   final String id;
-  final String title;
+  final String name;
   final DateTime createdAt;
 
   /// 표시용 채널명 목록. 예: `['블로그']`, `['블로그', '스레드', '당근']`

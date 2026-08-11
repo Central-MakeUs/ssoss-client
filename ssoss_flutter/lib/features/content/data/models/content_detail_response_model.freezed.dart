@@ -17,6 +17,7 @@ mixin _$ContentDetailResponseModel {
   int get contentId;
   String get purpose;
   String get tone;
+  String get name;
   List<String> get keywords;
   List<ContentChannelResponseModel> get contents;
 
@@ -41,6 +42,7 @@ mixin _$ContentDetailResponseModel {
                 other.contentId == contentId) &&
             (identical(other.purpose, purpose) || other.purpose == purpose) &&
             (identical(other.tone, tone) || other.tone == tone) &&
+            (identical(other.name, name) || other.name == name) &&
             const DeepCollectionEquality().equals(other.keywords, keywords) &&
             const DeepCollectionEquality().equals(other.contents, contents));
   }
@@ -52,12 +54,13 @@ mixin _$ContentDetailResponseModel {
       contentId,
       purpose,
       tone,
+      name,
       const DeepCollectionEquality().hash(keywords),
       const DeepCollectionEquality().hash(contents));
 
   @override
   String toString() {
-    return 'ContentDetailResponseModel(contentId: $contentId, purpose: $purpose, tone: $tone, keywords: $keywords, contents: $contents)';
+    return 'ContentDetailResponseModel(contentId: $contentId, purpose: $purpose, tone: $tone, name: $name, keywords: $keywords, contents: $contents)';
   }
 }
 
@@ -71,6 +74,7 @@ abstract mixin class $ContentDetailResponseModelCopyWith<$Res> {
       {int contentId,
       String purpose,
       String tone,
+      String name,
       List<String> keywords,
       List<ContentChannelResponseModel> contents});
 }
@@ -91,6 +95,7 @@ class _$ContentDetailResponseModelCopyWithImpl<$Res>
     Object? contentId = null,
     Object? purpose = null,
     Object? tone = null,
+    Object? name = null,
     Object? keywords = null,
     Object? contents = null,
   }) {
@@ -106,6 +111,10 @@ class _$ContentDetailResponseModelCopyWithImpl<$Res>
       tone: null == tone
           ? _self.tone
           : tone // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
               as String,
       keywords: null == keywords
           ? _self.keywords
@@ -212,7 +221,7 @@ extension ContentDetailResponseModelPatterns on ContentDetailResponseModel {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(int contentId, String purpose, String tone,
+    TResult Function(int contentId, String purpose, String tone, String name,
             List<String> keywords, List<ContentChannelResponseModel> contents)?
         $default, {
     required TResult orElse(),
@@ -220,7 +229,7 @@ extension ContentDetailResponseModelPatterns on ContentDetailResponseModel {
     final _that = this;
     switch (_that) {
       case _ContentDetailResponseModel() when $default != null:
-        return $default(_that.contentId, _that.purpose, _that.tone,
+        return $default(_that.contentId, _that.purpose, _that.tone, _that.name,
             _that.keywords, _that.contents);
       case _:
         return orElse();
@@ -242,14 +251,14 @@ extension ContentDetailResponseModelPatterns on ContentDetailResponseModel {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(int contentId, String purpose, String tone,
+    TResult Function(int contentId, String purpose, String tone, String name,
             List<String> keywords, List<ContentChannelResponseModel> contents)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ContentDetailResponseModel():
-        return $default(_that.contentId, _that.purpose, _that.tone,
+        return $default(_that.contentId, _that.purpose, _that.tone, _that.name,
             _that.keywords, _that.contents);
       case _:
         throw StateError('Unexpected subclass');
@@ -270,14 +279,14 @@ extension ContentDetailResponseModelPatterns on ContentDetailResponseModel {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(int contentId, String purpose, String tone,
+    TResult? Function(int contentId, String purpose, String tone, String name,
             List<String> keywords, List<ContentChannelResponseModel> contents)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ContentDetailResponseModel() when $default != null:
-        return $default(_that.contentId, _that.purpose, _that.tone,
+        return $default(_that.contentId, _that.purpose, _that.tone, _that.name,
             _that.keywords, _that.contents);
       case _:
         return null;
@@ -292,6 +301,7 @@ class _ContentDetailResponseModel implements ContentDetailResponseModel {
       {required this.contentId,
       required this.purpose,
       required this.tone,
+      this.name = '',
       final List<String> keywords = const <String>[],
       final List<ContentChannelResponseModel> contents =
           const <ContentChannelResponseModel>[]})
@@ -306,6 +316,9 @@ class _ContentDetailResponseModel implements ContentDetailResponseModel {
   final String purpose;
   @override
   final String tone;
+  @override
+  @JsonKey()
+  final String name;
   final List<String> _keywords;
   @override
   @JsonKey()
@@ -349,6 +362,7 @@ class _ContentDetailResponseModel implements ContentDetailResponseModel {
                 other.contentId == contentId) &&
             (identical(other.purpose, purpose) || other.purpose == purpose) &&
             (identical(other.tone, tone) || other.tone == tone) &&
+            (identical(other.name, name) || other.name == name) &&
             const DeepCollectionEquality().equals(other._keywords, _keywords) &&
             const DeepCollectionEquality().equals(other._contents, _contents));
   }
@@ -360,12 +374,13 @@ class _ContentDetailResponseModel implements ContentDetailResponseModel {
       contentId,
       purpose,
       tone,
+      name,
       const DeepCollectionEquality().hash(_keywords),
       const DeepCollectionEquality().hash(_contents));
 
   @override
   String toString() {
-    return 'ContentDetailResponseModel(contentId: $contentId, purpose: $purpose, tone: $tone, keywords: $keywords, contents: $contents)';
+    return 'ContentDetailResponseModel(contentId: $contentId, purpose: $purpose, tone: $tone, name: $name, keywords: $keywords, contents: $contents)';
   }
 }
 
@@ -382,6 +397,7 @@ abstract mixin class _$ContentDetailResponseModelCopyWith<$Res>
       {int contentId,
       String purpose,
       String tone,
+      String name,
       List<String> keywords,
       List<ContentChannelResponseModel> contents});
 }
@@ -402,6 +418,7 @@ class __$ContentDetailResponseModelCopyWithImpl<$Res>
     Object? contentId = null,
     Object? purpose = null,
     Object? tone = null,
+    Object? name = null,
     Object? keywords = null,
     Object? contents = null,
   }) {
@@ -417,6 +434,10 @@ class __$ContentDetailResponseModelCopyWithImpl<$Res>
       tone: null == tone
           ? _self.tone
           : tone // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
               as String,
       keywords: null == keywords
           ? _self._keywords

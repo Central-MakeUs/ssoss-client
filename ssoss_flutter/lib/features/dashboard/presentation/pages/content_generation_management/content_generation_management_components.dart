@@ -23,7 +23,7 @@ class ContentManagementItem {
     required this.channel,
     required this.category,
     required this.tone,
-    required this.title,
+    required this.name,
     required this.tags,
     this.initialChannel,
   });
@@ -39,13 +39,26 @@ class ContentManagementItem {
   final String category;
   final String tone;
 
-  /// 카드 미리보기 제목(서버 말줄임 그대로).
-  final String title;
+  /// 카드에 표시하는 콘텐츠 이름(서버 말줄임 그대로).
+  final String name;
   final List<String> tags;
 
   static const int maxDashboardTagCount = 2;
 
   String get menuId => contentId.toString();
+
+  ContentManagementItem copyWith({String? name}) {
+    return ContentManagementItem(
+      contentId: contentId,
+      date: date,
+      channel: channel,
+      initialChannel: initialChannel,
+      category: category,
+      tone: tone,
+      name: name ?? this.name,
+      tags: tags,
+    );
+  }
 
   bool get showsHashtags => tags.isNotEmpty;
 
@@ -238,7 +251,7 @@ class ContentManagementCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   AppText(
-                    item.title,
+                    item.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.h5.copyWith(color: AppColors.black),
@@ -510,10 +523,20 @@ class _ContentTitleEditDialogState extends State<_ContentTitleEditDialog> {
   late final TextEditingController _controller;
   bool _isSaving = false;
 
+  /// 편집 상한(20자)만 초기 제목 텍스트를 넣는다.
+  static String _editableTitle(String value) {
+    final chars = value.characters;
+    if (chars.length <= _maxTitleLength) {
+      return value;
+    }
+    return chars.take(_maxTitleLength).toString();
+  }
+
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.initialTitle);
+    _controller =
+        TextEditingController(text: _editableTitle(widget.initialTitle));
   }
 
   @override

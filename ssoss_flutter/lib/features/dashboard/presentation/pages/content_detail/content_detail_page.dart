@@ -28,7 +28,6 @@ import 'package:ssoss_flutter/features/dashboard/presentation/cubit/content_deta
 import 'package:ssoss_flutter/features/dashboard/presentation/cubit/content_detail_state.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_detail/content_detail_components.dart';
 import 'package:ssoss_flutter/features/new_style/presentation/models/new_style_args.dart';
-import 'package:ssoss_flutter/features/new_style/presentation/util/new_style_reference_text.dart';
 import 'package:ssoss_flutter/features/new_style/presentation/util/open_new_style_flow.dart';
 import 'package:ssoss_flutter/utils/photo_guide_parser.dart';
 
@@ -258,7 +257,8 @@ class _ContentDetailBodyState extends State<_ContentDetailBody> {
     );
   }
 
-  void _openNewStyle(BuildContext context, ContentChannelContent channelContent) {
+  void _openNewStyle(
+      BuildContext context, ContentChannelContent channelContent) {
     final result = channelContent.channelResult;
     unawaited(
       openNewStyleFlow(
@@ -268,7 +268,7 @@ class _ContentDetailBodyState extends State<_ContentDetailBody> {
           purpose: widget.detail.purpose,
           tone: widget.detail.tone,
           referenceChannel: result.channel,
-          referenceRawText: newStyleReferenceRawText(result),
+          referenceRawText: widget.detail.name,
         ),
       ),
     );
