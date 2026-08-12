@@ -174,13 +174,17 @@ class _SsossTextFieldState extends State<SsossTextField> {
       return;
     }
 
-    final attemptedGrowth = controller.text.length - _lastKnownLength;
+    final shouldNotify = isSsossLikelyTruncatedPasteByGrowth(
+      oldLength: _lastKnownLength,
+      newLength: controller.text.length,
+      isComposing: controller.value.composing.isValid,
+    );
     final truncated = controller.text.substring(0, maxLength);
     controller.value = TextEditingValue(
       text: truncated,
       selection: TextSelection.collapsed(offset: truncated.length),
     );
-    if (attemptedGrowth > 1) {
+    if (shouldNotify) {
       showSsossMaxLengthPasteTruncatedToast(context);
     }
     _lastKnownLength = truncated.length;

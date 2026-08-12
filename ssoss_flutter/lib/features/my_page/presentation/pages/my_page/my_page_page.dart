@@ -157,7 +157,7 @@ class _MyPagePageState extends State<MyPagePage> {
 
   void _openSettings(BuildContext context) {
     unawaited(
-      Navigator.of(context).push(
+      Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute<void>(
           builder: (_) => const SettingsPage(),
         ),

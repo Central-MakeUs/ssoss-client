@@ -3,10 +3,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_max_length_formatter.dart';
 
 void main() {
-  TextEditingValue value(String text, {int? offset}) {
+  TextEditingValue value(
+    String text, {
+    int? offset,
+    TextRange? composing,
+  }) {
     return TextEditingValue(
       text: text,
       selection: TextSelection.collapsed(offset: offset ?? text.length),
+      composing: composing ?? TextRange.empty,
     );
   }
 
@@ -32,7 +37,7 @@ void main() {
       onTruncatedPaste: () => notified = true,
     );
 
-    formatter.formatEditUpdate(value('12'), value('123456'));
+    formatter.formatEditUpdate(value('12'), value('123456789'));
     await Future<void>.delayed(Duration.zero);
 
     expect(notified, isTrue);
@@ -46,6 +51,39 @@ void main() {
     );
 
     formatter.formatEditUpdate(value('12345'), value('123456'));
+    await Future<void>.delayed(Duration.zero);
+
+    expect(notified, isFalse);
+  });
+
+  test('does not notify for short keyboard bursts over the limit', () async {
+    var notified = false;
+    final formatter = SsossMaxLengthFormatter(
+      5,
+      onTruncatedPaste: () => notified = true,
+    );
+
+    // 빠른 타이핑으로 2~3글자가 한 번에 들어온 경우
+    formatter.formatEditUpdate(value('1234'), value('123456'));
+    await Future<void>.delayed(Duration.zero);
+
+    expect(notified, isFalse);
+  });
+
+  test('does not notify during IME composing updates', () async {
+    var notified = false;
+    final formatter = SsossMaxLengthFormatter(
+      5,
+      onTruncatedPaste: () => notified = true,
+    );
+
+    formatter.formatEditUpdate(
+      value('12', composing: const TextRange(start: 2, end: 2)),
+      value(
+        '123456789',
+        composing: const TextRange(start: 2, end: 9),
+      ),
+    );
     await Future<void>.delayed(Duration.zero);
 
     expect(notified, isFalse);

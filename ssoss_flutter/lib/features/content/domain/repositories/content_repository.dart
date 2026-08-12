@@ -45,6 +45,12 @@ abstract class ContentRepository {
   /// 저장 콘텐츠 1건을 삭제한다.
   Future<void> deleteContent(int contentId);
 
+  /// 저장 콘텐츠의 이름을 수정한다.
+  Future<ContentDetail> renameContent({
+    required int contentId,
+    required String name,
+  });
+
   /// 진행 중인 생성 요청·폴링을 취소한다.
   void cancelGeneration();
 }

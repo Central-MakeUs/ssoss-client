@@ -1,9 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_list_item.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_sort.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/delete_content_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/list_contents_usecase.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/rename_content_usecase.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_label_mapper.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/cubit/content_generation_management_state.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/pages/content_generation_management/content_generation_management_components.dart';
@@ -13,14 +15,19 @@ class ContentGenerationManagementCubit
   ContentGenerationManagementCubit({
     required ListContentsUseCase listContents,
     required DeleteContentUseCase deleteContent,
+    required RenameContentUseCase renameContent,
   })  : _listContents = listContents,
         _deleteContent = deleteContent,
+        _renameContent = renameContent,
         super(const ContentGenerationManagementState());
 
   static const int pageSize = 10;
+  static const int minTitleLength = 2;
+  static const int maxTitleLength = 20;
 
   final ListContentsUseCase _listContents;
   final DeleteContentUseCase _deleteContent;
+  final RenameContentUseCase _renameContent;
 
   Future<void> loadInitial() => _load(page: 0, replace: true);
 
@@ -75,6 +82,51 @@ class ContentGenerationManagementCubit
 
   void closeDeleteMenu() {
     emit(state.copyWith(openedMenuItemId: null));
+  }
+
+  Future<void> renameItem(
+    ContentManagementItem item,
+    String title,
+  ) async {
+    emit(state.copyWith(openedMenuItemId: null, errorMessage: null));
+    final trimmed = title.trim();
+    if (trimmed.length < minTitleLength || trimmed.length > maxTitleLength) {
+      const message = '제목은 2자 이상 20자 이내로 입력해 주세요';
+      emit(state.copyWith(errorMessage: message));
+      throw const ServerException(400, message);
+    }
+
+    try {
+      final detail = await _renameContent(
+        contentId: item.contentId,
+        name: trimmed,
+      );
+      if (isClosed) {
+        return;
+      }
+      emit(
+        state.copyWith(
+          items: state.items
+              .map(
+                (current) => current.contentId == item.contentId
+                    ? current.copyWith(name: detail.name)
+                    : current,
+              )
+              .toList(growable: false),
+        ),
+      );
+    } on AppException catch (error) {
+      if (!isClosed) {
+        emit(state.copyWith(errorMessage: error.message));
+      }
+      rethrow;
+    } catch (_) {
+      const message = '콘텐츠 이름 수정에 실패했습니다.';
+      if (!isClosed) {
+        emit(state.copyWith(errorMessage: message));
+      }
+      throw const ServerException(500, message);
+    }
   }
 
   Future<void> deleteItem(ContentManagementItem item) async {
@@ -169,7 +221,7 @@ class ContentGenerationManagementCubit
       initialChannel: ordered.isEmpty ? null : ordered.first,
       category: ContentLabelMapper.purpose(listItem.purpose),
       tone: ContentLabelMapper.tone(listItem.tone),
-      title: listItem.title,
+      name: listItem.name,
       tags: listItem.hashtags,
     );
   }

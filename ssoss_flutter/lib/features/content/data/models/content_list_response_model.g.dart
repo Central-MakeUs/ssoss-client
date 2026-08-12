@@ -10,6 +10,7 @@ _ContentListItemModel _$ContentListItemModelFromJson(
         Map<String, dynamic> json) =>
     _ContentListItemModel(
       contentId: (json['contentId'] as num).toInt(),
+      name: json['name'] as String,
       savedAt: json['savedAt'] as String,
       channels:
           (json['channels'] as List<dynamic>).map((e) => e as String).toList(),
@@ -26,6 +27,7 @@ Map<String, dynamic> _$ContentListItemModelToJson(
         _ContentListItemModel instance) =>
     <String, dynamic>{
       'contentId': instance.contentId,
+      'name': instance.name,
       'savedAt': instance.savedAt,
       'channels': instance.channels,
       'purpose': instance.purpose,

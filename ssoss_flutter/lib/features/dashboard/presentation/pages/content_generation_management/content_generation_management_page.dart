@@ -11,6 +11,7 @@ import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/delete_content_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/list_contents_usecase.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/rename_content_usecase.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/cubit/content_generation_management_cubit.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/cubit/content_generation_management_state.dart';
 import 'package:ssoss_flutter/features/dashboard/presentation/cubit/saved_template_management_cubit.dart';
@@ -58,6 +59,7 @@ class _ContentGenerationManagementPageState
     _cubit = ContentGenerationManagementCubit(
       listContents: context.read<ListContentsUseCase>(),
       deleteContent: context.read<DeleteContentUseCase>(),
+      renameContent: context.read<RenameContentUseCase>(),
     );
     _savedTemplateCubit = SavedTemplateManagementCubit(
       listSavedTemplates: context.read<ListSavedTemplatesUseCase>(),
@@ -304,10 +306,12 @@ class _GeneratedContentTabState extends State<_GeneratedContentTab>
     BuildContext context,
     ContentManagementItem item,
   ) async {
-    context.read<ContentGenerationManagementCubit>().closeDeleteMenu();
+    final cubit = context.read<ContentGenerationManagementCubit>();
+    cubit.closeDeleteMenu();
     await showContentTitleEditDialog(
       context,
-      initialTitle: item.title,
+      initialTitle: item.name,
+      onSave: (title) => cubit.renameItem(item, title),
     );
   }
 

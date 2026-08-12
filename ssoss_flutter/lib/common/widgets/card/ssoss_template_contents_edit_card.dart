@@ -173,13 +173,16 @@ class _SsossTemplateContentsEditCardState
     }
 
     if (widget.maxLength > 0 && _controller.text.length > widget.maxLength) {
-      final attemptedGrowth = _controller.text.length - _document.textLength;
+      final shouldNotify = isSsossLikelyTruncatedPasteByGrowth(
+        oldLength: _document.textLength,
+        newLength: _controller.text.length,
+      );
       final truncated = _controller.text.substring(0, widget.maxLength);
       _controller.value = TextEditingValue(
         text: truncated,
         selection: TextSelection.collapsed(offset: truncated.length),
       );
-      if (attemptedGrowth > 1) {
+      if (shouldNotify) {
         showSsossMaxLengthPasteTruncatedToast(context);
       }
       return;

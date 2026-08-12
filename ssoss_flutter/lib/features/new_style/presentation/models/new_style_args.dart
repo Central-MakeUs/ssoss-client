@@ -21,10 +21,10 @@ class NewStyleArgs {
   /// 원본 톤 (추후 ContentCreateInput 조립용).
   final WritingTone tone;
 
-  /// 참고 문구 출처 채널 (블로그 → 제목, 그 외 → 본문 판별).
+  /// 참고 문구 출처 채널 (스타일 참고 대상).
   final UploadChannel referenceChannel;
 
-  /// 말줄임 전 참고 원문 (제목 또는 본문).
+  /// 참고 콘텐츠 이름(목록·상세의 name).
   final String referenceRawText;
 }
 
