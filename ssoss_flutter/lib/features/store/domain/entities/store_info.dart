@@ -102,6 +102,9 @@ class StoreInfo {
       basic.status.isCompleted ||
       operation.status.isCompleted ||
       content.status.isCompleted;
+
+  bool get isFullyFilled =>
+      basic.isFullyFilled && operation.isFullyFilled && content.isFullyFilled;
 }
 
 class StoreBasicInfo {
@@ -118,6 +121,12 @@ class StoreBasicInfo {
   final String? address;
   final String? introduction;
   final StoreInfoStatus status;
+
+  bool get isFullyFilled =>
+      name?.trim().isNotEmpty == true &&
+      type != null &&
+      address?.trim().isNotEmpty == true &&
+      introduction?.trim().isNotEmpty == true;
 }
 
 class StoreOperationInfo {
@@ -140,6 +149,12 @@ class StoreOperationInfo {
   final bool reservationAvailable;
   final bool parkingAvailable;
   final StoreInfoStatus status;
+
+  bool get isFullyFilled =>
+      businessDays.isNotEmpty &&
+      openTime?.trim().isNotEmpty == true &&
+      closeTime?.trim().isNotEmpty == true &&
+      signatureMenus.isNotEmpty;
 }
 
 class StoreContentInfo {
@@ -156,6 +171,12 @@ class StoreContentInfo {
   final String? forbidden;
   final WritingTone? tone;
   final StoreInfoStatus status;
+
+  bool get isFullyFilled =>
+      strength?.trim().isNotEmpty == true &&
+      keywords.isNotEmpty &&
+      forbidden?.trim().isNotEmpty == true &&
+      tone != null;
 }
 
 class StoreBasicInfoInput {

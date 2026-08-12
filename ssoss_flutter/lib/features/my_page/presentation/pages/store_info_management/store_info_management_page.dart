@@ -308,6 +308,16 @@ class _StoreInfoManagementPageState extends State<StoreInfoManagementPage> {
               );
           break;
         case StoreInfoTab.operation:
+          final hasBusinessTime = !StoreTimeFormat.isUnset(_openingTime) ||
+              !StoreTimeFormat.isUnset(_closingTime);
+          if (hasBusinessTime && _selectedDays.isEmpty) {
+            showSsossToast(
+              context,
+              title: '요일을 선택해주세요.',
+              type: SsossToastType.warning,
+            );
+            return;
+          }
           await context.read<StoreCubit>().saveOperation(
                 StoreOperationInfoInput(
                   businessDays: [
