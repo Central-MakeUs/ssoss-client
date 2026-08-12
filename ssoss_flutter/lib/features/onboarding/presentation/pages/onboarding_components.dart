@@ -586,7 +586,19 @@ class OnboardingEditPreview extends StatefulWidget {
 
 class _OnboardingEditPreviewState extends State<OnboardingEditPreview> {
   static const Duration _frameDuration = Duration(milliseconds: 1000);
-  static const Duration _transitionDuration = Duration(milliseconds: 260);
+  static const Duration _transitionDuration = Duration(milliseconds: 400);
+  static const double _imageAspectWidth = 223;
+  static const double _imageAspectHeight = 469;
+  static const double _imageHeightRatio = 0.8;
+
+  /// 제목 편집 아이콘 중심 (디자인 기준 223×469 좌표 → 비율).
+  static const double _touchPointCenterXRatio = 199 / _imageAspectWidth;
+  static const double _touchPointCenterYRatio = 145 / _imageAspectHeight;
+
+  /// 시작 위치: 목표 대비 오른쪽·아래 (대각선 이동 시작점).
+  static const double _touchPointStartOffsetXRatio = 28 / _imageAspectWidth;
+  static const double _touchPointStartOffsetYRatio = 34 / _imageAspectHeight;
+  static const double _touchPointSizeRatio = 32 / _imageAspectWidth;
   static const List<String> _imagePaths = [
     AppAssets.imgOnboardingEditStart,
     AppAssets.imgOnboardingEditTitle,
@@ -638,63 +650,93 @@ class _OnboardingEditPreviewState extends State<OnboardingEditPreview> {
   @override
   Widget build(BuildContext context) {
     final imagePath = _imagePaths[_frameIndex];
-    final showTouchPoint = _frameIndex == 1;
+    final touchPointVisible = _frameIndex <= 1;
+    final touchPointAtTarget = _frameIndex >= 1;
+    final touchPointMoveDuration =
+        _frameIndex == 1 ? _transitionDuration : Duration.zero;
 
-    return Stack(
-      alignment: Alignment.topCenter,
-      children: [
-        Positioned(
-          top: 170,
-          child: AnimatedSwitcher(
-            duration: _transitionDuration,
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeOutCubic,
-            child: Image.asset(
-              imagePath,
-              key: ValueKey(imagePath),
-              width: 223,
-              height: 469,
-              fit: BoxFit.fill,
-              filterQuality: FilterQuality.high,
-            ),
-          ),
-        ),
-        Positioned(
-          left: 272,
-          top: 298,
-          child: AnimatedOpacity(
-            duration: _transitionDuration,
-            curve: Curves.easeOutCubic,
-            opacity: showTouchPoint ? 1 : 0,
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: const BoxDecoration(
-                color: Color(0x7FFFE1D3),
-                shape: BoxShape.circle,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final imageHeight = (constraints.maxHeight * _imageHeightRatio)
+            .clamp(360.0, _imageAspectHeight);
+        final imageWidth =
+            imageHeight * (_imageAspectWidth / _imageAspectHeight);
+        final touchPointSize = imageWidth * _touchPointSizeRatio;
+        final targetLeft =
+            imageWidth * _touchPointCenterXRatio - touchPointSize / 2;
+        final targetTop =
+            imageHeight * _touchPointCenterYRatio - touchPointSize / 2;
+        final startLeft =
+            targetLeft + imageWidth * _touchPointStartOffsetXRatio;
+        final startTop = targetTop + imageHeight * _touchPointStartOffsetYRatio;
+        final touchPointLeft = touchPointAtTarget ? targetLeft : startLeft;
+        final touchPointTop = touchPointAtTarget ? targetTop : startTop;
+
+        return Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            Positioned(
+              top: 170,
+              child: SizedBox(
+                width: imageWidth,
+                height: imageHeight,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Image.asset(
+                      imagePath,
+                      width: imageWidth,
+                      height: imageHeight,
+                      fit: BoxFit.fill,
+                      filterQuality: FilterQuality.high,
+                      gaplessPlayback: true,
+                    ),
+                    AnimatedPositioned(
+                      duration: touchPointMoveDuration,
+                      curve: Curves.easeIn,
+                      left: touchPointLeft,
+                      top: touchPointTop,
+                      child: AnimatedOpacity(
+                        duration: _transitionDuration,
+                        curve: Curves.easeOutCubic,
+                        opacity: touchPointVisible ? 1 : 0,
+                        child: IgnorePointer(
+                          child: Container(
+                            width: touchPointSize,
+                            height: touchPointSize,
+                            decoration: const BoxDecoration(
+                              color: Color(0x7FFFE1D3),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: 112,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  AppColors.neutral50.withValues(alpha: 0),
-                  AppColors.neutral50,
-                ],
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 112,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppColors.neutral50.withValues(alpha: 0),
+                      AppColors.neutral50,
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
