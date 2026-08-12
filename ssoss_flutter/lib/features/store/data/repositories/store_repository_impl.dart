@@ -48,4 +48,9 @@ class StoreRepositoryImpl implements StoreRepository {
   Future<void> markOnboardingCompleted() {
     return _preferences.writeBool(_onboardingCompletedKey, true);
   }
+
+  @override
+  Future<void> clearOnboardingCompleted() {
+    return _preferences.remove(_onboardingCompletedKey);
+  }
 }

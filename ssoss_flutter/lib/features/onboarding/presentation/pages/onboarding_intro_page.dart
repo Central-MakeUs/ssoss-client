@@ -83,9 +83,7 @@ class _OnboardingIntroPageState extends State<OnboardingIntroPage> {
       pageView: PageView.builder(
         controller: _pageController,
         itemCount: OnboardingPages.items.length,
-        physics: _isFirstPage
-            ? const NeverScrollableScrollPhysics()
-            : const ClampingScrollPhysics(),
+        physics: const ClampingScrollPhysics(),
         onPageChanged: (index) => setState(() => _currentIndex = index),
         itemBuilder: (context, index) {
           return OnboardingAnimatedPage(
