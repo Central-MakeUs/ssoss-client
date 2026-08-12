@@ -117,6 +117,28 @@ class TemplateCatalogCubit extends Cubit<TemplateCatalogState> {
     }
   }
 
+  /// 상세 화면에서 변경된 북마크를 API 재호출 없이 목록에 반영한다.
+  void applyBookmarkState(int templateId, bool bookmarked) {
+    final index = state.items.indexWhere((item) => item.id == templateId);
+    if (index < 0) {
+      return;
+    }
+
+    final current = state.items[index];
+    if (current.bookmarked == bookmarked) {
+      return;
+    }
+
+    emit(
+      state.copyWith(
+        items: _replaceItem(
+          state.items,
+          current.copyWith(bookmarked: bookmarked),
+        ),
+      ),
+    );
+  }
+
   Set<int> _withoutPending(int templateId) {
     return {...state.pendingBookmarkIds}..remove(templateId);
   }

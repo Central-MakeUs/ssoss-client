@@ -74,7 +74,7 @@
 ### Out of Scope
 
 - 정렬 UI / 정렬 API
-- go_router 등록 (CupertinoPageRoute push)
+- go_router 등록 (MaterialPageRoute push)
 
 ---
 

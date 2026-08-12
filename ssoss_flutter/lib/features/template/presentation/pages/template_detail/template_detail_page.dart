@@ -27,6 +27,7 @@ import 'package:ssoss_flutter/features/template/presentation/widgets/template_mo
 class TemplateDetailPage extends StatelessWidget {
   const TemplateDetailPage({
     required this.templateId,
+    this.onBookmarkChanged,
     super.key,
   });
 
@@ -34,6 +35,7 @@ class TemplateDetailPage extends StatelessWidget {
   static const String routePath = '/template-detail';
 
   final int templateId;
+  final ValueChanged<bool>? onBookmarkChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -49,13 +51,15 @@ class TemplateDetailPage extends StatelessWidget {
         unawaited(cubit.load());
         return cubit;
       },
-      child: const _TemplateDetailView(),
+      child: _TemplateDetailView(onBookmarkChanged: onBookmarkChanged),
     );
   }
 }
 
 class _TemplateDetailView extends StatefulWidget {
-  const _TemplateDetailView();
+  const _TemplateDetailView({this.onBookmarkChanged});
+
+  final ValueChanged<bool>? onBookmarkChanged;
 
   @override
   State<_TemplateDetailView> createState() => _TemplateDetailViewState();
@@ -75,10 +79,25 @@ class _TemplateDetailViewState extends State<_TemplateDetailView> {
     );
   }
 
+  void _handleBack() {
+    context.pop();
+  }
+
+  void _syncBookmarkState(bool bookmarked) {
+    widget.onBookmarkChanged?.call(bookmarked);
+  }
+
   Future<void> _onSaveTap() async {
-    final success =
-        await context.read<TemplateDetailCubit>().toggleBookmark();
-    if (!mounted || success) {
+    final cubit = context.read<TemplateDetailCubit>();
+    final success = await cubit.toggleBookmark();
+    if (!mounted) {
+      return;
+    }
+    if (success) {
+      final bookmarked = cubit.state.detail?.bookmarked;
+      if (bookmarked != null) {
+        _syncBookmarkState(bookmarked);
+      }
       return;
     }
     showSsossToast(
@@ -120,28 +139,35 @@ class _TemplateDetailViewState extends State<_TemplateDetailView> {
       builder: (context, state) {
         final detail = state.detail;
 
-        return Scaffold(
-          backgroundColor: AppColors.white,
-          body: SafeArea(
-            child: Column(
-              children: [
-                SsossAppBar.back(
-                  title: '템플릿 미리보기',
-                  onBack: () => Navigator.of(context).pop(),
-                ),
-                Expanded(child: _buildBody(state, detail)),
-              ],
+        return BackButtonListener(
+          onBackButtonPressed: () async {
+            _handleBack();
+            return true;
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.white,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  SsossAppBar.back(
+                    title: '템플릿 미리보기',
+                    onBack: _handleBack,
+                  ),
+                  Expanded(child: _buildBody(state, detail)),
+                ],
+              ),
             ),
+            bottomNavigationBar: detail == null
+                ? null
+                : TemplateDetailBottomBar(
+                    isSaved: detail.bookmarked,
+                    isApplying: state.isApplying,
+                    onSaveTap: () => unawaited(_onSaveTap()),
+                    onApplyTap: state.isApplying
+                        ? null
+                        : () => unawaited(_onApplyTap()),
+                  ),
           ),
-          bottomNavigationBar: detail == null
-              ? null
-              : TemplateDetailBottomBar(
-                  isSaved: detail.bookmarked,
-                  isApplying: state.isApplying,
-                  onSaveTap: () => unawaited(_onSaveTap()),
-                  onApplyTap:
-                      state.isApplying ? null : () => unawaited(_onApplyTap()),
-                ),
         );
       },
     );

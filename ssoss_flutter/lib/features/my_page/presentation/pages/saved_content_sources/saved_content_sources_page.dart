@@ -158,11 +158,16 @@ class _SavedContentSourcesViewState extends State<_SavedContentSourcesView> {
     );
   }
 
-  void _openTemplateDetail(TemplateItem item) {
-    unawaited(
-      Navigator.of(context, rootNavigator: true).push<void>(
-        MaterialPageRoute<void>(
-          builder: (_) => TemplateDetailPage(templateId: item.id),
+  Future<void> _openTemplateDetail(TemplateItem item) async {
+    await Navigator.of(context, rootNavigator: true).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => TemplateDetailPage(
+          templateId: item.id,
+          onBookmarkChanged: (bookmarked) {
+            if (!bookmarked) {
+              context.read<BookmarkedTemplatesCubit>().removeLocally(item.id);
+            }
+          },
         ),
       ),
     );
@@ -233,7 +238,8 @@ class _SavedContentSourcesViewState extends State<_SavedContentSourcesView> {
                             ),
                             onSaveTap: (itemId) =>
                                 unawaited(_unbookmarkTemplate(itemId)),
-                            onItemTap: _openTemplateDetail,
+                            onItemTap: (item) =>
+                                unawaited(_openTemplateDetail(item)),
                           );
                         },
                       );
