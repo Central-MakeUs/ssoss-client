@@ -10,7 +10,7 @@ abstract class NewStyleDetailState with _$NewStyleDetailState {
     @Default('') String highlight,
     @Default('') String forbidden,
     @Default(<String>[]) List<String> keywords,
-    @Default(false) bool photoGuideEnabled,
+    @Default(true) bool photoGuideEnabled,
   }) = _NewStyleDetailState;
 
   bool get canSubmit => highlight.trim().isNotEmpty;

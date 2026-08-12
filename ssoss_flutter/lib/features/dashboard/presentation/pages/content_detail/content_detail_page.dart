@@ -265,6 +265,7 @@ class _ContentDetailBodyState extends State<_ContentDetailBody> {
         context,
         args: NewStyleArgs(
           sourceContentId: widget.detail.contentId.toString(),
+          contentChannelId: channelContent.contentChannelId,
           purpose: widget.detail.purpose,
           tone: widget.detail.tone,
           referenceChannel: result.channel,

@@ -13,8 +13,10 @@ import 'package:ssoss_flutter/features/content/domain/usecases/list_contents_use
 import 'package:ssoss_flutter/features/content/domain/usecases/poll_generation_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/rename_content_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/run_generation_usecase.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/run_style_reuse_generation_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/save_content_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/start_generation_usecase.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/start_style_reuse_usecase.dart';
 
 /// content 피처 전용 provider 묶음.
 class ContentProviders {
@@ -38,6 +40,15 @@ class ContentProviders {
         ProxyProvider<ContentRepository, RunGenerationUseCase>(
           update: (_, repository, __) => RunGenerationUseCase(
             startGeneration: StartGenerationUseCase(repository),
+            pollGeneration: PollGenerationUseCase(repository),
+          ),
+        ),
+        ProxyProvider<ContentRepository, StartStyleReuseUseCase>(
+          update: (_, repository, __) => StartStyleReuseUseCase(repository),
+        ),
+        ProxyProvider<ContentRepository, RunStyleReuseGenerationUseCase>(
+          update: (_, repository, __) => RunStyleReuseGenerationUseCase(
+            startStyleReuse: StartStyleReuseUseCase(repository),
             pollGeneration: PollGenerationUseCase(repository),
           ),
         ),

@@ -26,7 +26,6 @@ import 'package:ssoss_flutter/features/content/presentation/pages/content_other_
 import 'package:ssoss_flutter/features/content/presentation/pages/content_result_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_save_complete_page.dart';
 import 'package:ssoss_flutter/features/new_style/presentation/models/new_style_args.dart';
-import 'package:ssoss_flutter/features/new_style/presentation/pages/new_style_channel_page.dart';
 import 'package:ssoss_flutter/features/new_style/presentation/pages/new_style_detail_page.dart';
 import 'package:ssoss_flutter/features/home/presentation/models/home_route_extra.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
@@ -230,25 +229,19 @@ GoRouter createAppRouter(
         },
       ),
       GoRoute(
-        name: NewStyleChannelPage.routeName,
-        path: NewStyleChannelPage.routePath,
-        builder: (context, state) {
-          final extra = state.extra;
-          if (extra is! NewStyleArgs) {
-            return const ContentCreatePage();
-          }
-          return NewStyleChannelPage(args: extra);
-        },
-      ),
-      GoRoute(
         name: NewStyleDetailPage.routeName,
         path: NewStyleDetailPage.routePath,
         builder: (context, state) {
           final extra = state.extra;
-          if (extra is! NewStyleDetailArgs) {
-            return const ContentCreatePage();
+          if (extra is NewStyleDetailRouteArgs) {
+            return NewStyleDetailPage(routeArgs: extra);
           }
-          return NewStyleDetailPage(args: extra);
+          if (extra is NewStyleArgs) {
+            return NewStyleDetailPage(
+              routeArgs: NewStyleDetailRouteArgs(args: extra),
+            );
+          }
+          return const ContentCreatePage();
         },
       ),
       GoRoute(

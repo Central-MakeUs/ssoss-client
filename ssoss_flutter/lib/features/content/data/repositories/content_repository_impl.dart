@@ -13,6 +13,8 @@ import 'package:ssoss_flutter/features/content/data/models/content_save_response
 import 'package:ssoss_flutter/features/content/data/models/generation_channel_result_model.dart';
 import 'package:ssoss_flutter/features/content/data/models/generation_detail_model.dart';
 import 'package:ssoss_flutter/features/content/data/models/generation_start_request.dart';
+import 'package:ssoss_flutter/features/content/data/models/style_reuse_request.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/style_reuse_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_channel_content.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_detail.dart';
@@ -39,6 +41,23 @@ class ContentRepositoryImpl implements ContentRepository {
     try {
       final response = await _remote.startGeneration(
         GenerationStartRequest.fromEntity(input),
+        cancelToken: _activeCancelToken,
+      );
+      return response.generationId;
+    } on DioException catch (e) {
+      throw _mapCancel(e);
+    }
+  }
+
+  @override
+  Future<int> startStyleReuse(StyleReuseInput input) async {
+    _activeCancelToken?.cancel('superseded');
+    _activeCancelToken = CancelToken();
+    try {
+      final response = await _remote.startStyleReuse(
+        contentId: input.contentId,
+        contentChannelId: input.contentChannelId,
+        request: StyleReuseRequest.fromEntity(input),
         cancelToken: _activeCancelToken,
       );
       return response.generationId;

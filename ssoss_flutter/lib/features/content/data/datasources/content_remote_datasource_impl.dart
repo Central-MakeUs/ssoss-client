@@ -12,6 +12,7 @@ import 'package:ssoss_flutter/features/content/data/models/content_save_response
 import 'package:ssoss_flutter/features/content/data/models/generation_detail_model.dart';
 import 'package:ssoss_flutter/features/content/data/models/generation_start_request.dart';
 import 'package:ssoss_flutter/features/content/data/models/generation_start_response.dart';
+import 'package:ssoss_flutter/features/content/data/models/style_reuse_request.dart';
 
 class ContentRemoteDatasourceImpl implements ContentRemoteDatasource {
   ContentRemoteDatasourceImpl(this._dio);
@@ -29,6 +30,25 @@ class ContentRemoteDatasourceImpl implements ContentRemoteDatasource {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
         _generationsPath,
+        data: request.toJson(),
+        cancelToken: cancelToken,
+      );
+      return GenerationStartResponse.fromJson(response.data!);
+    } on DioException catch (e) {
+      throw mapDioError(e);
+    }
+  }
+
+  @override
+  Future<GenerationStartResponse> startStyleReuse({
+    required int contentId,
+    required int contentChannelId,
+    required StyleReuseRequest request,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '$_contentsPath/$contentId/channels/$contentChannelId/reuses',
         data: request.toJson(),
         cancelToken: cancelToken,
       );

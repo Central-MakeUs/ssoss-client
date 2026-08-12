@@ -10,6 +10,7 @@ import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/generation_detail.dart';
 import 'package:ssoss_flutter/features/content/domain/repositories/content_repository.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/run_generation_usecase.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/run_style_reuse_generation_usecase.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_generating_cubit.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_generating_state.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_create_flow.dart';
@@ -21,6 +22,8 @@ import 'package:ssoss_flutter/features/content/presentation/pages/content_result
 import 'package:ssoss_flutter/features/content/presentation/widgets/content_generation_failure_view.dart';
 import 'package:ssoss_flutter/features/content/presentation/widgets/content_generating_view.dart';
 import 'package:ssoss_flutter/features/home/presentation/pages/home_page.dart';
+import 'package:ssoss_flutter/features/new_style/presentation/models/new_style_args.dart';
+import 'package:ssoss_flutter/features/new_style/presentation/pages/new_style_detail_page.dart';
 
 /// 콘텐츠 생성 대기·실패 화면.
 class ContentGeneratingPage extends StatefulWidget {
@@ -50,8 +53,10 @@ class _ContentGeneratingPageState extends State<ContentGeneratingPage> {
     return BlocProvider(
       create: (context) => ContentGeneratingCubit(
         runGeneration: context.read<RunGenerationUseCase>(),
+        runStyleReuseGeneration:
+            context.read<RunStyleReuseGenerationUseCase>(),
         contentRepository: context.read<ContentRepository>(),
-      )..start(args.input),
+      )..start(args),
       child: BlocListener<ContentGeneratingCubit, ContentGeneratingState>(
         listener: (context, state) {
           state.whenOrNull(
@@ -95,9 +100,7 @@ class _ContentGeneratingPageState extends State<ContentGeneratingPage> {
                       onBack: () => _goBackToCreate(context),
                       onClose: () => context.go(HomePage.routePath),
                       onRetry: () =>
-                          context.read<ContentGeneratingCubit>().start(
-                                args.input,
-                              ),
+                          context.read<ContentGeneratingCubit>().start(args),
                     ),
                   ),
                 ),
@@ -110,6 +113,19 @@ class _ContentGeneratingPageState extends State<ContentGeneratingPage> {
   }
 
   void _goBackToCreate(BuildContext context) {
+    if (args.flow == ContentCreateFlow.styleReuse) {
+      final newStyleArgs = args.newStyleArgs;
+      if (newStyleArgs != null) {
+        context.go(
+          NewStyleDetailPage.routePath,
+          extra: NewStyleDetailRouteArgs(
+            args: newStyleArgs,
+            restoredInput: args.input,
+          ),
+        );
+        return;
+      }
+    }
     if (args.flow == ContentCreateFlow.otherChannel) {
       final sourceContentId = args.input.sourceContentId;
       if (sourceContentId != null && sourceContentId.isNotEmpty) {
