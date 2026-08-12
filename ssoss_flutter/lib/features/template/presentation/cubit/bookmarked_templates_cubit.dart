@@ -59,6 +59,21 @@ class BookmarkedTemplatesCubit extends Cubit<BookmarkedTemplatesState> {
     await load();
   }
 
+  /// 상세 화면에서 이미 해제된 북마크를 목록에서만 제거한다.
+  void removeLocally(int templateId) {
+    if (!state.items.any((item) => item.id == templateId)) {
+      return;
+    }
+    emit(
+      state.copyWith(
+        items: [
+          for (final item in state.items)
+            if (item.id != templateId) item,
+        ],
+      ),
+    );
+  }
+
   /// 낙관적으로 목록에서 제거한 뒤 DELETE 호출.
   /// 성공 시 `true`, 실패 시 복원하고 `false`.
   Future<bool> unbookmark(int templateId) async {

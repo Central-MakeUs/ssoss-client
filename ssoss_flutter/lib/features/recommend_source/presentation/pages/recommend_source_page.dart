@@ -221,11 +221,17 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
     );
   }
 
-  void _openDetail(TemplateItem item) {
-    unawaited(
-      context.push(
-        TemplateDetailPage.routePath,
-        extra: item.id,
+  Future<void> _openDetail(TemplateItem item) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => TemplateDetailPage(
+          templateId: item.id,
+          onBookmarkChanged: (bookmarked) {
+            context
+                .read<TemplateCatalogCubit>()
+                .applyBookmarkState(item.id, bookmarked);
+          },
+        ),
       ),
     );
   }
@@ -294,7 +300,7 @@ class _RecommendSourceViewState extends State<_RecommendSourceView> {
                               ),
                               onSaveTap: (itemId) =>
                                   unawaited(_toggleTemplateSaved(itemId)),
-                              onItemTap: _openDetail,
+                              onItemTap: (item) => unawaited(_openDetail(item)),
                               onLoadMore: () => unawaited(
                                 context.read<TemplateCatalogCubit>().loadMore(),
                               ),
