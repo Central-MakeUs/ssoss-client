@@ -3,9 +3,9 @@ import 'package:go_router/go_router.dart';
 
 import 'package:ssoss_flutter/common/widgets/modal/ssoss_modal.dart';
 import 'package:ssoss_flutter/features/new_style/presentation/models/new_style_args.dart';
-import 'package:ssoss_flutter/features/new_style/presentation/pages/new_style_channel_page.dart';
+import 'package:ssoss_flutter/features/new_style/presentation/pages/new_style_detail_page.dart';
 
-/// 확인 모달 후 이 스타일로 새로 만들기 채널 선택 화면으로 이동한다.
+/// 확인 모달 후 이 스타일로 새로 만들기 상세 입력 화면으로 이동한다.
 Future<void> openNewStyleFlow(
   BuildContext context, {
   required NewStyleArgs args,
@@ -23,5 +23,8 @@ Future<void> openNewStyleFlow(
     return;
   }
 
-  await context.push(NewStyleChannelPage.routePath, extra: args);
+  await context.push(
+    NewStyleDetailPage.routePath,
+    extra: NewStyleDetailRouteArgs(args: args),
+  );
 }

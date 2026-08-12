@@ -193,6 +193,8 @@ class _ContentResultPageState extends State<ContentResultPage> {
       extra: ContentGenerationArgs(
         input: args.input,
         flow: args.flow,
+        styleReuseContentChannelId: args.styleReuseContentChannelId,
+        newStyleArgs: args.newStyleArgs,
         completedChannels: args.completedChannels,
       ),
     );

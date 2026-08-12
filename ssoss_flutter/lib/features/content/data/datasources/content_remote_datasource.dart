@@ -10,10 +10,18 @@ import 'package:ssoss_flutter/features/content/data/models/content_save_response
 import 'package:ssoss_flutter/features/content/data/models/generation_detail_model.dart';
 import 'package:ssoss_flutter/features/content/data/models/generation_start_request.dart';
 import 'package:ssoss_flutter/features/content/data/models/generation_start_response.dart';
+import 'package:ssoss_flutter/features/content/data/models/style_reuse_request.dart';
 
 abstract class ContentRemoteDatasource {
   Future<GenerationStartResponse> startGeneration(
     GenerationStartRequest request, {
+    CancelToken? cancelToken,
+  });
+
+  Future<GenerationStartResponse> startStyleReuse({
+    required int contentId,
+    required int contentChannelId,
+    required StyleReuseRequest request,
     CancelToken? cancelToken,
   });
 
