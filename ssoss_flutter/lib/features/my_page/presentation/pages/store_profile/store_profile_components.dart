@@ -17,10 +17,7 @@ enum StoreProfileStatus {
     if (!info.hasAnyWrittenInfo) {
       return StoreProfileStatus.empty;
     }
-    final completed = info.basic.status.isCompleted &&
-        info.operation.status.isCompleted &&
-        info.content.status.isCompleted;
-    return completed
+    return info.isFullyFilled
         ? StoreProfileStatus.completed
         : StoreProfileStatus.partial;
   }

@@ -48,6 +48,17 @@ class _OnboardingOperationInfoPageState
   }
 
   Future<void> _saveOperationInfo() async {
+    final hasBusinessTime = !StoreTimeFormat.isUnset(_openingTime) ||
+        !StoreTimeFormat.isUnset(_closingTime);
+    if (hasBusinessTime && _selectedDays.isEmpty) {
+      showSsossToast(
+        context,
+        title: '요일을 선택해주세요.',
+        type: SsossToastType.warning,
+      );
+      return;
+    }
+
     try {
       final openTime = _openingTime == '00:00' ? null : _openingTime;
       final closeTime = _closingTime == '00:00' ? null : _closingTime;
