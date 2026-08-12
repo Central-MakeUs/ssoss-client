@@ -41,6 +41,7 @@ import 'features/credit/presentation/cubit/credit_balance_cubit.dart';
 import 'features/hashtag/presentation/hashtag_providers.dart';
 import 'features/template/presentation/template_providers.dart';
 import 'features/store/domain/usecases/check_store_onboarding_usecase.dart';
+import 'features/store/domain/usecases/clear_store_onboarding_usecase.dart';
 import 'features/store/domain/usecases/complete_store_onboarding_usecase.dart';
 import 'features/store/domain/usecases/get_my_store_usecase.dart';
 import 'features/store/domain/usecases/save_store_basic_info_usecase.dart';
@@ -298,7 +299,7 @@ class _SsossAppState extends State<SsossApp> {
                       );
                       return;
                     }
-                    context.read<StoreCubit>().reset();
+                    unawaited(context.read<StoreCubit>().reset());
                   },
                 ),
                 BlocListener<StoreCubit, StoreState>(
@@ -385,6 +386,7 @@ class SsossAppScope extends StatelessWidget {
                 checkOnboarding: context.read<CheckStoreOnboardingUseCase>(),
                 completeOnboarding:
                     context.read<CompleteStoreOnboardingUseCase>(),
+                clearOnboarding: context.read<ClearStoreOnboardingUseCase>(),
               ),
               child: const SsossApp(),
             ),

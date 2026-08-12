@@ -12,4 +12,6 @@ abstract class StoreRepository {
   Future<bool> hasCompletedOnboarding();
 
   Future<void> markOnboardingCompleted();
+
+  Future<void> clearOnboardingCompleted();
 }

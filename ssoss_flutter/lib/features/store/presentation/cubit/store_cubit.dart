@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/features/store/domain/entities/store_info.dart';
 import 'package:ssoss_flutter/features/store/domain/usecases/check_store_onboarding_usecase.dart';
+import 'package:ssoss_flutter/features/store/domain/usecases/clear_store_onboarding_usecase.dart';
 import 'package:ssoss_flutter/features/store/domain/usecases/complete_store_onboarding_usecase.dart';
 import 'package:ssoss_flutter/features/store/domain/usecases/get_my_store_usecase.dart';
 import 'package:ssoss_flutter/features/store/domain/usecases/save_store_basic_info_usecase.dart';
@@ -18,12 +19,14 @@ class StoreCubit extends Cubit<StoreState> {
     required SaveStoreContentInfoUseCase saveContentInfo,
     required CheckStoreOnboardingUseCase checkOnboarding,
     required CompleteStoreOnboardingUseCase completeOnboarding,
+    required ClearStoreOnboardingUseCase clearOnboarding,
   })  : _getMyStore = getMyStore,
         _saveBasicInfo = saveBasicInfo,
         _saveOperationInfo = saveOperationInfo,
         _saveContentInfo = saveContentInfo,
         _checkOnboarding = checkOnboarding,
         _completeOnboarding = completeOnboarding,
+        _clearOnboarding = clearOnboarding,
         super(StoreState.initial());
 
   final GetMyStoreUseCase _getMyStore;
@@ -32,6 +35,7 @@ class StoreCubit extends Cubit<StoreState> {
   final SaveStoreContentInfoUseCase _saveContentInfo;
   final CheckStoreOnboardingUseCase _checkOnboarding;
   final CompleteStoreOnboardingUseCase _completeOnboarding;
+  final ClearStoreOnboardingUseCase _clearOnboarding;
 
   Future<void> bootstrap() async {
     emit(
@@ -48,7 +52,7 @@ class StoreCubit extends Cubit<StoreState> {
       emit(
         state.copyWith(
           info: info,
-          hasCompletedOnboarding: completed,
+          hasCompletedOnboarding: completed || info.hasAnyWrittenInfo,
           isLoading: false,
           isBootstrapped: true,
           isNetworkUnavailable: false,
@@ -155,7 +159,8 @@ class StoreCubit extends Cubit<StoreState> {
     emit(state.copyWith(hasCompletedOnboarding: true));
   }
 
-  void reset() {
+  Future<void> reset() async {
+    await _clearOnboarding();
     emit(StoreState.initial());
   }
 }

@@ -8,6 +8,7 @@ import 'package:ssoss_flutter/features/store/data/datasources/store_remote_datas
 import 'package:ssoss_flutter/features/store/data/repositories/store_repository_impl.dart';
 import 'package:ssoss_flutter/features/store/domain/repositories/store_repository.dart';
 import 'package:ssoss_flutter/features/store/domain/usecases/check_store_onboarding_usecase.dart';
+import 'package:ssoss_flutter/features/store/domain/usecases/clear_store_onboarding_usecase.dart';
 import 'package:ssoss_flutter/features/store/domain/usecases/complete_store_onboarding_usecase.dart';
 import 'package:ssoss_flutter/features/store/domain/usecases/get_my_store_usecase.dart';
 import 'package:ssoss_flutter/features/store/domain/usecases/save_store_basic_info_usecase.dart';
@@ -48,6 +49,10 @@ class StoreProviders {
         ProxyProvider<StoreRepository, CompleteStoreOnboardingUseCase>(
           update: (_, repository, __) =>
               CompleteStoreOnboardingUseCase(repository),
+        ),
+        ProxyProvider<StoreRepository, ClearStoreOnboardingUseCase>(
+          update: (_, repository, __) =>
+              ClearStoreOnboardingUseCase(repository),
         ),
       ];
 }
