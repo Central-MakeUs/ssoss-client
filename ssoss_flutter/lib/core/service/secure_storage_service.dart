@@ -25,4 +25,11 @@ class SecureStorageService {
   Future<void> delete({required String key}) {
     return _storage.delete(key: key);
   }
+
+  /// SecureStorage의 모든 항목을 삭제한다.
+  ///
+  /// iOS는 앱 삭제 후에도 Keychain이 남을 수 있어, 재설치 직후 호출한다.
+  Future<void> deleteAll() {
+    return _storage.deleteAll();
+  }
 }
