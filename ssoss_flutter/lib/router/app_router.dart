@@ -17,7 +17,6 @@ import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.da
 import 'package:ssoss_flutter/features/content/presentation/models/content_generation_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_other_channel_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_args.dart';
-import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_mode.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_edit_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_create_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_edit_page.dart';
@@ -285,15 +284,8 @@ GoRouter createAppRouter(
           if (extra is ContentSaveCompleteArgs) {
             return ContentSaveCompletePage(args: extra);
           }
-          if (extra is ContentSaveCompleteMode) {
-            return ContentSaveCompletePage(
-              args: ContentSaveCompleteArgs(mode: extra),
-            );
-          }
           return const ContentSaveCompletePage(
-            args: ContentSaveCompleteArgs(
-              mode: ContentSaveCompleteMode.finalSave,
-            ),
+            args: ContentSaveCompleteArgs(),
           );
         },
       ),

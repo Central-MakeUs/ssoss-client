@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import 'package:ssoss_flutter/features/content/data/models/channel_conversion_request.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_channel_edit_request.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_channel_response_model.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_detail_response_model.dart';
@@ -22,6 +23,13 @@ abstract class ContentRemoteDatasource {
     required int contentId,
     required int contentChannelId,
     required StyleReuseRequest request,
+    CancelToken? cancelToken,
+  });
+
+  Future<GenerationStartResponse> startChannelConversion({
+    required int contentId,
+    required int contentChannelId,
+    required ChannelConversionRequest request,
     CancelToken? cancelToken,
   });
 

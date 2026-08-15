@@ -12,9 +12,11 @@ import 'package:ssoss_flutter/features/content/domain/usecases/get_content_useca
 import 'package:ssoss_flutter/features/content/domain/usecases/list_contents_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/poll_generation_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/rename_content_usecase.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/run_channel_conversion_generation_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/run_generation_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/run_style_reuse_generation_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/save_content_usecase.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/start_channel_conversion_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/start_generation_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/start_style_reuse_usecase.dart';
 
@@ -49,6 +51,16 @@ class ContentProviders {
         ProxyProvider<ContentRepository, RunStyleReuseGenerationUseCase>(
           update: (_, repository, __) => RunStyleReuseGenerationUseCase(
             startStyleReuse: StartStyleReuseUseCase(repository),
+            pollGeneration: PollGenerationUseCase(repository),
+          ),
+        ),
+        ProxyProvider<ContentRepository, StartChannelConversionUseCase>(
+          update: (_, repository, __) =>
+              StartChannelConversionUseCase(repository),
+        ),
+        ProxyProvider<ContentRepository, RunChannelConversionGenerationUseCase>(
+          update: (_, repository, __) => RunChannelConversionGenerationUseCase(
+            startChannelConversion: StartChannelConversionUseCase(repository),
             pollGeneration: PollGenerationUseCase(repository),
           ),
         ),

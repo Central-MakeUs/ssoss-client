@@ -10,6 +10,7 @@ class ContentGenerationArgs {
     required this.input,
     required this.flow,
     this.styleReuseContentChannelId,
+    this.conversionContentChannelId,
     this.newStyleArgs,
     this.completedChannels = const [],
     this.generationDetail,
@@ -20,6 +21,9 @@ class ContentGenerationArgs {
 
   /// 스타일 재사용 API 경로에 사용할 채널별 콘텐츠 ID.
   final int? styleReuseContentChannelId;
+
+  /// 다른 채널용 변환 API 경로에 사용할 원본 채널별 콘텐츠 ID.
+  final int? conversionContentChannelId;
 
   /// 스타일 재사용 실패 복귀 시 상세 화면 복원용.
   final NewStyleArgs? newStyleArgs;
@@ -34,6 +38,7 @@ class ContentGenerationArgs {
     ContentCreateInput? input,
     ContentCreateFlow? flow,
     int? styleReuseContentChannelId,
+    int? conversionContentChannelId,
     NewStyleArgs? newStyleArgs,
     List<UploadChannel>? completedChannels,
     GenerationDetail? generationDetail,
@@ -43,6 +48,8 @@ class ContentGenerationArgs {
       flow: flow ?? this.flow,
       styleReuseContentChannelId:
           styleReuseContentChannelId ?? this.styleReuseContentChannelId,
+      conversionContentChannelId:
+          conversionContentChannelId ?? this.conversionContentChannelId,
       newStyleArgs: newStyleArgs ?? this.newStyleArgs,
       completedChannels: completedChannels ?? this.completedChannels,
       generationDetail: generationDetail ?? this.generationDetail,

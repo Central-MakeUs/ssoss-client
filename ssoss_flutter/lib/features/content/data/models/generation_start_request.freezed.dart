@@ -21,7 +21,6 @@ mixin _$GenerationStartRequest {
   List<String> get keywords;
   bool get photoGuideChecked;
   String? get forbidden;
-  int? get sourceContentId;
 
   /// Create a copy of GenerationStartRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -48,9 +47,7 @@ mixin _$GenerationStartRequest {
             (identical(other.photoGuideChecked, photoGuideChecked) ||
                 other.photoGuideChecked == photoGuideChecked) &&
             (identical(other.forbidden, forbidden) ||
-                other.forbidden == forbidden) &&
-            (identical(other.sourceContentId, sourceContentId) ||
-                other.sourceContentId == sourceContentId));
+                other.forbidden == forbidden));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -63,12 +60,11 @@ mixin _$GenerationStartRequest {
       emphasis,
       const DeepCollectionEquality().hash(keywords),
       photoGuideChecked,
-      forbidden,
-      sourceContentId);
+      forbidden);
 
   @override
   String toString() {
-    return 'GenerationStartRequest(channels: $channels, purpose: $purpose, tone: $tone, emphasis: $emphasis, keywords: $keywords, photoGuideChecked: $photoGuideChecked, forbidden: $forbidden, sourceContentId: $sourceContentId)';
+    return 'GenerationStartRequest(channels: $channels, purpose: $purpose, tone: $tone, emphasis: $emphasis, keywords: $keywords, photoGuideChecked: $photoGuideChecked, forbidden: $forbidden)';
   }
 }
 
@@ -85,8 +81,7 @@ abstract mixin class $GenerationStartRequestCopyWith<$Res> {
       String emphasis,
       List<String> keywords,
       bool photoGuideChecked,
-      String? forbidden,
-      int? sourceContentId});
+      String? forbidden});
 }
 
 /// @nodoc
@@ -109,7 +104,6 @@ class _$GenerationStartRequestCopyWithImpl<$Res>
     Object? keywords = null,
     Object? photoGuideChecked = null,
     Object? forbidden = freezed,
-    Object? sourceContentId = freezed,
   }) {
     return _then(_self.copyWith(
       channels: null == channels
@@ -140,10 +134,6 @@ class _$GenerationStartRequestCopyWithImpl<$Res>
           ? _self.forbidden
           : forbidden // ignore: cast_nullable_to_non_nullable
               as String?,
-      sourceContentId: freezed == sourceContentId
-          ? _self.sourceContentId
-          : sourceContentId // ignore: cast_nullable_to_non_nullable
-              as int?,
     ));
   }
 }
@@ -248,8 +238,7 @@ extension GenerationStartRequestPatterns on GenerationStartRequest {
             String emphasis,
             List<String> keywords,
             bool photoGuideChecked,
-            String? forbidden,
-            int? sourceContentId)?
+            String? forbidden)?
         $default, {
     required TResult orElse(),
   }) {
@@ -263,8 +252,7 @@ extension GenerationStartRequestPatterns on GenerationStartRequest {
             _that.emphasis,
             _that.keywords,
             _that.photoGuideChecked,
-            _that.forbidden,
-            _that.sourceContentId);
+            _that.forbidden);
       case _:
         return orElse();
     }
@@ -292,8 +280,7 @@ extension GenerationStartRequestPatterns on GenerationStartRequest {
             String emphasis,
             List<String> keywords,
             bool photoGuideChecked,
-            String? forbidden,
-            int? sourceContentId)
+            String? forbidden)
         $default,
   ) {
     final _that = this;
@@ -306,8 +293,7 @@ extension GenerationStartRequestPatterns on GenerationStartRequest {
             _that.emphasis,
             _that.keywords,
             _that.photoGuideChecked,
-            _that.forbidden,
-            _that.sourceContentId);
+            _that.forbidden);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -334,8 +320,7 @@ extension GenerationStartRequestPatterns on GenerationStartRequest {
             String emphasis,
             List<String> keywords,
             bool photoGuideChecked,
-            String? forbidden,
-            int? sourceContentId)?
+            String? forbidden)?
         $default,
   ) {
     final _that = this;
@@ -348,8 +333,7 @@ extension GenerationStartRequestPatterns on GenerationStartRequest {
             _that.emphasis,
             _that.keywords,
             _that.photoGuideChecked,
-            _that.forbidden,
-            _that.sourceContentId);
+            _that.forbidden);
       case _:
         return null;
     }
@@ -366,8 +350,7 @@ class _GenerationStartRequest implements GenerationStartRequest {
       required this.emphasis,
       required final List<String> keywords,
       required this.photoGuideChecked,
-      this.forbidden,
-      this.sourceContentId})
+      this.forbidden})
       : _channels = channels,
         _keywords = keywords;
   factory _GenerationStartRequest.fromJson(Map<String, dynamic> json) =>
@@ -399,8 +382,6 @@ class _GenerationStartRequest implements GenerationStartRequest {
   final bool photoGuideChecked;
   @override
   final String? forbidden;
-  @override
-  final int? sourceContentId;
 
   /// Create a copy of GenerationStartRequest
   /// with the given fields replaced by the non-null parameter values.
@@ -432,9 +413,7 @@ class _GenerationStartRequest implements GenerationStartRequest {
             (identical(other.photoGuideChecked, photoGuideChecked) ||
                 other.photoGuideChecked == photoGuideChecked) &&
             (identical(other.forbidden, forbidden) ||
-                other.forbidden == forbidden) &&
-            (identical(other.sourceContentId, sourceContentId) ||
-                other.sourceContentId == sourceContentId));
+                other.forbidden == forbidden));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -447,12 +426,11 @@ class _GenerationStartRequest implements GenerationStartRequest {
       emphasis,
       const DeepCollectionEquality().hash(_keywords),
       photoGuideChecked,
-      forbidden,
-      sourceContentId);
+      forbidden);
 
   @override
   String toString() {
-    return 'GenerationStartRequest(channels: $channels, purpose: $purpose, tone: $tone, emphasis: $emphasis, keywords: $keywords, photoGuideChecked: $photoGuideChecked, forbidden: $forbidden, sourceContentId: $sourceContentId)';
+    return 'GenerationStartRequest(channels: $channels, purpose: $purpose, tone: $tone, emphasis: $emphasis, keywords: $keywords, photoGuideChecked: $photoGuideChecked, forbidden: $forbidden)';
   }
 }
 
@@ -471,8 +449,7 @@ abstract mixin class _$GenerationStartRequestCopyWith<$Res>
       String emphasis,
       List<String> keywords,
       bool photoGuideChecked,
-      String? forbidden,
-      int? sourceContentId});
+      String? forbidden});
 }
 
 /// @nodoc
@@ -495,7 +472,6 @@ class __$GenerationStartRequestCopyWithImpl<$Res>
     Object? keywords = null,
     Object? photoGuideChecked = null,
     Object? forbidden = freezed,
-    Object? sourceContentId = freezed,
   }) {
     return _then(_GenerationStartRequest(
       channels: null == channels
@@ -526,10 +502,6 @@ class __$GenerationStartRequestCopyWithImpl<$Res>
           ? _self.forbidden
           : forbidden // ignore: cast_nullable_to_non_nullable
               as String?,
-      sourceContentId: freezed == sourceContentId
-          ? _self.sourceContentId
-          : sourceContentId // ignore: cast_nullable_to_non_nullable
-              as int?,
     ));
   }
 }

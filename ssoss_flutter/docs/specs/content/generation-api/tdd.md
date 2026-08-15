@@ -95,7 +95,7 @@ abstract class ContentRepository {
 
 | Model | API |
 |-------|-----|
-| `GenerationStartRequest` | channels, purpose, tone, **emphasis**, forbidden?, keywords, **photoGuideChecked**, sourceContentId? |
+| `GenerationStartRequest` | channels, purpose, tone, **emphasis**, forbidden?, keywords, **photoGuideChecked** |
 | `GenerationStartResponse` | generationId |
 | `GenerationDetailModel` | GET response |
 | `ContentSaveRequest` | generationId, **contents[]** (채널마다 title?/body/hashtags 완전체, title omit 규칙) |
