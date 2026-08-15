@@ -31,19 +31,69 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>$(NAVER_APP_URL_SCHEME)</string>
+			</array>
+		</dict>
+	</array>
+
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>https</string>
+		<string>http</string>
+		<string>naversearchapp</string>
+		<string>naversearchthirdlogin</string>
+	</array>
+
+	<key>NidUrlScheme</key>
+	<string>$(NAVER_APP_URL_SCHEME)</string>
+	<key>NidClientID</key>
+	<string>$(NAVER_CLIENT_ID)</string>
+	<key>NidClientSecret</key>
+	<string>$(NAVER_CLIENT_SECRET)</string>
+	<key>NidAppName</key>
+	<string>$(NAVER_CLIENT_NAME)</string>
+
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>콘텐츠 편집 라이브러리의 호환성을 위해 포함된 권한입니다. 앱에서 사진 선택 또는 첨부 기능은 제공하지 않습니다.</string>
+
+    <!-- http allows configurations -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+       <key>NSAllowsArbitraryLoads</key>
+       <true/>
+       <key>NSExceptionDomains</key>
+       <dict>
+          <key>naver.com</key>
+          <dict>
+             <key>NSExceptionRequiresForwardSecrecy</key>
+             <false/>
+             <key>NSIncludesSubdomains</key>
+             <true/>
+          </dict>
+          <key>naver.net</key>
+          <dict>
+             <key>NSExceptionRequiresForwardSecrecy</key>
+             <false/>
+             <key>NSIncludesSubdomains</key>
+             <true/>
+          </dict>
+       </dict>
+    </dict>
 </dict>
 </plist>

@@ -1,0 +1,24 @@
+import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
+
+/// 다른 채널용 생성 화면 route extra.
+class ContentOtherChannelArgs {
+  const ContentOtherChannelArgs({
+    required this.sourceContentId,
+    required this.excludedChannels,
+    this.previousInput,
+    this.initialSelected = const [],
+  });
+
+  /// 원문으로 사용할 저장된 콘텐츠 ID.
+  final String sourceContentId;
+
+  /// 선택 목록에서 제외할 채널 (이미 만들거나 보고 있는 채널).
+  final List<UploadChannel> excludedChannels;
+
+  /// 최초 생성 시 입력. 있으면 purpose/tone/keywords 등을 재사용한다.
+  final ContentCreateInput? previousInput;
+
+  /// 생성 실패 후 복귀 시 이전에 선택한 채널.
+  final List<UploadChannel> initialSelected;
+}

@@ -1,0 +1,651 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'login_event.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+
+/// @nodoc
+mixin _$LoginEvent {
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is LoginEvent);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent()';
+  }
+}
+
+/// @nodoc
+class $LoginEventCopyWith<$Res> {
+  $LoginEventCopyWith(LoginEvent _, $Res Function(LoginEvent) __);
+}
+
+/// Adds pattern-matching-related methods to [LoginEvent].
+extension LoginEventPatterns on LoginEvent {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(NaverLoginRequested value)? naverLoginRequested,
+    TResult Function(AppleLoginRequested value)? appleLoginRequested,
+    TResult Function(WithdrawRequested value)? withdrawRequested,
+    TResult Function(SessionRestoreRequested value)? sessionRestoreRequested,
+    TResult Function(LogoutRequested value)? logoutRequested,
+    TResult Function(SessionExpired value)? sessionExpired,
+    TResult Function(SessionExpiredAcknowledged value)?
+        sessionExpiredAcknowledged,
+    TResult Function(FailureAcknowledged value)? failureAcknowledged,
+    TResult Function(SignupSucceeded value)? signupSucceeded,
+    TResult Function(SignupCompleteAcknowledged value)?
+        signupCompleteAcknowledged,
+    TResult Function(WithdrawCompleteAcknowledged value)?
+        withdrawCompleteAcknowledged,
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case NaverLoginRequested() when naverLoginRequested != null:
+        return naverLoginRequested(_that);
+      case AppleLoginRequested() when appleLoginRequested != null:
+        return appleLoginRequested(_that);
+      case WithdrawRequested() when withdrawRequested != null:
+        return withdrawRequested(_that);
+      case SessionRestoreRequested() when sessionRestoreRequested != null:
+        return sessionRestoreRequested(_that);
+      case LogoutRequested() when logoutRequested != null:
+        return logoutRequested(_that);
+      case SessionExpired() when sessionExpired != null:
+        return sessionExpired(_that);
+      case SessionExpiredAcknowledged() when sessionExpiredAcknowledged != null:
+        return sessionExpiredAcknowledged(_that);
+      case FailureAcknowledged() when failureAcknowledged != null:
+        return failureAcknowledged(_that);
+      case SignupSucceeded() when signupSucceeded != null:
+        return signupSucceeded(_that);
+      case SignupCompleteAcknowledged() when signupCompleteAcknowledged != null:
+        return signupCompleteAcknowledged(_that);
+      case WithdrawCompleteAcknowledged()
+          when withdrawCompleteAcknowledged != null:
+        return withdrawCompleteAcknowledged(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(NaverLoginRequested value) naverLoginRequested,
+    required TResult Function(AppleLoginRequested value) appleLoginRequested,
+    required TResult Function(WithdrawRequested value) withdrawRequested,
+    required TResult Function(SessionRestoreRequested value)
+        sessionRestoreRequested,
+    required TResult Function(LogoutRequested value) logoutRequested,
+    required TResult Function(SessionExpired value) sessionExpired,
+    required TResult Function(SessionExpiredAcknowledged value)
+        sessionExpiredAcknowledged,
+    required TResult Function(FailureAcknowledged value) failureAcknowledged,
+    required TResult Function(SignupSucceeded value) signupSucceeded,
+    required TResult Function(SignupCompleteAcknowledged value)
+        signupCompleteAcknowledged,
+    required TResult Function(WithdrawCompleteAcknowledged value)
+        withdrawCompleteAcknowledged,
+  }) {
+    final _that = this;
+    switch (_that) {
+      case NaverLoginRequested():
+        return naverLoginRequested(_that);
+      case AppleLoginRequested():
+        return appleLoginRequested(_that);
+      case WithdrawRequested():
+        return withdrawRequested(_that);
+      case SessionRestoreRequested():
+        return sessionRestoreRequested(_that);
+      case LogoutRequested():
+        return logoutRequested(_that);
+      case SessionExpired():
+        return sessionExpired(_that);
+      case SessionExpiredAcknowledged():
+        return sessionExpiredAcknowledged(_that);
+      case FailureAcknowledged():
+        return failureAcknowledged(_that);
+      case SignupSucceeded():
+        return signupSucceeded(_that);
+      case SignupCompleteAcknowledged():
+        return signupCompleteAcknowledged(_that);
+      case WithdrawCompleteAcknowledged():
+        return withdrawCompleteAcknowledged(_that);
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(NaverLoginRequested value)? naverLoginRequested,
+    TResult? Function(AppleLoginRequested value)? appleLoginRequested,
+    TResult? Function(WithdrawRequested value)? withdrawRequested,
+    TResult? Function(SessionRestoreRequested value)? sessionRestoreRequested,
+    TResult? Function(LogoutRequested value)? logoutRequested,
+    TResult? Function(SessionExpired value)? sessionExpired,
+    TResult? Function(SessionExpiredAcknowledged value)?
+        sessionExpiredAcknowledged,
+    TResult? Function(FailureAcknowledged value)? failureAcknowledged,
+    TResult? Function(SignupSucceeded value)? signupSucceeded,
+    TResult? Function(SignupCompleteAcknowledged value)?
+        signupCompleteAcknowledged,
+    TResult? Function(WithdrawCompleteAcknowledged value)?
+        withdrawCompleteAcknowledged,
+  }) {
+    final _that = this;
+    switch (_that) {
+      case NaverLoginRequested() when naverLoginRequested != null:
+        return naverLoginRequested(_that);
+      case AppleLoginRequested() when appleLoginRequested != null:
+        return appleLoginRequested(_that);
+      case WithdrawRequested() when withdrawRequested != null:
+        return withdrawRequested(_that);
+      case SessionRestoreRequested() when sessionRestoreRequested != null:
+        return sessionRestoreRequested(_that);
+      case LogoutRequested() when logoutRequested != null:
+        return logoutRequested(_that);
+      case SessionExpired() when sessionExpired != null:
+        return sessionExpired(_that);
+      case SessionExpiredAcknowledged() when sessionExpiredAcknowledged != null:
+        return sessionExpiredAcknowledged(_that);
+      case FailureAcknowledged() when failureAcknowledged != null:
+        return failureAcknowledged(_that);
+      case SignupSucceeded() when signupSucceeded != null:
+        return signupSucceeded(_that);
+      case SignupCompleteAcknowledged() when signupCompleteAcknowledged != null:
+        return signupCompleteAcknowledged(_that);
+      case WithdrawCompleteAcknowledged()
+          when withdrawCompleteAcknowledged != null:
+        return withdrawCompleteAcknowledged(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? naverLoginRequested,
+    TResult Function()? appleLoginRequested,
+    TResult Function(WithdrawalReason? reason)? withdrawRequested,
+    TResult Function()? sessionRestoreRequested,
+    TResult Function()? logoutRequested,
+    TResult Function()? sessionExpired,
+    TResult Function()? sessionExpiredAcknowledged,
+    TResult Function()? failureAcknowledged,
+    TResult Function()? signupSucceeded,
+    TResult Function()? signupCompleteAcknowledged,
+    TResult Function()? withdrawCompleteAcknowledged,
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case NaverLoginRequested() when naverLoginRequested != null:
+        return naverLoginRequested();
+      case AppleLoginRequested() when appleLoginRequested != null:
+        return appleLoginRequested();
+      case WithdrawRequested() when withdrawRequested != null:
+        return withdrawRequested(_that.reason);
+      case SessionRestoreRequested() when sessionRestoreRequested != null:
+        return sessionRestoreRequested();
+      case LogoutRequested() when logoutRequested != null:
+        return logoutRequested();
+      case SessionExpired() when sessionExpired != null:
+        return sessionExpired();
+      case SessionExpiredAcknowledged() when sessionExpiredAcknowledged != null:
+        return sessionExpiredAcknowledged();
+      case FailureAcknowledged() when failureAcknowledged != null:
+        return failureAcknowledged();
+      case SignupSucceeded() when signupSucceeded != null:
+        return signupSucceeded();
+      case SignupCompleteAcknowledged() when signupCompleteAcknowledged != null:
+        return signupCompleteAcknowledged();
+      case WithdrawCompleteAcknowledged()
+          when withdrawCompleteAcknowledged != null:
+        return withdrawCompleteAcknowledged();
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() naverLoginRequested,
+    required TResult Function() appleLoginRequested,
+    required TResult Function(WithdrawalReason? reason) withdrawRequested,
+    required TResult Function() sessionRestoreRequested,
+    required TResult Function() logoutRequested,
+    required TResult Function() sessionExpired,
+    required TResult Function() sessionExpiredAcknowledged,
+    required TResult Function() failureAcknowledged,
+    required TResult Function() signupSucceeded,
+    required TResult Function() signupCompleteAcknowledged,
+    required TResult Function() withdrawCompleteAcknowledged,
+  }) {
+    final _that = this;
+    switch (_that) {
+      case NaverLoginRequested():
+        return naverLoginRequested();
+      case AppleLoginRequested():
+        return appleLoginRequested();
+      case WithdrawRequested():
+        return withdrawRequested(_that.reason);
+      case SessionRestoreRequested():
+        return sessionRestoreRequested();
+      case LogoutRequested():
+        return logoutRequested();
+      case SessionExpired():
+        return sessionExpired();
+      case SessionExpiredAcknowledged():
+        return sessionExpiredAcknowledged();
+      case FailureAcknowledged():
+        return failureAcknowledged();
+      case SignupSucceeded():
+        return signupSucceeded();
+      case SignupCompleteAcknowledged():
+        return signupCompleteAcknowledged();
+      case WithdrawCompleteAcknowledged():
+        return withdrawCompleteAcknowledged();
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? naverLoginRequested,
+    TResult? Function()? appleLoginRequested,
+    TResult? Function(WithdrawalReason? reason)? withdrawRequested,
+    TResult? Function()? sessionRestoreRequested,
+    TResult? Function()? logoutRequested,
+    TResult? Function()? sessionExpired,
+    TResult? Function()? sessionExpiredAcknowledged,
+    TResult? Function()? failureAcknowledged,
+    TResult? Function()? signupSucceeded,
+    TResult? Function()? signupCompleteAcknowledged,
+    TResult? Function()? withdrawCompleteAcknowledged,
+  }) {
+    final _that = this;
+    switch (_that) {
+      case NaverLoginRequested() when naverLoginRequested != null:
+        return naverLoginRequested();
+      case AppleLoginRequested() when appleLoginRequested != null:
+        return appleLoginRequested();
+      case WithdrawRequested() when withdrawRequested != null:
+        return withdrawRequested(_that.reason);
+      case SessionRestoreRequested() when sessionRestoreRequested != null:
+        return sessionRestoreRequested();
+      case LogoutRequested() when logoutRequested != null:
+        return logoutRequested();
+      case SessionExpired() when sessionExpired != null:
+        return sessionExpired();
+      case SessionExpiredAcknowledged() when sessionExpiredAcknowledged != null:
+        return sessionExpiredAcknowledged();
+      case FailureAcknowledged() when failureAcknowledged != null:
+        return failureAcknowledged();
+      case SignupSucceeded() when signupSucceeded != null:
+        return signupSucceeded();
+      case SignupCompleteAcknowledged() when signupCompleteAcknowledged != null:
+        return signupCompleteAcknowledged();
+      case WithdrawCompleteAcknowledged()
+          when withdrawCompleteAcknowledged != null:
+        return withdrawCompleteAcknowledged();
+      case _:
+        return null;
+    }
+  }
+}
+
+/// @nodoc
+
+class NaverLoginRequested implements LoginEvent {
+  const NaverLoginRequested();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is NaverLoginRequested);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.naverLoginRequested()';
+  }
+}
+
+/// @nodoc
+
+class AppleLoginRequested implements LoginEvent {
+  const AppleLoginRequested();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is AppleLoginRequested);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.appleLoginRequested()';
+  }
+}
+
+/// @nodoc
+
+class WithdrawRequested implements LoginEvent {
+  const WithdrawRequested({this.reason});
+
+  final WithdrawalReason? reason;
+
+  /// Create a copy of LoginEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $WithdrawRequestedCopyWith<WithdrawRequested> get copyWith =>
+      _$WithdrawRequestedCopyWithImpl<WithdrawRequested>(this, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is WithdrawRequested &&
+            (identical(other.reason, reason) || other.reason == reason));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, reason);
+
+  @override
+  String toString() {
+    return 'LoginEvent.withdrawRequested(reason: $reason)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $WithdrawRequestedCopyWith<$Res>
+    implements $LoginEventCopyWith<$Res> {
+  factory $WithdrawRequestedCopyWith(
+          WithdrawRequested value, $Res Function(WithdrawRequested) _then) =
+      _$WithdrawRequestedCopyWithImpl;
+  @useResult
+  $Res call({WithdrawalReason? reason});
+}
+
+/// @nodoc
+class _$WithdrawRequestedCopyWithImpl<$Res>
+    implements $WithdrawRequestedCopyWith<$Res> {
+  _$WithdrawRequestedCopyWithImpl(this._self, this._then);
+
+  final WithdrawRequested _self;
+  final $Res Function(WithdrawRequested) _then;
+
+  /// Create a copy of LoginEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? reason = freezed,
+  }) {
+    return _then(WithdrawRequested(
+      reason: freezed == reason
+          ? _self.reason
+          : reason // ignore: cast_nullable_to_non_nullable
+              as WithdrawalReason?,
+    ));
+  }
+}
+
+/// @nodoc
+
+class SessionRestoreRequested implements LoginEvent {
+  const SessionRestoreRequested();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is SessionRestoreRequested);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.sessionRestoreRequested()';
+  }
+}
+
+/// @nodoc
+
+class LogoutRequested implements LoginEvent {
+  const LogoutRequested();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is LogoutRequested);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.logoutRequested()';
+  }
+}
+
+/// @nodoc
+
+class SessionExpired implements LoginEvent {
+  const SessionExpired();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is SessionExpired);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.sessionExpired()';
+  }
+}
+
+/// @nodoc
+
+class SessionExpiredAcknowledged implements LoginEvent {
+  const SessionExpiredAcknowledged();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is SessionExpiredAcknowledged);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.sessionExpiredAcknowledged()';
+  }
+}
+
+/// @nodoc
+
+class FailureAcknowledged implements LoginEvent {
+  const FailureAcknowledged();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is FailureAcknowledged);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.failureAcknowledged()';
+  }
+}
+
+/// @nodoc
+
+class SignupSucceeded implements LoginEvent {
+  const SignupSucceeded();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is SignupSucceeded);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.signupSucceeded()';
+  }
+}
+
+/// @nodoc
+
+class SignupCompleteAcknowledged implements LoginEvent {
+  const SignupCompleteAcknowledged();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is SignupCompleteAcknowledged);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.signupCompleteAcknowledged()';
+  }
+}
+
+/// @nodoc
+
+class WithdrawCompleteAcknowledged implements LoginEvent {
+  const WithdrawCompleteAcknowledged();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is WithdrawCompleteAcknowledged);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginEvent.withdrawCompleteAcknowledged()';
+  }
+}
+
+// dart format on

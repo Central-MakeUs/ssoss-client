@@ -1,0 +1,293 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:ssoss_flutter/common/widgets/app_bar/ssoss_app_bar.dart';
+import 'package:ssoss_flutter/common/widgets/card/ssoss_contents_edit_card.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_focused_input_scroller.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
+import 'package:ssoss_flutter/common/widgets/modal/ssoss_modal.dart';
+import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
+import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
+
+import 'package:ssoss_flutter/core/colors/app_colors.dart';
+import 'package:ssoss_flutter/core/exception/app_exception.dart';
+import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/edit_content_channel_usecase.dart';
+import 'package:ssoss_flutter/features/content/presentation/cubit/content_edit_cubit.dart';
+import 'package:ssoss_flutter/features/content/presentation/cubit/content_edit_state.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_edit_args.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_edit_channel_merge.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_edit_persist_mode.dart';
+import 'package:ssoss_flutter/features/content/presentation/models/content_edit_target.dart';
+import 'package:ssoss_flutter/features/content/presentation/widgets/edit/content_edit_bottom_bar.dart';
+
+/// 콘텐츠 섹션 편집 화면.
+class ContentEditPage extends StatelessWidget {
+  const ContentEditPage({
+    required this.args,
+    super.key,
+  });
+
+  static const String routeName = 'content-edit';
+  static const String routePath = '/content/create/result/edit';
+
+  final ContentEditArgs args;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => ContentEditCubit(args: args),
+      child: _ContentEditView(args: args),
+    );
+  }
+}
+
+class _ContentEditView extends StatefulWidget {
+  const _ContentEditView({required this.args});
+
+  final ContentEditArgs args;
+
+  @override
+  State<_ContentEditView> createState() => _ContentEditViewState();
+}
+
+class _ContentEditViewState extends State<_ContentEditView> {
+  bool _isSubmitting = false;
+
+  ContentEditArgs get args => widget.args;
+
+  Future<void> _onReset(BuildContext context) async {
+    if (_isSubmitting) {
+      return;
+    }
+    final result = await showSsossModal(
+      context,
+      title: '수정한 내용을 초기화하시겠어요?',
+      message: '초기화하면 변경한 내용이 모두 사라지고\n초안으로 돌아가요',
+      primaryButtonLabel: '초기화하기',
+      secondaryButtonLabel: '취소',
+      showButtonIcons: false,
+    );
+    if (result != SsossModalResult.primary || !context.mounted) {
+      return;
+    }
+    context.read<ContentEditCubit>().reset();
+  }
+
+  Future<void> _onBack(BuildContext context) async {
+    if (_isSubmitting) {
+      return;
+    }
+    final state = context.read<ContentEditCubit>().state;
+    if (!state.isDirty) {
+      context.pop();
+      return;
+    }
+
+    final result = await showSsossModal(
+      context,
+      title: '수정한 내용이 저장되지 않았어요',
+      message: '지금 나가면 수정한 내용은 저장되지 않아요',
+      primaryButtonLabel: '계속 수정하기',
+      secondaryButtonLabel: '나가기',
+      showButtonIcons: false,
+    );
+
+    if (result != SsossModalResult.secondary || !context.mounted) {
+      return;
+    }
+
+    context.pop();
+  }
+
+  Future<void> _onSubmit(BuildContext context) async {
+    if (_isSubmitting) {
+      return;
+    }
+    final cubit = context.read<ContentEditCubit>();
+    final editResult = cubit.buildResult();
+    if (editResult == null) {
+      return;
+    }
+
+    if (args.persistMode == ContentEditPersistMode.none) {
+      context.pop(editResult);
+      return;
+    }
+
+    final contentId = args.contentId;
+    final contentChannelId = args.contentChannelId;
+    if (contentId == null || contentChannelId == null) {
+      showSsossToast(
+        context,
+        title: '편집에 필요한 정보가 없어요',
+        type: SsossToastType.error,
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    try {
+      final channelPayload = mergeEditToChannelResult(
+        channel: args.channel,
+        initialTitle: args.initialTitle,
+        initialBody: args.initialBody,
+        initialHashtags: args.initialHashtags,
+        initialPhotoGuides: args.photoGuides,
+        editResult: editResult,
+      );
+      final editUseCase = context.read<EditContentChannelUseCase>();
+      await editUseCase(
+        contentId: contentId,
+        contentChannelId: contentChannelId,
+        channel: channelPayload,
+      );
+      if (!mounted) {
+        return;
+      }
+      this.context.pop(editResult);
+    } on AppException catch (e) {
+      if (!mounted) {
+        return;
+      }
+      showSsossToast(
+        this.context,
+        title: e.message,
+        type: SsossToastType.error,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
+  void _onAddHashtag(BuildContext context, String raw) {
+    final cubit = context.read<ContentEditCubit>();
+    final state = cubit.state;
+    if (state.hashtags.length >= SsossHashtagLimits.maxCount) {
+      return;
+    }
+    final normalized = SsossHashtagNormalizer.normalize(raw);
+    if (normalized == null) {
+      if (raw.trim().isNotEmpty) {
+        showSsossToast(
+          context,
+          title: '해시태그는 ${SsossHashtagLimits.maxLength}자 이하로 입력해주세요',
+          type: SsossToastType.warning,
+        );
+      }
+      return;
+    }
+    final added = cubit.addHashtag(raw);
+    if (!added && state.hashtags.contains(normalized)) {
+      showSsossToast(
+        context,
+        title: '이미 추가된 해시태그예요',
+        type: SsossToastType.warning,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ContentEditCubit, ContentEditState>(
+      builder: (context, state) {
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) {
+            if (didPop) {
+              return;
+            }
+            unawaited(_onBack(context));
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.white,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  SsossAppBar.back(
+                    title: '콘텐츠 편집',
+                    onBack: () => unawaited(_onBack(context)),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(
+                        16,
+                        12,
+                        16,
+                        24 + kSsossFocusedInputScrollPaddingBottom,
+                      ),
+                      child: _EditBody(
+                        state: state,
+                        onAddHashtag: (raw) => _onAddHashtag(context, raw),
+                      ),
+                    ),
+                  ),
+                  ContentEditBottomBar(
+                    canSubmit: context.read<ContentEditCubit>().canSubmit,
+                    isLoading: _isSubmitting,
+                    onReset: () => unawaited(_onReset(context)),
+                    onSubmit: () => unawaited(_onSubmit(context)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _EditBody extends StatelessWidget {
+  const _EditBody({
+    required this.state,
+    required this.onAddHashtag,
+  });
+
+  final ContentEditState state;
+  final ValueChanged<String> onAddHashtag;
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<ContentEditCubit>();
+
+    switch (state.target) {
+      case ContentEditTarget.hashtags:
+        return SsossHashtagInput(
+          hashtags: state.hashtags,
+          showHeader: true,
+          onAdd: onAddHashtag,
+          onRemove: cubit.removeHashtag,
+        );
+      case ContentEditTarget.title:
+      case ContentEditTarget.body:
+        final document = state.document;
+        if (document == null) {
+          return const SizedBox.shrink();
+        }
+        final sectionLabel = state.target == ContentEditTarget.title
+            ? '제목 편집'
+            : '본문 편집';
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppText(
+              sectionLabel,
+              style: AppTextStyles.h5.copyWith(color: AppColors.neutral700),
+            ),
+            const SizedBox(height: 8),
+            SsossContentsEditCard(
+              document: document,
+              maxLength: cubit.maxLength,
+              width: double.infinity,
+              onDocumentChanged: cubit.updateDocument,
+            ),
+          ],
+        );
+    }
+  }
+}
