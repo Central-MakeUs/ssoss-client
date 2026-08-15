@@ -246,11 +246,13 @@ class _ContentDetailBodyState extends State<_ContentDetailBody> {
   }
 
   void _openOtherChannelCreate(BuildContext context) {
+    final channelContent = _channelContentAt(_selectedIndex);
     unawaited(
       context.push(
         ContentOtherChannelCreatePage.routePath,
         extra: ContentOtherChannelArgs(
           sourceContentId: widget.detail.contentId.toString(),
+          sourceContentChannelId: channelContent.contentChannelId,
           excludedChannels: _orderedChannels,
         ),
       ),

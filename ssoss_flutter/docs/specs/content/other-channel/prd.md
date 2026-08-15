@@ -19,19 +19,19 @@
 
 **배경**
 
-최초 콘텐츠를 일부 채널만 생성·저장한 뒤, 남은 채널용 문구를 이어 만들고 싶다. 기존 3단계 위저드를 다시 밟지 않고, 저장된 입력(목적·톤·강조 등)을 재사용해 채널만 고르는 흐름이 필요하다.
+저장한 콘텐츠를 원본으로 삼아, 아직 만들지 않은 SNS 채널용 글을 이어 만들고 싶다. 목적·톤·강조·금지·키워드·사진 가이드는 앱이 다시 보내지 않고, 원본을 만든 생성 작업 입력을 서버가 이어받는다.
 
 **목적**
 
-저장 완료(`continueAvailable`)에서 「다른 채널용으로 만들기」로 진입해, 남은 채널을 선택·생성·저장(finalSave)까지 이어갈 수 있게 한다.
+저장 콘텐츠 상세에서 「다른 채널용으로 만들기」로 진입해, 남은 채널(1~3개)을 선택·생성·저장까지 이어갈 수 있게 한다.
 
 ---
 
 ## 2. 사용자 스토리
 
-- [x] As a **가게 운영자**, I want to **저장 완료 후 남은 채널을 선택해 생성**, so that **같은 입력으로 다른 SNS용 문구를 받을 수 있다**.
+- [x] As a **가게 운영자**, I want to **저장 콘텐츠 상세에서 남은 채널을 선택해 생성**, so that **같은 입력으로 다른 SNS용 문구를 받을 수 있다**.
 - [x] As a **가게 운영자**, I want to **다시 생성하기로 동일 채널을 재생성**, so that **채널을 다시 고르지 않고 결과를 받을 수 있다**.
-- [x] As a **가게 운영자**, I want to **다른 채널 선택 화면에서 뒤로가기 시 확인 후 홈으로**, so that **실수로 이탈하지 않는다**.
+- [x] As a **가게 운영자**, I want to **다른 채널 선택 화면에서 뒤로가기 시 상세로 복귀(또는 홈 확인)**, so that **실수로 이탈하지 않는다**.
 
 ---
 
@@ -41,19 +41,20 @@
 
 | ID | 요구사항 | 우선순위 |
 |----|---------|---------|
-| FR-01 | 저장 완료 `continueAvailable`에서 「다른 채널용으로 만들기」로 채널 선택 화면에 진입한다. | Must |
-| FR-02 | 채널 선택 화면은 이미 생성·저장된 채널을 제외하고 멀티 선택한다. | Must |
-| FR-03 | 「선택한 채널로 만들기」로 생성 중 → 결과 화면으로 이동한다. (목적·톤·세부 입력은 이전 input 재사용) | Must |
-| FR-04 | 결과 앱바 타이틀은 `다른 채널용 생성 결과`. 멀티 채널이면 기존 탭바를 쓴다. | Must |
-| FR-05 | 다시 생성하기 모달 확인 시 동일 채널 input으로 생성 중 화면을 다시 띄운다. (채널 재선택 없음) | Must |
-| FR-06 | 다른 채널 결과에서 저장하면 `finalSave` 저장 완료로 이동한다. | Must |
-| FR-07 | 채널 선택 화면 뒤로가기 시 홈 이탈 확인 모달 후 홈으로 이동한다. | Must |
+| FR-01 | 저장 콘텐츠 상세에서 「다른 채널용으로 만들기」로 채널 선택 화면에 진입한다. (이미 전 채널이 있으면 CTA 숨김) | Must |
+| FR-02 | 경로에 현재 탭의 `contentId`·`contentChannelId`를 넣고, 요청 본문은 새로 고를 채널 목록만 담는다. | Must |
+| FR-03 | 채널 선택 화면은 이미 저장된 채널을 제외하고 1~3개 멀티 선택한다. | Must |
+| FR-04 | 「선택한 채널로 만들기」로 생성 중 → 결과 화면으로 이동한다. (목적·톤 등은 서버가 원본 생성 작업에서 이어받음) | Must |
+| FR-05 | 결과 앱바 타이틀은 `다른 채널용 생성 결과`. 멀티 채널이면 기존 탭바를 쓴다. | Must |
+| FR-06 | 다시 생성하기 모달 확인 시 동일 conversion args로 생성 중 화면을 다시 띄운다. | Must |
+| FR-07 | 저장하면 `finalSave`와 동일하게 저장 완료(저장 내역 CTA만)로 이동한다. | Must |
+| FR-08 | 저장 완료 화면에는 「다른 채널용으로 만들기」 CTA를 두지 않는다. | Must |
 
 ### 3.2 비기능 요구사항
 
 | 항목 | 요구사항 |
 |------|---------|
-| 네비게이션 | `context.go` 기반. 생성 중은 기존 2초 더미 타이머 유지 |
+| API | `POST /v1/contents/{contentId}/channels/{contentChannelId}/conversions` → `generationId` 후 기존 generations 폴링·저장 |
 | UI | Figma CMC 다른 채널용 생성 화면 기준 |
 
 ---
@@ -62,25 +63,25 @@
 
 ### In Scope
 
-- 다른 채널 선택 페이지·네비·결과 모드·다시 생성하기 재생성
-- `SsossContentsCard` blocks 전용 API
+- 다른 채널 선택 페이지·네비·결과 모드·다시 생성하기
+- conversions API 연동
+- 저장 콘텐츠 상세 진입점
 
 ### Out of Scope
 
-- 저장 내역 보기 실제 네비
-- 실제 생성 API 연동
-- 본문 편집 진입
+- 저장 완료에서 이어만들기 CTA
+- 일반 `POST /v1/generations`의 `sourceContentId`로 다른 채널 생성
 
 ---
 
 ## 5. UX 흐름
 
 ```
-SaveComplete(continueAvailable)
-  → OtherChannelCreate (남은 채널 선택)
-  → Generating
+ContentDetail(현재 탭 contentChannelId)
+  → OtherChannelCreate (남은 채널 1~3 선택)
+  → Generating (conversions → poll)
   → Result(otherChannel)
-       ├─ 다시 생성하기 → Generating (동일 channels)
-       └─ 저장하기 → SaveComplete(finalSave)
-OtherChannelCreate back → 모달 → Home
+       ├─ 다시 생성하기 → Generating (동일 conversion args)
+       └─ 저장하기 → SaveComplete (저장 내역만)
+OtherChannelCreate back → pop(상세) 또는 홈 확인 모달
 ```

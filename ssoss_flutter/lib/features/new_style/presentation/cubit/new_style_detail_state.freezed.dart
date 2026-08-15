@@ -276,7 +276,7 @@ class _NewStyleDetailState extends NewStyleDetailState {
       {this.highlight = '',
       this.forbidden = '',
       final List<String> keywords = const <String>[],
-      this.photoGuideEnabled = false})
+      this.photoGuideEnabled = true})
       : _keywords = keywords,
         super._();
 

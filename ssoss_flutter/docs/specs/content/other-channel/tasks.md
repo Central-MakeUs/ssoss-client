@@ -21,11 +21,17 @@
 
 ## Phase 2 — 다른 채널 선택
 
-- [x] **2-1** Cubit + OtherChannelCreatePage + 뒤로가기 홈 모달
+- [x] **2-1** Cubit + OtherChannelCreatePage + 뒤로가기
 - [x] **2-2** 라우터 등록
 
 ## Phase 3 — 플로우 연결
 
-- [x] **3-1** SaveComplete continue CTA → other-channel
+- [x] **3-1** 저장 콘텐츠 상세 → other-channel (`contentChannelId` 포함)
 - [x] **3-2** Generating/Result otherChannel 모드 + remake → generating
-- [x] **3-3** Result save → finalSave / continueAvailable + previousInput
+- [x] **3-3** Result save → SaveComplete (저장 내역만)
+
+## Phase 4 — conversions API
+
+- [x] **4-1** `ChannelConversionInput` / Request / datasource / repository / usecases
+- [x] **4-2** `ContentGeneratingCubit` otherChannel → conversions
+- [x] **4-3** 저장 완료 other-channel CTA·`continueAvailable` 제거

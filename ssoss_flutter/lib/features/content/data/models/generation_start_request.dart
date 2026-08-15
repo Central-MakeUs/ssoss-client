@@ -16,11 +16,9 @@ abstract class GenerationStartRequest with _$GenerationStartRequest {
     required List<String> keywords,
     required bool photoGuideChecked,
     String? forbidden,
-    int? sourceContentId,
   }) = _GenerationStartRequest;
 
   factory GenerationStartRequest.fromEntity(ContentCreateInput input) {
-    final sourceId = input.sourceContentId;
     return GenerationStartRequest(
       channels: ContentCreateApiMapper.channels(input.channels),
       purpose: ContentCreateApiMapper.purpose(input.purpose),
@@ -29,7 +27,6 @@ abstract class GenerationStartRequest with _$GenerationStartRequest {
       forbidden: input.forbidden,
       keywords: input.keywords,
       photoGuideChecked: input.photoGuideEnabled,
-      sourceContentId: sourceId == null ? null : int.tryParse(sourceId),
     );
   }
 

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import 'package:ssoss_flutter/core/network/dio_error_mapper.dart';
 import 'package:ssoss_flutter/features/content/data/datasources/content_remote_datasource.dart';
+import 'package:ssoss_flutter/features/content/data/models/channel_conversion_request.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_channel_edit_request.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_channel_response_model.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_detail_response_model.dart';
@@ -49,6 +50,25 @@ class ContentRemoteDatasourceImpl implements ContentRemoteDatasource {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
         '$_contentsPath/$contentId/channels/$contentChannelId/reuses',
+        data: request.toJson(),
+        cancelToken: cancelToken,
+      );
+      return GenerationStartResponse.fromJson(response.data!);
+    } on DioException catch (e) {
+      throw mapDioError(e);
+    }
+  }
+
+  @override
+  Future<GenerationStartResponse> startChannelConversion({
+    required int contentId,
+    required int contentChannelId,
+    required ChannelConversionRequest request,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '$_contentsPath/$contentId/channels/$contentChannelId/conversions',
         data: request.toJson(),
         cancelToken: cancelToken,
       );

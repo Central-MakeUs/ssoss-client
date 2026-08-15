@@ -53,7 +53,7 @@
 | FR-08 | `POST /v1/contents`로 `generationId`와 **채널 단위 완전체**(각 채널 title/body/hashtags)를 담아 저장한다. 작업의 전 채널을 빠짐없이 포함한다. | Must |
 | FR-09 | 결과 화면 편집(`ContentEditPage`)은 **해당 채널** 로컬 draft만 갱신한다. PUT은 [`../edit/`](../edit/) — `ContentDetailPage`. | Must |
 | FR-10 | 채널별 글자 수 상한(§4)을 편집 입력·수정하기·저장하기에서 초과할 수 없다. | Must |
-| FR-11 | 다른 채널용 생성 시 `sourceContentId`를 generations 요청에 포함한다. | Must |
+| FR-11 | 다른 채널용 생성은 generations가 아니라 [`../other-channel/`](../other-channel/)의 conversions API를 사용한다. | Must |
 
 ### 3.2 비기능 요구사항
 
