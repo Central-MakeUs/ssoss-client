@@ -208,6 +208,7 @@ class _ContentResultPageState extends State<ContentResultPage> {
             current.copyWith(
               body: result.body,
               photoGuides: result.photoGuides ?? current.photoGuides,
+              hashtags: result.hashtags ?? current.hashtags,
             ),
           );
         case ContentEditTarget.hashtags:

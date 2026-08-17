@@ -201,10 +201,7 @@ class _ContentDetailBodyState extends State<_ContentDetailBody> {
     final result = channelContent.channelResult;
     final channel = result.channel;
     final parsed = PhotoGuideParser.parse(result.body);
-    final showHashtags = channel == UploadChannel.instagram;
-    final initialHashtags = showHashtags
-        ? SsossHashtagNormalizer.stripAll(result.hashtags)
-        : const <String>[];
+    final initialHashtags = SsossHashtagNormalizer.stripAll(result.hashtags);
 
     final editResult = await Navigator.of(context).push<ContentEditResult>(
       MaterialPageRoute(
@@ -394,14 +391,23 @@ class _ChannelDetailSections extends StatelessWidget {
     final result = channelContent.channelResult;
     final channel = result.channel;
     final showTitle = channel == UploadChannel.blog;
-    final showHashtags = channel == UploadChannel.instagram;
+    final showHashtagSection = channel == UploadChannel.instagram;
     final parsed = PhotoGuideParser.parse(result.body);
-    final bodyBlocks = photoGuideBodyBlocks(
-      displayBody: parsed.displayBody,
-      placements: parsed.placements,
-    );
-    final title = result.title ?? '';
     final hashtags = SsossHashtagNormalizer.stripAll(result.hashtags);
+    final bodyBlocks = [
+      ...photoGuideBodyBlocks(
+        displayBody: parsed.displayBody,
+        placements: parsed.placements,
+      ),
+      if (channel == UploadChannel.blog && hashtags.isNotEmpty)
+        SsossContentsCardHashtagsBlock(
+          [
+            for (final tag in hashtags) SsossHashtagNormalizer.display(tag),
+          ],
+          displayAsPlainText: true,
+        ),
+    ];
+    final title = result.title ?? '';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -427,7 +433,7 @@ class _ChannelDetailSections extends StatelessWidget {
             blocks: bodyBlocks,
           ),
         ),
-        if (showHashtags) ...[
+        if (showHashtagSection) ...[
           const SizedBox(height: 32),
           ContentDetailSection(
             title: '해시태그',

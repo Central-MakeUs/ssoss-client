@@ -49,12 +49,15 @@ class ContentEditCubit extends Cubit<ContentEditState> {
             : SsossContentsEditDocument.fromPlainText(
                 plainText: args.initialBody,
               );
+        final tags = SsossHashtagNormalizer.stripAll(args.initialHashtags);
         return ContentEditState(
           target: args.target,
           document: document,
           originalPlainText: document.plainText,
           originalRecommendationIds:
               document.recommendationAnchors.map((a) => a.id).toList(),
+          hashtags: tags,
+          originalHashtags: List<String>.of(tags),
         );
       case ContentEditTarget.hashtags:
         final tags = SsossHashtagNormalizer.stripAll(args.initialHashtags);
@@ -103,12 +106,22 @@ class ContentEditCubit extends Cubit<ContentEditState> {
           ),
         );
       case ContentEditTarget.title:
-      case ContentEditTarget.body:
         final document = state.document;
         if (document == null) {
           return;
         }
         emit(state.copyWith(document: document.reset()));
+      case ContentEditTarget.body:
+        final document = state.document;
+        if (document == null) {
+          return;
+        }
+        emit(
+          state.copyWith(
+            document: document.reset(),
+            hashtags: List<String>.of(state.originalHashtags),
+          ),
+        );
     }
   }
 
@@ -152,6 +165,9 @@ class ContentEditCubit extends Cubit<ContentEditState> {
           target: state.target,
           body: document?.plainText ?? '',
           photoGuides: photoGuides,
+          hashtags: channel == UploadChannel.blog
+              ? List<String>.of(state.hashtags)
+              : null,
         );
       case ContentEditTarget.hashtags:
         return ContentEditResult(

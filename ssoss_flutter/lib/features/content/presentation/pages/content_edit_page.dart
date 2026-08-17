@@ -14,6 +14,7 @@ import 'package:ssoss_flutter/common/widgets/toast/ssoss_toast.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/core/theme/app_text_styles.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/upload_channel.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/edit_content_channel_usecase.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_edit_cubit.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_edit_state.dart';
@@ -272,6 +273,8 @@ class _EditBody extends StatelessWidget {
         final sectionLabel = state.target == ContentEditTarget.title
             ? '제목 편집'
             : '본문 편집';
+        final showBlogHashtags = state.target == ContentEditTarget.body &&
+            cubit.channel == UploadChannel.blog;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -285,6 +288,9 @@ class _EditBody extends StatelessWidget {
               maxLength: cubit.maxLength,
               width: double.infinity,
               onDocumentChanged: cubit.updateDocument,
+              hashtags: showBlogHashtags ? state.hashtags : null,
+              onHashtagAdd: showBlogHashtags ? onAddHashtag : null,
+              onHashtagRemove: showBlogHashtags ? cubit.removeHashtag : null,
             ),
           ],
         );
