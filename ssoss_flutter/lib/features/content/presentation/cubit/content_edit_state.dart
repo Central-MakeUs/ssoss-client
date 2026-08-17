@@ -23,6 +23,11 @@ abstract class ContentEditState with _$ContentEditState {
       case ContentEditTarget.hashtags:
         return !listEquals(hashtags, originalHashtags);
       case ContentEditTarget.title:
+        final doc = document;
+        if (doc == null) {
+          return false;
+        }
+        return doc.plainText != originalPlainText;
       case ContentEditTarget.body:
         final doc = document;
         if (doc == null) {
@@ -33,7 +38,10 @@ abstract class ContentEditState with _$ContentEditState {
         }
         final currentIds =
             doc.recommendationAnchors.map((anchor) => anchor.id).toList();
-        return !listEquals(currentIds, originalRecommendationIds);
+        if (!listEquals(currentIds, originalRecommendationIds)) {
+          return true;
+        }
+        return !listEquals(hashtags, originalHashtags);
     }
   }
 

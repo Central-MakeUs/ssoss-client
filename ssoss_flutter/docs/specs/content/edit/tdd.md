@@ -76,6 +76,7 @@ flowchart LR
 | 상태 관리 | Cubit | 로컬 편집·dirty |
 | persistMode | none / put | 결과 vs 상세 |
 | PUT payload | 채널 완전체 | API: 일부만 고쳐도 세 값 |
+| 블로그 해시태그 | 본문 카드 하단 동시 편집 | 인스타는 별도 섹션, 블로그는 본문과 함께 저장 |
 
 ### 5.2 Cubit / State
 

@@ -69,7 +69,7 @@ class SsossContentsCard extends StatefulWidget {
         case SsossContentsCardHashtagsBlock(:final hashtags):
           insertNewlineBeforeNextText = false;
           if (buffer.isNotEmpty) {
-            buffer.write(' ');
+            buffer.write('\n\n');
           }
           buffer.write(
             hashtags.map(_formatHashtag).join(' '),
@@ -181,6 +181,14 @@ class _SsossContentsCardState extends State<SsossContentsCard> {
         ),
       SsossContentsCardRecommendationBlock(:final item) =>
         SsossRecommendationCard(item: item),
+      SsossContentsCardHashtagsBlock(:final hashtags, :final displayAsPlainText)
+          when displayAsPlainText =>
+        AppText(
+          hashtags.map(SsossContentsCard._formatHashtag).join(' '),
+          style: (widget.contentStyle ?? AppTextStyles.b4).copyWith(
+            color: widget.contentColor ?? AppColors.neutral700,
+          ),
+        ),
       SsossContentsCardHashtagsBlock(:final hashtags) => LayoutBuilder(
           builder: (context, constraints) {
             return Wrap(

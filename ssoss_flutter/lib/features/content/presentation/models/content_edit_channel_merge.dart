@@ -27,6 +27,9 @@ GenerationChannelResult mergeEditToChannelResult({
       if (editResult.photoGuides != null) {
         photoGuides = List<PhotoGuidePlacement>.of(editResult.photoGuides!);
       }
+      if (editResult.hashtags != null) {
+        hashtags = List<String>.of(editResult.hashtags!);
+      }
     case ContentEditTarget.hashtags:
       hashtags = editResult.hashtags ?? hashtags;
   }

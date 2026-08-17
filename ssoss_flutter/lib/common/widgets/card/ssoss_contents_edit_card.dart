@@ -9,6 +9,7 @@ import 'package:ssoss_flutter/common/widgets/card/ssoss_recommendation_card.dart
 import 'package:ssoss_flutter/common/widgets/card/content-edit/ssoss_recommendation_node.dart';
 import 'package:ssoss_flutter/common/widgets/card/content-edit/ssoss_recommendation_node_builder.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_focused_input_scroller.dart';
+import 'package:ssoss_flutter/common/widgets/input/ssoss_hashtag_input.dart';
 import 'package:ssoss_flutter/common/widgets/input/ssoss_max_length_formatter.dart';
 import 'package:ssoss_flutter/common/widgets/text/app_text.dart';
 
@@ -62,6 +63,9 @@ class SsossContentsEditCard extends StatefulWidget {
     this.counterMutedColor,
     this.textStyle,
     this.counterStyle,
+    this.hashtags,
+    this.onHashtagAdd,
+    this.onHashtagRemove,
   });
 
   final SsossContentsEditDocument document;
@@ -89,6 +93,14 @@ class SsossContentsEditCard extends StatefulWidget {
   final Color? counterMutedColor;
   final TextStyle? textStyle;
   final TextStyle? counterStyle;
+
+  /// 본문 카드 하단에 해시태그 편집을 둘 때 사용한다. null이면 숨긴다.
+  final List<String>? hashtags;
+  final ValueChanged<String>? onHashtagAdd;
+  final ValueChanged<String>? onHashtagRemove;
+
+  bool get _showHashtagSection =>
+      hashtags != null && onHashtagAdd != null && onHashtagRemove != null;
 
   @override
   State<SsossContentsEditCard> createState() => _SsossContentsEditCardState();
@@ -592,6 +604,7 @@ class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
   @override
   Widget build(BuildContext context) {
     final style = _resolveStyle();
+    final showHashtags = widget._showHashtagSection;
 
     return Container(
       key: _editorKey,
@@ -611,7 +624,7 @@ class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
             : null,
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
           SingleChildScrollView(
@@ -693,15 +706,29 @@ class _SsossContentsEditCardState extends State<SsossContentsEditCard> {
             ),
           ),
           const SizedBox(height: 36),
-          _CounterText(
-            current: _textLength,
-            max: widget.maxLength,
-            isError: _resolveState() == SsossContentsEditCardState.error ||
-                _isOverMaxLength,
-            currentColor: widget.counterColor ?? style.counterColor,
-            mutedColor: widget.counterMutedColor ?? AppColors.neutral300,
-            textStyle: widget.counterStyle,
+          Align(
+            alignment: Alignment.centerRight,
+            child: _CounterText(
+              current: _textLength,
+              max: widget.maxLength,
+              isError: _resolveState() == SsossContentsEditCardState.error ||
+                  _isOverMaxLength,
+              currentColor: widget.counterColor ?? style.counterColor,
+              mutedColor: widget.counterMutedColor ?? AppColors.neutral300,
+              textStyle: widget.counterStyle,
+            ),
           ),
+          if (showHashtags) ...[
+            const SizedBox(height: 24),
+            SsossHashtagInput(
+              hashtags: widget.hashtags!,
+              showHeader: true,
+              title: '해시태그',
+              limitHint: SsossHashtagInput.defaultLimitHint,
+              onAdd: widget.onHashtagAdd!,
+              onRemove: widget.onHashtagRemove!,
+            ),
+          ],
         ],
       ),
     );
