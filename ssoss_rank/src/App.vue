@@ -1,9 +1,5 @@
 <template>
-  <div id="app"></div>
+  <div class="min-h-dvh w-full bg-white">
+    <router-view />
+  </div>
 </template>
-
-<script>
-export default {
-  name: 'App',
-}
-</script>
