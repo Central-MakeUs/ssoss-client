@@ -168,6 +168,18 @@ class _ChannelResultSections extends StatelessWidget {
         placements: draft.photoGuides,
       );
 
+  List<SsossContentsCardBlock> get _blogBodyBlocks => [
+        ..._bodyBlocks,
+        if (draft.hashtags.isNotEmpty)
+          SsossContentsCardHashtagsBlock(
+            [
+              for (final tag in draft.hashtags)
+                SsossHashtagNormalizer.display(tag),
+            ],
+            displayAsPlainText: true,
+          ),
+      ];
+
   @override
   Widget build(BuildContext context) {
     if (channel == UploadChannel.blog) {
@@ -182,7 +194,7 @@ class _ChannelResultSections extends StatelessWidget {
           const SizedBox(height: 32),
           ContentResultSection.body(
             title: '본문',
-            blocks: _bodyBlocks,
+            blocks: _blogBodyBlocks,
             onEdit: () => onEdit(channel, ContentEditTarget.body),
           ),
         ],

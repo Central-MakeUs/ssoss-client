@@ -19,7 +19,6 @@ import 'package:ssoss_flutter/features/content/presentation/models/content_edit_
 import 'package:ssoss_flutter/features/content/presentation/models/content_generation_args.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_result_draft.dart';
 import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_args.dart';
-import 'package:ssoss_flutter/features/content/presentation/models/content_save_complete_mode.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_edit_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_generating_page.dart';
 import 'package:ssoss_flutter/features/content/presentation/pages/content_save_complete_page.dart';
@@ -56,9 +55,6 @@ class _ContentResultPageState extends State<ContentResultPage> {
   bool get _isMulti => args.input.channels.length >= 2;
 
   bool get _isOtherChannel => args.flow == ContentCreateFlow.otherChannel;
-
-  bool get _hasRemainingChannels => UploadChannel.values
-      .any((channel) => !args.input.channels.contains(channel));
 
   @override
   void initState() {
@@ -103,7 +99,7 @@ class _ContentResultPageState extends State<ContentResultPage> {
 
     setState(() => _isSaving = true);
     try {
-      final saved = await context.read<SaveContentUseCase>()(
+      await context.read<SaveContentUseCase>()(
         generationId: generationId,
         channels: _draft.toGenerationChannelResults(),
       );
@@ -112,35 +108,9 @@ class _ContentResultPageState extends State<ContentResultPage> {
         return;
       }
 
-      if (_isOtherChannel) {
-        context.go(
-          ContentSaveCompletePage.routePath,
-          extra: const ContentSaveCompleteArgs(
-            mode: ContentSaveCompleteMode.finalSave,
-          ),
-        );
-        return;
-      }
-
-      final mode = _hasRemainingChannels
-          ? ContentSaveCompleteMode.continueAvailable
-          : ContentSaveCompleteMode.finalSave;
-      final sourceContentId = saved.contentId.toString();
-
       context.go(
         ContentSaveCompletePage.routePath,
-        extra: ContentSaveCompleteArgs(
-          mode: mode,
-          sourceContentId: mode == ContentSaveCompleteMode.continueAvailable
-              ? sourceContentId
-              : null,
-          excludedChannels: mode == ContentSaveCompleteMode.continueAvailable
-              ? args.input.channels
-              : const [],
-          previousInput: mode == ContentSaveCompleteMode.continueAvailable
-              ? args.input
-              : null,
-        ),
+        extra: const ContentSaveCompleteArgs(),
       );
     } on AppException catch (e) {
       if (!mounted) {
@@ -194,6 +164,7 @@ class _ContentResultPageState extends State<ContentResultPage> {
         input: args.input,
         flow: args.flow,
         styleReuseContentChannelId: args.styleReuseContentChannelId,
+        conversionContentChannelId: args.conversionContentChannelId,
         newStyleArgs: args.newStyleArgs,
         completedChannels: args.completedChannels,
       ),
@@ -237,6 +208,7 @@ class _ContentResultPageState extends State<ContentResultPage> {
             current.copyWith(
               body: result.body,
               photoGuides: result.photoGuides ?? current.photoGuides,
+              hashtags: result.hashtags ?? current.hashtags,
             ),
           );
         case ContentEditTarget.hashtags:

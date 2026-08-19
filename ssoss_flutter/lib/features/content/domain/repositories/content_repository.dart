@@ -1,3 +1,4 @@
+import 'package:ssoss_flutter/features/content/domain/entities/channel_conversion_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_channel_content.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/style_reuse_input.dart';
@@ -16,6 +17,9 @@ abstract class ContentRepository {
 
   /// 스타일 재사용 생성 작업을 시작하고 작업 id 를 반환한다.
   Future<int> startStyleReuse(StyleReuseInput input);
+
+  /// 다른 채널용 변환 생성 작업을 시작하고 작업 id 를 반환한다.
+  Future<int> startChannelConversion(ChannelConversionInput input);
 
   /// 생성 작업 상태와 결과를 조회한다.
   Future<GenerationDetail> getGeneration(int generationId);

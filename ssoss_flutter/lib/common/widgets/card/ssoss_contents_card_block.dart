@@ -18,7 +18,13 @@ class SsossContentsCardRecommendationBlock extends SsossContentsCardBlock {
 }
 
 class SsossContentsCardHashtagsBlock extends SsossContentsCardBlock {
-  const SsossContentsCardHashtagsBlock(this.hashtags);
+  const SsossContentsCardHashtagsBlock(
+    this.hashtags, {
+    this.displayAsPlainText = false,
+  });
 
   final List<String> hashtags;
+
+  /// true이면 칩 대신 본문과 동일한 평문 스타일로 표시한다. (블로그 본문 하단 등)
+  final bool displayAsPlainText;
 }

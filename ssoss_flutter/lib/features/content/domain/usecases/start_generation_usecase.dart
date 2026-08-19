@@ -8,11 +8,8 @@ class StartGenerationUseCase {
   final ContentRepository _repository;
 
   Future<int> call(ContentCreateInput input) {
-    final hasSourceContent =
-        input.sourceContentId != null && input.sourceContentId!.trim().isNotEmpty;
-
     final trimmedHighlight = input.highlight.trim();
-    if (!hasSourceContent && trimmedHighlight.isEmpty) {
+    if (trimmedHighlight.isEmpty) {
       throw const ValidationException('강조 내용을 입력해 주세요.');
     }
 
@@ -28,7 +25,6 @@ class StartGenerationUseCase {
             : trimmedForbidden,
         keywords: input.keywords,
         photoGuideEnabled: input.photoGuideEnabled,
-        sourceContentId: hasSourceContent ? input.sourceContentId!.trim() : null,
       ),
     );
   }

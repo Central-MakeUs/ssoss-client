@@ -23,6 +23,6 @@ class ContentCreateInput {
   final List<String> keywords;
   final bool photoGuideEnabled;
 
-  /// 다른 채널용 생성 시 원문으로 사용할 저장된 콘텐츠 ID.
+  /// 원본 저장 콘텐츠 ID (다른 채널용·스타일 재사용 등 경로용).
   final String? sourceContentId;
 }

@@ -18,7 +18,6 @@ _GenerationStartRequest _$GenerationStartRequestFromJson(
           (json['keywords'] as List<dynamic>).map((e) => e as String).toList(),
       photoGuideChecked: json['photoGuideChecked'] as bool,
       forbidden: json['forbidden'] as String?,
-      sourceContentId: (json['sourceContentId'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$GenerationStartRequestToJson(
@@ -31,5 +30,4 @@ Map<String, dynamic> _$GenerationStartRequestToJson(
       'keywords': instance.keywords,
       'photoGuideChecked': instance.photoGuideChecked,
       'forbidden': instance.forbidden,
-      'sourceContentId': instance.sourceContentId,
     };

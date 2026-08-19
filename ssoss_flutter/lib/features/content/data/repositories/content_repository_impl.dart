@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:ssoss_flutter/core/exception/app_exception.dart';
 import 'package:ssoss_flutter/features/content/data/datasources/content_remote_datasource.dart';
 import 'package:ssoss_flutter/features/content/data/mappers/content_create_api_mapper.dart';
+import 'package:ssoss_flutter/features/content/data/models/channel_conversion_request.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_channel_edit_request.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_channel_response_model.dart';
 import 'package:ssoss_flutter/features/content/data/models/content_detail_response_model.dart';
@@ -14,6 +15,7 @@ import 'package:ssoss_flutter/features/content/data/models/generation_channel_re
 import 'package:ssoss_flutter/features/content/data/models/generation_detail_model.dart';
 import 'package:ssoss_flutter/features/content/data/models/generation_start_request.dart';
 import 'package:ssoss_flutter/features/content/data/models/style_reuse_request.dart';
+import 'package:ssoss_flutter/features/content/domain/entities/channel_conversion_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/style_reuse_input.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_channel_content.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/content_create_input.dart';
@@ -58,6 +60,23 @@ class ContentRepositoryImpl implements ContentRepository {
         contentId: input.contentId,
         contentChannelId: input.contentChannelId,
         request: StyleReuseRequest.fromEntity(input),
+        cancelToken: _activeCancelToken,
+      );
+      return response.generationId;
+    } on DioException catch (e) {
+      throw _mapCancel(e);
+    }
+  }
+
+  @override
+  Future<int> startChannelConversion(ChannelConversionInput input) async {
+    _activeCancelToken?.cancel('superseded');
+    _activeCancelToken = CancelToken();
+    try {
+      final response = await _remote.startChannelConversion(
+        contentId: input.contentId,
+        contentChannelId: input.contentChannelId,
+        request: ChannelConversionRequest.fromEntity(input),
         cancelToken: _activeCancelToken,
       );
       return response.generationId;

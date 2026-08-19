@@ -9,6 +9,7 @@ import 'package:ssoss_flutter/common/widgets/modal/ssoss_modal.dart';
 import 'package:ssoss_flutter/core/colors/app_colors.dart';
 import 'package:ssoss_flutter/features/content/domain/entities/generation_detail.dart';
 import 'package:ssoss_flutter/features/content/domain/repositories/content_repository.dart';
+import 'package:ssoss_flutter/features/content/domain/usecases/run_channel_conversion_generation_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/run_generation_usecase.dart';
 import 'package:ssoss_flutter/features/content/domain/usecases/run_style_reuse_generation_usecase.dart';
 import 'package:ssoss_flutter/features/content/presentation/cubit/content_generating_cubit.dart';
@@ -53,8 +54,9 @@ class _ContentGeneratingPageState extends State<ContentGeneratingPage> {
     return BlocProvider(
       create: (context) => ContentGeneratingCubit(
         runGeneration: context.read<RunGenerationUseCase>(),
-        runStyleReuseGeneration:
-            context.read<RunStyleReuseGenerationUseCase>(),
+        runStyleReuseGeneration: context.read<RunStyleReuseGenerationUseCase>(),
+        runChannelConversion:
+            context.read<RunChannelConversionGenerationUseCase>(),
         contentRepository: context.read<ContentRepository>(),
       )..start(args),
       child: BlocListener<ContentGeneratingCubit, ContentGeneratingState>(
@@ -128,13 +130,16 @@ class _ContentGeneratingPageState extends State<ContentGeneratingPage> {
     }
     if (args.flow == ContentCreateFlow.otherChannel) {
       final sourceContentId = args.input.sourceContentId;
-      if (sourceContentId != null && sourceContentId.isNotEmpty) {
+      final sourceContentChannelId = args.conversionContentChannelId;
+      if (sourceContentId != null &&
+          sourceContentId.isNotEmpty &&
+          sourceContentChannelId != null) {
         context.go(
           ContentOtherChannelCreatePage.routePath,
           extra: ContentOtherChannelArgs(
             sourceContentId: sourceContentId,
+            sourceContentChannelId: sourceContentChannelId,
             excludedChannels: args.completedChannels,
-            previousInput: args.input,
             initialSelected: args.input.channels,
           ),
         );

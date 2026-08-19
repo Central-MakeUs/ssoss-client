@@ -35,8 +35,8 @@ class ContentOtherChannelCreatePage extends StatelessWidget {
     return BlocProvider(
       create: (_) => ContentOtherChannelCreateCubit(
         sourceContentId: args.sourceContentId,
+        sourceContentChannelId: args.sourceContentChannelId,
         excludedChannels: args.excludedChannels,
-        previousInput: args.previousInput,
         initialSelected: args.initialSelected,
       ),
       child: const _ContentOtherChannelCreateView(),
@@ -134,6 +134,8 @@ class _ContentOtherChannelCreateView extends StatelessWidget {
                                 extra: ContentGenerationArgs(
                                   input: input,
                                   flow: ContentCreateFlow.otherChannel,
+                                  conversionContentChannelId:
+                                      cubit.sourceContentChannelId,
                                   completedChannels: completedChannels,
                                 ),
                               );
